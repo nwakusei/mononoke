@@ -1,0 +1,10 @@
+# Node Modules
+node_modules/
+
+# Dot Env
+.env
+
+# Credenciais Inter
+inter_api_certificado.crt
+ca.crt
+inter_api_chave.key

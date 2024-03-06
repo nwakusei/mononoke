@@ -1,0 +1,155 @@
+"use client";
+import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+
+import api from "@/utils/api";
+
+// Components
+import { Sidebar } from "@/components/Sidebar";
+
+// Imagens e Logos
+
+// Icons
+
+function MyProductsPage() {
+	const [token] = useState(localStorage.getItem("token") || "");
+	const [myproducts, setMyproducts] = useState([]);
+
+	useEffect(() => {
+		api.get("/products/partner-products", {
+			headers: {
+				Authorization: `Bearer ${JSON.parse(token)}`,
+			},
+		}).then((response) => {
+			setMyproducts(response.data.products); // Ajuste para acessar a chave 'products'
+		});
+	}, [token]);
+
+	return (
+		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+			<Sidebar />
+			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+				<div className="flex flex-col gap-4 mb-8">
+					{/* Gadget 1 */}
+					<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4">
+						{/* Adicionar Porduto */}
+						<div className="flex flex-col gap-2 ml-6 mb-6">
+							<h1 className="text-2xl font-semibold">
+								Produtos em Catálogo
+							</h1>
+
+							{/* Produtos em Catálogo */}
+							<div className="overflow-x-auto">
+								<table className="table">
+									{/* head */}
+									<thead>
+										<tr>
+											<th>
+												<label>
+													<input
+														type="checkbox"
+														className="checkbox"
+													/>
+												</label>
+											</th>
+
+											<th className="text-sm">
+												Nome do Produto
+											</th>
+											<th className="text-sm">Preço</th>
+											<th className="text-sm">Estoque</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										{/* row 1 */}
+										{myproducts.length > 0 &&
+											myproducts.map((product) => (
+												<tr key={product._id}>
+													<th>
+														<label>
+															<input
+																type="checkbox"
+																className="checkbox"
+															/>
+														</label>
+													</th>
+													<td>
+														<div className="flex items-center gap-3">
+															<div className="avatar">
+																<div className="mask mask-squircle w-12 h-12">
+																	<Image
+																		src={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
+																		alt="Avatar Tailwind CSS Component"
+																		width={
+																			12
+																		}
+																		height={
+																			12
+																		}
+																		unoptimized
+																	/>
+																</div>
+															</div>
+															<div>
+																<div className="font-bold">
+																	{
+																		product.productName
+																	}
+																</div>
+																<div className="text-sm opacity-50">
+																	{
+																		product.category
+																	}
+																</div>
+															</div>
+														</div>
+													</td>
+													<td>
+														{Number(
+															product
+																.originalPrice
+																.$numberDecimal
+														).toLocaleString(
+															"pt-BR",
+															{
+																style: "currency",
+																currency: "BRL",
+															}
+														)}
+														<br />
+														<span className="badge badge-accent badge-sm">
+															Em Promoção
+														</span>
+													</td>
+													<td>{product.stock} un</td>
+													<th>
+														<button className="flex items-center btn btn-ghost btn-xs">
+															+ Detalhes
+														</button>
+													</th>
+												</tr>
+											))}
+									</tbody>
+									{/* foot */}
+									<tfoot>
+										<tr>
+											<th></th>
+											<th>Name</th>
+											<th>Job</th>
+											<th>Favorite Color</th>
+											<th></th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	);
+}
+
+export default MyProductsPage;
