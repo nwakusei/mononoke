@@ -53,8 +53,6 @@ function MyOrdersPage() {
 	const [myorders, setMyorders] = useState([]);
 	const [token] = useState(localStorage.getItem("token") || "");
 
-	console.log(myorders);
-
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -85,7 +83,7 @@ function MyOrdersPage() {
 						{/* Adicionar Porduto */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
 							<h1 className="text-2xl font-semibold">
-								Meus Pedidos 2
+								Meus Pedidos
 							</h1>
 
 							{/* Produtos em Catálogo */}
