@@ -145,7 +145,7 @@ function MyOrdersPage() {
 																		(
 																			item
 																		) => (
-																			<h2>
+																			<h2 className="w-[250px] overflow-x-auto mb-2">
 																				{
 																					item
 																				}
