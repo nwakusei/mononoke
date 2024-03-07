@@ -37,10 +37,6 @@ function WalletPage() {
 	const [userOtakupay, setUserOtakupay] = useState({});
 	const [token] = useState(localStorage.getItem("token") || "");
 
-	console.log(user);
-
-	console.log(userOtakupay);
-
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
 			headers: {
@@ -197,6 +193,7 @@ function WalletPage() {
 								<th className="text-sm">Loja/Cliente</th>
 								<th className="text-sm">Job</th>
 								<th className="text-sm">Valor</th>
+								<th className="text-sm">Data</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -230,7 +227,14 @@ function WalletPage() {
 										Compra Online
 									</span>
 								</td>
-								<td className="text-red-500">- R$ 49,90</td>
+								<td>
+									<div className="font-normal text-red-500">
+										- R$ 49,90
+									</div>
+								</td>
+								<td>
+									<div>07 de Março</div>
+								</td>
 								<th>
 									<button className="btn btn-ghost btn-xs">
 										+ detalhes
@@ -266,115 +270,14 @@ function WalletPage() {
 										Venda Online
 									</span>
 								</td>
-								<td className="text-green-500">+ 29,90</td>
-								<th>
-									<button className="btn btn-ghost btn-xs">
-										+ detalhes
-									</button>
-								</th>
-							</tr>
-							{/* row 3 */}
-							<tr>
 								<td>
-									<div className="flex items-center gap-3">
-										<div className="avatar">
-											<div className="mask mask-squircle w-12 h-12">
-												<img
-													src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
-													alt="Avatar Tailwind CSS Component"
-												/>
-											</div>
-										</div>
-										<div>
-											<div className="font-bold">
-												Mundos Infinitos (OtaMart)
-											</div>
-											<div className="text-sm opacity-50">
-												Brasil
-											</div>
-										</div>
+									<div className="font-normal text-green-500">
+										+ 29,90
 									</div>
 								</td>
 								<td>
-									Figure Nami - One Piece
-									<br />
-									<span className="badge badge-accent badge-sm">
-										Compra Online
-									</span>
+									<div>07 de Março</div>
 								</td>
-								<td className="text-red-500">- R$ 299,90</td>
-								<th>
-									<button className="btn btn-ghost btn-xs">
-										+ detalhes
-									</button>
-								</th>
-							</tr>
-							{/* row 3 */}
-							<tr>
-								<td>
-									<div className="flex items-center gap-3">
-										<div className="avatar">
-											<div className="mask mask-squircle w-12 h-12">
-												<img
-													src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
-													alt="Avatar Tailwind CSS Component"
-												/>
-											</div>
-										</div>
-										<div>
-											<div className="font-bold">
-												Mundos Infinitos (OtaMart)
-											</div>
-											<div className="text-sm opacity-50">
-												Brasil
-											</div>
-										</div>
-									</div>
-								</td>
-								<td>
-									Figure Nami - One Piece
-									<br />
-									<span className="badge badge-accent badge-sm">
-										Compra Online
-									</span>
-								</td>
-								<td className="text-red-500">- R$ 299,90</td>
-								<th>
-									<button className="btn btn-ghost btn-xs">
-										+ detalhes
-									</button>
-								</th>
-							</tr>
-							{/* row 4 */}
-							<tr>
-								<td>
-									<div className="flex items-center gap-3">
-										<div className="avatar">
-											<div className="mask mask-squircle w-12 h-12">
-												<img
-													src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
-													alt="Avatar Tailwind CSS Component"
-												/>
-											</div>
-										</div>
-										<div>
-											<div className="font-bold">
-												Mundos Infinitos (OtaMart)
-											</div>
-											<div className="text-sm opacity-50">
-												Brasil
-											</div>
-										</div>
-									</div>
-								</td>
-								<td>
-									Figure Nami - One Piece
-									<br />
-									<span className="badge badge-accent badge-sm">
-										Compra Online
-									</span>
-								</td>
-								<td className="text-red-500">- R$ 299,90</td>
 								<th>
 									<button className="btn btn-ghost btn-xs">
 										+ detalhes

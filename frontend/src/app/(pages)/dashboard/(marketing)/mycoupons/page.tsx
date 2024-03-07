@@ -28,14 +28,22 @@ function MyCouponsPage() {
 		});
 	}, [token]);
 
-	const currentDate = new Date(); // Data atual
-
 	// Função para verificar se o cupom está expirado
 	const isCouponExpired = (expirationDate) => {
+		// Divide a string da data em dia, mês e ano
 		const [day, month, year] = expirationDate.split("/");
+
+		// Obtém a data atual ajustada para o fuso horário de Brasília (UTC-3)
+		const currentDate = new Date(new Date().getTime() - 3 * 60 * 60 * 1000); // Subtrai 3 horas em milissegundos // Data atual
+
+		// Cria um novo objeto de data com a data de expiração do cupom, ajustado para o fuso horário de Brasília (UTC-3)
 		const couponExpirationDate = new Date(
-			`${year}-${month}-${day}T23:59:59.999Z`
+			Date.UTC(year, month - 1, day, 23, 59, 59)
 		);
+
+		console.log(currentDate);
+		console.log(couponExpirationDate);
+
 		return couponExpirationDate <= currentDate;
 	};
 

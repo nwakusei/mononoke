@@ -43,15 +43,7 @@ function Sidebar() {
 						href={"/dashboard/myorders"}>
 						<span className="text-xs">○</span>
 						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-							Meus Pedidos
-						</span>
-					</Link>
-					<Link
-						className="flex flex-row items-center ml-7 gap-2"
-						href={""}>
-						<span className="text-xs">○</span>
-						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-							Meus Envios
+							Vendas
 						</span>
 					</Link>
 
@@ -96,15 +88,7 @@ function Sidebar() {
 						href={"/dashboard/myorders"}>
 						<span className="text-xs">○</span>
 						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-							Meus Pedidos
-						</span>
-					</Link>
-					<Link
-						className="flex flex-row items-center ml-7 gap-2"
-						href={""}>
-						<span className="text-xs">○</span>
-						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-							Meus Envios
+							Vendas
 						</span>
 					</Link>
 
