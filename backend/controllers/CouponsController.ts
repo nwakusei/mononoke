@@ -94,26 +94,37 @@ class CouponController {
 			// Buscar todos os cupons
 			const coupons = await CouponModel.find().sort("-createdAt");
 
-			const currentDate = new Date();
-			currentDate.setUTCHours(0, 0, 0, 0); // Definindo a data atual para a meia-noite (00:00:00) em UTC
-
 			const filteredCoupons = coupons.filter((coupon) => {
-				// Verificando se expirationDate é uma string válida antes de convertê-la
-				const expirationDateParts = coupon.expirationDate.split("/");
-				const expirationDate = new Date(
-					`${expirationDateParts[2]}-${expirationDateParts[1]}-${expirationDateParts[0]}T23:59:59.999Z`
+				// Divide a string da data de expiração em dia, mês e ano
+				const [day, month, year] = coupon.expirationDate.split("/");
+
+				// Obtém a data atual ajustada para a meia-noite no fuso horário de Brasília (UTC-3)
+				const currentDate = new Date(
+					new Date().getTime() - 3 * 60 * 60 * 1000
 				);
-				expirationDate.setUTCHours(23, 59, 59, 999); // Definindo a data de expiração para o final do dia (23:59:59.999) em UTC
+
+				// Cria um novo objeto de data com a data de expiração do cupom, ajustado para o fuso horário de Brasília (UTC-3)
+				const expirationDate = new Date(
+					Date.UTC(
+						Number(year),
+						Number(month) - 1,
+						Number(day),
+						23,
+						59,
+						59,
+						999
+					)
+				);
 
 				// Log das datas para depuração
-				console.log("Expiration Date:", expirationDate);
 				console.log("Current Date:", currentDate);
+				console.log("Expiration Date:", expirationDate);
 
-				// Verificando se a expirationDate é posterior ou igual à data atual
-				const isExpired = expirationDate >= currentDate;
-				console.log("Is Expired:", isExpired);
+				// Verifica se a expirationDate é posterior ou igual à data atual
+				const isActive = expirationDate >= currentDate;
+				console.log("Está ativo?:", isActive);
 
-				return isExpired;
+				return isActive;
 			});
 
 			res.status(200).json({ coupons: filteredCoupons });
