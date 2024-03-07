@@ -71,7 +71,7 @@ function ChatPage() {
 		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
-				<div className="flex flex-row gap-4 mb-4">
+				<div className="flex flex-row gap-4 mt-4 mb-4">
 					{/* Gadget 2 */}
 					<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4">
 						{/* Outro Saldos */}
@@ -82,7 +82,7 @@ function ChatPage() {
 					</div>
 				</div>
 				<div className="flex flex-row">
-					<div className="bg-purple-400 border border-gray-900 border-t-0 border-r-1 border-b-0 border-l-0 w-[330px] rounded-tl-md rounded-tr-none rounded-br-none rounded-lr-md">
+					<div className="bg-purple-400 border border-gray-900 border-t-0 border-r-1 border-b-0 border-l-0 w-[330px] rounded-tl-md rounded-tr-none rounded-br-none rounded-bl-md">
 						<div className="px-4 mt-4">
 							<div className="relative mb-4">
 								<input
@@ -160,7 +160,7 @@ function ChatPage() {
 						</div>
 					</div>
 					<div>
-						<div className="bg-purple-400 w-[900px] border border-gray-900 border-t-0 border-r-0 border-b-1 border-l-0 mr-4 p-6">
+						<div className="bg-purple-400 w-[900px] border border-gray-900 border-t-0 border-r-0 border-b-1 border-l-0 mr-4 p-6 rounded-tr-md">
 							<div className="flex flex-row">
 								<div className="flex flex-row items-center gap-2">
 									<div className="avatar online">
@@ -247,7 +247,7 @@ function ChatPage() {
 							</div>
 						</div>
 						<div
-							className="bg-purple-400 w-[900px] border border-gray-900 border-t-1 border-r-0 border-b-0 border-l-0 mr-4 p-6 relative overflow-auto"
+							className="bg-purple-400 w-[900px] border border-gray-900 border-t-1 border-r-0 border-b-0 border-l-0 mr-4 p-6 relative overflow-auto rounded-br-md"
 							style={{
 								// Defina a altura máxima desejada para ativar a barra de rolagem
 								scrollbarWidth: "thin", // Tamanho da barra de rolagem (pode ser "auto" ou "thin")

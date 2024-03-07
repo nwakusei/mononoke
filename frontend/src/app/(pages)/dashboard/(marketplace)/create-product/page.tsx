@@ -183,7 +183,7 @@ function CreateProductPage() {
 				<div className="flex flex-col gap-4 mb-8">
 					<form onSubmit={handleSubmit(handleCreateProduct)}>
 						{/* Gadget 1 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold">
