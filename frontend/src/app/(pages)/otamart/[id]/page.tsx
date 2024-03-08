@@ -1,5 +1,6 @@
 "use client";
 
+// Imports Essenciais
 import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -33,65 +34,15 @@ function ProductPage() {
 	const [product, setProduct] = useState({});
 	const [transportadoras, setTransportadoras] = useState([]);
 	const [isCalculating, setIsCalculating] = useState(false);
+	const [cepDestino, setCepDestino] = useState(""); // Estado para armazenar o valor do input
+	const [selected, setSelected] = useState<{ [key: string]: boolean }>({});
+	const [variation, setVariation] = useState<{ [key: string]: boolean }>({});
+	const stock = product.stock; // Constante que irá representar a quantidade de estoque que vem do Banco de Dados
 
 	const { partners } = useContext(Context);
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
 	);
-
-	// Data no padrão original
-	const dataOriginal = "2024-02-28 05:47:42";
-
-	// Criar um objeto Date a partir da string
-	const data = new Date(dataOriginal);
-
-	// Obter o dia, mês e ano
-	const dia = data.getDate();
-	const mes = data.getMonth() + 1; // Os meses são baseados em zero, então adicionamos 1
-
-	// Formatar a data no padrão brasileiro
-	const dataFormatada =
-		dia.toString().padStart(2, "0") + "/" + mes.toString().padStart(2, "0");
-
-	console.log(dataFormatada);
-
-	const [cepDestino, setCepDestino] = useState(""); // Estado para armazenar o valor do input
-
-	// Função para lidar com o clique no botão
-	const handleButtonClick = () => {
-		// Atualizar o estado para indicar que o cálculo está em andamento
-		setIsCalculating(true);
-
-		// Chamar a função handleSimulateShipping e passar o valor do input como argumento
-		handleSimulateShipping(cepDestino);
-
-		// Simulando um atraso de 2 segundos para o cálculo (você pode substituir isso pela sua lógica real)
-		setTimeout(() => {
-			// Após o término do cálculo, você pode redefinir o estado para indicar que o cálculo foi concluído
-			setIsCalculating(false);
-		}, 2000);
-
-		// // Atualizar o estado para indicar que o cálculo terminou
-		// setIsCalculating(false);
-	};
-
-	async function handleSimulateShipping(cep) {
-		// Adicione cep como parâmetro
-		try {
-			const response = await api.post("/products/simulate-shipping", {
-				cepDestino: cep,
-			}); // Passar cep como parte do corpo da solicitação
-			setTransportadoras(response.data);
-		} catch (error) {
-			console.error("Ocorreu um erro:", error);
-		}
-	}
-
-	const [selected, setSelected] = useState<{ [key: string]: boolean }>({});
-	const [variation, setVariation] = useState<{ [key: string]: boolean }>({});
-
-	// Constante que irá representar a quantidade de estoque que vem do Banco de Dados
-	const stock = product.stock;
 
 	useEffect(() => {
 		const fetchProduct = async () => {
@@ -106,86 +57,51 @@ function ProductPage() {
 		fetchProduct();
 	}, [id]);
 
-	// const parsePrice = (priceString) => {
-	// 	// Verificar se priceString é uma string antes de tentar remover caracteres não numéricos
-	// 	if (typeof priceString !== "string") {
-	// 		return 0; // Ou qualquer outro valor padrão que você deseje retornar em caso de priceString não ser uma string
-	// 	}
+	// // Data no padrão original
+	// const dataOriginal = "2024-02-28 05:47:42";
 
-	// 	// Remove caracteres não numéricos (exceto ponto e vírgula, se necessário)
-	// 	const cleanedPriceString = priceString.replace(/[^0-9,.]/g, "");
-	// 	// Substitua ',' por '.' se necessário
-	// 	const price = cleanedPriceString.replace(",", ".");
-	// 	// Converta para número
-	// 	return parseFloat(price);
-	// };
+	// // Criar um objeto Date a partir da string
+	// const data = new Date(dataOriginal);
 
+	// // Obter o dia, mês e ano
+	// const dia = data.getDate();
+	// const mes = data.getMonth() + 1; // Os meses são baseados em zero, então adicionamos 1
+
+	// // Formatar a data no padrão brasileiro
+	// const dataFormatada =
+	// 	dia.toString().padStart(2, "0") + "/" + mes.toString().padStart(2, "0");
+
+	// Função para Calcular o Frete
+	async function handleSimulateShipping(cep: number) {
+		// Adicione cep como parâmetro
+		try {
+			const response = await api.post("/products/simulate-shipping", {
+				cepDestino: cep,
+			}); // Passar cep como parte do corpo da solicitação
+			setTransportadoras(response.data);
+		} catch (error) {
+			console.error("Ocorreu um erro:", error);
+		}
+	}
+
+	// Função para lidar com o clique no botão de Calculo de Frete
+	const handleButtonClick = () => {
+		setIsCalculating(true);
+
+		handleSimulateShipping(cepDestino);
+
+		setTimeout(() => {
+			setIsCalculating(false);
+		}, 1000);
+	};
+
+	// Valor a ser Exibido no Anúncio (Preço Original ou Promocional)
 	const value =
 		Number(product.promocionalPrice?.$numberDecimal) > 0
 			? Number(product.promocionalPrice?.$numberDecimal)
 			: Number(product.originalPrice?.$numberDecimal);
 
-	console.log(value);
-
-	// Etapa 1: Adicione a variável de estado para a quantidade
-	const [quantity, setQuantity] = useState<number>(1);
-	const [isQuantityOneOrLess, setIsQuantityOneOrLess] = useState(true);
-	const [isQuantityAtLimit, setIsQuantityAtLimit] = useState(false);
-	const [totalOrder, setTotalOrder] = useState(value);
-
-	// Etapa 2: Crie funções para lidar com incremento e decremento
-	const updateTotalOrder = (newQuantity: number) => {
-		setTotalOrder(value);
-
-		setQuantity(newQuantity);
-
-		if (newQuantity <= 1) {
-			setIsQuantityOneOrLess(true);
-		} else {
-			setIsQuantityOneOrLess(false);
-		}
-
-		if (newQuantity === stock) {
-			setIsQuantityAtLimit(true);
-		} else {
-			setIsQuantityAtLimit(false);
-		}
-
-		// Multiplicar o novo valor da quantidade pelo valor do produto
-		setTotalOrder(newQuantity * value);
-	};
-
-	const incrementarQuantidade = () => {
-		if (quantity < stock) {
-			updateTotalOrder(quantity + 1);
-		}
-	};
-
-	const decrementarQuantidade = () => {
-		if (quantity > 1) {
-			updateTotalOrder(quantity - 1);
-		}
-	};
-
-	const renderPrice = () => {
-		const priceToRender =
-			Number(product.promocionalPrice?.$numberDecimal) > 0
-				? Number(
-						product.promocionalPrice.$numberDecimal
-				  ).toLocaleString("pt-BR", {
-						style: "currency",
-						currency: "BRL",
-				  })
-				: Number(product.originalPrice?.$numberDecimal).toLocaleString(
-						"pt-BR",
-						{
-							style: "currency",
-							currency: "BRL",
-						}
-				  );
-		return priceToRender;
-	};
-
+	// Função para selecionar variações
 	function handleSelected(itemId: string) {
 		setSelected((prevState) => {
 			// Desmarca todos os itens selecionados, exceto o item clicado
@@ -221,6 +137,69 @@ function ProductPage() {
 		});
 	}
 
+	// Lidando com a relação entre Quantidade e Subtotal baseado no valor do produto (Preço Original ou Promocional)
+	// Etapa 1: Adicionando a variável de estado para a quantidade
+	const [quantity, setQuantity] = useState<number>(1);
+	const [isQuantityOneOrLess, setIsQuantityOneOrLess] = useState(true);
+	const [isQuantityAtLimit, setIsQuantityAtLimit] = useState(false);
+	const [totalOrder, setTotalOrder] = useState(value);
+
+	// Etapa 2: Funções para lidar com incremento e decremento
+	const updateTotalOrder = (newQuantity: number) => {
+		setTotalOrder(value);
+
+		setQuantity(newQuantity);
+
+		if (newQuantity <= 1) {
+			setIsQuantityOneOrLess(true);
+		} else {
+			setIsQuantityOneOrLess(false);
+		}
+
+		if (newQuantity === stock) {
+			setIsQuantityAtLimit(true);
+		} else {
+			setIsQuantityAtLimit(false);
+		}
+
+		// Multiplicando o novo valor da quantidade pelo valor do produto
+		setTotalOrder(newQuantity * value);
+	};
+
+	// Incremento de Quantidade (+1)
+	const incrementarQuantidade = () => {
+		if (quantity < stock) {
+			updateTotalOrder(quantity + 1);
+		}
+	};
+
+	// Decremento de Quantidade (-1)
+	const decrementarQuantidade = () => {
+		if (quantity > 1) {
+			updateTotalOrder(quantity - 1);
+		}
+	};
+
+	// Função para calculo do Subtotal dos produtos
+	const renderPrice = () => {
+		const priceToRender =
+			Number(product.promocionalPrice?.$numberDecimal) > 0
+				? Number(
+						product.promocionalPrice.$numberDecimal
+				  ).toLocaleString("pt-BR", {
+						style: "currency",
+						currency: "BRL",
+				  })
+				: Number(product.originalPrice?.$numberDecimal).toLocaleString(
+						"pt-BR",
+						{
+							style: "currency",
+							currency: "BRL",
+						}
+				  );
+		return priceToRender;
+	};
+
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">
 			<div className="bg-yellow-500 flex flex-row gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
@@ -252,50 +231,10 @@ function ProductPage() {
 								/>
 							</div>
 						</div>
-
-						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
-							<div className="h-[74px] flex items-center justify-center">
-								<Image
-									className="object-contain h-full"
-									src={Lycoris}
-									alt="Shoes"
-								/>
-							</div>
-						</div>
-
-						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
-							<div className="h-[74px] flex items-center justify-center">
-								<Image
-									className="object-contain h-full"
-									src={Lycoris}
-									alt="Shoes"
-								/>
-							</div>
-						</div>
-
-						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
-							<div className="h-[74px] flex items-center justify-center">
-								<Image
-									className="object-contain h-full"
-									src={Lycoris}
-									alt="Shoes"
-								/>
-							</div>
-						</div>
-
-						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
-							<div className="h-[74px] flex items-center justify-center">
-								<Image
-									className="object-contain h-full"
-									src={Lycoris}
-									alt="Shoes"
-								/>
-							</div>
-						</div>
 					</div>
 				</div>
 
-				{/* Titulo, Avaliações e Vendidos */}
+				{/* Componente intermediário */}
 				<div className="flex flex-col">
 					{/* Título */}
 					<h1 className="text-xl font-semibold mb-1">
@@ -303,14 +242,14 @@ function ProductPage() {
 					</h1>
 					{/* Avaliações e Vendidos */}
 					<div className="flex flex-row items-center text-sm mb-4 gap-2">
-						<span className="flex flex-row items-center gap-1">
-							<p className="mr-1">N/A</p>
+						<div className="flex flex-row items-center gap-1">
+							<p className="mr-1">{product.rating}.0</p>
 							<BsStar size={12} />
 							<BsStar size={12} />
 							<BsStar size={12} />
 							<BsStar size={12} />
 							<BsStar size={12} />
-						</span>
+						</div>
 						|<p>0 Avaliações</p>|
 						<p>
 							{product.productsSold > 1
@@ -449,7 +388,7 @@ function ProductPage() {
 					</div>
 				</div>
 
-				{/* Componente Lateral */}
+				{/* Componente Lateral D. */}
 				<div className="flex flex-col">
 					<div className="border rounded-lg mb-2">
 						<div className="px-4 mb-2">
