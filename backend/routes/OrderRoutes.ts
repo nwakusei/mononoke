@@ -36,4 +36,6 @@ router.patch(
 	OrderController.confirmReceiptCustomerOrder
 );
 
+router.patch("/create-review/:id", verifyToken, OrderController.createReview);
+
 export default router;

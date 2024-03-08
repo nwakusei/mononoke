@@ -173,7 +173,8 @@ class ProductController {
 			freeShippingRegion: freeShippingRegion,
 			imagesProduct: [],
 			productsSold: 0,
-			review: [],
+			rating: 0,
+			review: [{}],
 			partnerID: partner._id,
 		});
 

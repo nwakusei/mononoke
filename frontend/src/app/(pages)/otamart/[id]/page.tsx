@@ -242,14 +242,14 @@ function ProductPage() {
 					</h1>
 					{/* Avaliações e Vendidos */}
 					<div className="flex flex-row items-center text-sm mb-4 gap-2">
-						<span className="flex flex-row items-center gap-1">
-							<p className="mr-1">N/A</p>
+						<div className="flex flex-row items-center gap-1">
+							<p className="mr-1">{product.rating}.0</p>
 							<BsStar size={12} />
 							<BsStar size={12} />
 							<BsStar size={12} />
 							<BsStar size={12} />
 							<BsStar size={12} />
-						</span>
+						</div>
 						|<p>0 Avaliações</p>|
 						<p>
 							{product.productsSold > 1

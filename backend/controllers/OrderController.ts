@@ -849,6 +849,63 @@ class OrderController {
 			console.log(err);
 		}
 	}
+
+	// Lógica em desenvolvimento
+	static async createReview(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!isValidObjectId(id)) {
+			res.status(422).json({ message: "ID inválido!" });
+			return;
+		}
+
+		const order = await OrderModel.findById({ _id: id });
+
+		if (!order) {
+			res.status(422).json({ message: "O pedido não existe!" });
+			return;
+		}
+
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (order.customerID.toString() !== customer._id.toString()) {
+			res.status(422).json({
+				message: "O pedido não pertece a esse Customer!",
+			});
+			return;
+		}
+
+		try {
+			const productID = order.productID;
+			const { reviewDescription, reviewRating, customerName } = req.body;
+
+			const review = {
+				reviewDescription: reviewDescription,
+				reviewRating: reviewRating,
+				customerName: customerName,
+			};
+
+			const product = await ProductModel.findById(productID);
+
+			if (!product) {
+				throw new Error("Produto não encontrado");
+			}
+
+			const newRating = 1;
+
+			product.rating += newRating;
+
+			await product.save();
+		} catch (error) {
+			console.log(error);
+		}
+	}
 }
 
 export default OrderController;
