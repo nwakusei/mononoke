@@ -897,6 +897,7 @@ class OrderController {
 				throw new Error("Produto não encontrado");
 			}
 
+			// Apenas um teste
 			const newRating = 1;
 
 			product.rating += newRating;
