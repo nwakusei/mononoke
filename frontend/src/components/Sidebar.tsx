@@ -55,12 +55,22 @@ function Sidebar() {
 							Meus Produtos
 						</span>
 					</Link>
+
 					<Link
 						className="flex flex-row items-center ml-7 gap-2"
 						href={"/dashboard/create-product"}>
 						<span className="text-xs">○</span>
 						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 							Criar Produto
+						</span>
+					</Link>
+
+					<Link
+						className="flex flex-row items-center ml-7 gap-2"
+						href={"/dashboard/reviews"}>
+						<span className="text-xs">○</span>
+						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+							Avaliações
 						</span>
 					</Link>
 
