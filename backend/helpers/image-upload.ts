@@ -16,7 +16,10 @@ const storageTypes: {
 				folder = "users";
 			} else if (req.baseUrl.includes("products")) {
 				folder = "products";
+			} else if (req.baseUrl.includes("reviews")) {
+				folder = "reviews";
 			}
+
 			cb(null, `public/images/${folder}`);
 		},
 		filename: (req, file, cb) => {
