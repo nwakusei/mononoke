@@ -149,10 +149,10 @@ function WalletPage() {
 										{parseFloat(
 											userOtakupay.otakuPointsAvailable
 										) === 0
-											? `OP 0,00`
-											: `OP ${parseFloat(
+											? `0,00 OP`
+											: `${parseFloat(
 													userOtakupay.otakuPointsAvailable
-											  ).toLocaleString("pt-BR")}`}
+											  ).toLocaleString("pt-BR")} OP`}
 									</h1>
 								</div>
 							</div>
@@ -171,10 +171,10 @@ function WalletPage() {
 										{parseFloat(
 											userOtakupay.otakuPointsPending
 										) === 0
-											? `OP 0,00`
-											: `OP ${parseFloat(
+											? `0,00 OP`
+											: `${parseFloat(
 													userOtakupay.otakuPointsPending
-											  ).toLocaleString("pt-BR")}`}
+											  ).toLocaleString("pt-BR")} OP`}
 									</h1>
 								</div>
 							</div>

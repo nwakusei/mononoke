@@ -137,8 +137,6 @@ function OtamartPage() {
 								(partner) => partner._id === product.partnerID
 							);
 
-							console.log(product.originalPrice.$numberDecimal);
-
 							// Obter o cashback do parceiro, se existir
 							const cashback = partner ? partner.cashback : 0;
 
@@ -161,6 +159,7 @@ function OtamartPage() {
 										product.promocionalPrice.$numberDecimal
 									)}
 									cashback={cashback} // Passar o cashback para o componente ProductAdCard
+									rating={product.rating}
 									quantitySold={
 										product.productsSold > 1
 											? `${product.productsSold} Vendidos`

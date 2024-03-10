@@ -2,6 +2,15 @@ import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
 import { Decimal128 } from "mongodb";
 
+// Interface para a estrutura de um objeto de revisão
+interface IReview extends Document {
+	orderID: mongoose.Types.ObjectId;
+	customerName: string;
+	reviewRating: number;
+	imagesReview: string[];
+	reviewDescription: string;
+}
+
 interface IProduct {
 	productName: string;
 	imagesProduct: string[];
@@ -21,7 +30,7 @@ interface IProduct {
 	freeShippingRegion: string;
 	productsSold: number;
 	rating: number;
-	reviews: [{}];
+	reviews: [Object];
 	partnerID: Schema.Types.ObjectId;
 }
 
@@ -82,7 +91,7 @@ const productSchema = new Schema<IProduct>(
 			type: Number,
 		},
 		reviews: {
-			type: [{}],
+			type: [Object],
 		},
 		partnerID: {
 			type: Schema.Types.ObjectId,

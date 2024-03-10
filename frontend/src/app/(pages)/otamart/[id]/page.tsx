@@ -200,6 +200,40 @@ function ProductPage() {
 		return priceToRender;
 	};
 
+	// Função para renderizar os ícones de classificação com base no rating
+	const renderRatingIcons = () => {
+		const roundedRating = Math.round(product.rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
+		const formattedRating = Number.isInteger(roundedRating)
+			? `${roundedRating}.0`
+			: roundedRating;
+		const ratingIcons = [];
+
+		// Adiciona o número correspondente ao rating antes das estrelas
+		ratingIcons.push(
+			<span key={`number-${formattedRating}`} className="mr-1">
+				{formattedRating}
+			</span>
+		);
+
+		// Adiciona ícones de estrela com base no rating arredondado
+		for (let i = 0; i < Math.floor(roundedRating); i++) {
+			ratingIcons.push(<BsStarFill key={`star-${i}`} size={12} />);
+		}
+
+		// Se houver uma parte decimal maior que 0, adiciona um ícone de estrela metade preenchido
+		if (roundedRating % 1 !== 0) {
+			ratingIcons.push(<BsStarHalf key="half" size={12} />);
+		}
+
+		// Preenche o restante dos ícones com estrelas vazias
+		const remainingIcons = 5 - Math.ceil(roundedRating);
+		for (let i = 0; i < remainingIcons; i++) {
+			ratingIcons.push(<BsStar key={`empty-${i}`} size={12} />);
+		}
+
+		return ratingIcons;
+	};
+
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">
 			<div className="bg-yellow-500 flex flex-row gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
@@ -242,20 +276,32 @@ function ProductPage() {
 					</h1>
 					{/* Avaliações e Vendidos */}
 					<div className="flex flex-row items-center text-sm mb-4 gap-2">
-						<div className="flex flex-row items-center gap-1">
-							<p className="mr-1">{product.rating}.0</p>
-							<BsStar size={12} />
-							<BsStar size={12} />
-							<BsStar size={12} />
-							<BsStar size={12} />
-							<BsStar size={12} />
+						<div className="flex items-center gap-1">
+							{" "}
+							{/* Contêiner flexível para os ícones */}
+							{renderRatingIcons()}
 						</div>
-						|<p>0 Avaliações</p>|
-						<p>
+						<span>|</span>
+						<div>
+							{product.reviews &&
+							Array.isArray(product.reviews) &&
+							product.reviews.length === 0
+								? "Nenhuma Avaliação"
+								: product.reviews &&
+								  Array.isArray(product.reviews) &&
+								  product.reviews.length === 1
+								? "1 Avaliação"
+								: product.reviews &&
+								  Array.isArray(product.reviews)
+								? `${product.reviews.length} Avaliações`
+								: "0 Avaliações"}
+						</div>
+						<span>|</span>
+						<div>
 							{product.productsSold > 1
 								? `${product.productsSold} Vendidos`
-								: `${product.productsSold} Vendido`}{" "}
-						</p>
+								: `${product.productsSold} Vendido`}
+						</div>
 					</div>
 					{/* Preço */}
 					{product.promocionalPrice?.$numberDecimal > 0 ? (
@@ -492,7 +538,7 @@ function ProductPage() {
 								</span>
 							</h2>
 
-							{product.freeShipping === "Sim" ? (
+							{product.freeShipping === true ? (
 								<div className="flex flex-row justify-between items-center gap-2 mb-1">
 									<div className="flex flex-row items-center gap-2">
 										<LiaShippingFastSolid size={24} />
