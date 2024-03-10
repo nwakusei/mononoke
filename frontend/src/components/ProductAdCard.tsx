@@ -18,6 +18,7 @@ function ProductAdCard({
 	price,
 	promoPrice,
 	cashback,
+	rating,
 	quantitySold,
 	linkProductPage,
 }) {
@@ -32,6 +33,40 @@ function ProductAdCard({
 	};
 
 	const discountPercentage = calculateDiscountPercentage();
+
+	// Função para renderizar os ícones de classificação com base no rating
+	const renderRatingIcons = () => {
+		const roundedRating = Math.round(rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
+		const formattedRating = Number.isInteger(roundedRating)
+			? `${roundedRating}.0`
+			: roundedRating;
+		const ratingIcons = [];
+
+		// Adiciona o número correspondente ao rating antes das estrelas
+		ratingIcons.push(
+			<span key={`number-${formattedRating}`} className="mr-1">
+				{formattedRating}
+			</span>
+		);
+
+		// Adiciona ícones de estrela com base no rating arredondado
+		for (let i = 0; i < Math.floor(roundedRating); i++) {
+			ratingIcons.push(<BsStarFill key={`star-${i}`} size={12} />);
+		}
+
+		// Se houver uma parte decimal maior que 0, adiciona um ícone de estrela metade preenchido
+		if (roundedRating % 1 !== 0) {
+			ratingIcons.push(<BsStarHalf key="half" size={12} />);
+		}
+
+		// Preenche o restante dos ícones com estrelas vazias
+		const remainingIcons = 5 - Math.ceil(roundedRating);
+		for (let i = 0; i < remainingIcons; i++) {
+			ratingIcons.push(<BsStar key={`empty-${i}`} size={12} />);
+		}
+
+		return ratingIcons;
+	};
 
 	return (
 		<div className="bg-base-100 w-[254px] flex flex-col rounded-md relative pb-2 shadow-lg">
@@ -108,17 +143,12 @@ function ProductAdCard({
 						<Currency size={18} /> {cashback}% de Cashback
 					</h2>
 					<h2 className="text-yellow-500 text-sm flex flex-row items-center gap-2">
-						5.0
-						<BsStarFill size={12} />
-						<BsStarFill size={12} />
-						<BsStarFill size={12} />
-						<BsStarFill size={12} />
-						<BsStarFill size={12} />
+						{renderRatingIcons()}
 					</h2>
 					<h3 className="text-sm mb-3">{quantitySold}</h3>
 				</div>
 				<button className="btn btn-primary w-full mb-2">
-					<Link href={linkProductPage}>Ver mais</Link>
+					<Link href={linkProductPage}>+ Detalhes</Link>
 				</button>
 			</div>
 		</div>

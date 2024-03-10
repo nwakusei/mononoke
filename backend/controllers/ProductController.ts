@@ -174,7 +174,7 @@ class ProductController {
 			imagesProduct: [],
 			productsSold: 0,
 			rating: 0,
-			reviews: [{}],
+			reviews: [],
 			partnerID: partner._id,
 		});
 

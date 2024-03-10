@@ -227,18 +227,6 @@ function Navbar() {
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
-														<MdCyclone size={20} />
-														Sorteios
-													</span>
-
-													<span className="badge border border-white">
-														New
-													</span>
-												</a>
-											</li>
-											<li>
-												<a className="flex flex-row items-center justify-between text-white">
-													<span className="flex flex-row items-center gap-2">
 														<MdOutlineLocalActivity
 															size={20}
 														/>
