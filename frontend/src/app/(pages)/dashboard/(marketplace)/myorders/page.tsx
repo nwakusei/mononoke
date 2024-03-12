@@ -106,7 +106,9 @@ function MyOrdersPage() {
 											<th className="text-sm">
 												Total do Pedido
 											</th>
-											<th className="text-sm">Status</th>
+											<th className="text-sm">
+												Status | Prazo
+											</th>
 											<th className="text-sm">
 												Comprador
 											</th>
@@ -145,17 +147,13 @@ function MyOrdersPage() {
 																		(
 																			item
 																		) => (
-																			<h2 className="w-[250px] overflow-x-auto mb-2">
+																			<h2 className="w-[230px] overflow-x-auto mb-2">
 																				{
 																					item
 																				}
 																			</h2>
 																		)
 																	)}
-																</div>
-																<div className="text-sm opacity-50">
-																	Categoria:
-																	Mangá
 																</div>
 															</div>
 														</div>
@@ -176,12 +174,22 @@ function MyOrdersPage() {
 														</span>
 													</td>
 													<td>
-														{myorder.statusOrder}
+														<div>
+															{
+																myorder.statusOrder
+															}
+														</div>
+														<div className="text-xs opacity-50">
+															{
+																myorder.daysShipping
+															}{" "}
+															dias
+														</div>
 													</td>
-													<td>
+													<td className="w-[200px] overflow-x-auto">
 														{myorder.customerName}
 													</td>
-													<td>
+													<td className="text-xs">
 														{myorder.orderNumber}
 													</td>
 													<th>

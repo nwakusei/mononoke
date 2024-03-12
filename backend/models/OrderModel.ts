@@ -25,6 +25,7 @@ interface IOrder {
 	customerAdress: [{}];
 	shippingMethod: string;
 	statusShipping: string;
+	daysShipping: number;
 	trackingNumber: string;
 	discountsApplied: number;
 	orderNote: string;
@@ -108,6 +109,10 @@ const orderSchema = new Schema<IOrder>(
 		},
 		statusShipping: {
 			type: String,
+			required: true,
+		},
+		daysShipping: {
+			type: Number,
 			required: true,
 		},
 		trackingNumber: {

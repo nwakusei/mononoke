@@ -14,16 +14,28 @@ import { Sidebar } from "@/components/Sidebar";
 
 function ReviewsPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
-	const [myproducts, setMyproducts] = useState([]);
+	const [myorders, setMyorders] = useState([]);
 
 	useEffect(() => {
-		api.get("/products/partner-products", {
-			headers: {
-				Authorization: `Bearer ${JSON.parse(token)}`,
-			},
-		}).then((response) => {
-			setMyproducts(response.data.products); // Ajuste para acessar a chave 'products'
-		});
+		const fethData = async () => {
+			try {
+				const response = await api.get("/orders/partner-orders", {
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
+					},
+				});
+
+				if (response.data && response.data.orders) {
+					setMyorders(response.data.orders);
+				} else {
+					console.error("Dados de pedidos inválidos:", response.data);
+				}
+			} catch (error) {
+				console.error("Erro ao obter dados do Pedido:", error);
+			}
+		};
+
+		fethData();
 	}, [token]);
 
 	return (
@@ -36,7 +48,7 @@ function ReviewsPage() {
 						{/* Adicionar Porduto */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
 							<h1 className="text-2xl font-semibold">
-								Produtos em Catálogo
+								Pedidos com avaliação pendente
 							</h1>
 
 							{/* Produtos em Catálogo */}
@@ -57,16 +69,21 @@ function ReviewsPage() {
 											<th className="text-sm">
 												Nome do Produto
 											</th>
-											<th className="text-sm">Preço</th>
-											<th className="text-sm">Estoque</th>
+											<th className="text-sm">Status</th>
+											<th className="text-sm">
+												Comprador
+											</th>
+											<th className="text-sm">
+												ID do Pedido
+											</th>
 											<th></th>
 										</tr>
 									</thead>
 									<tbody>
 										{/* row 1 */}
-										{myproducts.length > 0 &&
-											myproducts.map((product) => (
-												<tr key={product._id}>
+										{myorders.length > 0 &&
+											myorders.map((myorder) => (
+												<tr key={myorder._id}>
 													<th>
 														<label>
 															<input
@@ -79,53 +96,47 @@ function ReviewsPage() {
 														<div className="flex items-center gap-3">
 															<div className="avatar">
 																<div className="mask mask-squircle w-12 h-12">
-																	<Image
-																		src={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
+																	<img
+																		src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
 																		alt="Avatar Tailwind CSS Component"
-																		width={
-																			12
-																		}
-																		height={
-																			12
-																		}
-																		unoptimized
 																	/>
 																</div>
 															</div>
 															<div>
 																<div className="font-bold">
-																	{
-																		product.productName
-																	}
+																	{myorder.itemsList.map(
+																		(
+																			item
+																		) => (
+																			<h2 className="w-[250px] overflow-x-auto mb-2">
+																				{
+																					item
+																				}
+																			</h2>
+																		)
+																	)}
 																</div>
 																<div className="text-sm opacity-50">
 																	{
-																		product.category
+																		myorder.category
 																	}
 																</div>
 															</div>
 														</div>
 													</td>
+
 													<td>
-														{Number(
-															product
-																.originalPrice
-																.$numberDecimal
-														).toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-														)}
-														<br />
-														<span className="badge badge-accent badge-sm">
-															Em Promoção
-														</span>
+														{myorder.statusOrder}
 													</td>
-													<td>{product.stock} un</td>
+
+													<td>
+														{myorder.customerName}
+													</td>
+													<td>
+														{myorder.orderNumber}
+													</td>
 													<th>
-														<button className="flex items-center btn btn-ghost btn-xs">
+														<button className="flex items-center btn btn-warning btn-xs">
 															Avaliar
 														</button>
 													</th>
