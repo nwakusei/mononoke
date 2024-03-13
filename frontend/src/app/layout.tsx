@@ -12,26 +12,29 @@ import "react-toastify/dist/ReactToastify.css";
 // Componentes
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+
+// Providers do Context
 import { UserProvider } from "@/context/UserContext";
+import { CartProvider } from "@/context/CartContext";
 
 export default function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	// useEffect(() => {
-	// 	// Inicialize o ToastProvider apenas no cliente
-	// 	const { ToastProvider } = require("react-toast-notifications");
-	// }, []);
-
 	return (
 		<html lang="pt-BR">
 			<body>
 				<UserProvider>
-					<Navbar />
-					{children}
-					<ToastContainer position="bottom-center" theme="colored" />
-					<Footer />
+					<CartProvider>
+						<Navbar />
+						{children}
+						<ToastContainer
+							position="bottom-center"
+							theme="colored"
+						/>
+						<Footer />
+					</CartProvider>
 				</UserProvider>
 			</body>
 		</html>
