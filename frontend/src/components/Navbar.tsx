@@ -4,8 +4,6 @@ import { useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import api from "@/utils/api";
-
 // Icons
 import {
 	BiTrophy,
@@ -42,9 +40,11 @@ import imageProfile from "../../public/Kon.jpg";
 
 // Context
 import { Context } from "@/context/UserContext";
+import { Context2 } from "@/context/CartContext";
 
 function Navbar() {
 	const { userAuthenticated, logout } = useContext(Context);
+	const { cart } = useContext(Context2);
 
 	return (
 		<header className="w-full">
@@ -281,7 +281,7 @@ function Navbar() {
 											/>
 										</svg>
 										<span className="badge badge-sm indicator-item">
-											8
+											{cart}
 										</span>
 									</div>
 								</div>
@@ -290,10 +290,10 @@ function Navbar() {
 									className="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow">
 									<div className="card-body">
 										<span className="font-bold text-lg">
-											8 Items
+											{cart} Itens
 										</span>
 										<span className="text-info">
-											Subtotal: R$ 49,90
+											Subtotal: R$ 0,00
 										</span>
 										<div className="card-actions">
 											<button className="btn btn-primary btn-block">

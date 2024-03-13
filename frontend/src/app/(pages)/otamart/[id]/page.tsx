@@ -8,8 +8,9 @@ import { useParams } from "next/navigation";
 // Axios
 import api from "@/utils/api";
 
-// Context
+// Contexts
 import { Context } from "@/context/UserContext";
+import { Context2 } from "@/context/CartContext";
 
 // Importe suas imagens e ícones aqui
 import Lycoris from "../../../../../public/lycoris.jpg";
@@ -40,6 +41,8 @@ function ProductPage() {
 	const stock = product.stock; // Constante que irá representar a quantidade de estoque que vem do Banco de Dados
 
 	const { partners } = useContext(Context);
+	const { setCart } = useContext(Context2);
+
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
 	);
@@ -233,6 +236,11 @@ function ProductPage() {
 
 		return ratingIcons;
 	};
+
+	function handleAdicionarAoCarrinho(numero) {
+		alert("Produto adicionado ao carrinho!");
+		setCart(numero);
+	}
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">
@@ -486,7 +494,11 @@ function ProductPage() {
 								</div>
 							</div>
 
-							<button className="btn btn-outline btn-primary w-full mb-2">
+							<button
+								className="btn btn-outline btn-primary w-full mb-2"
+								onClick={() =>
+									handleAdicionarAoCarrinho(quantity)
+								}>
 								<ShoppingCartOne size={18} />
 								Adicionar ao Carrinho
 							</button>
