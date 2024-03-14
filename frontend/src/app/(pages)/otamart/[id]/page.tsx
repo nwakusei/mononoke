@@ -10,7 +10,7 @@ import api from "@/utils/api";
 
 // Contexts
 import { Context } from "@/context/UserContext";
-import { Context2 } from "@/context/CartContext";
+import { CartContext } from "@/context/CartContext";
 
 // Importe suas imagens e ícones aqui
 import Lycoris from "../../../../../public/lycoris.jpg";
@@ -41,7 +41,7 @@ function ProductPage() {
 	const stock = product.stock; // Constante que irá representar a quantidade de estoque que vem do Banco de Dados
 
 	const { partners } = useContext(Context);
-	const { setCart } = useContext(Context2);
+	const { setCart } = useContext(CartContext);
 
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
@@ -59,20 +59,6 @@ function ProductPage() {
 
 		fetchProduct();
 	}, [id]);
-
-	// // Data no padrão original
-	// const dataOriginal = "2024-02-28 05:47:42";
-
-	// // Criar um objeto Date a partir da string
-	// const data = new Date(dataOriginal);
-
-	// // Obter o dia, mês e ano
-	// const dia = data.getDate();
-	// const mes = data.getMonth() + 1; // Os meses são baseados em zero, então adicionamos 1
-
-	// // Formatar a data no padrão brasileiro
-	// const dataFormatada =
-	// 	dia.toString().padStart(2, "0") + "/" + mes.toString().padStart(2, "0");
 
 	// Função para Calcular o Frete
 	async function handleSimulateShipping(cep: number) {
@@ -206,6 +192,20 @@ function ProductPage() {
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
 		const roundedRating = Math.round(product.rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
+
+		// Verifica se o roundedRating é igual a 0
+		if (roundedRating === 0) {
+			return (
+				<>
+					N/A {/* Renderiza "N/A" */}
+					{/* Renderiza as 5 estrelas vazias */}
+					{[...Array(5)].map((_, i) => (
+						<BsStar key={`empty-${i}`} size={12} />
+					))}
+				</>
+			);
+		}
+
 		const formattedRating = Number.isInteger(roundedRating)
 			? `${roundedRating}.0`
 			: roundedRating;
@@ -237,9 +237,73 @@ function ProductPage() {
 		return ratingIcons;
 	};
 
+	// const renderRatingIcons = () => {
+	// 	const roundedRating = Math.round(product.rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
+	// 	const formattedRating = Number.isInteger(roundedRating)
+	// 		? `${roundedRating}.0`
+	// 		: roundedRating;
+	// 	const ratingIcons = [];
+
+	// 	// Adiciona o número correspondente ao rating antes das estrelas
+	// 	ratingIcons.push(
+	// 		<span key={`number-${formattedRating}`} className="mr-1">
+	// 			{formattedRating}
+	// 		</span>
+	// 	);
+
+	// 	// Adiciona ícones de estrela com base no rating arredondado
+	// 	for (let i = 0; i < Math.floor(roundedRating); i++) {
+	// 		ratingIcons.push(<BsStarFill key={`star-${i}`} size={12} />);
+	// 	}
+
+	// 	// Se houver uma parte decimal maior que 0, adiciona um ícone de estrela metade preenchido
+	// 	if (roundedRating % 1 !== 0) {
+	// 		ratingIcons.push(<BsStarHalf key="half" size={12} />);
+	// 	}
+
+	// 	// Preenche o restante dos ícones com estrelas vazias
+	// 	const remainingIcons = 5 - Math.ceil(roundedRating);
+	// 	for (let i = 0; i < remainingIcons; i++) {
+	// 		ratingIcons.push(<BsStar key={`empty-${i}`} size={12} />);
+	// 	}
+
+	// 	return ratingIcons;
+	// };
+
 	function handleAdicionarAoCarrinho(numero) {
-		alert("Produto adicionado ao carrinho!");
-		setCart(numero);
+		// Recupera os produtos já existentes no localStorage, se houver
+		let productsInCart = localStorage.getItem("productsInCart");
+
+		if (!productsInCart) {
+			productsInCart = [];
+		} else {
+			productsInCart = JSON.parse(productsInCart);
+		}
+
+		// Adiciona o novo produto ao array de produtos
+		const newProduct = {
+			quantidade: numero,
+			name: product.productName,
+		};
+		productsInCart.push(newProduct);
+
+		// Soma todas as quantidades dos produtos no carrinho
+		const totalQuantityProducts = productsInCart.reduce(
+			(total, product) => total + product.quantidade,
+			0
+		);
+
+		// Tenta armazenar o array de produtos no localStorage
+		try {
+			localStorage.setItem(
+				"productsInCart",
+				JSON.stringify(productsInCart)
+			);
+			// Atualiza o estado do carrinho com o total de produtos
+			setCart(totalQuantityProducts);
+		} catch (error) {
+			console.log("Erro ao adicionar o produto ao carrinho!", error);
+		}
 	}
 
 	return (

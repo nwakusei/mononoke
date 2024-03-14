@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 function useCart() {
-	const [cart, setCart] = useState(55);
+	const [cart, setCart] = useState(0);
 	console.log(cart);
 	console.log(setCart);
 

@@ -1,21 +1,27 @@
 "use client";
 
-import { createContext } from "react";
+import { createContext, Dispatch, SetStateAction, ReactNode } from "react";
 
+// Import do Hook useCart
 import { useCart } from "@/hooks/useCart";
 
-const Context2 = createContext();
+const CartContext = createContext();
 
-function CartProvider({ children }) {
+// Tipagem padrão para Children
+interface ICartProviderProps {
+	children: ReactNode;
+}
+
+function CartProvider({ children }: ICartProviderProps) {
 	const { cart, setCart } = useCart();
 	console.log(cart);
 	console.log(setCart);
 
 	return (
-		<Context2.Provider value={{ cart, setCart }}>
+		<CartContext.Provider value={{ cart, setCart }}>
 			{children}
-		</Context2.Provider>
+		</CartContext.Provider>
 	);
 }
 
-export { Context2, CartProvider };
+export { CartContext, CartProvider };

@@ -218,19 +218,19 @@ function Sidebar() {
 
 				<Link
 					className="flex flex-row items-center ml-7 gap-2"
-					href={"/dashboard/create-coupon"}>
+					href={"/dashboard/mycoupons"}>
 					<span className="text-xs">○</span>
 					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-						Criar Cupom
+						Meus Cupons
 					</span>
 				</Link>
 
 				<Link
 					className="flex flex-row items-center ml-7 gap-2"
-					href={"/dashboard/mycoupons"}>
+					href={"/dashboard/create-coupon"}>
 					<span className="text-xs">○</span>
 					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-						Meus Cupons
+						Criar Cupom
 					</span>
 				</Link>
 			</div>
