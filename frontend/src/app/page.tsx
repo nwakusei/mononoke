@@ -29,7 +29,7 @@ function HomePage() {
 
 			<div className="bg-yellow-500 col-start-2 col-span-6">
 				<h1 className="text-2xl font-semibold mb-2">
-					O que oferecemos?
+					O que oferecemos?!
 				</h1>
 				<p>
 					O Otaku Prime oferece diversos benefícios, pra você ou pra
