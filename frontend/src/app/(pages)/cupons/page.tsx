@@ -29,8 +29,8 @@ function CupomPage() {
 	}, []);
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-2 gap-4 mx-4">
-			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-, gap-4 mx-4">
+			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 min-h-screen">
 				<div className="divider text-center text-xl md:text-2xl font-semibold mb-4">
 					Cupons em Destaque
 				</div>
@@ -41,7 +41,7 @@ function CupomPage() {
 				</p>
 
 				<div className="flex flex-row flex-wrap gap-4 justify-center mb-4">
-					{coupons.length > 0 &&
+					{coupons.length > 0 ? (
 						coupons.map((coupon) => {
 							const partner = partners.find(
 								(p) => p._id === coupon.partnerID
@@ -58,7 +58,10 @@ function CupomPage() {
 									coupon={coupon.couponCode}
 								/>
 							);
-						})}
+						})
+					) : (
+						<p>Nenhum Cupom Disponível no momento!</p>
+					)}
 				</div>
 			</div>
 		</section>

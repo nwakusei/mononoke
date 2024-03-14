@@ -124,7 +124,7 @@ function OtamartPage() {
 				</div>
 			</div>
 
-			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
+			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8 min-h-screen">
 				<div className="divider text-center text-xl md:text-2xl font-semibold mb-8">
 					Produtos em Destaque
 				</div>

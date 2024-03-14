@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -32,7 +32,7 @@ import { RxHamburgerMenu } from "react-icons/rx";
 import { FiUserPlus } from "react-icons/fi";
 import { ImMakeGroup } from "react-icons/im";
 import { HiOutlineGiftTop } from "react-icons/hi2";
-import { MdOutlineLocalActivity, MdCyclone } from "react-icons/md";
+import { MdOutlineLocalActivity, MdOutlineDeleteOutline } from "react-icons/md";
 
 // Imagens
 import Logo from "../../public/logo.png";
@@ -40,11 +40,39 @@ import imageProfile from "../../public/Kon.jpg";
 
 // Context
 import { Context } from "@/context/UserContext";
-import { Context2 } from "@/context/CartContext";
+import { CartContext } from "@/context/CartContext";
 
 function Navbar() {
 	const { userAuthenticated, logout } = useContext(Context);
-	const { cart } = useContext(Context2);
+	const { cart, setCart } = useContext(CartContext);
+	const [productsInCart] = useState(
+		localStorage.getItem("productsInCart") || []
+	);
+
+	useEffect(() => {
+		// Recupera os produtos do carrinho do localStorage
+		const productsInCart =
+			JSON.parse(localStorage.getItem("productsInCart")) || [];
+
+		// Soma todas as quantidades dos produtos no carrinho
+		const totalQuantityProducts = productsInCart.reduce(
+			(total, product) => total + product.quantidade,
+			0
+		);
+
+		// Atualiza o estado do carrinho com o total de produtos
+		setCart(totalQuantityProducts);
+	}, []);
+
+	// Função para remover itens do carrinho de compra
+	const handleRemoveFromCart = () => {
+		try {
+			localStorage.removeItem("productsInCart");
+			setCart(0);
+		} catch (error) {
+			console.log("Erro ao remover itens do carrinho", error);
+		}
+	};
 
 	return (
 		<header className="w-full">
@@ -290,14 +318,25 @@ function Navbar() {
 									className="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow">
 									<div className="card-body">
 										<span className="font-bold text-lg">
-											{cart} Itens
+											{cart === 0
+												? "Carrinho Vazio"
+												: cart === 1
+												? `${cart} item`
+												: `${cart} itens`}
 										</span>
 										<span className="text-info">
 											Subtotal: R$ 0,00
 										</span>
+
+										<div
+											className="flex flex-row items-center text-info transition-all ease-in duration-250 hover:text-white hover:underline cursor-pointer"
+											onClick={handleRemoveFromCart}>
+											<MdOutlineDeleteOutline size={17} />
+											Excluir
+										</div>
 										<div className="card-actions">
 											<button className="btn btn-primary btn-block">
-												View cart
+												Finalizar Compra
 											</button>
 										</div>
 									</div>

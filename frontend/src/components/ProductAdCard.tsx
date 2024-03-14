@@ -37,6 +37,20 @@ function ProductAdCard({
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
 		const roundedRating = Math.round(rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
+
+		// Verifica se o roundedRating é igual a 0
+		if (roundedRating === 0) {
+			return (
+				<>
+					N/A {/* Renderiza "N/A" */}
+					{/* Renderiza as 5 estrelas vazias */}
+					{[...Array(5)].map((_, i) => (
+						<BsStar key={`empty-${i}`} size={12} />
+					))}
+				</>
+			);
+		}
+
 		const formattedRating = Number.isInteger(roundedRating)
 			? `${roundedRating}.0`
 			: roundedRating;
@@ -67,6 +81,86 @@ function ProductAdCard({
 
 		return ratingIcons;
 	};
+
+	// const renderRatingIcons = () => {
+	// 	const roundedRating = Math.round(rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
+
+	// 	// Verifica se o roundedRating é igual a 0
+	// 	if (roundedRating === 0) {
+	// 		return (
+	// 			<>
+	// 				N/A {/* Renderiza "N/A" */}
+	// 				{/* Renderiza as 5 estrelas vazias */}
+	// 				{[...Array(5)].map((_, i) => (
+	// 					<BsStar key={`empty-${i}`} size={12} />
+	// 				))}
+	// 			</>
+	// 		);
+	// 	}
+
+	// 	const formattedRating = Number.isInteger(roundedRating)
+	// 		? `${roundedRating}.0`
+	// 		: roundedRating;
+	// 	const ratingIcons = [];
+
+	// 	// Adiciona o número correspondente ao rating antes das estrelas
+	// 	ratingIcons.push(
+	// 		<span key={`number-${formattedRating}`} className="mr-1">
+	// 			{formattedRating}
+	// 		</span>
+	// 	);
+
+	// 	// Adiciona ícones de estrela com base no rating arredondado
+	// 	for (let i = 0; i < Math.floor(roundedRating); i++) {
+	// 		ratingIcons.push(<BsStarFill key={`star-${i}`} size={12} />);
+	// 	}
+
+	// 	// Se houver uma parte decimal maior que 0, adiciona um ícone de estrela metade preenchido
+	// 	if (roundedRating % 1 !== 0) {
+	// 		ratingIcons.push(<BsStarHalf key="half" size={12} />);
+	// 	}
+
+	// 	// Preenche o restante dos ícones com estrelas vazias
+	// 	const remainingIcons = 5 - Math.ceil(roundedRating);
+	// 	for (let i = 0; i < remainingIcons; i++) {
+	// 		ratingIcons.push(<BsStar key={`empty-${i}`} size={12} />);
+	// 	}
+
+	// 	return ratingIcons;
+	// };
+
+	// const renderRatingIcons = () => {
+	// 	const roundedRating = Math.round(rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
+	// 	const formattedRating = Number.isInteger(roundedRating)
+	// 		? `${roundedRating}.0`
+	// 		: roundedRating;
+	// 	const ratingIcons = [];
+
+	// 	// Adiciona o número correspondente ao rating antes das estrelas
+	// 	ratingIcons.push(
+	// 		<span key={`number-${formattedRating}`} className="mr-1">
+	// 			{formattedRating}
+	// 		</span>
+	// 	);
+
+	// 	// Adiciona ícones de estrela com base no rating arredondado
+	// 	for (let i = 0; i < Math.floor(roundedRating); i++) {
+	// 		ratingIcons.push(<BsStarFill key={`star-${i}`} size={12} />);
+	// 	}
+
+	// 	// Se houver uma parte decimal maior que 0, adiciona um ícone de estrela metade preenchido
+	// 	if (roundedRating % 1 !== 0) {
+	// 		ratingIcons.push(<BsStarHalf key="half" size={12} />);
+	// 	}
+
+	// 	// Preenche o restante dos ícones com estrelas vazias
+	// 	const remainingIcons = 5 - Math.ceil(roundedRating);
+	// 	for (let i = 0; i < remainingIcons; i++) {
+	// 		ratingIcons.push(<BsStar key={`empty-${i}`} size={12} />);
+	// 	}
+
+	// 	return ratingIcons;
+	// };
 
 	return (
 		<div className="bg-base-100 w-[254px] flex flex-col rounded-md relative pb-2 shadow-lg">
