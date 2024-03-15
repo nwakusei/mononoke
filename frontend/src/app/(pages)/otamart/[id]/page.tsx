@@ -524,7 +524,7 @@ function ProductPage() {
 								onClick={() => handleVariation("item1")}
 								className={`${
 									variation["item1"] ? "bg-sky-500" : ""
-								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-gray-500 rounded-md cursor-pointer`}>
+								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-blue-500 rounded-md cursor-pointer`}>
 								<span>Preto</span>
 							</div>
 

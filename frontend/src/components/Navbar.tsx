@@ -323,7 +323,7 @@ function Navbar() {
 												: `${cart} itens`}
 										</span>
 										<span className="text-info">
-											Subtotal:{" "}
+											Subtotal:
 											{subtotal.toLocaleString("pt-BR", {
 												style: "currency",
 												currency: "BRL",
