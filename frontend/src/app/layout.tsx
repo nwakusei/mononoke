@@ -32,6 +32,7 @@ export default function RootLayout({
 						<ToastContainer
 							position="bottom-center"
 							theme="colored"
+							autoClose={3000}
 						/>
 						<Footer />
 					</CartProvider>

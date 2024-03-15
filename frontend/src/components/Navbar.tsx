@@ -44,10 +44,7 @@ import { CartContext } from "@/context/CartContext";
 
 function Navbar() {
 	const { userAuthenticated, logout } = useContext(Context);
-	const { cart, setCart } = useContext(CartContext);
-	const [productsInCart] = useState(
-		localStorage.getItem("productsInCart") || []
-	);
+	const { cart, setCart, subtotal, setSubtotal } = useContext(CartContext);
 
 	useEffect(() => {
 		// Recupera os produtos do carrinho do localStorage
@@ -69,6 +66,7 @@ function Navbar() {
 		try {
 			localStorage.removeItem("productsInCart");
 			setCart(0);
+			setSubtotal(0);
 		} catch (error) {
 			console.log("Erro ao remover itens do carrinho", error);
 		}
@@ -325,7 +323,11 @@ function Navbar() {
 												: `${cart} itens`}
 										</span>
 										<span className="text-info">
-											Subtotal: R$ 0,00
+											Subtotal:
+											{subtotal.toLocaleString("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											})}
 										</span>
 
 										<div

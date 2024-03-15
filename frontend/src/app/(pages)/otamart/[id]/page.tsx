@@ -4,6 +4,7 @@
 import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { toast } from "react-toastify";
 
 // Axios
 import api from "@/utils/api";
@@ -41,7 +42,7 @@ function ProductPage() {
 	const stock = product.stock; // Constante que irá representar a quantidade de estoque que vem do Banco de Dados
 
 	const { partners } = useContext(Context);
-	const { setCart } = useContext(CartContext);
+	const { setCart, setSubtotal } = useContext(CartContext);
 
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
@@ -237,40 +238,7 @@ function ProductPage() {
 		return ratingIcons;
 	};
 
-	// const renderRatingIcons = () => {
-	// 	const roundedRating = Math.round(product.rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
-	// 	const formattedRating = Number.isInteger(roundedRating)
-	// 		? `${roundedRating}.0`
-	// 		: roundedRating;
-	// 	const ratingIcons = [];
-
-	// 	// Adiciona o número correspondente ao rating antes das estrelas
-	// 	ratingIcons.push(
-	// 		<span key={`number-${formattedRating}`} className="mr-1">
-	// 			{formattedRating}
-	// 		</span>
-	// 	);
-
-	// 	// Adiciona ícones de estrela com base no rating arredondado
-	// 	for (let i = 0; i < Math.floor(roundedRating); i++) {
-	// 		ratingIcons.push(<BsStarFill key={`star-${i}`} size={12} />);
-	// 	}
-
-	// 	// Se houver uma parte decimal maior que 0, adiciona um ícone de estrela metade preenchido
-	// 	if (roundedRating % 1 !== 0) {
-	// 		ratingIcons.push(<BsStarHalf key="half" size={12} />);
-	// 	}
-
-	// 	// Preenche o restante dos ícones com estrelas vazias
-	// 	const remainingIcons = 5 - Math.ceil(roundedRating);
-	// 	for (let i = 0; i < remainingIcons; i++) {
-	// 		ratingIcons.push(<BsStar key={`empty-${i}`} size={12} />);
-	// 	}
-
-	// 	return ratingIcons;
-	// };
-
-	function handleAdicionarAoCarrinho(numero) {
+	function handleAddProductInCart(quantity, product) {
 		// Recupera os produtos já existentes no localStorage, se houver
 		let productsInCart = localStorage.getItem("productsInCart");
 
@@ -280,18 +248,58 @@ function ProductPage() {
 			productsInCart = JSON.parse(productsInCart);
 		}
 
-		// Adiciona o novo produto ao array de produtos
-		const newProduct = {
-			quantidade: numero,
-			name: product.productName,
-		};
-		productsInCart.push(newProduct);
+		// Calcula o preço total do produto
+		let productPrice;
 
-		// Soma todas as quantidades dos produtos no carrinho
-		const totalQuantityProducts = productsInCart.reduce(
-			(total, product) => total + product.quantidade,
-			0
+		if (
+			product.promocionalPrice &&
+			product.promocionalPrice.$numberDecimal &&
+			Number(product.promocionalPrice.$numberDecimal) > 0
+		) {
+			productPrice = Number(product.promocionalPrice.$numberDecimal);
+		} else if (
+			product.originalPrice &&
+			product.originalPrice.$numberDecimal &&
+			Number(product.originalPrice.$numberDecimal) > 0
+		) {
+			productPrice = Number(product.originalPrice.$numberDecimal);
+		} else {
+			// Se não houver nenhum preço válido, retorna um erro ou define como 0
+			console.error("Preço do produto inválido:", product);
+			return;
+		}
+
+		// Verifica se o produto já está no carrinho pelo ID
+		const existingProduct = productsInCart.find(
+			(p) => p.id === product._id
 		);
+
+		if (existingProduct) {
+			// Se o produto já estiver no carrinho, apenas atualiza a quantidade,
+			// limitando ao estoque disponível
+			const totalQuantity = existingProduct.quantidade + quantity;
+			existingProduct.quantidade = Math.min(totalQuantity, product.stock);
+
+			// Verifica se a quantidade ultrapassou o estoque
+			if (totalQuantity > product.stock) {
+				toast.warning(
+					"Você atingiu o limite de estoque para este produto!"
+				);
+			}
+
+			// Atualiza o preço total do produto no carrinho multiplicando a quantidade pelo preço unitário
+			existingProduct.productPrice =
+				existingProduct.quantidade * productPrice;
+		} else {
+			// Caso contrário, adiciona o novo produto ao array de produtos
+			const newProduct = {
+				id: product._id,
+				name: product.productName,
+				quantidade: Math.min(quantity, product.stock),
+				productPrice: Math.min(quantity, product.stock) * productPrice, // Calcula o preço total do produto
+			};
+			productsInCart.push(newProduct);
+		}
 
 		// Tenta armazenar o array de produtos no localStorage
 		try {
@@ -300,11 +308,91 @@ function ProductPage() {
 				JSON.stringify(productsInCart)
 			);
 			// Atualiza o estado do carrinho com o total de produtos
+			const totalQuantityProducts = productsInCart.reduce(
+				(total, product) => total + product.quantidade,
+				0
+			);
+
 			setCart(totalQuantityProducts);
+			// Calcula o preço total do carrinho
+			const totalCartValue = productsInCart.reduce(
+				(total, product) => total + product.productPrice, // Soma os preços totais de cada produto
+				0
+			);
+			// Define o subtotal como 0 se o carrinho estiver vazio
+			const subtotal = productsInCart.length > 0 ? totalCartValue : 0;
+			setSubtotal(subtotal);
 		} catch (error) {
 			console.log("Erro ao adicionar o produto ao carrinho!", error);
 		}
 	}
+
+	// function handleAdicionarAoCarrinho(quantity, product) {
+	// 	// Recupera os produtos já existentes no localStorage, se houver
+	// 	let productsInCart = localStorage.getItem("productsInCart");
+
+	// 	if (!productsInCart) {
+	// 		productsInCart = [];
+	// 	} else {
+	// 		productsInCart = JSON.parse(productsInCart);
+	// 	}
+
+	// 	// Calcula o subtotal do produto
+	// 	const orderPrice = Number(
+	// 		product.promocionalPrice?.$numberDecimal ||
+	// 			product.originalPrice?.$numberDecimal
+	// 	);
+
+	// 	// Verifica se o produto já está no carrinho pelo ID
+	// 	const existingProduct = productsInCart.find(
+	// 		(p) => p.id === product._id
+	// 	);
+
+	// 	if (existingProduct) {
+	// 		// Se o produto já estiver no carrinho, apenas atualiza a quantidade,
+	// 		// limitando ao estoque disponível
+	// 		const totalQuantity = existingProduct.quantidade + quantity;
+	// 		existingProduct.quantidade = Math.min(totalQuantity, product.stock);
+
+	// 		// Verifica se a quantidade ultrapassou o estoque
+	// 		if (totalQuantity > product.stock) {
+	// 			toast.warning(
+	// 				"Você atingiu o limite de estoque para este produto!"
+	// 			);
+	// 		}
+	// 	} else {
+	// 		// Caso contrário, adiciona o novo produto ao array de produtos
+	// 		const newProduct = {
+	// 			id: product._id,
+	// 			name: product.productName,
+	// 			quantidade: Math.min(quantity, product.stock),
+	// 			subtotal: orderPrice, // Usa o subtotal calculado
+	// 		};
+	// 		productsInCart.push(newProduct);
+	// 	}
+
+	// 	// Tenta armazenar o array de produtos no localStorage
+	// 	try {
+	// 		localStorage.setItem(
+	// 			"productsInCart",
+	// 			JSON.stringify(productsInCart)
+	// 		);
+	// 		// Atualiza o estado do carrinho com o total de produtos
+	// 		const totalQuantityProducts = productsInCart.reduce(
+	// 			(total, product) => total + product.quantidade,
+	// 			0
+	// 		);
+
+	// 		const teste = productsInCart.map((product) => {
+	// 			product.quantidade * orderPrice;
+	// 		});
+
+	// 		setCart(totalQuantityProducts);
+	// 		setSubtotal(teste);
+	// 	} catch (error) {
+	// 		console.log("Erro ao adicionar o produto ao carrinho!", error);
+	// 	}
+	// }
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">
@@ -561,7 +649,7 @@ function ProductPage() {
 							<button
 								className="btn btn-outline btn-primary w-full mb-2"
 								onClick={() =>
-									handleAdicionarAoCarrinho(quantity)
+									handleAddProductInCart(quantity, product)
 								}>
 								<ShoppingCartOne size={18} />
 								Adicionar ao Carrinho

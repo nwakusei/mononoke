@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, Dispatch, SetStateAction, ReactNode } from "react";
+import { createContext, ReactNode } from "react";
 
 // Import do Hook useCart
 import { useCart } from "@/hooks/useCart";
@@ -13,12 +13,14 @@ interface ICartProviderProps {
 }
 
 function CartProvider({ children }: ICartProviderProps) {
-	const { cart, setCart } = useCart();
+	const { cart, setCart, subtotal, setSubtotal } = useCart();
 	console.log(cart);
 	console.log(setCart);
+	console.log(subtotal);
+	console.log(setSubtotal);
 
 	return (
-		<CartContext.Provider value={{ cart, setCart }}>
+		<CartContext.Provider value={{ cart, setCart, subtotal, setSubtotal }}>
 			{children}
 		</CartContext.Provider>
 	);

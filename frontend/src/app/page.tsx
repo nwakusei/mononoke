@@ -19,7 +19,11 @@ function HomePage() {
 			</div>
 			<div className="bg-yellow-500 col-start-2 col-span-6">
 				<h1 className="text-2xl font-semibold mb-2">
-					O que é o "Otaku Prime"?!!
+<<<<<<< HEAD
+					O que é o "Otaku Prime"?
+=======
+					O que é o "Otaku Prime"?
+>>>>>>> updates
 				</h1>
 				<p>
 					Somos o primeiro programa de benefícios totalmente voltado
