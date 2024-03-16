@@ -59,7 +59,19 @@ function Navbar() {
 
 		// Atualiza o estado do carrinho com o total de produtos
 		setCart(totalQuantityProducts);
-	}, []);
+
+		// Calcula o preço total do carrinho
+		const totalCartValue = productsInCart.reduce(
+			(total, product) => total + product.productPrice,
+			0
+		);
+
+		// Define o subtotal como 0 se o carrinho estiver vazio
+		const subtotalValue = productsInCart.length > 0 ? totalCartValue : 0;
+
+		// Atualiza o estado do subtotal
+		setSubtotal(subtotalValue);
+	}, [cart]); // Adiciona 'cart' como dependência para que o useEffect seja executado sempre que o carrinho for atualizado
 
 	// Função para remover itens do carrinho de compra
 	const handleRemoveFromCart = () => {
@@ -323,7 +335,7 @@ function Navbar() {
 												: `${cart} itens`}
 										</span>
 										<span className="text-info">
-											Subtotal:
+											Subtotal:{" "}
 											{subtotal.toLocaleString("pt-BR", {
 												style: "currency",
 												currency: "BRL",
@@ -338,7 +350,7 @@ function Navbar() {
 										</div>
 										<div className="card-actions">
 											<button className="btn btn-primary btn-block">
-												Finalizar Compra
+												Ver Carrinho
 											</button>
 										</div>
 									</div>
