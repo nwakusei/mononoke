@@ -9,7 +9,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -e ts -w ./ -x yarn start:server",
+    "dev": "nodemon -e ts -w ./ -x yarn start:server",
     "start:server": "node --loader ts-node/esm ./server.ts localhost 5000"
   },
   "keywords": [],
