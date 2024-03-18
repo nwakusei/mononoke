@@ -145,6 +145,7 @@ class OtakupayController {
 	static async buyOtamart(req: Request, res: Response) {
 		const { productID } = req.body;
 		const {
+			productName,
 			orderNumber,
 			statusOrder,
 			paymentMethod,
@@ -478,6 +479,7 @@ class OtakupayController {
 			// CRIAR UM NOVO PEDIDO
 			const order = new OrderModel({
 				productID: product._id,
+				productName: product.productName,
 				orderNumber: new ObjectId().toHexString().toUpperCase(),
 				statusOrder: "Aprovado",
 				paymentMethod,
