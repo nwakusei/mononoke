@@ -5,6 +5,7 @@ import mongoose, { Schema, model } from "mongoose";
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOrder {
 	productID: mongoose.Schema.Types.ObjectId;
+	productName: string;
 	orderNumber: string;
 	statusOrder: string;
 	paymentMethod: string;
@@ -37,6 +38,10 @@ const orderSchema = new Schema<IOrder>(
 		productID: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "ProductModel",
+			required: true,
+		},
+		productName: {
+			type: String,
 			required: true,
 		},
 		orderNumber: {
