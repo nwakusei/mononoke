@@ -53,7 +53,7 @@ function Navbar() {
 
 		// Soma todas as quantidades dos produtos no carrinho
 		const totalQuantityProducts = productsInCart.reduce(
-			(total, product) => total + product.quantidade,
+			(total, product) => total + product.quantityThisProduct,
 			0
 		);
 
@@ -62,7 +62,7 @@ function Navbar() {
 
 		// Calcula o preço total do carrinho
 		const totalCartValue = productsInCart.reduce(
-			(total, product) => total + product.productPrice,
+			(total, product) => total + product.productPriceTotal,
 			0
 		);
 
@@ -325,7 +325,7 @@ function Navbar() {
 								</div>
 								<div
 									tabIndex={0}
-									className="mt-3 z-[2] card card-compact dropdown-content w-52 bg-base-100 shadow">
+									className="mt-[16px] z-[2] card card-compact dropdown-content w-52 bg-base-100 shadow">
 									<div className="card-body">
 										<span className="font-bold text-lg">
 											{cart === 0
@@ -368,7 +368,7 @@ function Navbar() {
 								</label>
 								<ul
 									tabIndex={0}
-									className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+									className="mt-[15px] z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
 									{/* <li>
 										<Link
 											className="flex flex-row items-center justify-between text-white"

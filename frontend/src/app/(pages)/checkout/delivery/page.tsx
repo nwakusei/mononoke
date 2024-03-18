@@ -61,6 +61,9 @@ function DeliveryPage() {
 							<div className="flex flex-row gap-4">
 								<GrLocation size={25} />
 								<div>
+									<h1 className="text-base font-semibold mb-2">
+										Endereço de Entrega:
+									</h1>
 									<h1 className="text-base">
 										Avenida Lourenço Cabreira, 648
 									</h1>
@@ -82,6 +85,7 @@ function DeliveryPage() {
 								<LiaShippingFastSolid size={25} />
 								<div>
 									<h1>Transportadora: Loggi</h1>
+									<h2>Custo do Frete: R$ 10,00</h2>
 									<h2>Prazo de Envio: 3 dias</h2>
 									<h2>Previsão de Entrega: 10 dias</h2>
 								</div>

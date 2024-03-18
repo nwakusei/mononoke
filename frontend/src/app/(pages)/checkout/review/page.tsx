@@ -74,6 +74,9 @@ function ReviewInfoPage() {
 							<div className="flex flex-row gap-4">
 								<GrLocation size={25} />
 								<div>
+									<h1 className="text-base font-semibold mb-2">
+										Endereço de Entrega:
+									</h1>
 									<h1 className="text-base">
 										Avenida Lourenço Cabreira, 648
 									</h1>

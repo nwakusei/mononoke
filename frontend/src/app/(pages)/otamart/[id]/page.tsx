@@ -250,6 +250,7 @@ function ProductPage() {
 
 		// Calcula o preço total do produto
 		let productPrice;
+		let productPriceTotal;
 
 		if (
 			product.promocionalPrice &&
@@ -257,12 +258,14 @@ function ProductPage() {
 			Number(product.promocionalPrice.$numberDecimal) > 0
 		) {
 			productPrice = Number(product.promocionalPrice.$numberDecimal);
+			productPriceTotal: Number(product.promocionalPrice.$numberDecimal);
 		} else if (
 			product.originalPrice &&
 			product.originalPrice.$numberDecimal &&
 			Number(product.originalPrice.$numberDecimal) > 0
 		) {
 			productPrice = Number(product.originalPrice.$numberDecimal);
+			productPriceTotal: Number(product.originalPrice.$numberDecimal);
 		} else {
 			// Se não houver nenhum preço válido, retorna um erro ou define como 0
 			console.error("Preço do produto inválido:", product);
@@ -271,14 +274,18 @@ function ProductPage() {
 
 		// Verifica se o produto já está no carrinho pelo ID
 		const existingProduct = productsInCart.find(
-			(p) => p.id === product._id
+			(p) => p.productID === product._id
 		);
 
 		if (existingProduct) {
 			// Se o produto já estiver no carrinho, apenas atualiza a quantidade,
 			// limitando ao estoque disponível
-			const totalQuantity = existingProduct.quantidade + quantity;
-			existingProduct.quantidade = Math.min(totalQuantity, product.stock);
+			const totalQuantity =
+				existingProduct.quantityThisProduct + quantity;
+			existingProduct.quantityThisProduct = Math.min(
+				totalQuantity,
+				product.stock
+			);
 
 			// Verifica se a quantidade ultrapassou o estoque
 			if (totalQuantity > product.stock) {
@@ -288,15 +295,20 @@ function ProductPage() {
 			}
 
 			// Atualiza o preço total do produto no carrinho multiplicando a quantidade pelo preço unitário
-			existingProduct.productPrice =
-				existingProduct.quantidade * productPrice;
+			existingProduct.productPriceTotal =
+				existingProduct.quantityThisProduct * productPrice;
 		} else {
 			// Caso contrário, adiciona o novo produto ao array de produtos
 			const newProduct = {
-				id: product._id,
-				name: product.productName,
-				quantidade: Math.min(quantity, product.stock),
-				productPrice: Math.min(quantity, product.stock) * productPrice, // Calcula o preço total do produto
+				productID: product._id,
+				productName: product.productName,
+				imageProduct: product.imagesProduct[0],
+				quantityThisProduct: Math.min(quantity, product.stock),
+				productPrice: productPrice,
+				productPriceTotal:
+					Math.min(quantity, product.stock) * productPrice, // Calcula o preço total do produto
+				daysShipping: product.daysShipping,
+				freeShipping: product.freeShipping,
 			};
 			productsInCart.push(newProduct);
 		}
@@ -309,14 +321,14 @@ function ProductPage() {
 			);
 			// Atualiza o estado do carrinho com o total de produtos
 			const totalQuantityProducts = productsInCart.reduce(
-				(total, product) => total + product.quantidade,
+				(total, product) => total + product.quantityThisProduct,
 				0
 			);
 
 			setCart(totalQuantityProducts);
 			// Calcula o preço total do carrinho
 			const totalCartValue = productsInCart.reduce(
-				(total, product) => total + product.productPrice, // Soma os preços totais de cada produto
+				(total, product) => total + product.productPriceTotal, // Soma os preços totais de cada produto
 				0
 			);
 			// Define o subtotal como 0 se o carrinho estiver vazio
