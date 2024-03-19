@@ -493,7 +493,16 @@ class ProductController {
 	// }
 
 	static async simulateShipping(req: Request, res: Response) {
-		const { cepDestino } = req.body;
+		const {
+			cepDestino,
+			weight,
+			height,
+			width,
+			length,
+			productPrice,
+			productPriceTotal,
+			quantityThisProduct,
+		} = req.body;
 
 		if (!cepDestino) {
 			res.status(422).json({ message: "O CEP é obrigatório!" });
@@ -502,32 +511,22 @@ class ProductController {
 
 		const kanguApiUrl =
 			"https://portal.kangu.com.br/tms/transporte/simular";
+
 		const tokenKangu = "8bdcdd65ac61c68aa615f3da4a3754b4";
 
 		const requestBody = {
 			cepOrigem: "04812010",
 			cepDestino: cepDestino,
-			vlrMerc: 0,
-			pesoMerc: 0,
-			volumes: [
-				{
-					peso: 0.25,
-					altura: 3,
-					largura: 13,
-					comprimento: 21,
-					tipo: "string",
-					valor: 49.9,
-					quantidade: 1,
-				},
-			],
+			vlrMerc: productPriceTotal,
+			pesoMerc: weight * quantityThisProduct,
 			produtos: [
 				{
-					peso: 0.25,
-					altura: 3,
-					largura: 13,
-					comprimento: 21,
-					valor: 49.9,
-					quantidade: 1,
+					peso: weight,
+					altura: height,
+					largura: width,
+					comprimento: length,
+					valor: productPrice,
+					quantidade: quantityThisProduct,
 				},
 			],
 			servicos: ["string"],

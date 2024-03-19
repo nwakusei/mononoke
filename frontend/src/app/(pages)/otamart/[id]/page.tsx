@@ -61,30 +61,6 @@ function ProductPage() {
 		fetchProduct();
 	}, [id]);
 
-	// Função para Calcular o Frete
-	async function handleSimulateShipping(cep: number) {
-		// Adicione cep como parâmetro
-		try {
-			const response = await api.post("/products/simulate-shipping", {
-				cepDestino: cep,
-			}); // Passar cep como parte do corpo da solicitação
-			setTransportadoras(response.data);
-		} catch (error) {
-			console.error("Ocorreu um erro:", error);
-		}
-	}
-
-	// Função para lidar com o clique no botão de Calculo de Frete
-	const handleButtonClick = () => {
-		setIsCalculating(true);
-
-		handleSimulateShipping(cepDestino);
-
-		setTimeout(() => {
-			setIsCalculating(false);
-		}, 1000);
-	};
-
 	// Valor a ser Exibido no Anúncio (Preço Original ou Promocional)
 	const value =
 		Number(product.promocionalPrice?.$numberDecimal) > 0
@@ -339,72 +315,57 @@ function ProductPage() {
 		}
 	}
 
-	// function handleAdicionarAoCarrinho(quantity, product) {
-	// 	// Recupera os produtos já existentes no localStorage, se houver
-	// 	let productsInCart = localStorage.getItem("productsInCart");
+	// Função para Calcular o Frete
+	async function handleSimulateShipping(cep: number) {
+		let productPrice;
 
-	// 	if (!productsInCart) {
-	// 		productsInCart = [];
-	// 	} else {
-	// 		productsInCart = JSON.parse(productsInCart);
-	// 	}
+		if (
+			product.promocionalPrice &&
+			product.promocionalPrice.$numberDecimal &&
+			Number(product.promocionalPrice.$numberDecimal) > 0
+		) {
+			// Se houver um preço promocional válido, use-o como preço do produto
+			productPrice = Number(product.promocionalPrice.$numberDecimal);
+		} else if (
+			product.originalPrice &&
+			product.originalPrice.$numberDecimal &&
+			Number(product.originalPrice.$numberDecimal) > 0
+		) {
+			// Se não houver preço promocional válido, mas houver um preço original válido, use-o como preço do produto
+			productPrice = Number(product.originalPrice.$numberDecimal);
+		} else {
+			// Se não houver nenhum preço válido, retorne um erro ou defina o preço como 0
+			console.error("Preço do produto inválido:", product);
+			return;
+		}
 
-	// 	// Calcula o subtotal do produto
-	// 	const orderPrice = Number(
-	// 		product.promocionalPrice?.$numberDecimal ||
-	// 			product.originalPrice?.$numberDecimal
-	// 	);
+		try {
+			const response = await api.post("/products/simulate-shipping", {
+				cepDestino: cep,
+				weight: product.weight, // Adicione o peso do produto
+				height: product.height, // Adicione a altura do produto
+				width: product.width, // Adicione a largura do produto
+				length: product.length, // Adicione o comprimento do produto
+				productPrice: productPrice, // Adicione o preço unitário do produto
+				productPriceTotal: productPrice * quantity, // Adicione o preço total do produto
+				quantityThisProduct: quantity, // Adicione a quantidade do produto
+			}); // Passar cep como parte do corpo da solicitação
+			setTransportadoras(response.data);
+		} catch (error) {
+			console.error("Ocorreu um erro:", error);
+		}
+	}
 
-	// 	// Verifica se o produto já está no carrinho pelo ID
-	// 	const existingProduct = productsInCart.find(
-	// 		(p) => p.id === product._id
-	// 	);
+	// Função para lidar com o clique no botão de Calculo de Frete
+	const handleButtonClick = () => {
+		setIsCalculating(true);
 
-	// 	if (existingProduct) {
-	// 		// Se o produto já estiver no carrinho, apenas atualiza a quantidade,
-	// 		// limitando ao estoque disponível
-	// 		const totalQuantity = existingProduct.quantidade + quantity;
-	// 		existingProduct.quantidade = Math.min(totalQuantity, product.stock);
+		handleSimulateShipping(cepDestino);
 
-	// 		// Verifica se a quantidade ultrapassou o estoque
-	// 		if (totalQuantity > product.stock) {
-	// 			toast.warning(
-	// 				"Você atingiu o limite de estoque para este produto!"
-	// 			);
-	// 		}
-	// 	} else {
-	// 		// Caso contrário, adiciona o novo produto ao array de produtos
-	// 		const newProduct = {
-	// 			id: product._id,
-	// 			name: product.productName,
-	// 			quantidade: Math.min(quantity, product.stock),
-	// 			subtotal: orderPrice, // Usa o subtotal calculado
-	// 		};
-	// 		productsInCart.push(newProduct);
-	// 	}
-
-	// 	// Tenta armazenar o array de produtos no localStorage
-	// 	try {
-	// 		localStorage.setItem(
-	// 			"productsInCart",
-	// 			JSON.stringify(productsInCart)
-	// 		);
-	// 		// Atualiza o estado do carrinho com o total de produtos
-	// 		const totalQuantityProducts = productsInCart.reduce(
-	// 			(total, product) => total + product.quantidade,
-	// 			0
-	// 		);
-
-	// 		const teste = productsInCart.map((product) => {
-	// 			product.quantidade * orderPrice;
-	// 		});
-
-	// 		setCart(totalQuantityProducts);
-	// 		setSubtotal(teste);
-	// 	} catch (error) {
-	// 		console.log("Erro ao adicionar o produto ao carrinho!", error);
-	// 	}
-	// }
+		setTimeout(() => {
+			setIsCalculating(false);
+		}, 1000);
+	};
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">

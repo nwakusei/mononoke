@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import api from "@/utils/api";
+import { toast } from "react-toastify";
 
 // imagens estáticas
-import Lycoris from "../../../../../public/lycoris.jpg";
 
 // Context
+import { CartContext } from "@/context/CartContext";
 
 // Icons
 import { Coupon, IdCardH, ShoppingCartOne } from "@icon-park/react";
@@ -27,11 +27,8 @@ import { FiInfo } from "react-icons/fi";
 
 // Components
 
-// Context
-import { Context } from "@/context/UserContext";
-import { CartContext } from "@/context/CartContext";
-
 function CartPage() {
+	const { setCart } = useContext(CartContext);
 	const [quantity, setQuantity] = useState(1);
 	const [productsInCart, setProductsInCart] = useState([]);
 
@@ -47,19 +44,110 @@ function CartPage() {
 	}, []); // Executa apenas uma vez, quando o componente é montado
 
 	// Funções para aumentar e diminuir a quantidade
-	const decreaseQuantity = () => {
-		if (quantity > 1) {
-			setQuantity(quantity - 1);
+	const decreaseQuantity = (productId) => {
+		try {
+			let productsInCart =
+				JSON.parse(localStorage.getItem("productsInCart")) || [];
+			const index = productsInCart.findIndex(
+				(item) => item.productID === productId
+			);
+
+			if (index !== -1) {
+				if (productsInCart[index].quantityThisProduct > 1) {
+					productsInCart[index].quantityThisProduct--;
+
+					const productPrice = productsInCart[index].productPrice;
+					productsInCart[index].productPriceTotal =
+						productsInCart[index].quantityThisProduct *
+						productPrice;
+
+					localStorage.setItem(
+						"productsInCart",
+						JSON.stringify(productsInCart)
+					);
+
+					// Atualiza o estado local imediatamente após a modificação do localStorage
+					setProductsInCart([...productsInCart]);
+
+					// Atualiza o estado do carrinho com a nova quantidade de itens
+					const totalQuantityProducts = productsInCart.reduce(
+						(total, product) => total + product.quantityThisProduct,
+						0
+					);
+					setCart(totalQuantityProducts);
+				}
+			}
+		} catch (error) {
+			console.log("Erro ao diminuir quantidade do produto", error);
 		}
 	};
 
-	const increaseQuantity = () => {
-		setQuantity(quantity + 1);
+	const increaseQuantity = (productId) => {
+		try {
+			let productsInCart =
+				JSON.parse(localStorage.getItem("productsInCart")) || [];
+			const index = productsInCart.findIndex(
+				(item) => item.productID === productId
+			);
+
+			if (index !== -1) {
+				productsInCart[index].quantityThisProduct++;
+
+				const productPrice = productsInCart[index].productPrice;
+				productsInCart[index].productPriceTotal =
+					productsInCart[index].quantityThisProduct * productPrice;
+
+				localStorage.setItem(
+					"productsInCart",
+					JSON.stringify(productsInCart)
+				);
+
+				// Atualiza o estado local imediatamente após a modificação do localStorage
+				setProductsInCart([...productsInCart]);
+
+				// Atualiza o estado do carrinho com a nova quantidade de itens
+				const totalQuantityProducts = productsInCart.reduce(
+					(total, product) => total + product.quantityThisProduct,
+					0
+				);
+				setCart(totalQuantityProducts);
+			}
+		} catch (error) {
+			console.log("Erro ao aumentar quantidade do produto", error);
+			toast.error("Erro ao aumentar quantidade do produto");
+		}
+	};
+
+	// Função para remover itens do carrinho de compra
+	const handleRemoveFromCart = (productId) => {
+		try {
+			// Recupera o array atual do localStorage
+			let productsInCart =
+				JSON.parse(localStorage.getItem("productsInCart")) || [];
+
+			// Filtra o array para remover o item com o ID específico
+			const updatedCart = productsInCart.filter(
+				(item) => item.productID !== productId
+			);
+
+			// Salva o novo array no localStorage
+			localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
+
+			// Atualiza o estado local productsInCart
+			setProductsInCart(updatedCart);
+
+			// Atualiza o estado do carrinho com a nova quantidade de itens
+			setCart(updatedCart.length);
+			toast.success("Produto removido com sucesso!");
+		} catch (error) {
+			console.log("Erro ao remover produto!", error);
+			toast.error("Erro ao remover produto!");
+		}
 	};
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 min-h-screen">
-			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4">
+			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4 mb-8">
 				<div className="flex flex-col justify-center mb-8">
 					<ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
 						<li className="step step-primary">
@@ -88,7 +176,7 @@ function CartPage() {
 				</div>
 				<div className="flex flex-row justify-center gap-6 bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 					<div className="flex flex-col items-center">
-						{productsInCart.length > 0 &&
+						{productsInCart.length > 0 ? (
 							productsInCart.map((productInCart) => (
 								<div
 									key={productInCart.productID}
@@ -113,7 +201,11 @@ function CartPage() {
 											</h2>
 											<div className="flex flex-row items-center gap-2">
 												<button
-													onClick={decreaseQuantity}
+													onClick={() =>
+														decreaseQuantity(
+															productInCart.productID
+														)
+													}
 													className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
 													<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg cursor-pointer active:scale-[.97]">
 														-
@@ -126,7 +218,11 @@ function CartPage() {
 												</span>
 
 												<button
-													onClick={increaseQuantity}
+													onClick={() =>
+														increaseQuantity(
+															productInCart.productID
+														)
+													}
 													className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
 													<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg  cursor-pointer active:scale-[.97]">
 														+
@@ -150,110 +246,123 @@ function CartPage() {
 									</div>
 
 									<div>
-										<div className="flex flex-col items-center justify-center border-[1px] border-purple-500 w-10 h-10 transition-all ease-in duration-200 hover:shadow-md hover:bg-purple-500 rounded cursor-pointer">
+										<div
+											onClick={() =>
+												handleRemoveFromCart(
+													productInCart.productID
+												)
+											}
+											className="flex flex-col items-center justify-center border-[1px] border-purple-500 w-10 h-10 transition-all ease-in duration-200 hover:shadow-md hover:bg-purple-500 active:scale-[.97] rounded cursor-pointer">
 											<MdOutlineDeleteOutline size={25} />
 										</div>
 									</div>
 								</div>
-							))}
+							))
+						) : (
+							<div>
+								<h1>Carrinho Vazio</h1>
+							</div>
+						)}
 					</div>
 
 					<div>
 						{productsInCart.length > 0 && (
-							<div className="flex flex-col w-[400px] min-h-[250px] bg-gray-500 p-4 rounded-md mb-2">
-								<div>
-									<h1 className="text-lg font-semibold mb-4">
-										Seu Pedido
-									</h1>
-									{productsInCart.map((productInCart) => (
-										<div
-											key={productInCart.productID}
-											className="flex justify-between mb-2">
-											<h2>
-												{
-													productInCart.quantityThisProduct
-												}{" "}
-												x {productInCart.productName}
+							<div>
+								{" "}
+								<div className="flex flex-col w-[400px] min-h-[250px] bg-gray-500 p-4 rounded-md mb-2">
+									<div>
+										<h1 className="text-lg font-semibold mb-4">
+											Seu Pedido
+										</h1>
+										{productsInCart.map((productInCart) => (
+											<div
+												key={productInCart.productID}
+												className="flex justify-between mb-2">
+												<h2>
+													{
+														productInCart.quantityThisProduct
+													}{" "}
+													x{" "}
+													{productInCart.productName}
+												</h2>
+												<h2>
+													{productInCart.productPriceTotal.toLocaleString(
+														"pt-BR",
+														{
+															style: "currency",
+															currency: "BRL",
+														}
+													)}
+												</h2>
+											</div>
+										))}
+									</div>
+
+									<div className="divider"></div>
+									<div className="">
+										<div className="flex justify-between mb-1">
+											<h2 className="flex items-center justify-center gap-1">
+												Subtotal{" "}
+												<div
+													className="tooltip cursor-pointer"
+													data-tip="Não inclui o valor do frete!">
+													<FiInfo
+														className="animate-pulse"
+														size={16}
+													/>
+												</div>
 											</h2>
 											<h2>
-												{productInCart.productPriceTotal.toLocaleString(
-													"pt-BR",
-													{
+												{productsInCart
+													.reduce(
+														(
+															total,
+															productInCart
+														) =>
+															total +
+															productInCart.productPriceTotal,
+														0
+													)
+													.toLocaleString("pt-BR", {
 														style: "currency",
 														currency: "BRL",
-													}
-												)}
+													})}
 											</h2>
 										</div>
-									))}
-								</div>
 
-								<div className="divider"></div>
-								<div className="">
-									<div className="flex justify-between mb-1">
-										<h2 className="flex items-center justify-center gap-1">
-											Subtotal{" "}
-											<div
-												className="tooltip cursor-pointer"
-												data-tip="Não inclui o valor do frete!">
-												<FiInfo
-													className="animate-pulse"
-													size={16}
-												/>
-											</div>
-										</h2>
-										<h2>
-											{productsInCart
-												.reduce(
-													(total, productInCart) =>
-														total +
-														productInCart.productPriceTotal,
-													0
-												)
-												.toLocaleString("pt-BR", {
-													style: "currency",
-													currency: "BRL",
-												})}
-										</h2>
+										<div className="flex justify-between mb-1">
+											<h2>Frete</h2>
+											<h2>R$ 10,00</h2>
+										</div>
+										<div className="flex justify-between mb-1">
+											<h2>Desconto do cupom</h2>
+											<h2>—</h2>
+										</div>
 									</div>
-									<div className="flex justify-between mb-1">
-										<h2>Frete</h2>
-										<h2>R$ 10,00</h2>
-									</div>
-									<div className="flex justify-between mb-1">
-										<h2>Desconto do cupom</h2>
-										<h2>—</h2>
+									<div className="divider"></div>
+									<div className="">
+										<div className="flex justify-between mb-2">
+											<h2 className="font-semibold">
+												Total do Pedido
+											</h2>
+											<h2>R$ 640,00</h2>
+										</div>
 									</div>
 								</div>
-								<div className="divider"></div>
-								<div className="">
-									<div className="flex justify-between mb-2">
-										<h2 className="font-semibold">
-											Total do Pedido
-										</h2>
-										<h2>R$ 640,00</h2>
+								<label className="flex flex-row w-[400px] gap-2">
+									<div className="flex flex-col w-[260px]">
+										<input
+											type="text"
+											placeholder="Insira o código do Cupom"
+											className="input input-bordered w-full mb-2"
+										/>
 									</div>
-								</div>
+									<button className="btn btn-primary w-[130px]">
+										Aplicar <Coupon size={20} />
+									</button>
+								</label>
 							</div>
 						)}
-
-						<label className="flex flex-row w-[400px] gap-2">
-							<div className="flex flex-col w-[260px]">
-								{/* <div className="label">
-									<span className="label-text font-semibold">
-										Cupom de Desconto
-									</span>
-								</div> */}
-								<input
-									type="text"
-									placeholder="Insira o código do Cupom"
-									className="input input-bordered w-full mb-2"
-								/>
-							</div>
-							<button className="btn btn-primary w-[130px]">
-								Aplicar <Coupon size={20} />
-							</button>
-						</label>
 					</div>
 				</div>
 
