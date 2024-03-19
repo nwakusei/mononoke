@@ -27,7 +27,7 @@ interface IOrder {
 	shippingMethod: string;
 	statusShipping: string;
 	daysShipping: number;
-	trackingNumber: string;
+	trackingCode: string;
 	discountsApplied: number;
 	orderNote: string;
 }
@@ -120,7 +120,7 @@ const orderSchema = new Schema<IOrder>(
 			type: Number,
 			required: true,
 		},
-		trackingNumber: {
+		trackingCode: {
 			type: String,
 		},
 		discountsApplied: {

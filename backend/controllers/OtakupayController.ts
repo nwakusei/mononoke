@@ -163,7 +163,6 @@ class OtakupayController {
 			shippingMethod,
 			statusShipping,
 			daysShipping,
-			trackingNumber,
 			discountsApplied,
 			orderNote,
 		} = req.body;
@@ -501,7 +500,7 @@ class OtakupayController {
 				shippingMethod,
 				statusShipping: "Aguardando envio",
 				daysShipping: product.daysShipping,
-				trackingNumber,
+				trackingCode: "",
 				discountsApplied,
 				orderNote,
 			});
