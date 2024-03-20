@@ -515,7 +515,7 @@ class ProductController {
 		const tokenKangu = "8bdcdd65ac61c68aa615f3da4a3754b4";
 
 		const requestBody = {
-			cepOrigem: "04812010",
+			cepOrigem: "04851511",
 			cepDestino: cepDestino,
 			vlrMerc: productPriceTotal,
 			pesoMerc: weight * quantityThisProduct,
