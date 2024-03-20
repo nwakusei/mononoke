@@ -13,6 +13,10 @@ import api from "@/utils/api";
 import { Context } from "@/context/UserContext";
 import { CartContext } from "@/context/CartContext";
 
+// Components
+import { ProductVariation } from "@/components/ProductVariation";
+import { SideComponent } from "@/components/SideComponent";
+
 // Importe suas imagens e ícones aqui
 import Lycoris from "../../../../../public/lycoris.jpg";
 import Amora from "../../../../../public/amora.jpg";
@@ -37,8 +41,9 @@ function ProductPage() {
 	const [transportadoras, setTransportadoras] = useState([]);
 	const [isCalculating, setIsCalculating] = useState(false);
 	const [cepDestino, setCepDestino] = useState(""); // Estado para armazenar o valor do input
-	const [selected, setSelected] = useState<{ [key: string]: boolean }>({});
-	const [variation, setVariation] = useState<{ [key: string]: boolean }>({});
+	const [selectedTransportadoraId, setSelectedTransportadoraId] = useState<{
+		[key: string]: boolean;
+	}>({});
 	const stock = product.stock; // Constante que irá representar a quantidade de estoque que vem do Banco de Dados
 
 	const { partners } = useContext(Context);
@@ -69,7 +74,7 @@ function ProductPage() {
 
 	// Função para selecionar variações
 	function handleSelected(itemId: string) {
-		setSelected((prevState) => {
+		setSelectedTransportadoraId((prevState) => {
 			// Desmarca todos os itens selecionados, exceto o item clicado
 			const deselectedItems = Object.keys(prevState).reduce(
 				(acc, key) => ({
@@ -79,23 +84,6 @@ function ProductPage() {
 				{}
 			);
 
-			return {
-				...deselectedItems,
-				[itemId]: !prevState[itemId],
-			};
-		});
-	}
-
-	function handleVariation(itemId: string) {
-		setVariation((prevState) => {
-			// Coment
-			const deselectedItems = Object.keys(prevState).reduce(
-				(acc, key) => ({
-					...acc,
-					[key]: key === itemId ? !prevState[key] : false,
-				}),
-				{}
-			);
 			return {
 				...deselectedItems,
 				[itemId]: !prevState[itemId],
@@ -214,7 +202,13 @@ function ProductPage() {
 		return ratingIcons;
 	};
 
-	function handleAddProductInCart(quantity, product) {
+	function handleAddProductInCart(
+		quantity,
+		product,
+		selectedTransportadoraId
+	) {
+		const transportadoraId = Object.keys(selectedTransportadoraId)[0];
+
 		// Recupera os produtos já existentes no localStorage, se houver
 		let productsInCart = localStorage.getItem("productsInCart");
 
@@ -285,8 +279,15 @@ function ProductPage() {
 					Math.min(quantity, product.stock) * productPrice, // Calcula o preço total do produto
 				daysShipping: product.daysShipping,
 				freeShipping: product.freeShipping,
+				transportadora: {
+					id: selectedTransportadoraId,
+					// Outros dados relevantes da transportadora
+				},
 			};
 			productsInCart.push(newProduct);
+
+			// Adicione a transportadora selecionada ao objeto do produto
+			newProduct.selectedTransportadoraId = transportadoraId;
 		}
 
 		// Tenta armazenar o array de produtos no localStorage
@@ -357,10 +358,10 @@ function ProductPage() {
 	}
 
 	// Função para lidar com o clique no botão de Calculo de Frete
-	const handleButtonClick = () => {
+	const handleButtonClick = (selectedTransportadoraId) => {
 		setIsCalculating(true);
 
-		handleSimulateShipping(cepDestino);
+		handleSimulateShipping(cepDestino, selectedTransportadoraId);
 
 		setTimeout(() => {
 			setIsCalculating(false);
@@ -369,7 +370,7 @@ function ProductPage() {
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">
-			<div className="bg-yellow-500 flex flex-row gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+			<div className="bg-yellow-500 flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
 				{/* Componente de Imagem Principal */}
 				<div className="flex flex-col">
 					<div className="bg-base-100 w-[402px] rounded-md relative shadow-lg mb-2">
@@ -402,15 +403,14 @@ function ProductPage() {
 				</div>
 
 				{/* Componente intermediário */}
-				<div className="flex flex-col">
+				<div className="flex flex-col w-[350px]">
 					{/* Título */}
 					<h1 className="text-xl font-semibold mb-1">
 						{product.productName}
 					</h1>
 					{/* Avaliações e Vendidos */}
-					<div className="flex flex-row items-center text-sm mb-4 gap-2">
+					<div className="flex flex-row text-sm mb-4 gap-1">
 						<div className="flex items-center gap-1">
-							{" "}
 							{/* Contêiner flexível para os ícones */}
 							{renderRatingIcons()}
 						</div>
@@ -436,6 +436,7 @@ function ProductPage() {
 								: `${product.productsSold} Vendido`}
 						</div>
 					</div>
+
 					{/* Preço */}
 					{product.promocionalPrice?.$numberDecimal > 0 ? (
 						<div>
@@ -488,295 +489,11 @@ function ProductPage() {
 					)}
 
 					{/* Variações */}
-					<div className="flex flex-col mb-2">
-						<h2 className="mb-1">
-							<span>Escolha a Cor:</span>
-						</h2>
-						<div className="flex flex-row gap-2">
-							<div
-								onClick={() => handleVariation("item1")}
-								className={`${
-									variation["item1"] ? "bg-sky-500" : ""
-								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-blue-500 rounded-md cursor-pointer`}>
-								<span>Preto</span>
-							</div>
-
-							<div
-								onClick={() => handleVariation("item2")}
-								className={`${
-									variation["item2"] ? "bg-sky-500" : ""
-								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-blue-500 rounded-md cursor-pointer`}>
-								<span>Azul</span>
-							</div>
-
-							<div
-								onClick={() => handleVariation("item3")}
-								className={`${
-									variation["item3"] ? "bg-sky-500" : ""
-								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-blue-500 rounded-md cursor-pointer`}>
-								<span>Rosa</span>
-							</div>
-
-							<div
-								onClick={() => handleVariation("item4")}
-								className={`${
-									variation["item4"] ? "bg-sky-500" : ""
-								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-blue-500 rounded-md cursor-pointer`}>
-								<span>Amarelo</span>
-							</div>
-						</div>
-					</div>
-					{/* Variações */}
-					<div className="flex flex-col mb-2">
-						<h2 className="mb-1">
-							<span>Escolha a Cor:</span>
-						</h2>
-						<div className="flex flex-row gap-2">
-							<div
-								onClick={() => handleVariation("item5")}
-								className={`${
-									variation["item5"] ? "bg-sky-500" : ""
-								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-blue-500 rounded-md cursor-pointer`}>
-								<span>P</span>
-							</div>
-
-							<div
-								onClick={() => handleVariation("item6")}
-								className={`${
-									variation["item6"] ? "bg-sky-500" : ""
-								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-blue-500 rounded-md cursor-pointer`}>
-								<span>M</span>
-							</div>
-
-							<div
-								onClick={() => handleVariation("item7")}
-								className={`${
-									variation["item7"] ? "bg-sky-500" : ""
-								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-blue-500 rounded-md cursor-pointer`}>
-								<span>G</span>
-							</div>
-
-							<div
-								onClick={() => handleVariation("item8")}
-								className={`${
-									variation["item8"] ? "bg-sky-500" : ""
-								} hover:bg-sky-500 transition-all ease-in duration-150 py-2 px-4 border-solid border-2 border-blue-500 rounded-md cursor-pointer`}>
-								<span>GG</span>
-							</div>
-						</div>
-					</div>
+					<ProductVariation />
 				</div>
 
 				{/* Componente Lateral D. */}
-				<div className="flex flex-col">
-					<div className="border rounded-lg mb-2">
-						<div className="px-4 mb-2">
-							<h1 className="mb-1">Quantidade</h1>
-							<div className="flex flex-row justify-between items-center mb-2">
-								<div className="border container w-[120px] rounded-md">
-									<div className="flex flex-row justify-between items-center h-[30px]">
-										<button
-											className={`ml-1 px-2 hover:bg-slate-300 hover:opacity-20 hover:text-black rounded-md ${
-												isQuantityOneOrLess
-													? "cursor-not-allowed"
-													: "cursor-pointer"
-											}`}
-											onClick={decrementarQuantidade} // Etapa 3: Adicione o evento de clique
-										>
-											-
-										</button>
-										<input
-											className="w-12 text-center bg-yellow-500 appearance-none"
-											type="number"
-											value={quantity}
-											readOnly
-										/>
-										<button
-											className={`mr-1 px-2 hover:bg-slate-300 hover:opacity-20 hover:text-black rounded-md ${
-												isQuantityAtLimit
-													? "cursor-not-allowed"
-													: "cursor-pointer"
-											}`}
-											onClick={incrementarQuantidade}>
-											+
-										</button>
-									</div>
-								</div>
-								<div className="text-sm">
-									{stock} un disponíveis
-								</div>
-							</div>
-
-							<div className="flex flex-row justify-between mb-2">
-								<div className="font-semibold">Subtotal</div>
-								<div className="font-semibold">
-									{quantity === 1
-										? renderPrice()
-										: totalOrder.toLocaleString("pt-BR", {
-												style: "currency",
-												currency: "BRL",
-										  })}
-								</div>
-							</div>
-
-							<button
-								className="btn btn-outline btn-primary w-full mb-2"
-								onClick={() =>
-									handleAddProductInCart(quantity, product)
-								}>
-								<ShoppingCartOne size={18} />
-								Adicionar ao Carrinho
-							</button>
-							<button className="btn btn-primary w-full mb-2">
-								<PaymentMethod size={18} /> Comprar Agora
-							</button>
-							{/* Componentes pequenos */}
-							<div className="flex flex-row justify-center items-center">
-								<div className="text-sm flex flex-row justify-center items-center hover:bg-slate-300 hover:opacity-20 px-2 py-1 gap-1 rounded cursor-pointer">
-									<GrChat size={12} />
-									<span>Chat</span>
-								</div>
-								|
-								<div className=" text-sm flex flex-row justify-center items-center hover:bg-slate-300 hover:opacity-20 px-2 py-1 gap-1 rounded cursor-pointer">
-									<BsHeart size={12} />
-									<span>Wishlist</span>
-								</div>
-								|
-								<div className="text-sm flex flex-row justify-center items-center hover:bg-slate-300 hover:opacity-20 px-2 py-1 gap-1 rounded cursor-pointer">
-									<GoShareAndroid size={16} />
-									<span>Share</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div>
-						{/* Etiqueta de Encomenda */}
-						{product.preOrder === true ? (
-							<div className="flex flex-row justify-center items-center bg-sky-500 p-2 gap-3 rounded shadow mb-2">
-								<LuCalendarClock size={20} />
-								<h1>
-									Encomenda (envio em {product.daysShipping}{" "}
-									dias)
-								</h1>
-							</div>
-						) : (
-							<></>
-						)}
-					</div>
-
-					{/* Meios de envio/Frete */}
-					<div className="flex flex-col border border-solid p-2 rounded">
-						<div>
-							<h2 className="flex flex-row items-center gap-2 mb-2">
-								<GrLocation size={18} />
-								<span className="text-sm">
-									Enviado de Joinville/SC
-								</span>
-							</h2>
-
-							{product.freeShipping === true ? (
-								<div className="flex flex-row justify-between items-center gap-2 mb-1">
-									<div className="flex flex-row items-center gap-2">
-										<LiaShippingFastSolid size={24} />
-										<span>Frete Grátis</span>
-									</div>
-									<div
-										className="tooltip cursor-pointer"
-										data-tip="A transportadora será escolhida pela loja, de acordo com o melhor custo benefício!">
-										<FiInfo
-											className="animate-pulse"
-											size={18}
-										/>
-									</div>
-								</div>
-							) : (
-								<div>
-									<h2 className="flex flex-row items-center gap-2 mb-1">
-										<LiaShippingFastSolid size={24} />
-										<span>Meios de Envio</span>
-									</h2>
-									<div className="flex flex-row gap-2 mb-2">
-										<input
-											type="text"
-											placeholder="Seu CEP"
-											className="input w-full max-w-[180px]"
-											value={cepDestino} // Valor do input é controlado pelo estado cepDestino
-											onChange={(e) =>
-												setCepDestino(e.target.value)
-											} // Atualizar o estado cepDestino quando o valor do input mudar
-										/>
-										<button
-											type="button"
-											className="btn btn-primary w-[120px]"
-											onClick={handleButtonClick}
-											disabled={isCalculating} // Desabilitar o botão enquanto o cálculo estiver em andamento
-										>
-											{isCalculating ? (
-												<div className="btn btn-primary w-[120px]">
-													<span className="loading loading-spinner loading-xs"></span>
-												</div>
-											) : (
-												"Calcular"
-											)}
-										</button>
-									</div>
-								</div>
-							)}
-
-							{transportadoras.length > 0 ? (
-								transportadoras.map((transportadora) => (
-									<div
-										key={transportadora.idSimulacao}
-										onClick={() =>
-											handleSelected(
-												transportadora.idSimulacao
-											)
-										}
-										className={`${
-											selected[transportadora.idSimulacao]
-												? `bg-sky-500`
-												: ""
-										} hover:bg-sky-500 transition-all ease-in duration-150 border border-solid p-2 rounded cursor-pointer mb-2`}>
-										<div className="flex flex-row justify-between items-center gap-2 mb-1">
-											<span>
-												{transportadora.transp_nome}
-											</span>
-											<h2>
-												{transportadora.tarifas.map(
-													(tarifa, index) => (
-														<h2 key={index}>
-															{tarifa.valor.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}
-														</h2>
-													)
-												)}
-											</h2>
-										</div>
-										<div className="flex flex-row justify-between">
-											<span className="text-sm">
-												Prazo de entrega
-											</span>
-											<h2 className="text-sm">
-												{product.daysShipping +
-													transportadora.prazoEnt}{" "}
-												dias
-											</h2>
-										</div>
-									</div>
-								))
-							) : (
-								<></>
-							)}
-						</div>
-					</div>
-				</div>
+				<SideComponent />
 			</div>
 
 			{/* Descrição do produto*/}
