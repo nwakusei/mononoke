@@ -145,6 +145,16 @@ function CartPage() {
 		}
 	};
 
+	const calculateTotalFrete = () => {
+		let totalFrete = 0;
+		productsInCart.forEach((product) => {
+			if (product.transportadora) {
+				totalFrete += product.transportadora.vlrFrete || 0;
+			}
+		});
+		return totalFrete;
+	};
+
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 min-h-screen">
 			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4 mb-8">
@@ -332,7 +342,23 @@ function CartPage() {
 
 										<div className="flex justify-between mb-1">
 											<h2>Frete</h2>
-											<h2>R$ 10,00</h2>
+											<h2>
+												{/* {productsInCart[0].transportadora?.vlrFrete.toLocaleString(
+													"pt-BR",
+													{
+														style: "currency",
+														currency: "BRL",
+													}
+												)} */}
+
+												{calculateTotalFrete().toLocaleString(
+													"pt-BR",
+													{
+														style: "currency",
+														currency: "BRL",
+													}
+												)}
+											</h2>
 										</div>
 										<div className="flex justify-between mb-1">
 											<h2>Desconto do cupom</h2>
