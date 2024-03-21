@@ -61,7 +61,17 @@ function SideComponent() {
 			: Number(product.originalPrice?.$numberDecimal);
 
 	// Função para selecionar variações
-	function handleSelected(transportadoraId, transportadoraNome) {
+	function handleSelected(
+		transportadoraId,
+		transportadoraNome,
+		transportadoraCNPJ,
+		transportadoraLogo,
+		transportadoraVlrFrete,
+		transportadoraPrazoMin,
+		transportadoraPrazoEnt,
+		transportadoraDtPrevEntMin,
+		transportadoraDtPrevEnt
+	) {
 		setSelectedTransportadora((prevState) => {
 			const deselectedItems = Object.keys(prevState).reduce(
 				(acc, key) => ({
@@ -75,6 +85,13 @@ function SideComponent() {
 				[transportadoraId]: !prevState[transportadoraId],
 				id: transportadoraId,
 				nome: transportadoraNome, // Adiciona o nome da transportadora ao estado
+				cnpj: transportadoraCNPJ,
+				logo: transportadoraLogo,
+				vlrFrete: transportadoraVlrFrete,
+				prazoMin: transportadoraPrazoMin,
+				prazoEnt: transportadoraPrazoEnt,
+				dtPrevEntMin: transportadoraDtPrevEntMin,
+				dtPrevEnt: transportadoraDtPrevEnt,
 			};
 		});
 	}
@@ -143,6 +160,16 @@ function SideComponent() {
 	};
 
 	function handleAddProductInCart(quantity, product, selectedTransportadora) {
+		// Verifica se alguma transportadora foi selecionada
+		const transportadoraSelecionada = Object.values(
+			selectedTransportadora
+		).some((value) => value);
+
+		if (!transportadoraSelecionada && !product.freeShipping === true) {
+			toast.warning("Selecione uma opção de frete!");
+			return; // Retorna para evitar a adição do produto ao carrinho sem transportadora selecionada
+		}
+
 		// Recupera os produtos já existentes no localStorage, se houver
 		let productsInCart = localStorage.getItem("productsInCart");
 
@@ -239,6 +266,8 @@ function SideComponent() {
 		} catch (error) {
 			console.log("Erro ao adicionar o produto ao carrinho!", error);
 		}
+
+		setTransportadoras([]);
 	}
 
 	// Função para Calcular o Frete
@@ -462,7 +491,14 @@ function SideComponent() {
 									onClick={() =>
 										handleSelected(
 											transportadora.idTransp,
-											transportadora.transp_nome
+											transportadora.transp_nome,
+											transportadora.cnpjTransp,
+											transportadora.url_logo,
+											transportadora.vlrFrete,
+											transportadora.prazoEntMin,
+											transportadora.prazoEnt,
+											transportadora.dtPrevEntMin,
+											transportadora.dtPrevEnt
 										)
 									}
 									className={`${
