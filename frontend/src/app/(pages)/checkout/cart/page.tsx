@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-toastify";
 
+import api from "@/utils/api";
+
 // imagens estáticas
 
 // Context
@@ -29,19 +31,114 @@ import { FiInfo } from "react-icons/fi";
 
 function CartPage() {
 	const { setCart } = useContext(CartContext);
-	const [quantity, setQuantity] = useState(1);
 	const [productsInCart, setProductsInCart] = useState([]);
+	const [transportadoras, setTransportadoras] = useState([]);
 
 	useEffect(() => {
-		// Recupera os produtos do carrinho do localStorage
 		const savedProductsInCart = localStorage.getItem("productsInCart");
-
-		// Verifica se há produtos no carrinho no localStorage
 		if (savedProductsInCart) {
-			// Se houver, atualiza o estado com os produtos do carrinho
 			setProductsInCart(JSON.parse(savedProductsInCart));
 		}
-	}, []); // Executa apenas uma vez, quando o componente é montado
+	}, []);
+
+	// useEffect(() => {
+	// 	const savedProductsInCart = localStorage.getItem("productsInCart");
+
+	// 	if (savedProductsInCart) {
+	// 		const products = JSON.parse(savedProductsInCart);
+
+	// 		// Objeto para armazenar os pesos dos produtos por parceiro
+	// 		const partnerWeights = {};
+
+	// 		// Calcular os pesos dos produtos por parceiro
+	// 		products.forEach((product) => {
+	// 			const partnerID = product.partnerID;
+	// 			const weight = product.transportadora?.vlrFrete || 0; // Altere para o campo de peso correto
+	// 			if (partnerWeights[partnerID]) {
+	// 				partnerWeights[partnerID] += weight;
+	// 			} else {
+	// 				partnerWeights[partnerID] = weight;
+	// 			}
+	// 		});
+
+	// 		console.log("Pesos por parceiro:", partnerWeights);
+	// 	}
+	// }, []);
+
+	async function handleSimulateShipping(cep: number, partnerInfo: any) {
+		try {
+			const response = await api.post("/products/simulate-shipping", {
+				cepDestino: cep,
+				partnerInfo: partnerInfo, // Passar as informações do parceiro como parte do corpo da solicitação
+			});
+			setTransportadoras(response.data);
+
+			// Adicione esta linha para verificar o retorno da API
+			console.log("Transportadoras simuladas:", response.data);
+		} catch (error) {
+			console.error("Ocorreu um erro:", error);
+		}
+	}
+
+	useEffect(() => {
+		const savedProductsInCart = localStorage.getItem("productsInCart");
+
+		if (savedProductsInCart) {
+			const products = JSON.parse(savedProductsInCart);
+
+			// Objeto para armazenar as informações dos produtos por parceiro
+			const partnerInfo = {};
+
+			// Variável para armazenar o cepDestino de um dos produtos
+			let cepDestino = null;
+
+			// Calcular as informações dos produtos por parceiro
+			products.forEach((product) => {
+				const partnerID = product.partnerID;
+				const weight = product.weight || 0;
+				const length = product.length || 0;
+				const width = product.width || 0;
+				const height = product.height || 0;
+				cepDestino = product.cepDestino; // Obter o cepDestino de um dos produtos
+
+				const productPrice = product.productPrice || 0;
+				const productPriceTotal = product.productPriceTotal || 0;
+				const quantityThisProduct = product.quantityThisProduct || 0;
+
+				if (!partnerInfo[partnerID]) {
+					partnerInfo[partnerID] = {
+						weight: 0,
+						length: 0,
+						width: 0,
+						height: 0,
+						cepDestino: cepDestino,
+						productPrice: 0,
+						productPriceTotal: 0,
+						quantityThisProduct: 0,
+					};
+				}
+
+				partnerInfo[partnerID].weight += weight;
+				partnerInfo[partnerID].length += length;
+				partnerInfo[partnerID].width += width;
+				partnerInfo[partnerID].height += height;
+				partnerInfo[partnerID].productPrice += productPrice;
+				partnerInfo[partnerID].productPriceTotal += productPriceTotal;
+				partnerInfo[partnerID].quantityThisProduct +=
+					quantityThisProduct;
+			});
+
+			console.log("Informações dos produtos por parceiro:", partnerInfo);
+
+			// Certifique-se de que cepDestino esteja definido antes de chamar handleSimulateShipping
+			if (cepDestino) {
+				// Chamada da função para simular o frete
+				handleSimulateShipping(cepDestino, partnerInfo);
+			} else {
+				console.error("CepDestino não definido.");
+			}
+		}
+	}, []);
 
 	// Funções para aumentar e diminuir a quantidade
 	const decreaseQuantity = (productId) => {
@@ -51,30 +148,18 @@ function CartPage() {
 			const index = productsInCart.findIndex(
 				(item) => item.productID === productId
 			);
-
 			if (index !== -1) {
 				if (productsInCart[index].quantityThisProduct > 1) {
 					productsInCart[index].quantityThisProduct--;
-
 					const productPrice = productsInCart[index].productPrice;
 					productsInCart[index].productPriceTotal =
 						productsInCart[index].quantityThisProduct *
 						productPrice;
-
 					localStorage.setItem(
 						"productsInCart",
 						JSON.stringify(productsInCart)
 					);
-
-					// Atualiza o estado local imediatamente após a modificação do localStorage
 					setProductsInCart([...productsInCart]);
-
-					// Atualiza o estado do carrinho com a nova quantidade de itens
-					const totalQuantityProducts = productsInCart.reduce(
-						(total, product) => total + product.quantityThisProduct,
-						0
-					);
-					setCart(totalQuantityProducts);
 				}
 			}
 		} catch (error) {
@@ -82,35 +167,24 @@ function CartPage() {
 		}
 	};
 
-	const increaseQuantity = (productId) => {
+	const increaseQuantity = async (productId) => {
 		try {
 			let productsInCart =
 				JSON.parse(localStorage.getItem("productsInCart")) || [];
 			const index = productsInCart.findIndex(
 				(item) => item.productID === productId
 			);
-
 			if (index !== -1) {
 				productsInCart[index].quantityThisProduct++;
-
-				const productPrice = productsInCart[index].productPrice;
+				const product = productsInCart[index];
+				const productPrice = product.productPrice;
 				productsInCart[index].productPriceTotal =
 					productsInCart[index].quantityThisProduct * productPrice;
-
 				localStorage.setItem(
 					"productsInCart",
 					JSON.stringify(productsInCart)
 				);
-
-				// Atualiza o estado local imediatamente após a modificação do localStorage
 				setProductsInCart([...productsInCart]);
-
-				// Atualiza o estado do carrinho com a nova quantidade de itens
-				const totalQuantityProducts = productsInCart.reduce(
-					(total, product) => total + product.quantityThisProduct,
-					0
-				);
-				setCart(totalQuantityProducts);
 			}
 		} catch (error) {
 			console.log("Erro ao aumentar quantidade do produto", error);
@@ -121,22 +195,13 @@ function CartPage() {
 	// Função para remover itens do carrinho de compra
 	const handleRemoveFromCart = (productId) => {
 		try {
-			// Recupera o array atual do localStorage
 			let productsInCart =
 				JSON.parse(localStorage.getItem("productsInCart")) || [];
-
-			// Filtra o array para remover o item com o ID específico
 			const updatedCart = productsInCart.filter(
 				(item) => item.productID !== productId
 			);
-
-			// Salva o novo array no localStorage
 			localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
-
-			// Atualiza o estado local productsInCart
 			setProductsInCart(updatedCart);
-
-			// Atualiza o estado do carrinho com a nova quantidade de itens
 			setCart(updatedCart.length);
 			toast.success("Produto removido com sucesso!");
 		} catch (error) {
@@ -187,84 +252,130 @@ function CartPage() {
 				<div className="flex flex-row justify-center gap-6 bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 					<div className="flex flex-col items-center">
 						{productsInCart.length > 0 ? (
-							productsInCart.map((productInCart) => (
+							Object.values(
+								productsInCart.reduce((acc, product) => {
+									if (!acc[product.partnerID]) {
+										acc[product.partnerID] = [product];
+									} else {
+										acc[product.partnerID].push(product);
+									}
+									return acc;
+								}, {})
+							).map((partnerProducts) => (
 								<div
-									key={productInCart.productID}
-									className="flex flex-row justify-between items-center gap-4 bg-gray-500 w-[650px] min-h-[100px] p-4 rounded-md mb-4">
-									<div className="flex flex-row gap-4">
-										<div className="flex justify-center bg-red-500 w-28 h-28 rounded">
-											<Image
-												className="object-contain h-full"
-												src={`http://localhost:5000/images/products/${productInCart.imageProduct}`}
-												alt={productInCart.productName}
-												width={100}
-												height={100}
-												unoptimized
-											/>
-										</div>
-										<div>
-											<h1 className="text-lg">
-												{productInCart.productName}
-											</h1>
-											<h2 className="mb-2">
-												Variação: Preto
-											</h2>
-											<div className="flex flex-row items-center gap-2">
-												<button
-													onClick={() =>
-														decreaseQuantity(
-															productInCart.productID
-														)
-													}
-													className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
-													<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg cursor-pointer active:scale-[.97]">
-														-
-													</h1>
-												</button>
-												<span className="text-lg">
-													{
-														productInCart.quantityThisProduct
-													}
-												</span>
-
-												<button
-													onClick={() =>
-														increaseQuantity(
-															productInCart.productID
-														)
-													}
-													className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
-													<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg  cursor-pointer active:scale-[.97]">
-														+
-													</h1>
-												</button>
+									key={partnerProducts[0].partnerID}
+									className="flex flex-col border-[2px] border-gray-500 rounded-md gap-2 p-2 mb-4">
+									{partnerProducts.map(
+										(productInCart, index) => (
+											<div
+												key={productInCart.productID}
+												className={`flex flex-col gap-4 bg-gray-500 w-[650px] min-h-[100px] p-4 rounded-md ${
+													index <
+													partnerProducts.length - 1
+														? "mb-2"
+														: ""
+												}`}>
+												{/* Renderizar informações do produto */}
+												<div className="flex flex-row justify-between items-center gap-4">
+													<div className="flex justify-center bg-red-500 w-28 h-28 rounded">
+														<Image
+															className="object-contain h-full"
+															src={`http://localhost:5000/images/products/${productInCart.imageProduct}`}
+															alt={
+																productInCart.productName
+															}
+															width={100}
+															height={100}
+															unoptimized
+														/>
+													</div>
+													<div>
+														<h1 className="text-lg">
+															{
+																productInCart.productName
+															}
+														</h1>
+														<h2 className="mb-2">
+															Variação: Preto
+														</h2>
+														<div className="flex flex-row items-center gap-2">
+															<button
+																onClick={() =>
+																	decreaseQuantity(
+																		productInCart.productID
+																	)
+																}
+																className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
+																<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg cursor-pointer active:scale-[.97]">
+																	-
+																</h1>
+															</button>
+															<span className="text-lg">
+																{
+																	productInCart.quantityThisProduct
+																}
+															</span>
+															<button
+																onClick={() =>
+																	increaseQuantity(
+																		productInCart.productID
+																	)
+																}
+																className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
+																<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg  cursor-pointer active:scale-[.97]">
+																	+
+																</h1>
+															</button>
+														</div>
+													</div>
+													<div>
+														<h1>
+															{productInCart.productPrice.toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}{" "}
+															x{" "}
+															{
+																productInCart.quantityThisProduct
+															}
+														</h1>
+													</div>
+													<div>
+														<div
+															onClick={() =>
+																handleRemoveFromCart(
+																	productInCart.productID
+																)
+															}
+															className="flex flex-col items-center justify-center border-[1px] border-purple-500 w-10 h-10 transition-all ease-in duration-200 hover:shadow-md hover:bg-purple-500 active:scale-[.97] rounded cursor-pointer">
+															<MdOutlineDeleteOutline
+																size={25}
+															/>
+														</div>
+													</div>
+												</div>
 											</div>
-										</div>
-									</div>
-									<div>
-										<h1>
-											{productInCart.productPrice.toLocaleString(
-												"pt-BR",
-												{
-													style: "currency",
-													currency: "BRL",
-												}
-											)}{" "}
-											x{" "}
-											{productInCart.quantityThisProduct}
-										</h1>
-									</div>
-
-									<div>
-										<div
-											onClick={() =>
-												handleRemoveFromCart(
-													productInCart.productID
-												)
-											}
-											className="flex flex-col items-center justify-center border-[1px] border-purple-500 w-10 h-10 transition-all ease-in duration-200 hover:shadow-md hover:bg-purple-500 active:scale-[.97] rounded cursor-pointer">
-											<MdOutlineDeleteOutline size={25} />
-										</div>
+										)
+									)}
+									{/* Renderizar o total do frete para este parceiro */}
+									<div className="text-right text-lg">
+										Frete da Loja:{" "}
+										{partnerProducts
+											.reduce(
+												(total, product) =>
+													total +
+														product.transportadora
+															?.vlrFrete || 0,
+												0
+											)
+											.toLocaleString("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											})}
 									</div>
 								</div>
 							))
