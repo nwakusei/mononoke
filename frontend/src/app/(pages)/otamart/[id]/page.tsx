@@ -4,14 +4,12 @@
 import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { toast } from "react-toastify";
 
 // Axios
 import api from "@/utils/api";
 
 // Contexts
 import { Context } from "@/context/UserContext";
-import { CartContext } from "@/context/CartContext";
 
 // Components
 import { ProductVariation } from "@/components/ProductVariation";
@@ -23,31 +21,15 @@ import Amora from "../../../../../public/amora.jpg";
 import imageProfile from "../../../../../public/Kon.jpg";
 
 // Icons
-import { Currency, ShoppingCartOne, PaymentMethod } from "@icon-park/react";
-import { BsStar, BsStarHalf, BsStarFill, BsHeart } from "react-icons/bs";
-import { MdVerified, MdOutlineLocationOn } from "react-icons/md";
-import { GoShareAndroid, GoLocation } from "react-icons/go";
-import { PiChatTextLight } from "react-icons/pi";
-import { GrChat } from "react-icons/gr";
-import { TbTruckDelivery } from "react-icons/tb";
-import { LiaShippingFastSolid } from "react-icons/lia";
-import { GrLocation } from "react-icons/gr";
-import { FiInfo } from "react-icons/fi";
-import { LuCalendarClock } from "react-icons/lu";
+import { Currency } from "@icon-park/react";
+import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
+import { MdVerified } from "react-icons/md";
 
 function ProductPage() {
 	const { id } = useParams();
 	const [product, setProduct] = useState({});
-	const [transportadoras, setTransportadoras] = useState([]);
-	const [isCalculating, setIsCalculating] = useState(false);
-	const [cepDestino, setCepDestino] = useState(""); // Estado para armazenar o valor do input
-	const [selectedTransportadoraId, setSelectedTransportadoraId] = useState<{
-		[key: string]: boolean;
-	}>({});
-	const stock = product.stock; // Constante que irá representar a quantidade de estoque que vem do Banco de Dados
 
 	const { partners } = useContext(Context);
-	const { setCart, setSubtotal } = useContext(CartContext);
 
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
@@ -65,94 +47,6 @@ function ProductPage() {
 
 		fetchProduct();
 	}, [id]);
-
-	// Valor a ser Exibido no Anúncio (Preço Original ou Promocional)
-	const value =
-		Number(product.promocionalPrice?.$numberDecimal) > 0
-			? Number(product.promocionalPrice?.$numberDecimal)
-			: Number(product.originalPrice?.$numberDecimal);
-
-	// Função para selecionar variações
-	function handleSelected(itemId: string) {
-		setSelectedTransportadoraId((prevState) => {
-			// Desmarca todos os itens selecionados, exceto o item clicado
-			const deselectedItems = Object.keys(prevState).reduce(
-				(acc, key) => ({
-					...acc,
-					[key]: key === itemId ? !prevState[key] : false,
-				}),
-				{}
-			);
-
-			return {
-				...deselectedItems,
-				[itemId]: !prevState[itemId],
-			};
-		});
-	}
-
-	// Lidando com a relação entre Quantidade e Subtotal baseado no valor do produto (Preço Original ou Promocional)
-	// Etapa 1: Adicionando a variável de estado para a quantidade
-	const [quantity, setQuantity] = useState<number>(1);
-	const [isQuantityOneOrLess, setIsQuantityOneOrLess] = useState(true);
-	const [isQuantityAtLimit, setIsQuantityAtLimit] = useState(false);
-	const [totalOrder, setTotalOrder] = useState(value);
-
-	// Etapa 2: Funções para lidar com incremento e decremento
-	const updateTotalOrder = (newQuantity: number) => {
-		setTotalOrder(value);
-
-		setQuantity(newQuantity);
-
-		if (newQuantity <= 1) {
-			setIsQuantityOneOrLess(true);
-		} else {
-			setIsQuantityOneOrLess(false);
-		}
-
-		if (newQuantity === stock) {
-			setIsQuantityAtLimit(true);
-		} else {
-			setIsQuantityAtLimit(false);
-		}
-
-		// Multiplicando o novo valor da quantidade pelo valor do produto
-		setTotalOrder(newQuantity * value);
-	};
-
-	// Incremento de Quantidade (+1)
-	const incrementarQuantidade = () => {
-		if (quantity < stock) {
-			updateTotalOrder(quantity + 1);
-		}
-	};
-
-	// Decremento de Quantidade (-1)
-	const decrementarQuantidade = () => {
-		if (quantity > 1) {
-			updateTotalOrder(quantity - 1);
-		}
-	};
-
-	// Função para calculo do Subtotal dos produtos
-	const renderPrice = () => {
-		const priceToRender =
-			Number(product.promocionalPrice?.$numberDecimal) > 0
-				? Number(
-						product.promocionalPrice.$numberDecimal
-				  ).toLocaleString("pt-BR", {
-						style: "currency",
-						currency: "BRL",
-				  })
-				: Number(product.originalPrice?.$numberDecimal).toLocaleString(
-						"pt-BR",
-						{
-							style: "currency",
-							currency: "BRL",
-						}
-				  );
-		return priceToRender;
-	};
 
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
@@ -200,172 +94,6 @@ function ProductPage() {
 		}
 
 		return ratingIcons;
-	};
-
-	function handleAddProductInCart(
-		quantity,
-		product,
-		selectedTransportadoraId
-	) {
-		const transportadoraId = Object.keys(selectedTransportadoraId)[0];
-
-		// Recupera os produtos já existentes no localStorage, se houver
-		let productsInCart = localStorage.getItem("productsInCart");
-
-		if (!productsInCart) {
-			productsInCart = [];
-		} else {
-			productsInCart = JSON.parse(productsInCart);
-		}
-
-		// Calcula o preço total do produto
-		let productPrice;
-		let productPriceTotal;
-
-		if (
-			product.promocionalPrice &&
-			product.promocionalPrice.$numberDecimal &&
-			Number(product.promocionalPrice.$numberDecimal) > 0
-		) {
-			productPrice = Number(product.promocionalPrice.$numberDecimal);
-			productPriceTotal: Number(product.promocionalPrice.$numberDecimal);
-		} else if (
-			product.originalPrice &&
-			product.originalPrice.$numberDecimal &&
-			Number(product.originalPrice.$numberDecimal) > 0
-		) {
-			productPrice = Number(product.originalPrice.$numberDecimal);
-			productPriceTotal: Number(product.originalPrice.$numberDecimal);
-		} else {
-			// Se não houver nenhum preço válido, retorna um erro ou define como 0
-			console.error("Preço do produto inválido:", product);
-			return;
-		}
-
-		// Verifica se o produto já está no carrinho pelo ID
-		const existingProduct = productsInCart.find(
-			(p) => p.productID === product._id
-		);
-
-		if (existingProduct) {
-			// Se o produto já estiver no carrinho, apenas atualiza a quantidade,
-			// limitando ao estoque disponível
-			const totalQuantity =
-				existingProduct.quantityThisProduct + quantity;
-			existingProduct.quantityThisProduct = Math.min(
-				totalQuantity,
-				product.stock
-			);
-
-			// Verifica se a quantidade ultrapassou o estoque
-			if (totalQuantity > product.stock) {
-				toast.warning(
-					"Você atingiu o limite de estoque para este produto!"
-				);
-			}
-
-			// Atualiza o preço total do produto no carrinho multiplicando a quantidade pelo preço unitário
-			existingProduct.productPriceTotal =
-				existingProduct.quantityThisProduct * productPrice;
-		} else {
-			// Caso contrário, adiciona o novo produto ao array de produtos
-			const newProduct = {
-				productID: product._id,
-				productName: product.productName,
-				imageProduct: product.imagesProduct[0],
-				quantityThisProduct: Math.min(quantity, product.stock),
-				productPrice: productPrice,
-				productPriceTotal:
-					Math.min(quantity, product.stock) * productPrice, // Calcula o preço total do produto
-				daysShipping: product.daysShipping,
-				freeShipping: product.freeShipping,
-				transportadora: {
-					id: selectedTransportadoraId,
-					// Outros dados relevantes da transportadora
-				},
-			};
-			productsInCart.push(newProduct);
-
-			// Adicione a transportadora selecionada ao objeto do produto
-			newProduct.selectedTransportadoraId = transportadoraId;
-		}
-
-		// Tenta armazenar o array de produtos no localStorage
-		try {
-			localStorage.setItem(
-				"productsInCart",
-				JSON.stringify(productsInCart)
-			);
-			// Atualiza o estado do carrinho com o total de produtos
-			const totalQuantityProducts = productsInCart.reduce(
-				(total, product) => total + product.quantityThisProduct,
-				0
-			);
-
-			setCart(totalQuantityProducts);
-			// Calcula o preço total do carrinho
-			const totalCartValue = productsInCart.reduce(
-				(total, product) => total + product.productPriceTotal, // Soma os preços totais de cada produto
-				0
-			);
-			// Define o subtotal como 0 se o carrinho estiver vazio
-			const subtotal = productsInCart.length > 0 ? totalCartValue : 0;
-			setSubtotal(subtotal);
-		} catch (error) {
-			console.log("Erro ao adicionar o produto ao carrinho!", error);
-		}
-	}
-
-	// Função para Calcular o Frete
-	async function handleSimulateShipping(cep: number) {
-		let productPrice;
-
-		if (
-			product.promocionalPrice &&
-			product.promocionalPrice.$numberDecimal &&
-			Number(product.promocionalPrice.$numberDecimal) > 0
-		) {
-			// Se houver um preço promocional válido, use-o como preço do produto
-			productPrice = Number(product.promocionalPrice.$numberDecimal);
-		} else if (
-			product.originalPrice &&
-			product.originalPrice.$numberDecimal &&
-			Number(product.originalPrice.$numberDecimal) > 0
-		) {
-			// Se não houver preço promocional válido, mas houver um preço original válido, use-o como preço do produto
-			productPrice = Number(product.originalPrice.$numberDecimal);
-		} else {
-			// Se não houver nenhum preço válido, retorne um erro ou defina o preço como 0
-			console.error("Preço do produto inválido:", product);
-			return;
-		}
-
-		try {
-			const response = await api.post("/products/simulate-shipping", {
-				cepDestino: cep,
-				weight: product.weight, // Adicione o peso do produto
-				height: product.height, // Adicione a altura do produto
-				width: product.width, // Adicione a largura do produto
-				length: product.length, // Adicione o comprimento do produto
-				productPrice: productPrice, // Adicione o preço unitário do produto
-				productPriceTotal: productPrice * quantity, // Adicione o preço total do produto
-				quantityThisProduct: quantity, // Adicione a quantidade do produto
-			}); // Passar cep como parte do corpo da solicitação
-			setTransportadoras(response.data);
-		} catch (error) {
-			console.error("Ocorreu um erro:", error);
-		}
-	}
-
-	// Função para lidar com o clique no botão de Calculo de Frete
-	const handleButtonClick = (selectedTransportadoraId) => {
-		setIsCalculating(true);
-
-		handleSimulateShipping(cepDestino, selectedTransportadoraId);
-
-		setTimeout(() => {
-			setIsCalculating(false);
-		}, 1000);
 	};
 
 	return (

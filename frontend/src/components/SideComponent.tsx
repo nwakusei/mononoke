@@ -228,6 +228,7 @@ function SideComponent() {
 		} else {
 			// Caso contrário, adiciona o novo produto ao array de produtos
 			const newProduct = {
+				partnerID: product.partnerID,
 				productID: product._id,
 				productName: product.productName,
 				imageProduct: product.imagesProduct[0],
@@ -235,6 +236,11 @@ function SideComponent() {
 				productPrice: productPrice,
 				productPriceTotal:
 					Math.min(quantity, product.stock) * productPrice, // Calcula o preço total do produto
+				weight: product.weight,
+				length: product.length,
+				width: product.width,
+				height: product.height,
+				cepDestino: cepDestino,
 				daysShipping: product.daysShipping,
 				freeShipping: product.freeShipping,
 				transportadora: selectedTransportadora,
@@ -263,11 +269,10 @@ function SideComponent() {
 			// Define o subtotal como 0 se o carrinho estiver vazio
 			const subtotal = productsInCart.length > 0 ? totalCartValue : 0;
 			setSubtotal(subtotal);
+			setTransportadoras([]);
 		} catch (error) {
 			console.log("Erro ao adicionar o produto ao carrinho!", error);
 		}
-
-		setTransportadoras([]);
 	}
 
 	// Função para Calcular o Frete
