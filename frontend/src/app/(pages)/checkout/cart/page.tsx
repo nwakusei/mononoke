@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-toastify";
 
+// Axios
 import api from "@/utils/api";
 
 // imagens estáticas
@@ -13,15 +14,9 @@ import api from "@/utils/api";
 import { CartContext } from "@/context/CartContext";
 
 // Icons
-import { Coupon, IdCardH, ShoppingCartOne } from "@icon-park/react";
-import {
-	MdOutlineDeleteOutline,
-	MdArrowBackIos,
-	MdArrowForwardIos,
-} from "react-icons/md";
+import { Coupon, ShoppingCartOne } from "@icon-park/react";
+import { MdOutlineDeleteOutline, MdArrowForwardIos } from "react-icons/md";
 
-import { GrLocation } from "react-icons/gr";
-import { HiOutlineCreditCard } from "react-icons/hi";
 import { PiCreditCardBold } from "react-icons/pi";
 import { BiIdCard } from "react-icons/Bi";
 import { LiaShippingFastSolid } from "react-icons/lia";
@@ -32,7 +27,10 @@ import { FiInfo } from "react-icons/fi";
 function CartPage() {
 	const { setCart } = useContext(CartContext);
 	const [productsInCart, setProductsInCart] = useState([]);
-	const [transportadoras, setTransportadoras] = useState([]);
+	const [transportadoras, setTransportadoras] = useState(null);
+	const [transportadoraInfo, setTransportadoraInfo] = useState({});
+
+	console.log(transportadoraInfo);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -40,45 +38,6 @@ function CartPage() {
 			setProductsInCart(JSON.parse(savedProductsInCart));
 		}
 	}, []);
-
-	// useEffect(() => {
-	// 	const savedProductsInCart = localStorage.getItem("productsInCart");
-
-	// 	if (savedProductsInCart) {
-	// 		const products = JSON.parse(savedProductsInCart);
-
-	// 		// Objeto para armazenar os pesos dos produtos por parceiro
-	// 		const partnerWeights = {};
-
-	// 		// Calcular os pesos dos produtos por parceiro
-	// 		products.forEach((product) => {
-	// 			const partnerID = product.partnerID;
-	// 			const weight = product.transportadora?.vlrFrete || 0; // Altere para o campo de peso correto
-	// 			if (partnerWeights[partnerID]) {
-	// 				partnerWeights[partnerID] += weight;
-	// 			} else {
-	// 				partnerWeights[partnerID] = weight;
-	// 			}
-	// 		});
-
-	// 		console.log("Pesos por parceiro:", partnerWeights);
-	// 	}
-	// }, []);
-
-	async function handleSimulateShipping(cep: number, partnerInfo: any) {
-		try {
-			const response = await api.post("/products/simulate-shipping", {
-				cepDestino: cep,
-				partnerInfo: partnerInfo, // Passar as informações do parceiro como parte do corpo da solicitação
-			});
-			setTransportadoras(response.data);
-
-			// Adicione esta linha para verificar o retorno da API
-			console.log("Transportadoras simuladas:", response.data);
-		} catch (error) {
-			console.error("Ocorreu um erro:", error);
-		}
-	}
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -100,10 +59,10 @@ function CartPage() {
 				const width = product.width || 0;
 				const height = product.height || 0;
 				cepDestino = product.cepDestino; // Obter o cepDestino de um dos produtos
-
 				const productPrice = product.productPrice || 0;
 				const productPriceTotal = product.productPriceTotal || 0;
 				const quantityThisProduct = product.quantityThisProduct || 0;
+				const transpID = product.transportadora?.id; // Obter apenas o ID da transportadora
 
 				if (!partnerInfo[partnerID]) {
 					partnerInfo[partnerID] = {
@@ -111,10 +70,12 @@ function CartPage() {
 						length: 0,
 						width: 0,
 						height: 0,
-						cepDestino: cepDestino,
 						productPrice: 0,
 						productPriceTotal: 0,
 						quantityThisProduct: 0,
+						transportadora: {
+							id: null, // Inicializa o ID da transportadora como null
+						},
 					};
 				}
 
@@ -126,6 +87,7 @@ function CartPage() {
 				partnerInfo[partnerID].productPriceTotal += productPriceTotal;
 				partnerInfo[partnerID].quantityThisProduct +=
 					quantityThisProduct;
+				partnerInfo[partnerID].transportadora.id = transpID; // Atualiza o ID da transportadora
 			});
 
 			console.log("Informações dos produtos por parceiro:", partnerInfo);
@@ -139,6 +101,59 @@ function CartPage() {
 			}
 		}
 	}, []);
+
+	async function handleSimulateShipping(cepDestino, partnerInfo) {
+		console.log(partnerInfo);
+		try {
+			const transportadoraData = {};
+
+			for (const partnerID in partnerInfo) {
+				if (partnerInfo.hasOwnProperty(partnerID)) {
+					const partnerData = partnerInfo[partnerID];
+
+					const response = await api.post(
+						"/products/simulate-shipping",
+						{
+							cepDestino: cepDestino,
+							weight: partnerData.weight,
+							height: partnerData.height,
+							width: partnerData.width,
+							length: partnerData.length,
+							productPrice: partnerData.productPrice,
+							productPriceTotal: partnerData.productPriceTotal,
+							quantityThisProduct:
+								partnerData.quantityThisProduct,
+						}
+					);
+
+					console.log(response.data);
+
+					const transportadoraCorreta = response.data.find(
+						(transportadora) =>
+							transportadora.idTransp ===
+							partnerData.transportadora?.id
+					);
+
+					console.log(
+						"Transportadora correta:",
+						transportadoraCorreta
+					);
+
+					// Adicionando os dados da transportadora ao objeto transportadoraData
+					transportadoraData[partnerID] = {
+						transpNome: transportadoraCorreta?.transp_nome,
+						vlrFrete: transportadoraCorreta?.vlrFrete || 0,
+						// Adicione outras informações que você precisar aqui
+					};
+				}
+			}
+			// Atualizando o estado com os dados da transportadora
+			setTransportadoraInfo(transportadoraData);
+			console.log(transportadoraData);
+		} catch (error) {
+			console.error("Ocorreu um erro:", error);
+		}
+	}
 
 	// Funções para aumentar e diminuir a quantidade
 	const decreaseQuantity = (productId) => {
@@ -212,10 +227,8 @@ function CartPage() {
 
 	const calculateTotalFrete = () => {
 		let totalFrete = 0;
-		productsInCart.forEach((product) => {
-			if (product.transportadora) {
-				totalFrete += product.transportadora.vlrFrete || 0;
-			}
+		Object.values(transportadoraInfo).forEach((info) => {
+			totalFrete += info.vlrFrete || 0;
 		});
 		return totalFrete;
 	};
@@ -362,21 +375,36 @@ function CartPage() {
 										)
 									)}
 									{/* Renderizar o total do frete para este parceiro */}
-									<div className="text-right text-lg">
-										Frete da Loja:{" "}
-										{partnerProducts
-											.reduce(
-												(total, product) =>
-													total +
-														product.transportadora
-															?.vlrFrete || 0,
-												0
-											)
-											.toLocaleString("pt-BR", {
-												style: "currency",
-												currency: "BRL",
-											})}
-									</div>
+									{Object.entries(transportadoraInfo).map(
+										([partnerID, info]) => {
+											// Verifica se o partnerID do transporte corresponde ao partnerID atual
+											if (
+												partnerID ===
+												partnerProducts[0].partnerID
+											) {
+												return (
+													<div key={partnerID}>
+														<div className="text-right text-lg">
+															Frete da Loja:{" "}
+															{info.vlrFrete.toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}
+														</div>
+														<div className="text-right text-lg">
+															Transportadora:{" "}
+															{info.transpNome}
+														</div>
+													</div>
+												);
+											}
+											return null; // Retorna null para não renderizar nada se não houver correspondência
+										}
+									)}
 								</div>
 							))
 						) : (

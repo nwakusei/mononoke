@@ -14,10 +14,6 @@ interface ICartProviderProps {
 
 function CartProvider({ children }: ICartProviderProps) {
 	const { cart, setCart, subtotal, setSubtotal } = useCart();
-	console.log(cart);
-	console.log(setCart);
-	console.log(subtotal);
-	console.log(setSubtotal);
 
 	return (
 		<CartContext.Provider value={{ cart, setCart, subtotal, setSubtotal }}>

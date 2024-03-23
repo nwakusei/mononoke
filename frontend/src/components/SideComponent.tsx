@@ -309,10 +309,6 @@ function SideComponent() {
 				productPrice: productPrice, // Adicione o preço unitário do produto
 				productPriceTotal: productPrice * quantity, // Adicione o preço total do produto
 				quantityThisProduct: quantity, // Adicione a quantidade do produto
-
-				productPrice,
-				productPriceTotal,
-				quantityThisProduct,
 			}); // Passar cep como parte do corpo da solicitação
 			setTransportadoras(response.data);
 		} catch (error) {
