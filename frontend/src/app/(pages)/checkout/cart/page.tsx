@@ -429,13 +429,62 @@ function CartPage() {
 	};
 
 	// Função para remover itens do carrinho de compra
-	const handleRemoveFromCart = (productId) => {
+	const handleRemoveFromCart = async (productId) => {
 		try {
 			let productsInCart =
 				JSON.parse(localStorage.getItem("productsInCart")) || [];
 			const updatedCart = productsInCart.filter(
 				(item) => item.productID !== productId
 			);
+
+			// Recalcular o frete após a remoção do produto
+			const partnerInfo = {};
+			let cepDestino = null;
+
+			updatedCart.forEach((product) => {
+				const partnerID = product.partnerID;
+				const weight = product.weight || 0;
+				const length = product.length || 0;
+				const width = product.width || 0;
+				const height = product.height || 0;
+				cepDestino = product.cepDestino;
+				const productPrice = product.productPrice || 0;
+				const productPriceTotal = product.productPriceTotal || 0;
+				const quantityThisProduct = product.quantityThisProduct || 0;
+				const transpID = product.transportadora?.id || null;
+
+				if (!partnerInfo[partnerID]) {
+					partnerInfo[partnerID] = {
+						weight: 0,
+						length: 0,
+						width: 0,
+						height: 0,
+						productPrice: 0,
+						productPriceTotal: 0,
+						quantityThisProduct: 0,
+						transportadora: {
+							id: null,
+						},
+					};
+				}
+
+				partnerInfo[partnerID].weight += weight;
+				partnerInfo[partnerID].length += length;
+				partnerInfo[partnerID].width += width;
+				partnerInfo[partnerID].height += height;
+				partnerInfo[partnerID].productPrice += productPrice;
+				partnerInfo[partnerID].productPriceTotal += productPriceTotal;
+				partnerInfo[partnerID].quantityThisProduct +=
+					quantityThisProduct;
+				partnerInfo[partnerID].transportadora.id = transpID;
+			});
+
+			if (cepDestino) {
+				await handleSimulateShipping(cepDestino, partnerInfo);
+			} else {
+				console.error("CepDestino não definido.");
+			}
+
 			localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
 			setProductsInCart(updatedCart);
 			setCart(updatedCart.length);
@@ -446,11 +495,34 @@ function CartPage() {
 		}
 	};
 
+	// const handleRemoveFromCart = (productId) => {
+	// 	try {
+	// 		let productsInCart =
+	// 			JSON.parse(localStorage.getItem("productsInCart")) || [];
+	// 		const updatedCart = productsInCart.filter(
+	// 			(item) => item.productID !== productId
+	// 		);
+	// 		localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
+	// 		setProductsInCart(updatedCart);
+	// 		setCart(updatedCart.length);
+	// 		toast.success("Produto removido com sucesso!");
+	// 	} catch (error) {
+	// 		console.log("Erro ao remover produto!", error);
+	// 		toast.error("Erro ao remover produto!");
+	// 	}
+	// };
+
 	const calculateTotalFrete = () => {
 		let totalFrete = 0;
-		Object.values(transportadoraInfo).forEach((info) => {
-			totalFrete += info.vlrFrete || 0;
-		});
+
+		// Verifica se transportadoraInfo não é nulo antes de acessar suas propriedades
+		if (transportadoraInfo) {
+			Object.values(transportadoraInfo).forEach((info) => {
+				console.log("Valor de vlrFrete:", info.vlrFrete);
+				totalFrete += info.vlrFrete || 0;
+			});
+		}
+		console.log(totalFrete);
 		return totalFrete;
 	};
 
@@ -485,7 +557,7 @@ function CartPage() {
 				</div>
 				<div className="flex flex-row justify-center gap-6 bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 					<div className="flex flex-col items-center">
-						{productsInCart.length > 0 ? (
+						{transportadoraInfo && productsInCart.length > 0 ? (
 							Object.values(
 								productsInCart.reduce((acc, product) => {
 									if (!acc[product.partnerID]) {
