@@ -62,6 +62,7 @@ function SideComponent() {
 
 	// Função para selecionar variações
 	function handleSelected(
+		transportadoraSimulacao,
 		transportadoraId,
 		transportadoraNome,
 		transportadoraCNPJ,
@@ -76,13 +77,16 @@ function SideComponent() {
 			const deselectedItems = Object.keys(prevState).reduce(
 				(acc, key) => ({
 					...acc,
-					[key]: key === transportadoraId ? !prevState[key] : false,
+					[key]:
+						key === transportadoraSimulacao
+							? !prevState[key]
+							: false,
 				}),
 				{}
 			);
 			return {
 				...deselectedItems,
-				[transportadoraId]: !prevState[transportadoraId],
+				[transportadoraSimulacao]: !prevState[transportadoraSimulacao],
 				id: transportadoraId,
 				nome: transportadoraNome, // Adiciona o nome da transportadora ao estado
 				cnpj: transportadoraCNPJ,
@@ -245,6 +249,7 @@ function SideComponent() {
 				freeShipping: product.freeShipping,
 				transportadora: selectedTransportadora,
 			};
+			console.log(newProduct);
 			productsInCart.push(newProduct);
 		}
 
@@ -495,6 +500,7 @@ function SideComponent() {
 									key={transportadora.idSimulacao}
 									onClick={() =>
 										handleSelected(
+											transportadora.idSimulacao,
 											transportadora.idTransp,
 											transportadora.transp_nome,
 											transportadora.cnpjTransp,
@@ -508,7 +514,7 @@ function SideComponent() {
 									}
 									className={`${
 										selectedTransportadora[
-											transportadora.idTransp
+											transportadora.idSimulacao
 										]
 											? `bg-sky-500`
 											: ""

@@ -515,13 +515,13 @@ class ProductController {
 		const tokenKangu = "8bdcdd65ac61c68aa615f3da4a3754b4";
 
 		const requestBody = {
-			cepOrigem: "04851511",
+			cepOrigem: "04812010",
 			cepDestino: cepDestino,
 			vlrMerc: productPriceTotal,
 			pesoMerc: weight * quantityThisProduct,
-			produtos: [
+			volumes: [
 				{
-					peso: weight,
+					peso: weight * quantityThisProduct,
 					altura: height,
 					largura: width,
 					comprimento: length,
@@ -530,8 +530,9 @@ class ProductController {
 				},
 			],
 			servicos: ["string"],
-			ordernar: "string",
 		};
+
+		console.log(requestBody);
 
 		try {
 			const response = await fetch(kanguApiUrl, {

@@ -66,28 +66,33 @@ function CartPage() {
 
 				if (!partnerInfo[partnerID]) {
 					partnerInfo[partnerID] = {
-						weight: 0,
-						length: 0,
-						width: 0,
-						height: 0,
-						productPrice: 0,
-						productPriceTotal: 0,
-						quantityThisProduct: 0,
+						weight: weight,
+						length: length,
+						width: width,
+						height: height,
+						productPrice: productPrice,
+						productPriceTotal: productPriceTotal,
+						quantityThisProduct: quantityThisProduct,
 						transportadora: {
-							id: null, // Inicializa o ID da transportadora como null
+							id: transpID, // Inicializa o ID da transportadora
 						},
 					};
-				}
+				} else {
+					// Se o peso atual for menor que o peso acumulado até agora, atualize-o
+					if (weight < partnerInfo[partnerID].weight) {
+						partnerInfo[partnerID].weight = weight;
+						partnerInfo[partnerID].length = length;
+						partnerInfo[partnerID].width = width;
+						partnerInfo[partnerID].height = height;
+						partnerInfo[partnerID].transportadora.id = transpID;
+					}
 
-				partnerInfo[partnerID].weight += weight;
-				partnerInfo[partnerID].length += length;
-				partnerInfo[partnerID].width += width;
-				partnerInfo[partnerID].height += height;
-				partnerInfo[partnerID].productPrice += productPrice;
-				partnerInfo[partnerID].productPriceTotal += productPriceTotal;
-				partnerInfo[partnerID].quantityThisProduct +=
-					quantityThisProduct;
-				partnerInfo[partnerID].transportadora.id = transpID; // Atualiza o ID da transportadora
+					// Atualizar os valores de productPriceTotal e quantityThisProduct para a soma de todos os itens
+					partnerInfo[partnerID].productPriceTotal +=
+						productPriceTotal;
+					partnerInfo[partnerID].quantityThisProduct +=
+						quantityThisProduct;
+				}
 			});
 
 			console.log("Informações dos produtos por parceiro:", partnerInfo);
@@ -188,39 +193,44 @@ function CartPage() {
 						const length = product.length || 0;
 						const width = product.width || 0;
 						const height = product.height || 0;
-						cepDestino = product.cepDestino;
+						cepDestino = product.cepDestino; // Obter o cepDestino de um dos produtos
 						const productPrice = product.productPrice || 0;
 						const productPriceTotal =
 							product.productPriceTotal || 0;
 						const quantityThisProduct =
 							product.quantityThisProduct || 0;
-						const transpID = product.transportadora?.id;
+						const transpID = product.transportadora?.id; // Obter apenas o ID da transportadora
 
 						if (!partnerInfo[partnerID]) {
 							partnerInfo[partnerID] = {
-								weight: 0,
-								length: 0,
-								width: 0,
-								height: 0,
-								productPrice: 0,
-								productPriceTotal: 0,
-								quantityThisProduct: 0,
+								weight: weight,
+								length: length,
+								width: width,
+								height: height,
+								productPrice: productPrice,
+								productPriceTotal: productPriceTotal,
+								quantityThisProduct: quantityThisProduct,
 								transportadora: {
-									id: null,
+									id: transpID, // Inicializa o ID da transportadora
 								},
 							};
-						}
+						} else {
+							// Se o peso atual for menor que o peso acumulado até agora, atualize-o
+							if (weight < partnerInfo[partnerID].weight) {
+								partnerInfo[partnerID].weight = weight;
+								partnerInfo[partnerID].length = length;
+								partnerInfo[partnerID].width = width;
+								partnerInfo[partnerID].height = height;
+								partnerInfo[partnerID].transportadora.id =
+									transpID;
+							}
 
-						partnerInfo[partnerID].weight += weight;
-						partnerInfo[partnerID].length += length;
-						partnerInfo[partnerID].width += width;
-						partnerInfo[partnerID].height += height;
-						partnerInfo[partnerID].productPrice += productPrice;
-						partnerInfo[partnerID].productPriceTotal +=
-							productPriceTotal;
-						partnerInfo[partnerID].quantityThisProduct +=
-							quantityThisProduct;
-						partnerInfo[partnerID].transportadora.id = transpID;
+							// Atualizar os valores de productPriceTotal e quantityThisProduct para a soma de todos os itens
+							partnerInfo[partnerID].productPriceTotal +=
+								productPriceTotal;
+							partnerInfo[partnerID].quantityThisProduct +=
+								quantityThisProduct;
+						}
 					});
 
 					console.log(
@@ -384,29 +394,33 @@ function CartPage() {
 
 					if (!partnerInfo[partnerID]) {
 						partnerInfo[partnerID] = {
-							weight: 0,
-							length: 0,
-							width: 0,
-							height: 0,
-							productPrice: 0,
-							productPriceTotal: 0,
-							quantityThisProduct: 0,
+							weight: weight,
+							length: length,
+							width: width,
+							height: height,
+							productPrice: productPrice,
+							productPriceTotal: productPriceTotal,
+							quantityThisProduct: quantityThisProduct,
 							transportadora: {
-								id: null, // Inicializa o ID da transportadora como null
+								id: transpID, // Inicializa o ID da transportadora
 							},
 						};
-					}
+					} else {
+						// Se o peso atual for menor que o peso acumulado até agora, atualize-o
+						if (weight < partnerInfo[partnerID].weight) {
+							partnerInfo[partnerID].weight = weight;
+							partnerInfo[partnerID].length = length;
+							partnerInfo[partnerID].width = width;
+							partnerInfo[partnerID].height = height;
+							partnerInfo[partnerID].transportadora.id = transpID;
+						}
 
-					partnerInfo[partnerID].weight += weight;
-					partnerInfo[partnerID].length += length;
-					partnerInfo[partnerID].width += width;
-					partnerInfo[partnerID].height += height;
-					partnerInfo[partnerID].productPrice += productPrice;
-					partnerInfo[partnerID].productPriceTotal +=
-						productPriceTotal;
-					partnerInfo[partnerID].quantityThisProduct +=
-						quantityThisProduct;
-					partnerInfo[partnerID].transportadora.id = transpID; // Atualiza o ID da transportadora
+						// Atualizar os valores de productPriceTotal e quantityThisProduct para a soma de todos os itens
+						partnerInfo[partnerID].productPriceTotal +=
+							productPriceTotal;
+						partnerInfo[partnerID].quantityThisProduct +=
+							quantityThisProduct;
+					}
 				});
 
 				console.log(
@@ -447,36 +461,41 @@ function CartPage() {
 				const length = product.length || 0;
 				const width = product.width || 0;
 				const height = product.height || 0;
-				cepDestino = product.cepDestino;
+				cepDestino = product.cepDestino; // Obter o cepDestino de um dos produtos
 				const productPrice = product.productPrice || 0;
 				const productPriceTotal = product.productPriceTotal || 0;
 				const quantityThisProduct = product.quantityThisProduct || 0;
-				const transpID = product.transportadora?.id || null;
+				const transpID = product.transportadora?.id; // Obter apenas o ID da transportadora
 
 				if (!partnerInfo[partnerID]) {
 					partnerInfo[partnerID] = {
-						weight: 0,
-						length: 0,
-						width: 0,
-						height: 0,
-						productPrice: 0,
-						productPriceTotal: 0,
-						quantityThisProduct: 0,
+						weight: weight,
+						length: length,
+						width: width,
+						height: height,
+						productPrice: productPrice,
+						productPriceTotal: productPriceTotal,
+						quantityThisProduct: quantityThisProduct,
 						transportadora: {
-							id: null,
+							id: transpID, // Inicializa o ID da transportadora
 						},
 					};
-				}
+				} else {
+					// Se o peso atual for menor que o peso acumulado até agora, atualize-o
+					if (weight < partnerInfo[partnerID].weight) {
+						partnerInfo[partnerID].weight = weight;
+						partnerInfo[partnerID].length = length;
+						partnerInfo[partnerID].width = width;
+						partnerInfo[partnerID].height = height;
+						partnerInfo[partnerID].transportadora.id = transpID;
+					}
 
-				partnerInfo[partnerID].weight += weight;
-				partnerInfo[partnerID].length += length;
-				partnerInfo[partnerID].width += width;
-				partnerInfo[partnerID].height += height;
-				partnerInfo[partnerID].productPrice += productPrice;
-				partnerInfo[partnerID].productPriceTotal += productPriceTotal;
-				partnerInfo[partnerID].quantityThisProduct +=
-					quantityThisProduct;
-				partnerInfo[partnerID].transportadora.id = transpID;
+					// Atualizar os valores de productPriceTotal e quantityThisProduct para a soma de todos os itens
+					partnerInfo[partnerID].productPriceTotal +=
+						productPriceTotal;
+					partnerInfo[partnerID].quantityThisProduct +=
+						quantityThisProduct;
+				}
 			});
 
 			if (cepDestino) {
