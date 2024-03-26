@@ -15,7 +15,7 @@ import { Footer } from "@/components/Footer";
 
 // Providers do Context
 import { UserProvider } from "@/context/UserContext";
-import { CartProvider } from "@/context/CartContext";
+import { CheckoutProvider } from "@/context/CheckoutContext";
 
 export default function RootLayout({
 	children,
@@ -26,7 +26,7 @@ export default function RootLayout({
 		<html lang="pt-BR">
 			<body>
 				<UserProvider>
-					<CartProvider>
+					<CheckoutProvider>
 						<Navbar />
 						{children}
 						<ToastContainer
@@ -35,7 +35,7 @@ export default function RootLayout({
 							autoClose={3000}
 						/>
 						<Footer />
-					</CartProvider>
+					</CheckoutProvider>
 				</UserProvider>
 			</body>
 		</html>

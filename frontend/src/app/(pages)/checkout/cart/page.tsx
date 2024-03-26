@@ -11,24 +11,24 @@ import api from "@/utils/api";
 // imagens estáticas
 
 // Context
-import { CartContext } from "@/context/CartContext";
+import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
 import { Coupon, ShoppingCartOne } from "@icon-park/react";
 import { MdOutlineDeleteOutline, MdArrowForwardIos } from "react-icons/md";
-
 import { PiCreditCardBold } from "react-icons/pi";
 import { BiIdCard } from "react-icons/Bi";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { FiInfo } from "react-icons/fi";
 
 // Components
+import { YourOrderComp } from "@/components/YourOrderComp";
 
 function CartPage() {
-	const { setCart } = useContext(CartContext);
+	const { setCart, transportadoraInfo, setTransportadoraInfo } =
+		useContext(CheckoutContext);
 	const [productsInCart, setProductsInCart] = useState([]);
-	const [transportadoras, setTransportadoras] = useState(null);
-	const [transportadoraInfo, setTransportadoraInfo] = useState({});
+	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
 
 	console.log(transportadoraInfo);
 
@@ -252,93 +252,6 @@ function CartPage() {
 		}
 	};
 
-	// const increaseQuantity = async (productId) => {
-	// 	try {
-	// 		let productsInCart =
-	// 			JSON.parse(localStorage.getItem("productsInCart")) || [];
-	// 		const index = productsInCart.findIndex(
-	// 			(item) => item.productID === productId
-	// 		);
-
-	// 		if (index !== -1) {
-	// 			// Incrementar a quantidade do produto no carrinho
-	// 			productsInCart[index].quantityThisProduct++;
-
-	// 			// Calcular o preço total do produto
-	// 			const product = productsInCart[index];
-	// 			const productPrice = product.productPrice;
-	// 			productsInCart[index].productPriceTotal =
-	// 				productsInCart[index].quantityThisProduct * productPrice;
-
-	// 			// Atualizar os dados no armazenamento local
-	// 			localStorage.setItem(
-	// 				"productsInCart",
-	// 				JSON.stringify(productsInCart)
-	// 			);
-
-	// 			// Atualizar o estado com os produtos no carrinho
-	// 			setProductsInCart([...productsInCart]);
-	// 		}
-
-	// 		if (productsInCart.length > 0) {
-	// 			// Obter as informações dos produtos por parceiro
-	// 			const partnerInfo = {};
-
-	// 			// Variável para armazenar o cepDestino de um dos produtos
-	// 			let cepDestino = null;
-
-	// 			// Calcular as informações dos produtos por parceiro
-	// 			productsInCart.forEach((product) => {
-	// 				const partnerID = product.partnerID;
-	// 				const weight = product.weight || 0;
-	// 				const length = product.length || 0;
-	// 				const width = product.width || 0;
-	// 				const height = product.height || 0;
-	// 				cepDestino = product.cepDestino; // Obter o cepDestino de um dos produtos
-	// 				const productPrice = product.productPrice || 0;
-	// 				const productPriceTotal = product.productPriceTotal || 0;
-	// 				const quantityThisProduct =
-	// 					product.quantityThisProduct || 0;
-	// 				const transpID = product.transportadora?.id; // Obter apenas o ID da transportadora
-
-	// 				if (!partnerInfo[partnerID]) {
-	// 					partnerInfo[partnerID] = {
-	// 						weight: 0,
-	// 						length: 0,
-	// 						width: 0,
-	// 						height: 0,
-	// 						productPrice: 0,
-	// 						productPriceTotal: 0,
-	// 						quantityThisProduct: 0,
-	// 						transportadora: {
-	// 							id: null, // Inicializa o ID da transportadora como null
-	// 						},
-	// 					};
-	// 				}
-
-	// 				partnerInfo[partnerID].weight += weight;
-	// 				partnerInfo[partnerID].length += length;
-	// 				partnerInfo[partnerID].width += width;
-	// 				partnerInfo[partnerID].height += height;
-	// 				partnerInfo[partnerID].productPrice += productPrice;
-	// 				partnerInfo[partnerID].productPriceTotal +=
-	// 					productPriceTotal;
-	// 				partnerInfo[partnerID].quantityThisProduct +=
-	// 					quantityThisProduct;
-	// 				partnerInfo[partnerID].transportadora.id = transpID; // Atualiza o ID da transportadora
-	// 			});
-
-	// 			console.log(
-	// 				"Informações dos produtos por parceiro:",
-	// 				partnerInfo
-	// 			);
-	// 		}
-	// 	} catch (error) {
-	// 		console.log("Erro ao aumentar quantidade do produto", error);
-	// 		toast.error("Erro ao aumentar quantidade do produto");
-	// 	}
-	// };
-
 	const increaseQuantity = async (productId) => {
 		try {
 			// Obter os produtos no carrinho do localStorage
@@ -514,36 +427,19 @@ function CartPage() {
 		}
 	};
 
-	// const handleRemoveFromCart = (productId) => {
-	// 	try {
-	// 		let productsInCart =
-	// 			JSON.parse(localStorage.getItem("productsInCart")) || [];
-	// 		const updatedCart = productsInCart.filter(
-	// 			(item) => item.productID !== productId
-	// 		);
-	// 		localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
-	// 		setProductsInCart(updatedCart);
-	// 		setCart(updatedCart.length);
-	// 		toast.success("Produto removido com sucesso!");
-	// 	} catch (error) {
-	// 		console.log("Erro ao remover produto!", error);
-	// 		toast.error("Erro ao remover produto!");
+	// const calculateTotalFrete = () => {
+	// 	let totalFrete = 0;
+
+	// 	// Verifica se transportadoraInfo não é nulo antes de acessar suas propriedades
+	// 	if (transportadoraInfo) {
+	// 		Object.values(transportadoraInfo).forEach((info) => {
+	// 			console.log("Valor de vlrFrete:", info.vlrFrete);
+	// 			totalFrete += info.vlrFrete || 0;
+	// 		});
 	// 	}
+	// 	console.log(totalFrete);
+	// 	return totalFrete;
 	// };
-
-	const calculateTotalFrete = () => {
-		let totalFrete = 0;
-
-		// Verifica se transportadoraInfo não é nulo antes de acessar suas propriedades
-		if (transportadoraInfo) {
-			Object.values(transportadoraInfo).forEach((info) => {
-				console.log("Valor de vlrFrete:", info.vlrFrete);
-				totalFrete += info.vlrFrete || 0;
-			});
-		}
-		console.log(totalFrete);
-		return totalFrete;
-	};
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 min-h-screen">
@@ -695,8 +591,10 @@ function CartPage() {
 												partnerProducts[0].partnerID
 											) {
 												return (
-													<div key={partnerID}>
-														<div className="text-right text-lg">
+													<div
+														key={partnerID}
+														className="bg-gray-500 p-4 rounded-md">
+														<div className="">
 															Frete da Loja:{" "}
 															{info.vlrFrete.toLocaleString(
 																"pt-BR",
@@ -707,7 +605,7 @@ function CartPage() {
 																}
 															)}
 														</div>
-														<div className="text-right text-lg">
+														<div className="">
 															Transportadora:{" "}
 															{info.transpNome}
 														</div>
@@ -727,7 +625,7 @@ function CartPage() {
 					</div>
 
 					<div>
-						{productsInCart.length > 0 && (
+						{/* {productsInCart.length > 0 && (
 							<div>
 								{" "}
 								<div className="flex flex-col w-[400px] min-h-[250px] bg-gray-500 p-4 rounded-md mb-2">
@@ -793,23 +691,21 @@ function CartPage() {
 
 										<div className="flex justify-between mb-1">
 											<h2>Frete</h2>
-											<h2>
-												{/* {productsInCart[0].transportadora?.vlrFrete.toLocaleString(
-													"pt-BR",
-													{
-														style: "currency",
-														currency: "BRL",
-													}
-												)} */}
-
-												{calculateTotalFrete().toLocaleString(
-													"pt-BR",
-													{
-														style: "currency",
-														currency: "BRL",
-													}
-												)}
-											</h2>
+											{Object.entries(
+												transportadoraInfo
+											).map(([key, info]) => (
+												<div key={key}>
+													<h2>
+														{info.vlrFrete.toLocaleString(
+															"pt-BR",
+															{
+																style: "currency",
+																currency: "BRL",
+															}
+														)}
+													</h2>
+												</div>
+											))}
 										</div>
 										<div className="flex justify-between mb-1">
 											<h2>Desconto do cupom</h2>
@@ -839,7 +735,11 @@ function CartPage() {
 									</button>
 								</label>
 							</div>
-						)}
+						)} */}
+						<YourOrderComp
+							productsInfo={productsInCart}
+							shippingInfo={transportadoraInfo}
+						/>
 					</div>
 				</div>
 

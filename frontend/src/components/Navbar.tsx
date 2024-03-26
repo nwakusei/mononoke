@@ -40,11 +40,12 @@ import imageProfile from "../../public/Kon.jpg";
 
 // Context
 import { Context } from "@/context/UserContext";
-import { CartContext } from "@/context/CartContext";
+import { CheckoutContext } from "@/context/CheckoutContext";
 
 function Navbar() {
 	const { userAuthenticated, logout } = useContext(Context);
-	const { cart, setCart, subtotal, setSubtotal } = useContext(CartContext);
+	const { cart, setCart, subtotal, setSubtotal } =
+		useContext(CheckoutContext);
 
 	useEffect(() => {
 		// Recupera os produtos do carrinho do localStorage
