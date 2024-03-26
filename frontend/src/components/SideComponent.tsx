@@ -11,7 +11,7 @@ import api from "@/utils/api";
 
 // Contexts
 import { Context } from "@/context/UserContext";
-import { CartContext } from "@/context/CartContext";
+import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
 import { ShoppingCartOne, PaymentMethod } from "@icon-park/react";

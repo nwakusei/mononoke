@@ -151,11 +151,6 @@ function DeliveryPage() {
 						</div>
 						<label className="flex flex-row w-[400px] gap-2">
 							<div className="flex flex-col w-[260px]">
-								{/* <div className="label">
-									<span className="label-text font-semibold">
-										Cupom de Desconto
-									</span>
-								</div> */}
 								<input
 									type="text"
 									placeholder="Insira o código do Cupom"
