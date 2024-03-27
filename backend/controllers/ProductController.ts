@@ -525,7 +525,7 @@ class ProductController {
 					altura: height,
 					largura: width,
 					comprimento: length,
-					valor: productPrice,
+					valor: productPriceTotal,
 					quantidade: quantityThisProduct,
 				},
 			],

@@ -22,6 +22,7 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 import { GrLocation } from "react-icons/gr";
 import { FiInfo } from "react-icons/fi";
 import { LuCalendarClock } from "react-icons/lu";
+import Link from "next/link";
 
 function SideComponent() {
 	const { id } = useParams();
@@ -35,7 +36,7 @@ function SideComponent() {
 	const stock = product.stock; // Constante que irá representar a quantidade de estoque que vem do Banco de Dados
 
 	const { partners } = useContext(Context);
-	const { setCart, setSubtotal } = useContext(CartContext);
+	const { setCart, setSubtotal } = useContext(CheckoutContext);
 
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
@@ -398,8 +399,20 @@ function SideComponent() {
 							<ShoppingCartOne size={18} />
 							Adicionar ao Carrinho
 						</button>
-						<button className="btn btn-primary w-full mb-2">
-							<PaymentMethod size={18} /> Comprar Agora
+						<button
+							className="btn btn-primary w-full mb-2"
+							onClick={() =>
+								handleAddProductInCart(
+									quantity,
+									product,
+									selectedTransportadora
+								)
+							}>
+							<Link
+								className="flex flex-row items-center gap-2"
+								href="/checkout/delivery">
+								<PaymentMethod size={18} /> Comprar Agora
+							</Link>
 						</button>
 						{/* Componentes pequenos */}
 						<div className="flex flex-row justify-center items-center">
