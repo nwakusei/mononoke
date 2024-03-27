@@ -155,7 +155,7 @@ class OtakupayController {
 			otakuPointsEarned,
 			otakuPointsPaid,
 			itemsList,
-			amount,
+			productQuantity,
 			orderDetail,
 			customerID,
 			customerName,
@@ -489,8 +489,14 @@ class OtakupayController {
 				totalCommissionOtamart: encryptPartnerCommissionAndCashbackPaid,
 				otakuPointsEarned: encryptedCustomerOtakuPointsEarned,
 				otakuPointsPaid: encryptedPartnerOtakuPointsPaid,
-				itemsList,
-				amount,
+				itemsList: [
+					{
+						productID: product._id,
+						productName: product.productName,
+						productQuantity,
+					},
+				],
+				productQuantity,
 				orderDetail,
 				partnerID: partner?._id,
 				partnerName: partner?.name,
@@ -509,7 +515,7 @@ class OtakupayController {
 			const newOrder = await order.save();
 
 			// Reduzir uma unidade do estoque do Produto
-			product.stock -= amount;
+			product.stock -= productQuantity;
 			await product.save();
 
 			// Atualizar Customer (Balance Available e Otaku Points Pending)

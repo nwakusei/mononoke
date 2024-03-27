@@ -8,6 +8,7 @@ import Image from "next/image";
 import Lycoris from "../../../../../public/lycoris.jpg";
 
 // Context
+import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
 import { Coupon, IdCardH, ShoppingCartOne } from "@icon-park/react";
@@ -26,8 +27,24 @@ import { CiStickyNote } from "react-icons/ci";
 import { PiNoteBold } from "react-icons/pi";
 
 // Components
+import { YourOrderComp } from "@/components/YourOrderComp";
 
 function ReviewInfoPage() {
+	const { transportadoraInfo } = useContext(CheckoutContext);
+
+	const [productsInCart, setProductsInCart] = useState([]);
+	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
+
+	console.log(productsInCart);
+	console.log(transportadoraInfo);
+
+	useEffect(() => {
+		const savedProductsInCart = localStorage.getItem("productsInCart");
+		if (savedProductsInCart) {
+			setProductsInCart(JSON.parse(savedProductsInCart));
+		}
+	}, []);
+
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen mx-4">
 			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4">
@@ -87,16 +104,28 @@ function ReviewInfoPage() {
 								</div>
 							</div>
 						</div>
-						<div className="flex flex-row justify-between gap-4 bg-gray-500 w-[650px] min-h-[80px] p-4 rounded-md mb-4">
-							<div className="flex flex-row gap-4">
-								<LiaShippingFastSolid size={25} />
-								<div>
-									<h1>Transportadora: Loggi</h1>
-									<h2>Prazo de Envio: 3 dias</h2>
-									<h2>Previsão de Entrega: 10 dias</h2>
+						{Object.entries(transportadoraInfo).map(
+							([key, info]) => (
+								<div
+									key={key}
+									className="flex flex-row justify-between gap-4 bg-gray-500 w-[650px] min-h-[80px] p-4 rounded-md mb-4">
+									<div className="flex flex-row gap-4">
+										<LiaShippingFastSolid size={25} />
+										<div>
+											<h1>
+												Transportadora:{" "}
+												{info.transpNome}
+											</h1>
+
+											<h2>Prazo de Envio: 3 dias</h2>
+											<h2>
+												Previsão de Entrega: 10 dias
+											</h2>
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
+							)
+						)}
 
 						<div className="flex flex-row justify-between gap-4 bg-gray-500 w-[650px] min-h-[100px] p-4 rounded-md mb-4">
 							<div className="flex flex-col w-[650px] gap-4">
@@ -117,72 +146,10 @@ function ReviewInfoPage() {
 					</div>
 
 					<div className="flex flex-col">
-						<div className="flex flex-col w-[400px] min-h-[250px] bg-gray-500 p-4 rounded-md mb-2">
-							<div className="">
-								<h1 className="text-lg font-semibold mb-4">
-									Seu Pedido
-								</h1>
-								<div className="flex justify-between mb-2">
-									<h2>2 x One Piece Vol.1</h2>
-									<h2>R$ 420,00</h2>
-								</div>
-								<div className="flex justify-between">
-									<h2>1 x One Piece Vol.2</h2>
-									<h2>R$ 210,00</h2>
-								</div>
-							</div>
-							<div className="divider"></div>
-							<div className="">
-								<div className="flex justify-between mb-1">
-									<h2 className="flex items-center justify-center gap-1">
-										Subtotal{" "}
-										<div
-											className="tooltip cursor-pointer"
-											data-tip="Não inclui o valor do frete!">
-											<FiInfo
-												className="animate-pulse"
-												size={16}
-											/>
-										</div>
-									</h2>
-									<h2>R$ 630,00</h2>
-								</div>
-								<div className="flex justify-between mb-1">
-									<h2>Frete</h2>
-									<h2>R$ 10,00</h2>
-								</div>
-								<div className="flex justify-between mb-1">
-									<h2>Desconto do cupom</h2>
-									<h2>—</h2>
-								</div>
-							</div>
-							<div className="divider"></div>
-							<div>
-								<div className="flex justify-between mb-2">
-									<h2 className="font-semibold">
-										Total do Pedido
-									</h2>
-									<h2>R$ 640,00</h2>
-								</div>
-							</div>
-						</div>
-						<label className="flex flex-row w-[400px] gap-2">
-							<div className="flex flex-col w-[260px]">
-								{/* <div className="label">
-									<span className="label-text font-semibold">
-										Cupom de Desconto
-									</span>
-								</div> */}
-								<input
-									type="text"
-									placeholder="Insira o código do Cupom"
-									className="input input-bordered w-full mb-2"
-								/>
-							</div>
-							<button className="btn btn-primary w-[130px]">
-								Aplicar <Coupon size={20} />
-							</button>
-						</label>
+						<YourOrderComp
+							productsInfo={productsInCart}
+							shippingInfo={transportadoraInfo}
+						/>
 					</div>
 				</div>
 				<div className="flex flex-row justify-center items-center gap-4 mb-12">

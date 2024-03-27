@@ -18,6 +18,20 @@ import { FiInfo } from "react-icons/fi";
 import { Coupon } from "@icon-park/react";
 
 function YourOrderComp({ productsInfo, shippingInfo }) {
+	const calculateTotalFrete = () => {
+		let totalFrete = 0;
+
+		// Verifica se transportadoraInfo não é nulo antes de acessar suas propriedades
+		if (shippingInfo) {
+			Object.values(shippingInfo).forEach((info) => {
+				console.log("Valor de vlrFrete:", info.vlrFrete);
+				totalFrete += info.vlrFrete || 0;
+			});
+		}
+		console.log(totalFrete);
+		return totalFrete;
+	};
+
 	return (
 		<>
 			{productsInfo.length > 0 && (
@@ -80,21 +94,18 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 
 							<div className="flex justify-between mb-1">
 								<h2>Frete</h2>
-								{Object.entries(shippingInfo).map(
-									([key, info]) => (
-										<div key={key}>
-											<h2>
-												{info.vlrFrete.toLocaleString(
-													"pt-BR",
-													{
-														style: "currency",
-														currency: "BRL",
-													}
-												)}
-											</h2>
-										</div>
-									)
-								)}
+
+								<div>
+									<h2>
+										{calculateTotalFrete().toLocaleString(
+											"pt-BR",
+											{
+												style: "currency",
+												currency: "BRL",
+											}
+										)}
+									</h2>
+								</div>
 							</div>
 							<div className="flex justify-between mb-1">
 								<h2>Desconto do cupom</h2>

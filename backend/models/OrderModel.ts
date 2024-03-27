@@ -17,7 +17,7 @@ interface IOrder {
 	otakuPointsEarned: string;
 	otakuPointsPaid: string;
 	itemsList: [];
-	amount: number;
+	productQuantity: number;
 	orderDetail: string;
 	partnerID: object;
 	partnerName: string;
@@ -86,13 +86,12 @@ const orderSchema = new Schema<IOrder>(
 			type: [],
 			required: true,
 		},
-		amount: {
+		productQuantity: {
 			type: Number,
 			required: true,
 		},
 		orderDetail: {
 			type: String,
-			required: true,
 		},
 		partnerID: Object,
 		partnerName: {

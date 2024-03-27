@@ -4,10 +4,13 @@ import { useState, useEffect, useRef, useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+// Axios
+import api from "@/utils/api";
+
 // imagens estáticas
-import Lycoris from "../../../../../public/lycoris.jpg";
 
 // Context
+import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
 import {
@@ -36,8 +39,85 @@ import { IoWalletOutline } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa";
 
 // Components
+import { YourOrderComp } from "@/components/YourOrderComp";
+import { headers } from "next/headers";
+import { toast } from "react-toastify";
 
 function PaymentPage() {
+	const [token] = useState(localStorage.getItem("token") || "");
+	const { transportadoraInfo } = useContext(CheckoutContext);
+
+	const [productsInCart, setProductsInCart] = useState([]);
+	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
+
+	console.log(token);
+	console.log(transportadoraInfo);
+
+	useEffect(() => {
+		const savedProductsInCart = localStorage.getItem("productsInCart");
+		if (savedProductsInCart) {
+			setProductsInCart(JSON.parse(savedProductsInCart));
+		}
+	}, []);
+
+	async function handlePayment() {
+		try {
+			const productsData = productsInCart.map((product) => ({
+				productID: product.productID,
+				productName: product.productName,
+				paymentMethod: "OtakuPay",
+				productsCostTotal: product.productPriceTotal,
+				shippingCostTotal: 10,
+				orderCostTotal: 10,
+				itemsList: [],
+				productQuantity: 1,
+				shippingMethod: "Loggi",
+			}));
+
+			console.log(productsData);
+
+			// Selecione apenas o productID do primeiro item no array de productsData
+			const productID = productsData[0].productID;
+			const productName = productsData[0].productName;
+			const paymentMethod = productsData[0].paymentMethod;
+			const productsCostTotal = productsData[0].productsCostTotal;
+			const shippingCostTotal = productsData[0].shippingCostTotal;
+			const orderCostTotal = productsData[0].orderCostTotal;
+			const productQuantity = productsData[0].productQuantity;
+			const shippingMethod = productsData[0].shippingMethod;
+
+			console.log(productsData);
+
+			const response = await api.post(
+				"/otakupay/buy-otamart",
+				{
+					productID,
+					productName,
+					paymentMethod,
+					productsCostTotal,
+					shippingCostTotal,
+					orderCostTotal,
+					productQuantity,
+					shippingMethod,
+				}, // Envie apenas o productID na requisição
+				{
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
+					},
+				}
+			);
+
+			toast.success("Pagamento Realizado com Sucesso!");
+
+			// Tratar a resposta da API conforme necessário
+			console.log(response.data);
+		} catch (error) {
+			toast.error("Erro ao tentar realizar o pagamento!");
+			console.log(error);
+			// Tratar erros de requisição, se houver
+		}
+	}
+
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen mx-4">
 			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4">
@@ -108,72 +188,10 @@ function PaymentPage() {
 					</div>
 
 					<div className="flex flex-col">
-						<div className="flex flex-col w-[400px] min-h-[250px] bg-gray-500 p-4 rounded-md mb-2">
-							<div className="">
-								<h1 className="text-lg font-semibold mb-4">
-									Seu Pedido
-								</h1>
-								<div className="flex justify-between mb-2">
-									<h2>2 x One Piece Vol.1</h2>
-									<h2>R$ 420,00</h2>
-								</div>
-								<div className="flex justify-between">
-									<h2>1 x One Piece Vol.2</h2>
-									<h2>R$ 210,00</h2>
-								</div>
-							</div>
-							<div className="divider"></div>
-							<div className="">
-								<div className="flex justify-between mb-1">
-									<h2 className="flex items-center justify-center gap-1">
-										Subtotal{" "}
-										<div
-											className="tooltip cursor-pointer"
-											data-tip="Não inclui o valor do frete!">
-											<FiInfo
-												className="animate-pulse"
-												size={16}
-											/>
-										</div>
-									</h2>
-									<h2>R$ 630,00</h2>
-								</div>
-								<div className="flex justify-between mb-1">
-									<h2>Frete</h2>
-									<h2>R$ 10,00</h2>
-								</div>
-								<div className="flex justify-between mb-1">
-									<h2>Desconto do cupom</h2>
-									<h2>—</h2>
-								</div>
-							</div>
-							<div className="divider"></div>
-							<div>
-								<div className="flex justify-between mb-2">
-									<h2 className="font-semibold">
-										Total do Pedido
-									</h2>
-									<h2>R$ 640,00</h2>
-								</div>
-							</div>
-						</div>
-						<label className="flex flex-row w-[400px] gap-2">
-							<div className="flex flex-col w-[260px]">
-								{/* <div className="label">
-									<span className="label-text font-semibold">
-										Cupom de Desconto
-									</span>
-								</div> */}
-								<input
-									type="text"
-									placeholder="Insira o código do Cupom"
-									className="input input-bordered w-full mb-2"
-								/>
-							</div>
-							<button className="btn btn-primary w-[130px] shadow-md">
-								Aplicar <Coupon size={20} />
-							</button>
-						</label>
+						<YourOrderComp
+							productsInfo={productsInCart}
+							shippingInfo={transportadoraInfo}
+						/>
 					</div>
 				</div>
 
@@ -186,7 +204,9 @@ function PaymentPage() {
 							Cancelar
 						</Link>
 					</button>
-					<button className="flex flex-row justify-center items-center gap-2 bg-green-800 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+					<button
+						onClick={handlePayment}
+						className="flex flex-row justify-center items-center gap-2 bg-green-800 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
 						<FaCheck size={18} />
 						Finalizar Pedido
 					</button>
