@@ -182,7 +182,7 @@ class OtakupayController {
 
 		if (!token || !customer || customer.accountType !== "customer") {
 			res.status(422).json({
-				message: "Usuário sem permição para realizar pagamento!",
+				message: "Usuário sem permissão para realizar pagamento!",
 			});
 			return;
 		}
@@ -485,7 +485,7 @@ class OtakupayController {
 				productsCostTotal,
 				shippingCostTotal,
 				orderCostTotal,
-				commissionOtamart: commissionOtamart, // Necessário criptografar para armaznear no banco (ou não)
+				commissionOtamart: commissionOtamart, // Necessário criptografar para armazenar no banco (ou não)
 				totalCommissionOtamart: encryptPartnerCommissionAndCashbackPaid,
 				otakuPointsEarned: encryptedCustomerOtakuPointsEarned,
 				otakuPointsPaid: encryptedPartnerOtakuPointsPaid,
@@ -530,6 +530,7 @@ class OtakupayController {
 			});
 		} catch (err) {
 			console.log(err);
+			res.status(500).json({ message: "Erro interno do servidor." });
 		}
 	}
 

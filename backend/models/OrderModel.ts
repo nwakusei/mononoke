@@ -3,9 +3,14 @@ import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
 
 // Interface tipando os dados que irão no Banco de Dados.
-interface IOrder {
+interface IOrderItem {
 	productID: mongoose.Schema.Types.ObjectId;
 	productName: string;
+	productQuantity: number;
+}
+
+// Interface tipando os dados que irão no Banco de Dados.
+interface IOrder {
 	orderNumber: string;
 	statusOrder: string;
 	paymentMethod: string;
@@ -16,7 +21,7 @@ interface IOrder {
 	totalCommissionOtamart: String;
 	otakuPointsEarned: string;
 	otakuPointsPaid: string;
-	itemsList: [];
+	itemsList: IOrderItem[];
 	productQuantity: number;
 	orderDetail: string;
 	partnerID: object;
@@ -35,15 +40,6 @@ interface IOrder {
 // Schema que corresponda a Interface
 const orderSchema = new Schema<IOrder>(
 	{
-		productID: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "ProductModel",
-			required: true,
-		},
-		productName: {
-			type: String,
-			required: true,
-		},
 		orderNumber: {
 			type: String,
 			required: true,
@@ -82,10 +78,23 @@ const orderSchema = new Schema<IOrder>(
 		otakuPointsPaid: {
 			type: String,
 		},
-		itemsList: {
-			type: [],
-			required: true,
-		},
+		itemsList: [
+			{
+				productID: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: "ProductModel",
+					required: true,
+				},
+				productName: {
+					type: String,
+					required: true,
+				},
+				productQuantity: {
+					type: Number,
+					required: true,
+				},
+			},
+		],
 		productQuantity: {
 			type: Number,
 			required: true,
@@ -135,4 +144,4 @@ const orderSchema = new Schema<IOrder>(
 // Criação de um Model com conexão ao banco de dados
 const OrderModel = mainDB.model<IOrder>("Order", orderSchema);
 
-export { OrderModel };
+export { OrderModel, IOrderItem };

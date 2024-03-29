@@ -47,6 +47,8 @@ function PaymentPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const { transportadoraInfo } = useContext(CheckoutContext);
 
+	console.log(transportadoraInfo);
+
 	const [productsInCart, setProductsInCart] = useState([]);
 	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
 
