@@ -144,6 +144,7 @@ class OtakupayController {
 
 	static async buyOtamart(req: Request, res: Response) {
 		const { productID } = req.body;
+
 		const {
 			productName,
 			orderNumber,
@@ -476,6 +477,7 @@ class OtakupayController {
 			);
 
 			// CRIAR UM NOVO PEDIDO
+			// CRIAR UM NOVO PEDIDO
 			const order = new OrderModel({
 				productID: product._id,
 				productName: product.productName,
@@ -485,17 +487,10 @@ class OtakupayController {
 				productsCostTotal,
 				shippingCostTotal,
 				orderCostTotal,
-				commissionOtamart: commissionOtamart, // Necessário criptografar para armazenar no banco (ou não)
+				commissionOtamart: commissionOtamart,
 				totalCommissionOtamart: encryptPartnerCommissionAndCashbackPaid,
 				otakuPointsEarned: encryptedCustomerOtakuPointsEarned,
 				otakuPointsPaid: encryptedPartnerOtakuPointsPaid,
-				itemsList: [
-					{
-						productID: product._id,
-						productName: product.productName,
-						productQuantity,
-					},
-				],
 				productQuantity,
 				orderDetail,
 				partnerID: partner?._id,
@@ -510,6 +505,33 @@ class OtakupayController {
 				discountsApplied,
 				orderNote,
 			});
+
+			// Iterar sobre a lista de itens
+			// Verificar se itemsList está definido e é um array
+			if (Array.isArray(itemsList)) {
+				// Iterar sobre a lista de itens
+				itemsList.forEach(async (item: any) => {
+					try {
+						const { productID, productName, productQuantity } =
+							item;
+						// Adicionar o item diretamente à lista de itens do pedido
+						order.itemsList.push({
+							productID,
+							productName,
+							productQuantity,
+						});
+					} catch (error) {
+						console.error(
+							"Erro ao processar item do pedido:",
+							error
+						);
+						// Lidar com o erro conforme necessário
+					}
+				});
+			} else {
+				console.error("itemsList não está definido ou não é um array");
+				// Lidar com a situação em que itemsList não está definido ou não é um array
+			}
 
 			// Criar um novo pedido se tudo der certo
 			const newOrder = await order.save();
