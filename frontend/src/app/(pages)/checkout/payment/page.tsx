@@ -45,7 +45,10 @@ import { toast } from "react-toastify";
 
 function PaymentPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
-	const { transportadoraInfo } = useContext(CheckoutContext);
+	const { transportadoraInfo, setCart, setTransportadoraInfo } =
+		useContext(CheckoutContext);
+
+	console.log(transportadoraInfo);
 
 	const [productsInCart, setProductsInCart] = useState([]);
 	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
@@ -86,7 +89,14 @@ function PaymentPage() {
 			const productQuantity = productsData[0].productQuantity;
 			const shippingMethod = productsData[0].shippingMethod;
 
-			console.log(productsData);
+			// Mapeando a lista de itens no formato esperado
+			const itemsList = productsData.map((product) => ({
+				productID: product.productID,
+				productName: product.productName,
+				productQuantity: product.productQuantity,
+			}));
+
+			console.log(itemsList);
 
 			const response = await api.post(
 				"/otakupay/buy-otamart",
@@ -99,6 +109,7 @@ function PaymentPage() {
 					orderCostTotal,
 					productQuantity,
 					shippingMethod,
+					itemsList: itemsList,
 				}, // Envie apenas o productID na requisição
 				{
 					headers: {
@@ -107,14 +118,19 @@ function PaymentPage() {
 				}
 			);
 
+			// Limpar o localStorage após o pagamento ser aprovado
+			setCart(localStorage.removeItem("productsInCart"));
+			setTransportadoraInfo(
+				localStorage.removeItem("transportadoraInfo")
+			);
+
 			toast.success("Pagamento Realizado com Sucesso!");
 
 			// Tratar a resposta da API conforme necessário
 			console.log(response.data);
 		} catch (error) {
-			toast.error("Erro ao tentar realizar o pagamento!");
-			console.log(error);
-			// Tratar erros de requisição, se houver
+			toast.error(error.response.data.message);
+			return error.response.data;
 		}
 	}
 

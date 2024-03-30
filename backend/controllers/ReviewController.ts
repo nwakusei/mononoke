@@ -8,9 +8,7 @@ import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
 
 class ReviewController {
-	// Lógica em desenvolvimento
 	static async createReview(req: Request, res: Response) {
-		// Esse é o ID do Pedido
 		const { id } = req.params;
 
 		if (!isValidObjectId(id)) {
@@ -18,43 +16,45 @@ class ReviewController {
 			return;
 		}
 
-		const order = await OrderModel.findById({ _id: id });
-
-		if (!order) {
-			res.status(422).json({ message: "O pedido não existe!" });
-			return;
-		}
-
-		const token: any = getToken(req);
-		const customer = await getUserByToken(token);
-
-		if (!customer) {
-			res.status(422).json({ message: "Usuário não encontrado!" });
-			return;
-		}
-
-		if (order.customerID.toString() !== customer._id.toString()) {
-			res.status(422).json({
-				message: "O pedido não pertece a esse Customer!",
-			});
-			return;
-		}
-
-		if (order.statusOrder !== "Recebido") {
-			res.status(422).json({
-				message:
-					"Não é possível enviar a avaliação pois o pedido ainda está em andamento!",
-			});
-			return;
-		}
-
 		try {
-			const productID = order.productID;
+			const order = await OrderModel.findById(id);
 
-			const product = await ProductModel.findById(productID);
+			if (!order) {
+				res.status(422).json({ message: "O pedido não existe!" });
+				return;
+			}
 
-			if (!product) {
-				res.status(422).json({ message: "Produto não encontrado" });
+			const token: any = getToken(req);
+			const customer = await getUserByToken(token);
+
+			if (!customer) {
+				res.status(422).json({ message: "Usuário não encontrado!" });
+				return;
+			}
+
+			if (order.customerID.toString() !== customer._id.toString()) {
+				res.status(422).json({
+					message: "O pedido não pertence a esse Customer!",
+				});
+				return;
+			}
+
+			if (order.statusOrder !== "Recebido") {
+				res.status(422).json({
+					message:
+						"Não é possível enviar a avaliação pois o pedido ainda está em andamento!",
+				});
+				return;
+			}
+
+			const productIDs = order.itemsList.map((item) => item.productID);
+
+			const products = await ProductModel.find({
+				_id: { $in: productIDs },
+			});
+
+			if (!products || products.length === 0) {
+				res.status(422).json({ message: "Produtos não encontrados" });
 				return;
 			}
 
@@ -67,11 +67,13 @@ class ReviewController {
 			}
 
 			// Verificar se já existe uma avaliação do mesmo comprador para o pedido
-			const existingReview = product.reviews.find(
-				(review: any) =>
-					(review as IReview).orderID?.toString() ===
-						order._id.toString() &&
-					(review as IReview).customerName === order.customerName
+			const existingReview = products.some((product) =>
+				product.reviews.some(
+					(review: any) =>
+						(review as IReview).orderID?.toString() ===
+							order._id.toString() &&
+						(review as IReview).customerName === order.customerName
+				)
 			);
 
 			if (existingReview) {
@@ -132,32 +134,34 @@ class ReviewController {
 			};
 
 			// Adicionar o novo review ao array de reviews do produto
-			product.reviews.push(newReview);
+			products.forEach((product) => product.reviews.push(newReview));
 
 			// Calcular o novo rating ponderado
-			let totalRating = 0;
-			let numberOfReviews = 0;
+			products.forEach((product) => {
+				let totalRating = 0;
+				let numberOfReviews = 0;
 
-			product.reviews.forEach((review: any) => {
-				if (!isNaN(review.reviewRating)) {
-					// Limitar a avaliação a um máximo de 5
-					const boundedRating = Math.min(review.reviewRating, 5);
-					totalRating += boundedRating;
-					numberOfReviews++;
+				product.reviews.forEach((review: any) => {
+					if (!isNaN(review.reviewRating)) {
+						// Limitar a avaliação a um máximo de 5
+						const boundedRating = Math.min(review.reviewRating, 5);
+						totalRating += boundedRating;
+						numberOfReviews++;
+					}
+				});
+
+				if (numberOfReviews > 0) {
+					const newRating = totalRating / numberOfReviews;
+					// Se a média for superior a 5, limitá-la a 5
+					product.rating = Math.min(newRating, 5);
+				} else {
+					// Se não houver avaliações válidas, defina o rating como 0
+					product.rating = 0;
 				}
 			});
 
-			if (numberOfReviews > 0) {
-				const newRating = totalRating / numberOfReviews;
-				// Se a média for superior a 5, limitá-la a 5
-				product.rating = Math.min(newRating, 5);
-			} else {
-				// Se não houver avaliações válidas, defina o rating como 0
-				product.rating = 0;
-			}
-
-			// Salvar o produto no banco de dados
-			await product.save();
+			// Salvar os produtos no banco de dados
+			await Promise.all(products.map((product) => product.save()));
 
 			res.status(200).json({
 				message: "Avaliação criada com sucesso!",
@@ -165,6 +169,7 @@ class ReviewController {
 			});
 		} catch (error) {
 			console.log(error);
+			res.status(500).json({ message: "Erro interno do servidor" });
 		}
 	}
 }

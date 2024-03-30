@@ -13,11 +13,11 @@ router.get(
 	verifyToken,
 	OrderController.getPartnerOrderByID
 );
-router.patch(
-	"/partner-cancel/:id",
-	verifyToken,
-	OrderController.partnerCancelOrderByID
-);
+// router.patch(
+// 	"/partner-cancel/:id",
+// 	verifyToken,
+// 	OrderController.partnerCancelOrderByID
+// );
 
 router.get(
 	"/customer-orders",

@@ -155,293 +155,293 @@ class OrderController {
 		res.status(200).json({ order: order });
 	}
 
-	static async partnerCancelOrderByID(req: Request, res: Response) {
-		const { id } = req.params;
-		const { statusOrder } = req.body;
+	// static async partnerCancelOrderByID(req: Request, res: Response) {
+	// 	const { id } = req.params;
+	// 	const { statusOrder } = req.body;
 
-		if (!isValidObjectId(id)) {
-			res.status(422).json({ message: "ID inválido" });
-			return;
-		}
+	// 	if (!isValidObjectId(id)) {
+	// 		res.status(422).json({ message: "ID inválido" });
+	// 		return;
+	// 	}
 
-		const token: any = getToken(req);
-		const partner = await getUserByToken(token);
+	// 	const token: any = getToken(req);
+	// 	const partner = await getUserByToken(token);
 
-		if (!partner || partner.accountType !== "partner") {
-			res.status(401).json({ message: "Acesso não autorizado!" });
-			return;
-		}
+	// 	if (!partner || partner.accountType !== "partner") {
+	// 		res.status(401).json({ message: "Acesso não autorizado!" });
+	// 		return;
+	// 	}
 
-		// Pegar o pedido da requisição
-		const order = await OrderModel.findById({ _id: id });
+	// 	// Pegar o pedido da requisição
+	// 	const order = await OrderModel.findById({ _id: id });
 
-		// Verificar se o produto existe
-		if (!order) {
-			res.status(404).json({ message: "Produto não encontrado!" });
-			return;
-		}
+	// 	// Verificar se o produto existe
+	// 	if (!order) {
+	// 		res.status(404).json({ message: "Produto não encontrado!" });
+	// 		return;
+	// 	}
 
-		// Transformar o partnerID em string
-		const partnerIDAsString = order.partnerID.toString();
-		console.log(partnerIDAsString);
+	// 	// Transformar o partnerID em string
+	// 	const partnerIDAsString = order.partnerID.toString();
+	// 	console.log(partnerIDAsString);
 
-		// Verificar se o usuário da requisição é o proprietário do Pedido
-		if (partner.id !== partnerIDAsString) {
-			res.status(422).json({
-				message: "Você não o proprietário desse pedido, acesso negado!",
-			});
-			return;
-		}
+	// 	// Verificar se o usuário da requisição é o proprietário do Pedido
+	// 	if (partner.id !== partnerIDAsString) {
+	// 		res.status(422).json({
+	// 			message: "Você não o proprietário desse pedido, acesso negado!",
+	// 		});
+	// 		return;
+	// 	}
 
-		if (!statusOrder) {
-			res.status(422).json({
-				message: "Status do Pedido é obrigatório!",
-			});
-			return;
-		}
+	// 	if (!statusOrder) {
+	// 		res.status(422).json({
+	// 			message: "Status do Pedido é obrigatório!",
+	// 		});
+	// 		return;
+	// 	}
 
-		if (statusOrder !== "Cancelado" && statusOrder !== "cancelado") {
-			res.status(422).json({
-				messsage: "Não é possível cancelar, status inexistente!",
-			});
-			return;
-		}
+	// 	if (statusOrder !== "Cancelado" && statusOrder !== "cancelado") {
+	// 		res.status(422).json({
+	// 			messsage: "Não é possível cancelar, status inexistente!",
+	// 		});
+	// 		return;
+	// 	}
 
-		try {
-			if (order.statusOrder === "Cancelado") {
-				res.status(422).json({ messsage: "Pedido já cancelado!" });
-				return;
-			}
+	// 	try {
+	// 		if (order.statusOrder === "Cancelado") {
+	// 			res.status(422).json({ messsage: "Pedido já cancelado!" });
+	// 			return;
+	// 		}
 
-			// Encontrar o Otakupay do Customer
-			const customerID = order.customerID;
-			const customer = await CustomerModel.findById(customerID);
+	// 		// Encontrar o Otakupay do Customer
+	// 		const customerID = order.customerID;
+	// 		const customer = await CustomerModel.findById(customerID);
 
-			if (!customer || !customer.otakupayID) {
-				res.status(404).json({
-					message: "Cliente ou otakupayID não encontrado!",
-				});
-				return;
-			}
+	// 		if (!customer || !customer.otakupayID) {
+	// 			res.status(404).json({
+	// 				message: "Cliente ou otakupayID não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
 
-			// Encontrar o Balance Available do Customer
-			const customerOtakupayID = customer.otakupayID;
-			const customerOtakupay = await OtakupayModel.findById(
-				customerOtakupayID
-			);
+	// 		// Encontrar o Balance Available do Customer
+	// 		const customerOtakupayID = customer.otakupayID;
+	// 		const customerOtakupay = await OtakupayModel.findById(
+	// 			customerOtakupayID
+	// 		);
 
-			if (!customerOtakupay || !customerOtakupay.balanceAvailable) {
-				res.status(404).json({
-					message: "Otakupay ou balanceAvailable não encontrado!",
-				});
-				return;
-			}
+	// 		if (!customerOtakupay || !customerOtakupay.balanceAvailable) {
+	// 			res.status(404).json({
+	// 				message: "Otakupay ou balanceAvailable não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
 
-			// Pegar o Balance Available atual e criptografado do Customer
-			const encryptedCustomerBalanceAvailable =
-				customerOtakupay.balanceAvailable;
+	// 		// Pegar o Balance Available atual e criptografado do Customer
+	// 		const encryptedCustomerBalanceAvailable =
+	// 			customerOtakupay.balanceAvailable;
 
-			// Descriptogradar o Balance Available atual do Customer
-			const decryptedCustomerBalanceAvailable = decrypt(
-				encryptedCustomerBalanceAvailable
-			);
+	// 		// Descriptogradar o Balance Available atual do Customer
+	// 		const decryptedCustomerBalanceAvailable = decrypt(
+	// 			encryptedCustomerBalanceAvailable
+	// 		);
 
-			// Verificar se o Balance Available atual do Customer não é nulo
-			if (decryptedCustomerBalanceAvailable === null) {
-				res.status(500).json({
-					message: "Erro ao descriptografar o balanceAvailable.",
-				});
-				return;
-			}
+	// 		// Verificar se o Balance Available atual do Customer não é nulo
+	// 		if (decryptedCustomerBalanceAvailable === null) {
+	// 			res.status(500).json({
+	// 				message: "Erro ao descriptografar o balanceAvailable.",
+	// 			});
+	// 			return;
+	// 		}
 
-			// Pegar o valor total do pedido com o frete
-			const orderCostTotal = Number(order.orderCostTotal);
+	// 		// Pegar o valor total do pedido com o frete
+	// 		const orderCostTotal = Number(order.orderCostTotal);
 
-			// REEMBOLSO: Somar o Balance Available atual do Customer com o total do pedido
-			const newCustomerBalanceAvailable =
-				decryptedCustomerBalanceAvailable + orderCostTotal;
+	// 		// REEMBOLSO: Somar o Balance Available atual do Customer com o total do pedido
+	// 		const newCustomerBalanceAvailable =
+	// 			decryptedCustomerBalanceAvailable + orderCostTotal;
 
-			console.log(
-				"Reembolso => Novo Customer Balance Available em números:",
-				newCustomerBalanceAvailable.toFixed(2)
-			);
+	// 		console.log(
+	// 			"Reembolso => Novo Customer Balance Available em números:",
+	// 			newCustomerBalanceAvailable.toFixed(2)
+	// 		);
 
-			// Criptografar o valor somado que será o novo Balance Available do Customer
-			const newEncryptedCustomerBalanceAvailable = encrypt(
-				newCustomerBalanceAvailable.toString()
-			);
+	// 		// Criptografar o valor somado que será o novo Balance Available do Customer
+	// 		const newEncryptedCustomerBalanceAvailable = encrypt(
+	// 			newCustomerBalanceAvailable.toString()
+	// 		);
 
-			console.log(
-				"Reembolso => Novo Customer Balance Available Criptografado:",
-				newEncryptedCustomerBalanceAvailable
-			);
+	// 		console.log(
+	// 			"Reembolso => Novo Customer Balance Available Criptografado:",
+	// 			newEncryptedCustomerBalanceAvailable
+	// 		);
 
-			// Salvar o novo Otaku Points Pending do Customer
-			customerOtakupay.balanceAvailable =
-				newEncryptedCustomerBalanceAvailable;
+	// 		// Salvar o novo Otaku Points Pending do Customer
+	// 		customerOtakupay.balanceAvailable =
+	// 			newEncryptedCustomerBalanceAvailable;
 
-			// *********************************************************************************************** //
+	// 		// *********************************************************************************************** //
 
-			// Pegar o Otaku Points Pending atual e criptografado do Customer no OtakuPay
-			const encryptedCustomerOtakuPointsPending =
-				customerOtakupay.otakuPointsPending;
+	// 		// Pegar o Otaku Points Pending atual e criptografado do Customer no OtakuPay
+	// 		const encryptedCustomerOtakuPointsPending =
+	// 			customerOtakupay.otakuPointsPending;
 
-			// Descriptogradar o Otaku Points Pending atual do Customer no OtakuPay
-			const decryptedCustomerOtakuPointsPending = decrypt(
-				encryptedCustomerOtakuPointsPending
-			);
+	// 		// Descriptogradar o Otaku Points Pending atual do Customer no OtakuPay
+	// 		const decryptedCustomerOtakuPointsPending = decrypt(
+	// 			encryptedCustomerOtakuPointsPending
+	// 		);
 
-			// Verificar se o Otaku Points Pending atual não é nulo
-			if (decryptedCustomerOtakuPointsPending === null) {
-				res.status(500).json({
-					message:
-						"Erro ao descriptografar o Otaku Points Pending do Customer.",
-				});
-				return;
-			}
+	// 		// Verificar se o Otaku Points Pending atual não é nulo
+	// 		if (decryptedCustomerOtakuPointsPending === null) {
+	// 			res.status(500).json({
+	// 				message:
+	// 					"Erro ao descriptografar o Otaku Points Pending do Customer.",
+	// 			});
+	// 			return;
+	// 		}
 
-			// Pegar o Otaku Points Earned atual e criptografado do Customer na Order
-			const encryptedCustomerOtakuPointsEarned = order.otakuPointsEarned;
+	// 		// Pegar o Otaku Points Earned atual e criptografado do Customer na Order
+	// 		const encryptedCustomerOtakuPointsEarned = order.otakuPointsEarned;
 
-			// Descriptogradar o Otaku Points Earned atual
-			const decryptedCustomerOtakuPointsEarned = decrypt(
-				encryptedCustomerOtakuPointsEarned
-			);
+	// 		// Descriptogradar o Otaku Points Earned atual
+	// 		const decryptedCustomerOtakuPointsEarned = decrypt(
+	// 			encryptedCustomerOtakuPointsEarned
+	// 		);
 
-			console.log(decryptedCustomerOtakuPointsEarned);
+	// 		console.log(decryptedCustomerOtakuPointsEarned);
 
-			// Verificar se o Otaku Points Earned atual não é nulo
-			if (decryptedCustomerOtakuPointsEarned === null) {
-				res.status(500).json({
-					message:
-						"Erro ao descriptografar o Otaku Points Earned do Customer na Order.",
-				});
-				return;
-			}
+	// 		// Verificar se o Otaku Points Earned atual não é nulo
+	// 		if (decryptedCustomerOtakuPointsEarned === null) {
+	// 			res.status(500).json({
+	// 				message:
+	// 					"Erro ao descriptografar o Otaku Points Earned do Customer na Order.",
+	// 			});
+	// 			return;
+	// 		}
 
-			// Subtrair o Otaku Points Earned atual da Order do Otaku Points Pending do Customer no OtakuPay
-			const newOtakuPointsPending =
-				decryptedCustomerOtakuPointsPending -
-				decryptedCustomerOtakuPointsEarned;
+	// 		// Subtrair o Otaku Points Earned atual da Order do Otaku Points Pending do Customer no OtakuPay
+	// 		const newOtakuPointsPending =
+	// 			decryptedCustomerOtakuPointsPending -
+	// 			decryptedCustomerOtakuPointsEarned;
 
-			console.log(
-				"Novo Customer Otaku Points Pending em números:",
-				newOtakuPointsPending.toFixed(2)
-			);
+	// 		console.log(
+	// 			"Novo Customer Otaku Points Pending em números:",
+	// 			newOtakuPointsPending.toFixed(2)
+	// 		);
 
-			// Criptografar o valor somado que será o novo Balance Available do Customer
-			const newEncryptedOtakuPointsPending = encrypt(
-				newOtakuPointsPending.toString()
-			);
+	// 		// Criptografar o valor somado que será o novo Balance Available do Customer
+	// 		const newEncryptedOtakuPointsPending = encrypt(
+	// 			newOtakuPointsPending.toString()
+	// 		);
 
-			console.log(
-				"Novo Customer Otaku Points Pendending Criptografado:",
-				newEncryptedOtakuPointsPending
-			);
+	// 		console.log(
+	// 			"Novo Customer Otaku Points Pendending Criptografado:",
+	// 			newEncryptedOtakuPointsPending
+	// 		);
 
-			// Salvar o novo Otaku Points Pending do Customer
-			customerOtakupay.otakuPointsPending =
-				newEncryptedOtakuPointsPending;
+	// 		// Salvar o novo Otaku Points Pending do Customer
+	// 		customerOtakupay.otakuPointsPending =
+	// 			newEncryptedOtakuPointsPending;
 
-			// *********************************************************************************************** //
+	// 		// *********************************************************************************************** //
 
-			// Encontrar o Otakupay do Partner
-			const partnerID = order.partnerID;
-			const partner = await PartnerModel.findById(partnerID);
+	// 		// Encontrar o Otakupay do Partner
+	// 		const partnerID = order.partnerID;
+	// 		const partner = await PartnerModel.findById(partnerID);
 
-			if (!partner || !partner.otakupayID) {
-				res.status(404).json({
-					message: "Partner ou otakupayID não encontrado!",
-				});
-				return;
-			}
+	// 		if (!partner || !partner.otakupayID) {
+	// 			res.status(404).json({
+	// 				message: "Partner ou otakupayID não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
 
-			// Encontrar o Balance Pending do Partner
-			const partnerOtakupayID = partner.otakupayID;
-			const partnerOtakupay = await OtakupayModel.findById(
-				partnerOtakupayID
-			);
+	// 		// Encontrar o Balance Pending do Partner
+	// 		const partnerOtakupayID = partner.otakupayID;
+	// 		const partnerOtakupay = await OtakupayModel.findById(
+	// 			partnerOtakupayID
+	// 		);
 
-			if (!partnerOtakupay || !partnerOtakupay.balancePending) {
-				res.status(404).json({
-					message: "Otakupay ou balancePending não encontrado!",
-				});
-				return;
-			}
+	// 		if (!partnerOtakupay || !partnerOtakupay.balancePending) {
+	// 			res.status(404).json({
+	// 				message: "Otakupay ou balancePending não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
 
-			// Pegar o Balance Pending atual do Partner criptografado
-			const encryptedPartnerBalancePending =
-				partnerOtakupay.balancePending;
+	// 		// Pegar o Balance Pending atual do Partner criptografado
+	// 		const encryptedPartnerBalancePending =
+	// 			partnerOtakupay.balancePending;
 
-			// Descriptografar o Balance Pending atual do Partner
-			const decryptedPartnerBalancePending = decrypt(
-				encryptedPartnerBalancePending
-			);
+	// 		// Descriptografar o Balance Pending atual do Partner
+	// 		const decryptedPartnerBalancePending = decrypt(
+	// 			encryptedPartnerBalancePending
+	// 		);
 
-			// Verificar se o Balance Pending atual do Partner não é nulo
-			if (decryptedPartnerBalancePending === null) {
-				res.status(500).json({
-					message: "Erro ao descriptografar o balancePending.",
-				});
-				return;
-			}
+	// 		// Verificar se o Balance Pending atual do Partner não é nulo
+	// 		if (decryptedPartnerBalancePending === null) {
+	// 			res.status(500).json({
+	// 				message: "Erro ao descriptografar o balancePending.",
+	// 			});
+	// 			return;
+	// 		}
 
-			// Subtrair o valor total do pedido do Balance Pending atual do Partner
-			const newPartnerBalancePending =
-				decryptedPartnerBalancePending - orderCostTotal;
+	// 		// Subtrair o valor total do pedido do Balance Pending atual do Partner
+	// 		const newPartnerBalancePending =
+	// 			decryptedPartnerBalancePending - orderCostTotal;
 
-			console.log(
-				"Novo Partner Balance Pending em números:",
-				newPartnerBalancePending.toFixed(2)
-			);
+	// 		console.log(
+	// 			"Novo Partner Balance Pending em números:",
+	// 			newPartnerBalancePending.toFixed(2)
+	// 		);
 
-			// Criptografar o valor somado que será o novo Balance Pending do Partner
-			const newEncryptedPartnerBalancePending = encrypt(
-				newPartnerBalancePending.toString()
-			);
+	// 		// Criptografar o valor somado que será o novo Balance Pending do Partner
+	// 		const newEncryptedPartnerBalancePending = encrypt(
+	// 			newPartnerBalancePending.toString()
+	// 		);
 
-			console.log(
-				"Novo Partner Balance Pending Criptografado:",
-				newEncryptedPartnerBalancePending
-			);
+	// 		console.log(
+	// 			"Novo Partner Balance Pending Criptografado:",
+	// 			newEncryptedPartnerBalancePending
+	// 		);
 
-			// Salvar o novo Balance Pending do Partner
-			partnerOtakupay.balancePending = newEncryptedPartnerBalancePending;
+	// 		// Salvar o novo Balance Pending do Partner
+	// 		partnerOtakupay.balancePending = newEncryptedPartnerBalancePending;
 
-			// Atribuir status de Cancelado a Order
-			order.statusOrder = statusOrder;
+	// 		// Atribuir status de Cancelado a Order
+	// 		order.statusOrder = statusOrder;
 
-			// Salvar o novo Status da Order no banco de dados
-			await order.save();
+	// 		// Salvar o novo Status da Order no banco de dados
+	// 		await order.save();
 
-			// Aumentar uma unidade do estoque do Produto
-			const productID = order.productID;
-			const product = await ProductModel.findById(productID);
+	// 		// Aumentar uma unidade do estoque do Produto
+	// 		const productID = order.productID;
+	// 		const product = await ProductModel.findById(productID);
 
-			if (product) {
-				// Incrementar o estoque
-				product.stock += 1;
+	// 		if (product) {
+	// 			// Incrementar o estoque
+	// 			product.stock += 1;
 
-				// Salvar as alterações no banco de dados
-				await product.save();
-			} else {
-				console.log("Produto não encontrado");
-			}
+	// 			// Salvar as alterações no banco de dados
+	// 			await product.save();
+	// 		} else {
+	// 			console.log("Produto não encontrado");
+	// 		}
 
-			// Salvar informações no OtakuPay do Customer
-			await customerOtakupay.save();
+	// 		// Salvar informações no OtakuPay do Customer
+	// 		await customerOtakupay.save();
 
-			// Salvar informações no OtakuPay do Partner
-			await partnerOtakupay.save();
+	// 		// Salvar informações no OtakuPay do Partner
+	// 		await partnerOtakupay.save();
 
-			res.status(200).json({ message: "Pedido cancelado com sucesso!" });
-			return;
-		} catch (err) {
-			console.error(err); // Adicionando um log para identificar o erro
-			res.status(500).json({ message: "Erro ao cancelar o pedido." });
-			return;
-		}
-	}
+	// 		res.status(200).json({ message: "Pedido cancelado com sucesso!" });
+	// 		return;
+	// 	} catch (err) {
+	// 		console.error(err); // Adicionando um log para identificar o erro
+	// 		res.status(500).json({ message: "Erro ao cancelar o pedido." });
+	// 		return;
+	// 	}
+	// }
 
 	static async getAllCustomerOrders(req: Request, res: Response) {
 		try {
