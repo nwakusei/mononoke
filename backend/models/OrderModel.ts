@@ -95,10 +95,6 @@ const orderSchema = new Schema<IOrder>(
 				},
 			},
 		],
-		productQuantity: {
-			type: Number,
-			required: true,
-		},
 		orderDetail: {
 			type: String,
 		},

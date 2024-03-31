@@ -3,9 +3,13 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // Axios
 import api from "@/utils/api";
+
+// Sweet Alert
+import Swal from "sweetalert2";
 
 // imagens estáticas
 
@@ -48,13 +52,10 @@ function PaymentPage() {
 	const { transportadoraInfo, setCart, setTransportadoraInfo } =
 		useContext(CheckoutContext);
 
-	console.log(transportadoraInfo);
-
 	const [productsInCart, setProductsInCart] = useState([]);
 	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
 
-	console.log(token);
-	console.log(transportadoraInfo);
+	const router = useRouter();
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -124,12 +125,27 @@ function PaymentPage() {
 				localStorage.removeItem("transportadoraInfo")
 			);
 
-			toast.success("Pagamento Realizado com Sucesso!");
+			Swal.fire({
+				title: "Pagamento Realizado com Sucesso!",
+				width: 700,
+				text: "Agora é só aguardar o envio o/",
+				icon: "success",
+			});
+
+			router.push("/otamart");
+
+			// toast.success("Pagamento Realizado com Sucesso!");
 
 			// Tratar a resposta da API conforme necessário
 			console.log(response.data);
-		} catch (error) {
-			toast.error(error.response.data.message);
+		} catch (error: any) {
+			Swal.fire({
+				title: error.response.data.message,
+				width: 900,
+				text: "....",
+				icon: "error",
+			});
+			// toast.error(error.response.data.message);
 			return error.response.data;
 		}
 	}

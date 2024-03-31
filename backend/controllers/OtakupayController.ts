@@ -477,10 +477,7 @@ class OtakupayController {
 			);
 
 			// CRIAR UM NOVO PEDIDO
-			// CRIAR UM NOVO PEDIDO
 			const order = new OrderModel({
-				productID: product._id,
-				productName: product.productName,
 				orderNumber: new ObjectId().toHexString().toUpperCase(),
 				statusOrder: "Aprovado",
 				paymentMethod,
@@ -491,7 +488,6 @@ class OtakupayController {
 				totalCommissionOtamart: encryptPartnerCommissionAndCashbackPaid,
 				otakuPointsEarned: encryptedCustomerOtakuPointsEarned,
 				otakuPointsPaid: encryptedPartnerOtakuPointsPaid,
-				productQuantity,
 				orderDetail,
 				partnerID: partner?._id,
 				partnerName: partner?.name,
