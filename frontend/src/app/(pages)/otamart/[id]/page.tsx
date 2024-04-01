@@ -166,12 +166,12 @@ function ProductPage() {
 					</div>
 
 					{/* Preço */}
-					{product.promocionalPrice?.$numberDecimal > 0 ? (
+					{product.promocionalPrice > 0 ? (
 						<div>
 							{/* Preço promocional */}
 							<h2 className="text-2xl text-primary font-semibold">
 								{Number(
-									product.promocionalPrice?.$numberDecimal
+									product.promocionalPrice
 								).toLocaleString("pt-BR", {
 									style: "currency",
 									currency: "BRL",
@@ -181,7 +181,7 @@ function ProductPage() {
 							<div className="flex flex-row items-center mb-2">
 								<span className="text-base line-through mr-2">
 									{Number(
-										product.originalPrice?.$numberDecimal
+										product.originalPrice
 									).toLocaleString("pt-BR", {
 										style: "currency",
 										currency: "BRL",
@@ -195,12 +195,13 @@ function ProductPage() {
 					) : (
 						<div>
 							<h2 className="text-2xl text-primary font-semibold">
-								{Number(
-									product.originalPrice?.$numberDecimal
-								).toLocaleString("pt-BR", {
-									style: "currency",
-									currency: "BRL",
-								})}
+								{Number(product.originalPrice).toLocaleString(
+									"pt-BR",
+									{
+										style: "currency",
+										currency: "BRL",
+									}
+								)}
 							</h2>
 						</div>
 					)}

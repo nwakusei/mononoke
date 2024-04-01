@@ -15,8 +15,8 @@ interface IProduct {
 	productName: string;
 	imagesProduct: string[];
 	description: string;
-	originalPrice: Decimal128;
-	promocionalPrice: Decimal128;
+	originalPrice: number;
+	promocionalPrice: number;
 	stock: number;
 	category: string;
 	weight: number;
@@ -46,10 +46,10 @@ const productSchema = new Schema<IProduct>(
 			type: String,
 		},
 		originalPrice: {
-			type: Decimal128,
+			type: Number,
 		},
 		promocionalPrice: {
-			type: Decimal128,
+			type: Number,
 		},
 		stock: {
 			type: Number,

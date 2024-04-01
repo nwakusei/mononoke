@@ -157,16 +157,14 @@ function OtamartPage() {
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
 									title={product.productName}
 									originalPrice={Number(
-										product.originalPrice.$numberDecimal
+										product.originalPrice
 									)}
 									promocionalPrice={Number(
-										product.promocionalPrice.$numberDecimal
+										product.promocionalPrice
 									)}
-									price={Number(
-										product.originalPrice.$numberDecimal
-									)}
+									price={Number(product.originalPrice)}
 									promoPrice={Number(
-										product.promocionalPrice.$numberDecimal
+										product.promocionalPrice
 									)}
 									cashback={cashback} // Passar o cashback para o componente ProductAdCard
 									rating={product.rating}

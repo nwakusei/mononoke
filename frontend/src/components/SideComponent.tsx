@@ -57,9 +57,9 @@ function SideComponent() {
 
 	// Valor a ser Exibido no Anúncio (Preço Original ou Promocional)
 	const value =
-		Number(product.promocionalPrice?.$numberDecimal) > 0
-			? Number(product.promocionalPrice?.$numberDecimal)
-			: Number(product.originalPrice?.$numberDecimal);
+		Number(product.promocionalPrice) > 0
+			? Number(product.promocionalPrice)
+			: Number(product.originalPrice);
 
 	// Função para selecionar variações
 	function handleSelected(
@@ -147,20 +147,15 @@ function SideComponent() {
 	// Função para calculo do Subtotal dos produtos
 	const renderPrice = () => {
 		const priceToRender =
-			Number(product.promocionalPrice?.$numberDecimal) > 0
-				? Number(
-						product.promocionalPrice.$numberDecimal
-				  ).toLocaleString("pt-BR", {
+			Number(product.promocionalPrice) > 0
+				? Number(product.promocionalPrice).toLocaleString("pt-BR", {
 						style: "currency",
 						currency: "BRL",
 				  })
-				: Number(product.originalPrice?.$numberDecimal).toLocaleString(
-						"pt-BR",
-						{
-							style: "currency",
-							currency: "BRL",
-						}
-				  );
+				: Number(product.originalPrice).toLocaleString("pt-BR", {
+						style: "currency",
+						currency: "BRL",
+				  });
 		return priceToRender;
 	};
 
@@ -187,18 +182,10 @@ function SideComponent() {
 		// Calcula o preço do produto
 		let productPrice;
 
-		if (
-			product.promocionalPrice &&
-			product.promocionalPrice.$numberDecimal &&
-			Number(product.promocionalPrice.$numberDecimal) > 0
-		) {
-			productPrice = Number(product.promocionalPrice.$numberDecimal);
-		} else if (
-			product.originalPrice &&
-			product.originalPrice.$numberDecimal &&
-			Number(product.originalPrice.$numberDecimal) > 0
-		) {
-			productPrice = Number(product.originalPrice.$numberDecimal);
+		if (product.promocionalPrice && Number(product.promocionalPrice) > 0) {
+			productPrice = Number(product.promocionalPrice);
+		} else if (product.originalPrice && Number(product.originalPrice) > 0) {
+			productPrice = Number(product.originalPrice);
 		} else {
 			// Se não houver nenhum preço válido, retorna um erro ou define como 0
 			console.error("Preço do produto inválido:", product);
@@ -285,20 +272,12 @@ function SideComponent() {
 	async function handleSimulateShipping(cep: number) {
 		let productPrice;
 
-		if (
-			product.promocionalPrice &&
-			product.promocionalPrice.$numberDecimal &&
-			Number(product.promocionalPrice.$numberDecimal) > 0
-		) {
+		if (product.promocionalPrice && Number(product.promocionalPrice) > 0) {
 			// Se houver um preço promocional válido, use-o como preço do produto
-			productPrice = Number(product.promocionalPrice.$numberDecimal);
-		} else if (
-			product.originalPrice &&
-			product.originalPrice.$numberDecimal &&
-			Number(product.originalPrice.$numberDecimal) > 0
-		) {
+			productPrice = Number(product.promocionalPrice);
+		} else if (product.originalPrice && Number(product.originalPrice) > 0) {
 			// Se não houver preço promocional válido, mas houver um preço original válido, use-o como preço do produto
-			productPrice = Number(product.originalPrice.$numberDecimal);
+			productPrice = Number(product.originalPrice);
 		} else {
 			// Se não houver nenhum preço válido, retorne um erro ou defina o preço como 0
 			console.error("Preço do produto inválido:", product);

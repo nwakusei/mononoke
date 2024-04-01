@@ -1,12 +1,14 @@
 import { StringDecoder } from "string_decoder";
 import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
+import { Decimal128 } from "mongodb";
 
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOrderItem {
 	productID: mongoose.Schema.Types.ObjectId;
 	productName: string;
 	productQuantity: number;
+	productsCostTotal: number;
 }
 
 // Interface tipando os dados que irão no Banco de Dados.
@@ -14,7 +16,6 @@ interface IOrder {
 	orderNumber: string;
 	statusOrder: string;
 	paymentMethod: string;
-	productsCostTotal: number;
 	shippingCostTotal: number;
 	orderCostTotal: number;
 	commissionOtamart: String;
@@ -52,10 +53,6 @@ const orderSchema = new Schema<IOrder>(
 			type: String,
 			required: true,
 		},
-		productsCostTotal: {
-			type: Number,
-			required: true,
-		},
 		shippingCostTotal: {
 			type: Number,
 			required: true,
@@ -90,6 +87,10 @@ const orderSchema = new Schema<IOrder>(
 					required: true,
 				},
 				productQuantity: {
+					type: Number,
+					required: true,
+				},
+				productsCostTotal: {
 					type: Number,
 					required: true,
 				},

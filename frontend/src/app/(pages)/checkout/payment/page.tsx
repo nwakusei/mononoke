@@ -66,28 +66,33 @@ function PaymentPage() {
 
 	async function handlePayment() {
 		try {
+			// // Capturando a soma de todos os productsCostTotal
+			// const totalProductsCost = productsInCart.reduce(
+			// 	(accumulator, product) =>
+			// 		accumulator + product.productPriceTotal,
+			// 	0
+			// );
+
 			const productsData = productsInCart.map((product) => ({
 				productID: product.productID,
 				productName: product.productName,
-				paymentMethod: "OtakuPay",
+				productQuantity: product.quantityThisProduct,
 				productsCostTotal: product.productPriceTotal,
 				shippingCostTotal: 10,
 				orderCostTotal: 10,
+				paymentMethod: "OtakuPay",
 				itemsList: [],
-				productQuantity: 1,
 				shippingMethod: "Loggi",
 			}));
-
-			console.log(productsData);
 
 			// Selecione apenas o productID do primeiro item no array de productsData
 			const productID = productsData[0].productID;
 			const productName = productsData[0].productName;
-			const paymentMethod = productsData[0].paymentMethod;
+			const productQuantity = productsData[0].productQuantity;
 			const productsCostTotal = productsData[0].productsCostTotal;
 			const shippingCostTotal = productsData[0].shippingCostTotal;
+			const paymentMethod = productsData[0].paymentMethod;
 			const orderCostTotal = productsData[0].orderCostTotal;
-			const productQuantity = productsData[0].productQuantity;
 			const shippingMethod = productsData[0].shippingMethod;
 
 			// Mapeando a lista de itens no formato esperado
@@ -104,11 +109,11 @@ function PaymentPage() {
 				{
 					productID,
 					productName,
-					paymentMethod,
+					productQuantity,
 					productsCostTotal,
 					shippingCostTotal,
 					orderCostTotal,
-					productQuantity,
+					paymentMethod,
 					shippingMethod,
 					itemsList: itemsList,
 				}, // Envie apenas o productID na requisição

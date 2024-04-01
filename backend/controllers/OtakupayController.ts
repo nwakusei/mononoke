@@ -234,12 +234,27 @@ class OtakupayController {
 					? product.promocionalPrice
 					: product.originalPrice;
 
-			// AINDA SERÁ NECESSÁRIO CRIAR UMA LÓGICA PARA SOMAR O VALOR DE TODOS OS PRODUTOS DO CARRINHO
-			const productsCostTotal = productPrice;
+			// Calcular o custo total dos produtos
+			const productsCostTotal = productPrice * productQuantity;
+
+			// Verificar se productsCostTotal é um número válido
+			if (isNaN(productsCostTotal)) {
+				res.status(422).json({
+					message: "Custo total dos produtos inválido.",
+				});
+				return;
+			}
 
 			// SOMA DO VALOR DE TODOS OS PRODUTOS + FRETE SE FOR MAIOR QUE 0
-			const orderCostTotal =
-				Number(productPrice) + Number(shippingCostTotal);
+			const orderCostTotal = productsCostTotal + shippingCostTotal;
+
+			// Verificar se orderCostTotal é um número válido
+			if (isNaN(orderCostTotal)) {
+				res.status(422).json({
+					message: "Custo total do pedido inválido.",
+				});
+				return;
+			}
 
 			console.log(
 				"BALANCE AVAILABLE DO CUSTOMER DESCRIPTOGRAFADO:",
@@ -481,7 +496,6 @@ class OtakupayController {
 				orderNumber: new ObjectId().toHexString().toUpperCase(),
 				statusOrder: "Aprovado",
 				paymentMethod,
-				productsCostTotal,
 				shippingCostTotal,
 				orderCostTotal,
 				commissionOtamart: commissionOtamart,
@@ -515,6 +529,7 @@ class OtakupayController {
 							productID,
 							productName,
 							productQuantity,
+							productsCostTotal,
 						});
 					} catch (error) {
 						console.error(
