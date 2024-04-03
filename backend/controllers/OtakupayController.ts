@@ -143,7 +143,7 @@ class OtakupayController {
 	}
 
 	static async buyOtamart(req: Request, res: Response) {
-		const { productID } = req.body;
+		const { productsID } = req.body;
 
 		const {
 			productName,
@@ -168,11 +168,11 @@ class OtakupayController {
 			orderNote,
 		} = req.body;
 
-		const product = await ProductModel.findById(productID);
+		const product = await ProductModel.findById(productsID);
 
-		if (!isValidObjectId(productID)) {
+		if (!productsID) {
 			res.status(422).json({
-				message: "O ID do é produto inválido!",
+				message: "O ID do(s) produto(s) é inválido!",
 			});
 			return;
 		}
@@ -236,6 +236,8 @@ class OtakupayController {
 
 			// Calcular o custo total dos produtos
 			const productsCostTotal = productPrice * productQuantity;
+
+			console.log("PREÇO TOTAL DOS PRODUTOS SOMADOS", productsCostTotal);
 
 			// Verificar se productsCostTotal é um número válido
 			if (isNaN(productsCostTotal)) {
@@ -316,8 +318,6 @@ class OtakupayController {
 
 			// Pegar o parceiro associado ao produto (Responsável pelo cadastro do produto)
 			const partner = await PartnerModel.findById(product.partnerID);
-
-			console.log(partner);
 
 			// Verificar se o Partner existe
 			if (!partner) {
@@ -502,6 +502,7 @@ class OtakupayController {
 				totalCommissionOtamart: encryptPartnerCommissionAndCashbackPaid,
 				otakuPointsEarned: encryptedCustomerOtakuPointsEarned,
 				otakuPointsPaid: encryptedPartnerOtakuPointsPaid,
+				itemsList: [],
 				orderDetail,
 				partnerID: partner?._id,
 				partnerName: partner?.name,
@@ -516,8 +517,7 @@ class OtakupayController {
 				orderNote,
 			});
 
-			// Iterar sobre a lista de itens
-			// Verificar se itemsList está definido e é um array
+			// Iterar sobre a lista de itens e Verificar se itemsList está definido e é um array
 			if (Array.isArray(itemsList)) {
 				// Iterar sobre a lista de itens
 				itemsList.forEach(async (item: any) => {

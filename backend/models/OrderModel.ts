@@ -13,6 +13,7 @@ interface IOrderItem {
 
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOrder {
+	productsID: [];
 	orderNumber: string;
 	statusOrder: string;
 	paymentMethod: string;
