@@ -38,7 +38,9 @@ function OtamartPage() {
 	useEffect(() => {
 		api.get("/products/").then((response) => {
 			console.log(response.data);
-			setProducts(response.data.products);
+			setProducts(
+				response.data.products.filter((product) => product.stock > 0)
+			);
 		});
 	}, []);
 
@@ -52,7 +54,9 @@ function OtamartPage() {
 					<div className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<GiEvilBook className="mb-1" size={40} />
-							<span className="text-xs">Impressos</span>
+							<span className="text-xs select-none">
+								Impressos
+							</span>
 						</div>
 					</div>
 
@@ -62,56 +66,62 @@ function OtamartPage() {
 								className="mb-1"
 								size={40}
 							/>
-							<span className="text-xs">Games</span>
+							<span className="text-xs select-none">Games</span>
 						</div>
 					</div>
 
 					<div className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<GiBattleMech className="mb-1" size={40} />
-							<span className="text-xs">Figures</span>
+							<span className="text-xs select-none">Figures</span>
 						</div>
 					</div>
 
 					<div className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<LuDisc3 className="mb-1" size={40} />
-							<span className="text-xs">CDs/DVDs</span>
+							<span className="text-xs select-none">
+								CDs/DVDs
+							</span>
 						</div>
 					</div>
 
 					<div className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<PiTShirt className="mb-1" size={40} />
-							<span className="text-xs">Roupas</span>
+							<span className="text-xs select-none">Roupas</span>
 						</div>
 					</div>
 
 					<div className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<BsSmartwatch className="mb-1" size={40} />
-							<span className="text-xs">Acessórios</span>
+							<span className="text-xs select-none">
+								Acessórios
+							</span>
 						</div>
 					</div>
 
 					<div className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<TbCards className="mb-1" size={40} />
-							<span className="text-xs">TCG</span>
+							<span className="text-xs select-none">TCG</span>
 						</div>
 					</div>
 
 					<div className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<RiPencilRuler2Line className="mb-1" size={40} />
-							<span className="text-xs">Papelaria</span>
+							<span className="text-xs select-none">
+								Papelaria
+							</span>
 						</div>
 					</div>
 
 					<div className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<GiProtectionGlasses className="mb-1" size={40} />
-							<span className="text-xs">Óculos</span>
+							<span className="text-xs select-none">Óculos</span>
 						</div>
 					</div>
 
@@ -147,16 +157,14 @@ function OtamartPage() {
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
 									title={product.productName}
 									originalPrice={Number(
-										product.originalPrice.$numberDecimal
+										product.originalPrice
 									)}
 									promocionalPrice={Number(
-										product.promocionalPrice.$numberDecimal
+										product.promocionalPrice
 									)}
-									price={Number(
-										product.originalPrice.$numberDecimal
-									)}
+									price={Number(product.originalPrice)}
 									promoPrice={Number(
-										product.promocionalPrice.$numberDecimal
+										product.promocionalPrice
 									)}
 									cashback={cashback} // Passar o cashback para o componente ProductAdCard
 									rating={product.rating}

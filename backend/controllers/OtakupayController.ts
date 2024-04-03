@@ -143,7 +143,7 @@ class OtakupayController {
 	}
 
 	static async buyOtamart(req: Request, res: Response) {
-		const { productID } = req.body;
+		const { productsID } = req.body;
 
 		const {
 			productName,
@@ -168,11 +168,11 @@ class OtakupayController {
 			orderNote,
 		} = req.body;
 
-		const product = await ProductModel.findById(productID);
+		const product = await ProductModel.findById(productsID);
 
-		if (!isValidObjectId(productID)) {
+		if (!productsID) {
 			res.status(422).json({
-				message: "O ID do é produto inválido!",
+				message: "O ID do(s) produto(s) é inválido!",
 			});
 			return;
 		}
@@ -234,12 +234,29 @@ class OtakupayController {
 					? product.promocionalPrice
 					: product.originalPrice;
 
-			// AINDA SERÁ NECESSÁRIO CRIAR UMA LÓGICA PARA SOMAR O VALOR DE TODOS OS PRODUTOS DO CARRINHO
-			const productsCostTotal = productPrice;
+			// Calcular o custo total dos produtos
+			const productsCostTotal = productPrice * productQuantity;
+
+			console.log("PREÇO TOTAL DOS PRODUTOS SOMADOS", productsCostTotal);
+
+			// Verificar se productsCostTotal é um número válido
+			if (isNaN(productsCostTotal)) {
+				res.status(422).json({
+					message: "Custo total dos produtos inválido.",
+				});
+				return;
+			}
 
 			// SOMA DO VALOR DE TODOS OS PRODUTOS + FRETE SE FOR MAIOR QUE 0
-			const orderCostTotal =
-				Number(productPrice) + Number(shippingCostTotal);
+			const orderCostTotal = productsCostTotal + shippingCostTotal;
+
+			// Verificar se orderCostTotal é um número válido
+			if (isNaN(orderCostTotal)) {
+				res.status(422).json({
+					message: "Custo total do pedido inválido.",
+				});
+				return;
+			}
 
 			console.log(
 				"BALANCE AVAILABLE DO CUSTOMER DESCRIPTOGRAFADO:",
@@ -301,8 +318,6 @@ class OtakupayController {
 
 			// Pegar o parceiro associado ao produto (Responsável pelo cadastro do produto)
 			const partner = await PartnerModel.findById(product.partnerID);
-
-			console.log(partner);
 
 			// Verificar se o Partner existe
 			if (!partner) {
@@ -477,21 +492,17 @@ class OtakupayController {
 			);
 
 			// CRIAR UM NOVO PEDIDO
-			// CRIAR UM NOVO PEDIDO
 			const order = new OrderModel({
-				productID: product._id,
-				productName: product.productName,
 				orderNumber: new ObjectId().toHexString().toUpperCase(),
 				statusOrder: "Aprovado",
 				paymentMethod,
-				productsCostTotal,
 				shippingCostTotal,
 				orderCostTotal,
 				commissionOtamart: commissionOtamart,
 				totalCommissionOtamart: encryptPartnerCommissionAndCashbackPaid,
 				otakuPointsEarned: encryptedCustomerOtakuPointsEarned,
 				otakuPointsPaid: encryptedPartnerOtakuPointsPaid,
-				productQuantity,
+				itemsList: [],
 				orderDetail,
 				partnerID: partner?._id,
 				partnerName: partner?.name,
@@ -506,8 +517,7 @@ class OtakupayController {
 				orderNote,
 			});
 
-			// Iterar sobre a lista de itens
-			// Verificar se itemsList está definido e é um array
+			// Iterar sobre a lista de itens e Verificar se itemsList está definido e é um array
 			if (Array.isArray(itemsList)) {
 				// Iterar sobre a lista de itens
 				itemsList.forEach(async (item: any) => {
@@ -519,6 +529,7 @@ class OtakupayController {
 							productID,
 							productName,
 							productQuantity,
+							productsCostTotal,
 						});
 					} catch (error) {
 						console.error(

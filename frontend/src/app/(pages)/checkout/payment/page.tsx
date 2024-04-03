@@ -3,9 +3,13 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // Axios
 import api from "@/utils/api";
+
+// Sweet Alert
+import Swal from "sweetalert2";
 
 // imagens estáticas
 
@@ -48,13 +52,10 @@ function PaymentPage() {
 	const { transportadoraInfo, setCart, setTransportadoraInfo } =
 		useContext(CheckoutContext);
 
-	console.log(transportadoraInfo);
-
 	const [productsInCart, setProductsInCart] = useState([]);
 	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
 
-	console.log(token);
-	console.log(transportadoraInfo);
+	const router = useRouter();
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -63,60 +64,143 @@ function PaymentPage() {
 		}
 	}, []);
 
+	// async function handlePayment() {
+	// 	try {
+	// 		const groupedProducts = {};
+	// 		// Agrupar produtos por partnerID
+	// 		productsInCart.forEach((product) => {
+	// 			if (!groupedProducts[product.partnerID]) {
+	// 				groupedProducts[product.partnerID] = [];
+	// 			}
+	// 			groupedProducts[product.partnerID].push(product);
+	// 		});
+
+	// 		const responses = [];
+
+	// 		// Iterar sobre os grupos de produtos e criar pedidos separados
+	// 		for (const partnerID in groupedProducts) {
+	// 			const productsData = groupedProducts[partnerID].map(
+	// 				(product) => ({
+	// 					productID: product.productID,
+	// 					productName: product.productName,
+	// 					productQuantity: product.quantityThisProduct,
+	// 					productsCostTotal: product.productPriceTotal,
+	// 					shippingCostTotal: 10,
+	// 					paymentMethod: "OtakuPay",
+	// 					itemsList: groupedProducts[partnerID].map((item) => ({
+	// 						productID: item.productID,
+	// 						productName: item.productName,
+	// 						productQuantity: item.quantityThisProduct,
+	// 					})),
+	// 					shippingMethod: "Loggi",
+	// 				})
+	// 			);
+
+	// 			// Enviar pedido para a API
+	// 			const response = await api.post(
+	// 				"/otakupay/buy-otamart",
+	// 				{
+	// 					productID: groupedProducts[partnerID][0].productID,
+	// 					productName: groupedProducts[partnerID][0].productName,
+	// 					productQuantity:
+	// 						groupedProducts[partnerID][0].quantityThisProduct,
+	// 					productsCostTotal:
+	// 						groupedProducts[partnerID][0].productPriceTotal,
+	// 					shippingCostTotal: 10, // Ou o valor real do frete, se aplicável
+	// 					paymentMethod: "OtakuPay",
+	// 					shippingMethod: "Loggi",
+	// 					itemsList: productsData[0].itemsList,
+	// 				},
+	// 				{
+	// 					headers: {
+	// 						Authorization: `Bearer ${JSON.parse(token)}`,
+	// 					},
+	// 				}
+	// 			);
+
+	// 			responses.push(response);
+	// 		}
+
+	// 		// Limpar o localStorage após o pagamento ser aprovado
+	// 		setCart(localStorage.removeItem("productsInCart"));
+	// 		setTransportadoraInfo(
+	// 			localStorage.removeItem("transportadoraInfo")
+	// 		);
+
+	// 		Swal.fire({
+	// 			title: "Pagamento Realizado com Sucesso!",
+	// 			width: 700,
+	// 			text: "Agora é só aguardar o envio o/",
+	// 			icon: "success",
+	// 		});
+
+	// 		router.push("/otamart");
+
+	// 		// Tratar as respostas da API conforme necessário
+	// 		responses.forEach((response) => {
+	// 			console.log(response.data);
+	// 		});
+	// 	} catch (error: any) {
+	// 		Swal.fire({
+	// 			title: error.response.data.message,
+	// 			width: 900,
+	// 			text: "....",
+	// 			icon: "error",
+	// 		});
+	// 		return error.response.data;
+	// 	}
+	// }
+
 	async function handlePayment() {
 		try {
-			const productsData = productsInCart.map((product) => ({
-				productID: product.productID,
-				productName: product.productName,
-				paymentMethod: "OtakuPay",
-				productsCostTotal: product.productPriceTotal,
-				shippingCostTotal: 10,
-				orderCostTotal: 10,
-				itemsList: [],
-				productQuantity: 1,
-				shippingMethod: "Loggi",
-			}));
-
-			console.log(productsData);
-
-			// Selecione apenas o productID do primeiro item no array de productsData
-			const productID = productsData[0].productID;
-			const productName = productsData[0].productName;
-			const paymentMethod = productsData[0].paymentMethod;
-			const productsCostTotal = productsData[0].productsCostTotal;
-			const shippingCostTotal = productsData[0].shippingCostTotal;
-			const orderCostTotal = productsData[0].orderCostTotal;
-			const productQuantity = productsData[0].productQuantity;
-			const shippingMethod = productsData[0].shippingMethod;
-
-			// Mapeando a lista de itens no formato esperado
-			const itemsList = productsData.map((product) => ({
-				productID: product.productID,
-				productName: product.productName,
-				productQuantity: product.productQuantity,
-			}));
-
-			console.log(itemsList);
-
-			const response = await api.post(
-				"/otakupay/buy-otamart",
-				{
-					productID,
-					productName,
-					paymentMethod,
-					productsCostTotal,
-					shippingCostTotal,
-					orderCostTotal,
-					productQuantity,
-					shippingMethod,
-					itemsList: itemsList,
-				}, // Envie apenas o productID na requisição
-				{
-					headers: {
-						Authorization: `Bearer ${JSON.parse(token)}`,
-					},
+			const groupedProducts = {};
+			// Agrupar produtos por partnerID
+			productsInCart.forEach((product) => {
+				if (!groupedProducts[product.partnerID]) {
+					groupedProducts[product.partnerID] = [];
 				}
-			);
+				groupedProducts[product.partnerID].push(product);
+			});
+
+			const responses = [];
+
+			// Iterar sobre os grupos de produtos e criar pedidos separados
+			for (const partnerID in groupedProducts) {
+				// Calcular o custo total dos produtos e o custo total do pedido
+				let productsCostTotal = 0;
+				groupedProducts[partnerID].forEach((product) => {
+					productsCostTotal += product.productPriceTotal;
+				});
+
+				const itemsList = groupedProducts[partnerID].map((product) => ({
+					productID: product.productID,
+					productName: product.productName,
+					productQuantity: product.quantityThisProduct,
+				}));
+
+				// Enviar pedido para a API
+				const response = await api.post(
+					"/otakupay/buy-otamart",
+					{
+						productID: groupedProducts[partnerID][0].productID,
+						productName: groupedProducts[partnerID][0].productName,
+						productQuantity:
+							groupedProducts[partnerID][0].quantityThisProduct,
+						productsCostTotal,
+						shippingCostTotal: 10, // Ou o valor real do frete, se aplicável
+						paymentMethod: "OtakuPay",
+						shippingMethod: "Loggi",
+						itemsList,
+					},
+					{
+						headers: {
+							Authorization: `Bearer ${JSON.parse(token)}`,
+						},
+					}
+				);
+
+				responses.push(response);
+			}
 
 			// Limpar o localStorage após o pagamento ser aprovado
 			setCart(localStorage.removeItem("productsInCart"));
@@ -124,12 +208,26 @@ function PaymentPage() {
 				localStorage.removeItem("transportadoraInfo")
 			);
 
-			toast.success("Pagamento Realizado com Sucesso!");
+			Swal.fire({
+				title: "Pagamento Realizado com Sucesso!",
+				width: 700,
+				text: "Agora é só aguardar o envio o/",
+				icon: "success",
+			});
 
-			// Tratar a resposta da API conforme necessário
-			console.log(response.data);
-		} catch (error) {
-			toast.error(error.response.data.message);
+			router.push("/otamart");
+
+			// Tratar as respostas da API conforme necessário
+			responses.forEach((response) => {
+				console.log(response.data);
+			});
+		} catch (error: any) {
+			Swal.fire({
+				title: error.response.data.message,
+				width: 900,
+				text: "....",
+				icon: "error",
+			});
 			return error.response.data;
 		}
 	}
