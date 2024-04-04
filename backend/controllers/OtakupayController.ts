@@ -143,36 +143,25 @@ class OtakupayController {
 	}
 
 	static async buyOtamart(req: Request, res: Response) {
-		const { productsID } = req.body;
+		const { products, shippingCost } = req.body;
 
-		const {
-			productName,
-			orderNumber,
-			statusOrder,
-			paymentMethod,
-			shippingCostTotal,
-			orderCostTotal,
-			commission,
-			otakuPointsEarned,
-			otakuPointsPaid,
-			itemsList,
-			productQuantity,
-			orderDetail,
-			customerID,
-			customerName,
-			customerAdress,
-			shippingMethod,
-			statusShipping,
-			daysShipping,
-			discountsApplied,
-			orderNote,
-		} = req.body;
+		// Verificar se o array de produtos é válido
+		if (!products || products.length === 0) {
+			res.status(404).json({
+				error: "Nenhum produto encontrado na requisição!",
+			});
+			return;
+		}
 
-		const product = await ProductModel.findById(productsID);
-
-		if (!productsID) {
-			res.status(422).json({
-				message: "O ID do(s) produto(s) é inválido!",
+		// Verificar se todos os produtos possuem quantidade especificada
+		if (
+			products.some(
+				(product: { productQuantity: number }) =>
+					product.productQuantity <= 0
+			)
+		) {
+			res.status(400).json({
+				error: "Quantidade inválida para um ou mais produtos!",
 			});
 			return;
 		}
@@ -189,16 +178,48 @@ class OtakupayController {
 		}
 
 		try {
-			if (!product) {
-				res.status(422).json({ message: "Produto não encontrado!" });
+			// Obter informações completas sobre os produtos do banco de dados
+			const productIDs = products.map(
+				(product: any) => product.productID
+			);
+
+			// Verificar se todos os IDs têm o formato correto de ObjectId
+			for (const id of productIDs) {
+				if (!mongoose.Types.ObjectId.isValid(id)) {
+					res.status(400).json({
+						error: `ID do produto '${id}' é inválido`,
+					});
+					return;
+				}
+			}
+
+			const productsFromDB = await ProductModel.find({
+				_id: productIDs,
+			});
+
+			// Verificar se todos os produtos foram encontrados no banco de dados
+			if (productsFromDB.length !== productIDs.length) {
+				// Alguns IDs não foram encontrados, interromper a transação
+				const missingProductIDs = productIDs.filter(
+					(id: any) =>
+						!productsFromDB.find((product) => product._id === id)
+				);
+				res.status(400).json({
+					message: "Alguns produtos não estão mais disponíveis",
+					missingProductIDs,
+				});
 				return;
 			}
 
-			if (product.stock <= 0) {
-				res.status(422).json({
-					message: "Produto esgotado, pagamento não permitido!",
+			// Verificar se algum dos produtos possui estoque disponível
+			const produtoSemEstoque = productsFromDB.find(
+				(product: any) => product.stock <= 0
+			);
+			if (produtoSemEstoque) {
+				return res.status(422).json({
+					message:
+						"Um ou mais produtos encontram-se esgotados, não é possível realizar o pagamento!",
 				});
-				return;
 			}
 
 			const customerOtakupay: any = await OtakupayModel.findOne({
@@ -228,27 +249,147 @@ class OtakupayController {
 				return;
 			}
 
-			// Pegar o preço do produto
-			const productPrice =
-				Number(product?.promocionalPrice) > 0
-					? product.promocionalPrice
-					: product.originalPrice;
+			console.log(
+				"BALANCE AVAILABLE DO CUSTOMER DESCRIPTOGRAFADO:",
+				decryptedCustomerBalanceAvailable
+			);
 
-			// Calcular o custo total dos produtos
-			const productsCostTotal = productPrice * productQuantity;
+			// Array para armazenar os custos totais dos produtos por parceiro
+			const partnersTotalCost: {
+				partnerID: string;
+				totalCost: number;
+			}[] = [];
 
-			console.log("PREÇO TOTAL DOS PRODUTOS SOMADOS", productsCostTotal);
+			// Iterar sobre cada produto para calcular o custo total com base no parceiro
+			for (const product of products) {
+				// Encontrar o produto correspondente na lista de produtos do banco de dados
+				const productFromDB = productsFromDB.find(
+					(p: any) =>
+						p._id.toString() === product.productID.toString()
+				);
 
-			// Verificar se productsCostTotal é um número válido
-			if (isNaN(productsCostTotal)) {
+				// Se o produto correspondente não for encontrado, continuar para o próximo produto
+				if (!productFromDB) {
+					continue;
+				}
+
+				// Calcular o custo total do produto levando em consideração a quantidade
+				const productCost =
+					productFromDB.promocionalPrice > 0
+						? productFromDB.promocionalPrice
+						: productFromDB.originalPrice;
+				const totalProductCost = productCost * product.productQuantity;
+
+				// Verificar se já existe um registro para esse parceiro no array
+				const partnerIndex = partnersTotalCost.findIndex(
+					(item) => item.partnerID === product.partnerID
+				);
+
+				if (partnerIndex === -1) {
+					// Se não existir, adicionar um novo registro ao array
+					partnersTotalCost.push({
+						partnerID: product.partnerID,
+						totalCost: totalProductCost,
+					});
+				} else {
+					// Se existir, adicionar o custo total do produto ao custo total existente
+					partnersTotalCost[partnerIndex].totalCost +=
+						totalProductCost;
+				}
+			}
+
+			// Verificar se algum parceiro não teve produtos
+			if (partnersTotalCost.length === 0) {
 				res.status(422).json({
-					message: "Custo total dos produtos inválido.",
+					message:
+						"Nenhum produto encontrado para os parceiros especificados.",
 				});
 				return;
 			}
 
-			// SOMA DO VALOR DE TODOS OS PRODUTOS + FRETE SE FOR MAIOR QUE 0
-			const orderCostTotal = productsCostTotal + shippingCostTotal;
+			console.log(
+				"Custo total dos produtos por parceiro:",
+				partnersTotalCost
+			);
+
+			console.log(shippingCost);
+
+			// Função para calcular o custo total de um produto
+			function getProductCost(product: any): number {
+				// Encontrar o produto correspondente na lista de produtos do banco de dados
+				const productFromDB = productsFromDB.find(
+					(p: any) =>
+						p._id.toString() === product.productID.toString()
+				);
+
+				// Se o produto correspondente não for encontrado, retornar -1
+				if (!productFromDB) {
+					return -1;
+				}
+
+				// Calcular o custo total do produto levando em consideração a quantidade
+				const productCost =
+					productFromDB.promocionalPrice > 0
+						? productFromDB.promocionalPrice
+						: productFromDB.originalPrice;
+				return productCost * product.productQuantity;
+			}
+
+			// Array para armazenar os custos totais dos produtos por parceiro, incluindo o frete
+			const partnersTotalCostWithShipping: {
+				partnerID: string;
+				totalCostWithShipping: number;
+			}[] = [];
+
+			// Iterar sobre cada produto para calcular o custo total com base no parceiro e no frete correspondente
+			for (const product of products) {
+				// Calcular o custo total do produto
+				const productCost = getProductCost(product);
+
+				// Se o produto tiver um custo válido
+				if (productCost >= 0) {
+					// Encontrar o frete correspondente ao parceiro do produto
+					const shipping = shippingCost.find(
+						(cost: any) => cost.partnerID === product.partnerID
+					);
+
+					// Calcular o custo total com frete
+					const totalCostWithShipping =
+						productCost + (shipping ? shipping.vlrFrete : 0);
+
+					// Verificar se já existe um registro para esse parceiro no array
+					const partnerIndex =
+						partnersTotalCostWithShipping.findIndex(
+							(item) => item.partnerID === product.partnerID
+						);
+
+					if (partnerIndex === -1) {
+						// Se não existir, adicionar um novo registro ao array
+						partnersTotalCostWithShipping.push({
+							partnerID: product.partnerID,
+							totalCostWithShipping: totalCostWithShipping,
+						});
+					} else {
+						// Se existir, adicionar o custo total com frete ao custo total existente
+						partnersTotalCostWithShipping[
+							partnerIndex
+						].totalCostWithShipping += totalCostWithShipping;
+					}
+				}
+			}
+
+			console.log(
+				"Custo total dos produtos por parceiro com frete:",
+				partnersTotalCostWithShipping
+			);
+
+			// Calcular o valor total do pedido com frete (PARA O CUSTOMER PAGAR)
+			const orderCostTotal = partnersTotalCostWithShipping.reduce(
+				(total, item) => total + item.totalCostWithShipping,
+				0
+			);
+
+			console.log("VALOR TOTAL DO PEDIDO COM FRETE", orderCostTotal);
 
 			// Verificar se orderCostTotal é um número válido
 			if (isNaN(orderCostTotal)) {
@@ -257,17 +398,6 @@ class OtakupayController {
 				});
 				return;
 			}
-
-			console.log(
-				"BALANCE AVAILABLE DO CUSTOMER DESCRIPTOGRAFADO:",
-				decryptedCustomerBalanceAvailable
-			);
-			console.log(
-				"PREÇO DO(s) PRODUTO(s) A SER TRANSACIONADO:",
-				productsCostTotal
-			);
-
-			console.log("VALOR TOTAL TO PEDIDO COM FRETE", orderCostTotal);
 
 			if (
 				isNaN(decryptedCustomerBalanceAvailable) ||
@@ -316,256 +446,725 @@ class OtakupayController {
 				);
 			}
 
-			// Pegar o parceiro associado ao produto (Responsável pelo cadastro do produto)
-			const partner = await PartnerModel.findById(product.partnerID);
+			// // Array para armazenar os parceiros
+			// const partners = [];
 
-			// Verificar se o Partner existe
-			if (!partner) {
-				res.status(422).json({
-					message: "Parceiro não encontrado para este produto!",
-				});
-				return;
-			}
+			// // Array para armazenar os Otakupays associados aos parceiros
+			// const partnerOtakupays = [];
 
-			// Acessar o Otakupay do Partner usando o otakupayID
-			const partnerOtakupay = await OtakupayModel.findOne({
-				_id: partner.otakupayID,
-			});
+			// // Mapa para armazenar os Partner Balance Pending Criptografados por ID de parceiro
+			// const encryptedPartnerBalancePendingMap = new Map<string, string>();
 
-			if (!partnerOtakupay) {
-				res.status(422).json({
-					message: "Otakupay do Partner não encontrado!",
-				});
-				return;
-			}
+			// // Iterar sobre cada produto para obter os parceiros e seus Otakupays associados
+			// for (const product of products) {
+			// 	// Buscar o parceiro pelo ID do produto
+			// 	const partner = await PartnerModel.findById(product.partnerID);
 
-			// Pegar o Partner Balance Pending no otakupay
-			const encryptedPartnerBalancePending =
-				partnerOtakupay.balancePending;
+			// 	// Verificar se o parceiro existe
+			// 	if (!partner) {
+			// 		// Se o parceiro não existir, retornar um erro
+			// 		return res.status(422).json({
+			// 			message: "Parceiro não encontrado para este produto!",
+			// 		});
+			// 	}
 
-			const decryptedPartnerBalancePending = decrypt(
-				encryptedPartnerBalancePending
-			);
+			// 	// Acessar o Otakupay do parceiro usando o otakupayID
+			// 	const partnerOtakupay = await OtakupayModel.findOne({
+			// 		_id: partner.otakupayID,
+			// 	});
 
-			if (decryptedPartnerBalancePending === null) {
-				res.status(500).json({
-					message:
-						"Erro ao descriptografar o Partner Balance Pending!",
-				});
-				return;
-			}
+			// 	// Verificar se o Otakupay do parceiro existe
+			// 	if (!partnerOtakupay) {
+			// 		// Se o Otakupay do parceiro não existir, retornar um erro
+			// 		return res.status(422).json({
+			// 			message: "Otakupay do Partner não encontrado!",
+			// 		});
+			// 	}
 
-			// ATENÇÃO: ESTOU CALCULANDO O FRETE + VALOR TOTAL DOS ITENS COM O BALANCE PENDING, MAS TALVEZ SEJA MAIS INTERESSANTE DISPONIBILIZAR O FRETE NA HORA
-			if (isNaN(orderCostTotal)) {
-				// Tratar erro, preço do produto inválido
-				res.status(422).json({ message: "Preço do produto inválido." });
-				return;
-			}
+			// 	// Adicionar o parceiro ao array de parceiros
+			// 	partners.push(partner);
 
-			// Calculando o novo Partner Balance pending após a transação
-			const newPartnerBalancePending =
-				decryptedPartnerBalancePending + orderCostTotal;
+			// 	// Adicionar o Otakupay associado ao array de Otakupays
+			// 	partnerOtakupays.push(partnerOtakupay);
 
-			console.log(
-				"Novo Partner Balance Pending disponível:",
-				newPartnerBalancePending.toFixed(2)
-			);
+			// 	// Adicionar o Partner Balance Pending ao mapa, se existir
+			// 	if (
+			// 		partnerOtakupay.balancePending &&
+			// 		!encryptedPartnerBalancePendingMap.has(
+			// 			partner._id.toString()
+			// 		)
+			// 	) {
+			// 		encryptedPartnerBalancePendingMap.set(
+			// 			partner._id.toString(),
+			// 			partnerOtakupay.balancePending
+			// 		);
+			// 	}
+			// }
 
-			// Criptografar o novo Partner Balance Pending para armazenar no Otakupay
-			const newPartnerEncryptedBalancePending = encrypt(
-				newPartnerBalancePending.toString()
-			);
+			// // Converter o mapa para um array de Partner Balance Pending Criptografados
+			// const encryptedPartnerBalancePendingList = Array.from(
+			// 	encryptedPartnerBalancePendingMap.entries()
+			// ).map(([partnerID, balancePending]) => ({
+			// 	partnerID,
+			// 	balancePending,
+			// }));
 
-			// Atualizar o Partner Balance Pending criptografado no Otakupay
-			partnerOtakupay.balancePending = newPartnerEncryptedBalancePending;
+			// // Descriptografar os Partner Balance Pending
+			// const decryptedPartnerBalancePendingList =
+			// 	encryptedPartnerBalancePendingList.map(
+			// 		({ partnerID, balancePending }) => {
+			// 			const decryptedValue = decrypt(balancePending);
+			// 			return { partnerID, balancePending: decryptedValue };
+			// 		}
+			// 	);
 
-			// Essa etapa poderá ser deletada
-			// Calculo e atualização do Cashback Otakupay a ser Pago pelo Partner (Cashback precisa ser multiplicado por dois para pagar plataforma e customer)
-			const partnerCashbackPercentage =
-				(partnerOtakupay.cashback * 2) / 100;
+			// console.log(
+			// 	"Partner Balance Pending Descriptografados por ID de parceiro:",
+			// 	decryptedPartnerBalancePendingList
+			// );
 
-			const partnerCashbackPaidOrder =
-				Math.floor(
-					partnerCashbackPercentage * Number(productsCostTotal) * 100
-				) / 100;
+			// if (decryptedPartnerBalancePending === null) {
+			// 	res.status(500).json({
+			// 		message:
+			// 			"Erro ao descriptografar o Partner Balance Pending!",
+			// 	});
+			// 	return;
+			// }
 
-			console.log(
-				"OTAKUPOINTS PAGO PELO PARTNER",
-				partnerCashbackPaidOrder
-			);
+			// // ATENÇÃO: ESTOU CALCULANDO O FRETE + VALOR TOTAL DOS ITENS COM O BALANCE PENDING, MAS TALVEZ SEJA MAIS INTERESSANTE DISPONIBILIZAR O FRETE NA HORA
+			// if (isNaN(orderCostTotal)) {
+			// 	// Tratar erro, preço do produto inválido
+			// 	res.status(422).json({ message: "Preço do produto inválido." });
+			// 	return;
+			// }
 
-			// Criptografar o Cashback a ser pago pelo Partner para Salvar na Order criada
-			const encryptedPartnerOtakuPointsPaid = encrypt(
-				partnerCashbackPaidOrder.toString()
-			);
+			// // Calculando o novo Partner Balance pending após a transação
+			// const newPartnerBalancePending =
+			// 	decryptedPartnerBalancePending + orderCostTotal;
 
-			// Calculo e atualização do Cashback Otakupay do Customer
-			const customerCashbackPercentage = partnerOtakupay.cashback / 100;
+			// console.log(
+			// 	"Novo Partner Balance Pending disponível:",
+			// 	newPartnerBalancePending.toFixed(2)
+			// );
 
-			const customerCashbackEarnedOrder =
-				Math.floor(
-					customerCashbackPercentage * Number(productsCostTotal) * 100
-				) / 100;
+			// // Criptografar o novo Partner Balance Pending para armazenar no Otakupay
+			// const newPartnerEncryptedBalancePending = encrypt(
+			// 	newPartnerBalancePending.toString()
+			// );
 
-			console.log(
-				"OTAKUPOINTS GANHO PELO CUSTOMER",
-				customerCashbackEarnedOrder
-			);
+			// // Atualizar o Partner Balance Pending criptografado no Otakupay
+			// partnerOtakupay.balancePending = newPartnerEncryptedBalancePending;
 
-			// Criptografar o Cashback a ser Ganho pelo Customer para Salvar na Order criada
-			const encryptedCustomerOtakuPointsEarned = encrypt(
-				customerCashbackEarnedOrder.toString()
-			);
+			// // Essa etapa poderá ser deletada
+			// // Calculo e atualização do Cashback Otakupay a ser Pago pelo Partner (Cashback precisa ser multiplicado por dois para pagar plataforma e customer)
+			// const partnerCashbackPercentage =
+			// 	(partnerOtakupay.cashback * 2) / 100;
 
-			// Verificar se os Customer Otaku Points Pending existe
-			if (!customerOtakupay || !customerOtakupay.otakuPointsPending) {
-				res.status(422).json({
-					message: "Customer Otaku Points Pending não encontrado!",
-				});
-				return;
-			}
+			// const partnerCashbackPaidOrder =
+			// 	Math.floor(
+			// 		partnerCashbackPercentage * Number(productsCostTotal) * 100
+			// 	) / 100;
 
-			const encryptedCustomerOtakuPointsPending =
-				customerOtakupay.otakuPointsPending;
+			// console.log(
+			// 	"OTAKUPOINTS PAGO PELO PARTNER",
+			// 	partnerCashbackPaidOrder
+			// );
 
-			const decryptedCustomerOtakuPointsPending = decrypt(
-				encryptedCustomerOtakuPointsPending
-			);
+			// // Criptografar o Cashback a ser pago pelo Partner para Salvar na Order criada
+			// const encryptedPartnerOtakuPointsPaid = encrypt(
+			// 	partnerCashbackPaidOrder.toString()
+			// );
 
-			if (decryptedCustomerOtakuPointsPending === null) {
-				res.status(500).json({
-					message:
-						"Erro ao descriptografar os Customer Otaku Points Pending!",
-				});
-				return;
-			}
+			// // Calculo e atualização do Cashback Otakupay do Customer
+			// const customerCashbackPercentage = partnerOtakupay.cashback / 100;
 
-			// Somar os Otaku Poits ganhos em cashback com os Customer Otaku Points Pending | ESSA É A SAÍDA PARA DUAS CASAS DECIMAIS EXATAS, SEM ARREDONDAMENTO
-			const newCustomerOtakuPointsPending =
-				Math.floor(
-					(decryptedCustomerOtakuPointsPending +
-						customerCashbackEarnedOrder) *
-						100
-				) / 100;
+			// const customerCashbackEarnedOrder =
+			// 	Math.floor(
+			// 		customerCashbackPercentage * Number(productsCostTotal) * 100
+			// 	) / 100;
 
-			console.log("MATH FLOOR", newCustomerOtakuPointsPending);
+			// console.log(
+			// 	"OTAKUPOINTS GANHO PELO CUSTOMER",
+			// 	customerCashbackEarnedOrder
+			// );
 
-			console.log(
-				"Novo Customer Otaku Points Pending disponível:",
-				newCustomerOtakuPointsPending.toFixed(2)
-			);
+			// // Criptografar o Cashback a ser Ganho pelo Customer para Salvar na Order criada
+			// const encryptedCustomerOtakuPointsEarned = encrypt(
+			// 	customerCashbackEarnedOrder.toString()
+			// );
 
-			// Criptografar os novos Customer Otaku Points Pending para armazenar no banco de dados
-			const newEncryptedOtakuPointsPending = encrypt(
-				newCustomerOtakuPointsPending.toString()
-			);
+			// // Verificar se os Customer Otaku Points Pending existe
+			// if (!customerOtakupay || !customerOtakupay.otakuPointsPending) {
+			// 	res.status(422).json({
+			// 		message: "Customer Otaku Points Pending não encontrado!",
+			// 	});
+			// 	return;
+			// }
 
-			// Atualizar os Customer Otaku Points Pending criptografados no banco de dados
-			customerOtakupay.otakuPointsPending =
-				newEncryptedOtakuPointsPending;
+			// const encryptedCustomerOtakuPointsPending =
+			// 	customerOtakupay.otakuPointsPending;
 
-			// *********************************************************************************************** //
+			// const decryptedCustomerOtakuPointsPending = decrypt(
+			// 	encryptedCustomerOtakuPointsPending
+			// );
 
-			// COMISSÃO A SER PAGA PELO PARTNER (COMO EXEMPLO: 10% POR VENDA NO OTAMART)
-			const commissionOtamart = Number(productsCostTotal) * 0.1;
+			// if (decryptedCustomerOtakuPointsPending === null) {
+			// 	res.status(500).json({
+			// 		message:
+			// 			"Erro ao descriptografar os Customer Otaku Points Pending!",
+			// 	});
+			// 	return;
+			// }
 
-			const partnerCommissionAndCashbackPaid =
-				Math.floor(
-					(commissionOtamart + partnerCashbackPaidOrder) * 100
-				) / 100;
+			// // Somar os Otaku Poits ganhos em cashback com os Customer Otaku Points Pending | ESSA É A SAÍDA PARA DUAS CASAS DECIMAIS EXATAS, SEM ARREDONDAMENTO
+			// const newCustomerOtakuPointsPending =
+			// 	Math.floor(
+			// 		(decryptedCustomerOtakuPointsPending +
+			// 			customerCashbackEarnedOrder) *
+			// 			100
+			// 	) / 100;
 
-			const encryptPartnerCommissionAndCashbackPaid = encrypt(
-				partnerCommissionAndCashbackPaid.toString()
-			);
+			// console.log("MATH FLOOR", newCustomerOtakuPointsPending);
 
-			const decryptCommission = decrypt(
-				encryptPartnerCommissionAndCashbackPaid
-			)?.toFixed(2);
+			// console.log(
+			// 	"Novo Customer Otaku Points Pending disponível:",
+			// 	newCustomerOtakuPointsPending.toFixed(2)
+			// );
 
-			console.log(
-				"COMISSÃO PAGA PELO PARTNER CRIPTOGRAFADA:",
-				encryptPartnerCommissionAndCashbackPaid
-			);
-			console.log(
-				"COMISSÃO PAGA PELO PARTNER EM NÚMERO:",
-				decryptCommission
-			);
+			// // Criptografar os novos Customer Otaku Points Pending para armazenar no banco de dados
+			// const newEncryptedOtakuPointsPending = encrypt(
+			// 	newCustomerOtakuPointsPending.toString()
+			// );
 
-			// CRIAR UM NOVO PEDIDO
-			const order = new OrderModel({
-				orderNumber: new ObjectId().toHexString().toUpperCase(),
-				statusOrder: "Aprovado",
-				paymentMethod,
-				shippingCostTotal,
-				orderCostTotal,
-				commissionOtamart: commissionOtamart,
-				totalCommissionOtamart: encryptPartnerCommissionAndCashbackPaid,
-				otakuPointsEarned: encryptedCustomerOtakuPointsEarned,
-				otakuPointsPaid: encryptedPartnerOtakuPointsPaid,
-				itemsList: [],
-				orderDetail,
-				partnerID: partner?._id,
-				partnerName: partner?.name,
-				customerID: customer._id,
-				customerName: customer.name,
-				customerAdress,
-				shippingMethod,
-				statusShipping: "Aguardando envio",
-				daysShipping: product.daysShipping,
-				trackingCode: "",
-				discountsApplied,
-				orderNote,
-			});
+			// // Atualizar os Customer Otaku Points Pending criptografados no banco de dados
+			// customerOtakupay.otakuPointsPending =
+			// 	newEncryptedOtakuPointsPending;
 
-			// Iterar sobre a lista de itens e Verificar se itemsList está definido e é um array
-			if (Array.isArray(itemsList)) {
-				// Iterar sobre a lista de itens
-				itemsList.forEach(async (item: any) => {
-					try {
-						const { productID, productName, productQuantity } =
-							item;
-						// Adicionar o item diretamente à lista de itens do pedido
-						order.itemsList.push({
-							productID,
-							productName,
-							productQuantity,
-							productsCostTotal,
-						});
-					} catch (error) {
-						console.error(
-							"Erro ao processar item do pedido:",
-							error
-						);
-						// Lidar com o erro conforme necessário
-					}
-				});
-			} else {
-				console.error("itemsList não está definido ou não é um array");
-				// Lidar com a situação em que itemsList não está definido ou não é um array
-			}
+			// // *********************************************************************************************** //
 
-			// Criar um novo pedido se tudo der certo
-			const newOrder = await order.save();
+			// // COMISSÃO A SER PAGA PELO PARTNER (COMO EXEMPLO: 10% POR VENDA NO OTAMART)
+			// const commissionOtamart = Number(productsCostTotal) * 0.1;
 
-			// Reduzir uma unidade do estoque do Produto
-			product.stock -= productQuantity;
-			await product.save();
+			// const partnerCommissionAndCashbackPaid =
+			// 	Math.floor(
+			// 		(commissionOtamart + partnerCashbackPaidOrder) * 100
+			// 	) / 100;
 
-			// Atualizar Customer (Balance Available e Otaku Points Pending)
-			await customerOtakupay.save();
+			// const encryptPartnerCommissionAndCashbackPaid = encrypt(
+			// 	partnerCommissionAndCashbackPaid.toString()
+			// );
 
-			// Atualizar Partner Balance Pending
-			await partnerOtakupay.save();
+			// const decryptCommission = decrypt(
+			// 	encryptPartnerCommissionAndCashbackPaid
+			// )?.toFixed(2);
+
+			// console.log(
+			// 	"COMISSÃO PAGA PELO PARTNER CRIPTOGRAFADA:",
+			// 	encryptPartnerCommissionAndCashbackPaid
+			// );
+			// console.log(
+			// 	"COMISSÃO PAGA PELO PARTNER EM NÚMERO:",
+			// 	decryptCommission
+			// );
+
+			// // CRIAR UM NOVO PEDIDO
+			// const order = new OrderModel({
+			// 	orderNumber: new ObjectId().toHexString().toUpperCase(),
+			// 	statusOrder: "Aprovado",
+			// 	paymentMethod,
+			// 	shippingCostTotal,
+			// 	orderCostTotal,
+			// 	commissionOtamart: commissionOtamart,
+			// 	totalCommissionOtamart: encryptPartnerCommissionAndCashbackPaid,
+			// 	otakuPointsEarned: encryptedCustomerOtakuPointsEarned,
+			// 	otakuPointsPaid: encryptedPartnerOtakuPointsPaid,
+			// 	itemsList: [],
+			// 	orderDetail,
+			// 	partnerID: partner?._id,
+			// 	partnerName: partner?.name,
+			// 	customerID: customer._id,
+			// 	customerName: customer.name,
+			// 	customerAdress,
+			// 	shippingMethod,
+			// 	statusShipping: "Aguardando envio",
+			// 	daysShipping: product.daysShipping,
+			// 	trackingCode: "",
+			// 	discountsApplied,
+			// 	orderNote,
+			// });
+
+			// // Iterar sobre a lista de itens e Verificar se itemsList está definido e é um array
+			// if (Array.isArray(itemsList)) {
+			// 	// Iterar sobre a lista de itens
+			// 	itemsList.forEach(async (item: any) => {
+			// 		try {
+			// 			const { productID, productName, productQuantity } =
+			// 				item;
+			// 			// Adicionar o item diretamente à lista de itens do pedido
+			// 			order.itemsList.push({
+			// 				productID,
+			// 				productName,
+			// 				productQuantity,
+			// 				productsCostTotal,
+			// 			});
+			// 		} catch (error) {
+			// 			console.error(
+			// 				"Erro ao processar item do pedido:",
+			// 				error
+			// 			);
+			// 			// Lidar com o erro conforme necessário
+			// 		}
+			// 	});
+			// } else {
+			// 	console.error("itemsList não está definido ou não é um array");
+			// 	// Lidar com a situação em que itemsList não está definido ou não é um array
+			// }
+
+			// // Criar um novo pedido se tudo der certo
+			// const newOrder = await order.save();
+
+			// // Reduzir uma unidade do estoque do Produto
+			// product.stock -= productQuantity;
+			// await product.save();
+
+			// // Atualizar Customer (Balance Available e Otaku Points Pending)
+			// await customerOtakupay.save();
+
+			// // Atualizar Partner Balance Pending
+			// await partnerOtakupay.save();
 
 			res.status(200).json({
 				message: "Pagamento processado com sucesso!",
-				newOrder,
 			});
-		} catch (err) {
-			console.log(err);
-			res.status(500).json({ message: "Erro interno do servidor." });
+		} catch (error) {
+			console.log(error);
 		}
 	}
+
+	// static async buyOtamart(req: Request, res: Response) {
+	// 	const { productsID } = req.body;
+
+	// 	const {
+	// 		productName,
+	// 		orderNumber,
+	// 		statusOrder,
+	// 		paymentMethod,
+	// 		shippingCostTotal,
+	// 		orderCostTotal,
+	// 		commission,
+	// 		otakuPointsEarned,
+	// 		otakuPointsPaid,
+	// 		itemsList,
+	// 		productQuantity,
+	// 		orderDetail,
+	// 		customerID,
+	// 		customerName,
+	// 		customerAdress,
+	// 		shippingMethod,
+	// 		statusShipping,
+	// 		daysShipping,
+	// 		discountsApplied,
+	// 		orderNote,
+	// 	} = req.body;
+
+	// 	const product = await ProductModel.findById(productsID);
+
+	// 	if (!productsID) {
+	// 		res.status(422).json({
+	// 			message: "O ID do(s) produto(s) é inválido!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	// Pegar o Customer logado que irá realizar o pagamento
+	// 	const token: any = getToken(req);
+	// 	const customer = await getUserByToken(token);
+
+	// 	if (!token || !customer || customer.accountType !== "customer") {
+	// 		res.status(422).json({
+	// 			message: "Usuário sem permissão para realizar pagamento!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	try {
+	// 		if (!product) {
+	// 			res.status(422).json({ message: "Produto não encontrado!" });
+	// 			return;
+	// 		}
+
+	// if (product.stock <= 0) {
+	// 	res.status(422).json({
+	// 		message: "Produto esgotado, pagamento não permitido!",
+	// 	});
+	// 	return;
+	// }
+
+	// 		const customerOtakupay: any = await OtakupayModel.findOne({
+	// 			_id: customer.otakupayID,
+	// 		});
+
+	// 		// Verifica se o saldo do Customer existe
+	// 		if (!customerOtakupay || !customerOtakupay.balanceAvailable) {
+	// 			res.status(422).json({
+	// 				message: "Customer Balance Available não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		const encryptedCustomerBalanceAvailable =
+	// 			customerOtakupay.balanceAvailable;
+
+	// 		const decryptedCustomerBalanceAvailable = decrypt(
+	// 			encryptedCustomerBalanceAvailable
+	// 		);
+
+	// 		if (decryptedCustomerBalanceAvailable === null) {
+	// 			res.status(500).json({
+	// 				message:
+	// 					"Erro ao descriptografar o Customer Balance Available!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		// Pegar o preço do produto
+	// 		const productPrice =
+	// 			Number(product?.promocionalPrice) > 0
+	// 				? product.promocionalPrice
+	// 				: product.originalPrice;
+
+	// 		// Calcular o custo total dos produtos
+	// 		const productsCostTotal = productPrice * productQuantity;
+
+	// 		console.log("PREÇO TOTAL DOS PRODUTOS SOMADOS", productsCostTotal);
+
+	// 		// Verificar se productsCostTotal é um número válido
+	// 		if (isNaN(productsCostTotal)) {
+	// 			res.status(422).json({
+	// 				message: "Custo total dos produtos inválido.",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		// SOMA DO VALOR DE TODOS OS PRODUTOS + FRETE SE FOR MAIOR QUE 0
+	// 		const orderCostTotal = productsCostTotal + shippingCostTotal;
+
+	// 		// Verificar se orderCostTotal é um número válido
+	// 		if (isNaN(orderCostTotal)) {
+	// 			res.status(422).json({
+	// 				message: "Custo total do pedido inválido.",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		console.log(
+	// 			"BALANCE AVAILABLE DO CUSTOMER DESCRIPTOGRAFADO:",
+	// 			decryptedCustomerBalanceAvailable
+	// 		);
+	// 		console.log(
+	// 			"PREÇO DO(s) PRODUTO(s) A SER TRANSACIONADO:",
+	// 			productsCostTotal
+	// 		);
+
+	// 		console.log("VALOR TOTAL TO PEDIDO COM FRETE", orderCostTotal);
+
+	// 		if (
+	// 			isNaN(decryptedCustomerBalanceAvailable) ||
+	// 			isNaN(orderCostTotal)
+	// 		) {
+	// 			res.status(422).json({
+	// 				message: "Valores em formatos inválidos!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		if (decryptedCustomerBalanceAvailable < orderCostTotal) {
+	// 			res.status(422).json({
+	// 				message: "Customer Balance Available insuficiente!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		// Limitando o Customer Balance Available para duas casas decimais
+	// 		const newCustomerBalanceAvailable = (
+	// 			decryptedCustomerBalanceAvailable - orderCostTotal
+	// 		).toFixed(2);
+
+	// 		// Criptografar o novo Customer Balance Available para armazenar no banco de dados
+	// 		const newEncryptedCustomerBalanceAvailable = encrypt(
+	// 			newCustomerBalanceAvailable.toString()
+	// 		);
+
+	// 		// Atualizar o Customer Balance Available criptografado no banco de dados
+	// 		customerOtakupay.balanceAvailable =
+	// 			newEncryptedCustomerBalanceAvailable;
+
+	// 		// Console log para exibir o Customer Balance Available descriptografado
+	// 		const logDecryptedCustomerBalanceAvailable = decrypt(
+	// 			customerOtakupay.balanceAvailable
+	// 		);
+
+	// 		if (logDecryptedCustomerBalanceAvailable !== null) {
+	// 			console.log(
+	// 				"Novo Customer Balance Available disponível:",
+	// 				logDecryptedCustomerBalanceAvailable.toFixed(2) // Exibindo o saldo com 2 casas decimais
+	// 			);
+	// 		} else {
+	// 			console.error(
+	// 				"Erro ao descriptografar o Customer Balance Available"
+	// 			);
+	// 		}
+
+	// 		// Pegar o parceiro associado ao produto (Responsável pelo cadastro do produto)
+	// 		const partner = await PartnerModel.findById(product.partnerID);
+
+	// 		// Verificar se o Partner existe
+	// 		if (!partner) {
+	// 			res.status(422).json({
+	// 				message: "Parceiro não encontrado para este produto!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		// Acessar o Otakupay do Partner usando o otakupayID
+	// 		const partnerOtakupay = await OtakupayModel.findOne({
+	// 			_id: partner.otakupayID,
+	// 		});
+
+	// 		if (!partnerOtakupay) {
+	// 			res.status(422).json({
+	// 				message: "Otakupay do Partner não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		// Pegar o Partner Balance Pending no otakupay
+	// 		const encryptedPartnerBalancePending =
+	// 			partnerOtakupay.balancePending;
+
+	// 		const decryptedPartnerBalancePending = decrypt(
+	// 			encryptedPartnerBalancePending
+	// 		);
+
+	// 		if (decryptedPartnerBalancePending === null) {
+	// 			res.status(500).json({
+	// 				message:
+	// 					"Erro ao descriptografar o Partner Balance Pending!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		// ATENÇÃO: ESTOU CALCULANDO O FRETE + VALOR TOTAL DOS ITENS COM O BALANCE PENDING, MAS TALVEZ SEJA MAIS INTERESSANTE DISPONIBILIZAR O FRETE NA HORA
+	// 		if (isNaN(orderCostTotal)) {
+	// 			// Tratar erro, preço do produto inválido
+	// 			res.status(422).json({ message: "Preço do produto inválido." });
+	// 			return;
+	// 		}
+
+	// 		// Calculando o novo Partner Balance pending após a transação
+	// 		const newPartnerBalancePending =
+	// 			decryptedPartnerBalancePending + orderCostTotal;
+
+	// 		console.log(
+	// 			"Novo Partner Balance Pending disponível:",
+	// 			newPartnerBalancePending.toFixed(2)
+	// 		);
+
+	// 		// Criptografar o novo Partner Balance Pending para armazenar no Otakupay
+	// 		const newPartnerEncryptedBalancePending = encrypt(
+	// 			newPartnerBalancePending.toString()
+	// 		);
+
+	// 		// Atualizar o Partner Balance Pending criptografado no Otakupay
+	// 		partnerOtakupay.balancePending = newPartnerEncryptedBalancePending;
+
+	// 		// Essa etapa poderá ser deletada
+	// 		// Calculo e atualização do Cashback Otakupay a ser Pago pelo Partner (Cashback precisa ser multiplicado por dois para pagar plataforma e customer)
+	// 		const partnerCashbackPercentage =
+	// 			(partnerOtakupay.cashback * 2) / 100;
+
+	// 		const partnerCashbackPaidOrder =
+	// 			Math.floor(
+	// 				partnerCashbackPercentage * Number(productsCostTotal) * 100
+	// 			) / 100;
+
+	// 		console.log(
+	// 			"OTAKUPOINTS PAGO PELO PARTNER",
+	// 			partnerCashbackPaidOrder
+	// 		);
+
+	// 		// Criptografar o Cashback a ser pago pelo Partner para Salvar na Order criada
+	// 		const encryptedPartnerOtakuPointsPaid = encrypt(
+	// 			partnerCashbackPaidOrder.toString()
+	// 		);
+
+	// 		// Calculo e atualização do Cashback Otakupay do Customer
+	// 		const customerCashbackPercentage = partnerOtakupay.cashback / 100;
+
+	// 		const customerCashbackEarnedOrder =
+	// 			Math.floor(
+	// 				customerCashbackPercentage * Number(productsCostTotal) * 100
+	// 			) / 100;
+
+	// 		console.log(
+	// 			"OTAKUPOINTS GANHO PELO CUSTOMER",
+	// 			customerCashbackEarnedOrder
+	// 		);
+
+	// 		// Criptografar o Cashback a ser Ganho pelo Customer para Salvar na Order criada
+	// 		const encryptedCustomerOtakuPointsEarned = encrypt(
+	// 			customerCashbackEarnedOrder.toString()
+	// 		);
+
+	// 		// Verificar se os Customer Otaku Points Pending existe
+	// 		if (!customerOtakupay || !customerOtakupay.otakuPointsPending) {
+	// 			res.status(422).json({
+	// 				message: "Customer Otaku Points Pending não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		const encryptedCustomerOtakuPointsPending =
+	// 			customerOtakupay.otakuPointsPending;
+
+	// 		const decryptedCustomerOtakuPointsPending = decrypt(
+	// 			encryptedCustomerOtakuPointsPending
+	// 		);
+
+	// 		if (decryptedCustomerOtakuPointsPending === null) {
+	// 			res.status(500).json({
+	// 				message:
+	// 					"Erro ao descriptografar os Customer Otaku Points Pending!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		// Somar os Otaku Poits ganhos em cashback com os Customer Otaku Points Pending | ESSA É A SAÍDA PARA DUAS CASAS DECIMAIS EXATAS, SEM ARREDONDAMENTO
+	// 		const newCustomerOtakuPointsPending =
+	// 			Math.floor(
+	// 				(decryptedCustomerOtakuPointsPending +
+	// 					customerCashbackEarnedOrder) *
+	// 					100
+	// 			) / 100;
+
+	// 		console.log("MATH FLOOR", newCustomerOtakuPointsPending);
+
+	// 		console.log(
+	// 			"Novo Customer Otaku Points Pending disponível:",
+	// 			newCustomerOtakuPointsPending.toFixed(2)
+	// 		);
+
+	// 		// Criptografar os novos Customer Otaku Points Pending para armazenar no banco de dados
+	// 		const newEncryptedOtakuPointsPending = encrypt(
+	// 			newCustomerOtakuPointsPending.toString()
+	// 		);
+
+	// 		// Atualizar os Customer Otaku Points Pending criptografados no banco de dados
+	// 		customerOtakupay.otakuPointsPending =
+	// 			newEncryptedOtakuPointsPending;
+
+	// 		// *********************************************************************************************** //
+
+	// 		// COMISSÃO A SER PAGA PELO PARTNER (COMO EXEMPLO: 10% POR VENDA NO OTAMART)
+	// 		const commissionOtamart = Number(productsCostTotal) * 0.1;
+
+	// 		const partnerCommissionAndCashbackPaid =
+	// 			Math.floor(
+	// 				(commissionOtamart + partnerCashbackPaidOrder) * 100
+	// 			) / 100;
+
+	// 		const encryptPartnerCommissionAndCashbackPaid = encrypt(
+	// 			partnerCommissionAndCashbackPaid.toString()
+	// 		);
+
+	// 		const decryptCommission = decrypt(
+	// 			encryptPartnerCommissionAndCashbackPaid
+	// 		)?.toFixed(2);
+
+	// 		console.log(
+	// 			"COMISSÃO PAGA PELO PARTNER CRIPTOGRAFADA:",
+	// 			encryptPartnerCommissionAndCashbackPaid
+	// 		);
+	// 		console.log(
+	// 			"COMISSÃO PAGA PELO PARTNER EM NÚMERO:",
+	// 			decryptCommission
+	// 		);
+
+	// 		// CRIAR UM NOVO PEDIDO
+	// 		const order = new OrderModel({
+	// 			orderNumber: new ObjectId().toHexString().toUpperCase(),
+	// 			statusOrder: "Aprovado",
+	// 			paymentMethod,
+	// 			shippingCostTotal,
+	// 			orderCostTotal,
+	// 			commissionOtamart: commissionOtamart,
+	// 			totalCommissionOtamart: encryptPartnerCommissionAndCashbackPaid,
+	// 			otakuPointsEarned: encryptedCustomerOtakuPointsEarned,
+	// 			otakuPointsPaid: encryptedPartnerOtakuPointsPaid,
+	// 			itemsList: [],
+	// 			orderDetail,
+	// 			partnerID: partner?._id,
+	// 			partnerName: partner?.name,
+	// 			customerID: customer._id,
+	// 			customerName: customer.name,
+	// 			customerAdress,
+	// 			shippingMethod,
+	// 			statusShipping: "Aguardando envio",
+	// 			daysShipping: product.daysShipping,
+	// 			trackingCode: "",
+	// 			discountsApplied,
+	// 			orderNote,
+	// 		});
+
+	// 		// Iterar sobre a lista de itens e Verificar se itemsList está definido e é um array
+	// 		if (Array.isArray(itemsList)) {
+	// 			// Iterar sobre a lista de itens
+	// 			itemsList.forEach(async (item: any) => {
+	// 				try {
+	// 					const { productID, productName, productQuantity } =
+	// 						item;
+	// 					// Adicionar o item diretamente à lista de itens do pedido
+	// 					order.itemsList.push({
+	// 						productID,
+	// 						productName,
+	// 						productQuantity,
+	// 						productsCostTotal,
+	// 					});
+	// 				} catch (error) {
+	// 					console.error(
+	// 						"Erro ao processar item do pedido:",
+	// 						error
+	// 					);
+	// 					// Lidar com o erro conforme necessário
+	// 				}
+	// 			});
+	// 		} else {
+	// 			console.error("itemsList não está definido ou não é um array");
+	// 			// Lidar com a situação em que itemsList não está definido ou não é um array
+	// 		}
+
+	// 		// Criar um novo pedido se tudo der certo
+	// 		const newOrder = await order.save();
+
+	// 		// Reduzir uma unidade do estoque do Produto
+	// 		product.stock -= productQuantity;
+	// 		await product.save();
+
+	// 		// Atualizar Customer (Balance Available e Otaku Points Pending)
+	// 		await customerOtakupay.save();
+
+	// 		// Atualizar Partner Balance Pending
+	// 		await partnerOtakupay.save();
+
+	// 		res.status(200).json({
+	// 			message: "Pagamento processado com sucesso!",
+	// 			newOrder,
+	// 		});
+	// 	} catch (err) {
+	// 		console.log(err);
+	// 		res.status(500).json({ message: "Erro interno do servidor." });
+	// 	}
+	// }
 
 	static async sendingMoney(req: Request, res: Response) {
 		const { destinyEmail, amoutSent } = req.body;
