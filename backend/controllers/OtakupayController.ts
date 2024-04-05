@@ -446,114 +446,190 @@ class OtakupayController {
 				);
 			}
 
-			// // Array para armazenar os parceiros
-			// const partners = [];
+			// Array para armazenar os parceiros
+			const partners = [];
 
-			// // Array para armazenar os Otakupays associados aos parceiros
-			// const partnerOtakupays = [];
+			// Array para armazenar os Otakupays associados aos parceiros
+			const partnerOtakupays = [];
 
-			// // Mapa para armazenar os Partner Balance Pending Criptografados por ID de parceiro
-			// const encryptedPartnerBalancePendingMap = new Map<string, string>();
+			// Mapa para armazenar os Partner Balance Pending Criptografados por ID de parceiro
+			const encryptedPartnerBalancePendingMap = new Map<string, string>();
 
-			// // Iterar sobre cada produto para obter os parceiros e seus Otakupays associados
-			// for (const product of products) {
-			// 	// Buscar o parceiro pelo ID do produto
-			// 	const partner = await PartnerModel.findById(product.partnerID);
+			// Iterar sobre cada produto para obter os parceiros e seus Otakupays associados
+			for (const product of products) {
+				// Buscar o parceiro pelo ID do produto
+				const partner = await PartnerModel.findById(product.partnerID);
 
-			// 	// Verificar se o parceiro existe
-			// 	if (!partner) {
-			// 		// Se o parceiro não existir, retornar um erro
-			// 		return res.status(422).json({
-			// 			message: "Parceiro não encontrado para este produto!",
-			// 		});
-			// 	}
+				// Verificar se o parceiro existe
+				if (!partner) {
+					// Se o parceiro não existir, retornar um erro
+					return res.status(422).json({
+						message: "Parceiro não encontrado para este produto!",
+					});
+				}
 
-			// 	// Acessar o Otakupay do parceiro usando o otakupayID
-			// 	const partnerOtakupay = await OtakupayModel.findOne({
-			// 		_id: partner.otakupayID,
-			// 	});
+				// Acessar o Otakupay do parceiro usando o otakupayID
+				const partnerOtakupay = await OtakupayModel.findOne({
+					_id: partner.otakupayID,
+				});
 
-			// 	// Verificar se o Otakupay do parceiro existe
-			// 	if (!partnerOtakupay) {
-			// 		// Se o Otakupay do parceiro não existir, retornar um erro
-			// 		return res.status(422).json({
-			// 			message: "Otakupay do Partner não encontrado!",
-			// 		});
-			// 	}
+				// Verificar se o Otakupay do parceiro existe
+				if (!partnerOtakupay) {
+					// Se o Otakupay do parceiro não existir, retornar um erro
+					return res.status(422).json({
+						message: "Otakupay do Partner não encontrado!",
+					});
+				}
 
-			// 	// Adicionar o parceiro ao array de parceiros
-			// 	partners.push(partner);
+				// Adicionar o parceiro ao array de parceiros
+				partners.push(partner);
 
-			// 	// Adicionar o Otakupay associado ao array de Otakupays
-			// 	partnerOtakupays.push(partnerOtakupay);
+				// Adicionar o Otakupay associado ao array de Otakupays
+				partnerOtakupays.push(partnerOtakupay);
 
-			// 	// Adicionar o Partner Balance Pending ao mapa, se existir
-			// 	if (
-			// 		partnerOtakupay.balancePending &&
-			// 		!encryptedPartnerBalancePendingMap.has(
-			// 			partner._id.toString()
-			// 		)
-			// 	) {
-			// 		encryptedPartnerBalancePendingMap.set(
-			// 			partner._id.toString(),
-			// 			partnerOtakupay.balancePending
-			// 		);
-			// 	}
-			// }
+				// Adicionar o Partner Balance Pending ao mapa, se existir
+				if (
+					partnerOtakupay.balancePending &&
+					!encryptedPartnerBalancePendingMap.has(
+						partner._id.toString()
+					)
+				) {
+					encryptedPartnerBalancePendingMap.set(
+						partner._id.toString(),
+						partnerOtakupay.balancePending
+					);
+				}
+			}
 
-			// // Converter o mapa para um array de Partner Balance Pending Criptografados
-			// const encryptedPartnerBalancePendingList = Array.from(
-			// 	encryptedPartnerBalancePendingMap.entries()
-			// ).map(([partnerID, balancePending]) => ({
-			// 	partnerID,
-			// 	balancePending,
-			// }));
+			// Converter o mapa para um array de Partner Balance Pending Criptografados
+			const encryptedPartnerBalancePendingList = Array.from(
+				encryptedPartnerBalancePendingMap.entries()
+			).map(([partnerID, balancePending]) => ({
+				partnerID,
+				balancePending,
+			}));
 
-			// // Descriptografar os Partner Balance Pending
-			// const decryptedPartnerBalancePendingList =
-			// 	encryptedPartnerBalancePendingList.map(
-			// 		({ partnerID, balancePending }) => {
-			// 			const decryptedValue = decrypt(balancePending);
-			// 			return { partnerID, balancePending: decryptedValue };
-			// 		}
-			// 	);
+			// Descriptografar os Partner Balance Pending
+			const decryptedPartnerBalancePendingList =
+				encryptedPartnerBalancePendingList.map(
+					({ partnerID, balancePending }) => {
+						const decryptedValue = decrypt(balancePending);
+						return { partnerID, balancePending: decryptedValue };
+					}
+				);
 
-			// console.log(
-			// 	"Partner Balance Pending Descriptografados por ID de parceiro:",
-			// 	decryptedPartnerBalancePendingList
-			// );
+			console.log(
+				"Partner Balance Pending Descriptografados por ID de parceiro:",
+				decryptedPartnerBalancePendingList
+			);
 
-			// if (decryptedPartnerBalancePending === null) {
-			// 	res.status(500).json({
-			// 		message:
-			// 			"Erro ao descriptografar o Partner Balance Pending!",
-			// 	});
-			// 	return;
-			// }
+			if (decryptedPartnerBalancePendingList === null) {
+				res.status(500).json({
+					message:
+						"Erro ao descriptografar o Partner Balance Pending!",
+				});
+				return;
+			}
 
-			// // ATENÇÃO: ESTOU CALCULANDO O FRETE + VALOR TOTAL DOS ITENS COM O BALANCE PENDING, MAS TALVEZ SEJA MAIS INTERESSANTE DISPONIBILIZAR O FRETE NA HORA
-			// if (isNaN(orderCostTotal)) {
-			// 	// Tratar erro, preço do produto inválido
-			// 	res.status(422).json({ message: "Preço do produto inválido." });
-			// 	return;
-			// }
+			// Array para armazenar os novos balanços pendentes dos parceiros
+			const newBalances = [];
 
-			// // Calculando o novo Partner Balance pending após a transação
-			// const newPartnerBalancePending =
-			// 	decryptedPartnerBalancePending + orderCostTotal;
+			// Iterar sobre cada parceiro para calcular o novo balancePending
+			for (const partner of decryptedPartnerBalancePendingList) {
+				// Verificar se balancePending não é nulo
+				if (partner.balancePending !== null) {
+					// Encontrar o total da compra com frete correspondente ao parceiro
+					const partnerTotalCostWithShipping =
+						partnersTotalCostWithShipping.find(
+							(item) => item.partnerID === partner.partnerID
+						);
 
-			// console.log(
-			// 	"Novo Partner Balance Pending disponível:",
-			// 	newPartnerBalancePending.toFixed(2)
-			// );
+					// Se o parceiro não tiver um total da compra com frete, atribuir 0
+					const partnerTotalCost = partnerTotalCostWithShipping
+						? partnerTotalCostWithShipping.totalCostWithShipping
+						: 0;
 
-			// // Criptografar o novo Partner Balance Pending para armazenar no Otakupay
-			// const newPartnerEncryptedBalancePending = encrypt(
-			// 	newPartnerBalancePending.toString()
-			// );
+					// Calcular o novo balancePending somando o total da compra com frete ao balancePending existente
+					const newBalance =
+						partner.balancePending + partnerTotalCost;
 
-			// // Atualizar o Partner Balance Pending criptografado no Otakupay
-			// partnerOtakupay.balancePending = newPartnerEncryptedBalancePending;
+					// Adicionar o novo balancePending ao array de novos balanços - São esses valores que serão armazenados
+					newBalances.push({
+						partnerID: partner.partnerID,
+						balancePending: newBalance,
+					});
+				}
+			}
+
+			// Console log para exibir os novos balanços pendentes dos parceiros
+			console.log("Novos Balanços Pendentes dos Parceiros:", newBalances);
+
+			// Array para armazenar os novos balanços pendentes criptografados dos parceiros
+			const newEncryptedBalances = [];
+
+			// Iterar sobre cada novo balancePending para criptografá-lo
+			for (const balance of newBalances) {
+				// Criptografar o balancePending usando a função encrypt
+				const encryptedBalance = encrypt(
+					balance.balancePending.toString()
+				);
+
+				// Adicionar o balancePending criptografado ao array de novos balanços criptografados
+				newEncryptedBalances.push({
+					partnerID: balance.partnerID,
+					balancePending: encryptedBalance,
+				});
+			}
+
+			// Console log para exibir os novos balanços pendentes criptografados dos parceiros
+			console.log(
+				"Novos Balanços Pendentes Criptografados dos Parceiros:",
+				newEncryptedBalances
+			);
+
+			// Iterar sobre cada novo balancePending criptografado e atualizar o Otakupay associado
+			for (const encryptedBalance of newEncryptedBalances) {
+				// Encontrar o parceiro correspondente pelo ID do parceiro
+				const partner = await PartnerModel.findById(
+					encryptedBalance.partnerID
+				);
+
+				// Verificar se o parceiro foi encontrado
+				if (!partner) {
+					console.log(
+						`Parceiro não encontrado para o ID: ${encryptedBalance.partnerID}`
+					);
+					continue; // Ir para a próxima iteração do loop
+				}
+
+				// Obter o otakupayID do parceiro
+				const otakupayID = partner.otakupayID;
+
+				// Encontrar o Otakupay correspondente usando o otakupayID
+				const partnerOtakupay = await OtakupayModel.findById(
+					otakupayID
+				);
+
+				// Verificar se o Otakupay do parceiro foi encontrado
+				if (!partnerOtakupay) {
+					console.log(
+						`Otakupay não encontrado para o ID: ${otakupayID}`
+					);
+					continue; // Ir para a próxima iteração do loop
+				}
+
+				// Atualizar o balancePending do Otakupay com o novo valor criptografado
+				partnerOtakupay.balancePending =
+					encryptedBalance.balancePending;
+
+				// Salvar o Otakupay atualizado no banco de dados
+				await partnerOtakupay.save();
+
+				// Log para confirmar a atualização
+				console.log(
+					`Balance Pending atualizado para o parceiro ${encryptedBalance.partnerID}`
+				);
+			}
 
 			// // Essa etapa poderá ser deletada
 			// // Calculo e atualização do Cashback Otakupay a ser Pago pelo Partner (Cashback precisa ser multiplicado por dois para pagar plataforma e customer)
