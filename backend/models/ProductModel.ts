@@ -1,6 +1,5 @@
 import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
-import { Decimal128 } from "mongodb";
 
 // Interface para a estrutura de um objeto de revisão
 interface IReview extends Document {

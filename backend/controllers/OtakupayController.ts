@@ -861,51 +861,89 @@ class OtakupayController {
 					)
 				) {
 					const partnerProducts = productsByPartner[partnerID];
-
-					// Calcular os custos totais para este parceiro
 					let partnerOrderCostTotal = 0;
+
+					// Calcular o custo total do pedido para este parceiro
 					for (const product of partnerProducts) {
-						// Calcule o custo total do produto para este parceiro
-						// Isso depende da sua lógica específica para calcular o custo total do produto
 						partnerOrderCostTotal += getProductCost(product);
 					}
 
-					// CRIAR UM NOVO PEDIDO para este parceiro
-					const order = new OrderModel({
-						orderNumber: new ObjectId().toHexString().toUpperCase(),
-						statusOrder: "Aprovado",
-						paymentMethod: "OtakuPay",
-						// shippingCostTotal, // Aqui você pode definir o custo total de envio com base na lógica da sua aplicação
-						customerOrderCostTotal: partnerOrderCostTotal,
-						// Outros campos de pedido...
-						partnerID: partnerID,
-						// Outros campos de pedido...
-					});
+					// Encontrar o custo de envio para este parceiro
+					const shippingCostForPartner = shippingCost.find(
+						(cost: any) => cost.partnerID === partnerID
+					);
 
-					// Adicionar os itens do pedido
-					for (const product of partnerProducts) {
-						order.itemsList.push({
-							productID: product.productID,
-							productName: product.productName,
-							productQuantity: product.productQuantity,
-						});
+					// Verificar se o custo de envio para este parceiro foi encontrado
+					if (shippingCostForPartner) {
+						// Extrair o valor do custo de envio
+						const { vlrFrete } = shippingCostForPartner;
+
+						// Encontrar a comissão correspondente ao parceiro
+						const partnerCommission = partnerCommissions.find(
+							(commission) => commission.partnerID === partnerID
+						);
+
+						// Verificar se a comissão foi encontrada
+						if (partnerCommission) {
+							const { commissionAmount } = partnerCommission;
+
+							// Buscar o nome do parceiro no banco de dados usando o partnerID
+							const partner = await PartnerModel.findOne({
+								_id: partnerID,
+							});
+
+							if (!partner) {
+								console.error(
+									`Parceiro não encontrado para o ID ${partnerID}`
+								);
+								continue; // Pular para a próxima iteração do loop
+							}
+
+							const order = new OrderModel({
+								orderNumber: new ObjectId()
+									.toHexString()
+									.toUpperCase(),
+								statusOrder: "Aprovado",
+								paymentMethod: "OtakuPay",
+								shippingCostTotal: vlrFrete, // Usando o valor do custo de envio
+								customerOrderCostTotal: partnerOrderCostTotal,
+								partnerCommissionOtamart: commissionAmount, // Usando a comissão não criptografada
+								itemsList: [],
+								partnerID: partnerID,
+								partnerName: partner.name, // Inserir o nome do parceiro
+								customerID: customer._id,
+								customerName: customer.name,
+								customerAdress: [],
+								shippingMethod: "Loggi",
+								statusShipping: "Envio Pendente",
+								discountsApplied: 0,
+								orderNote: "",
+							});
+
+							// Adicionar os itens do pedido
+							for (const product of partnerProducts) {
+								order.itemsList.push({
+									productID: product.productID,
+									productName: product.productName,
+									daysShipping: product.daysShipping,
+									productQuantity: product.productQuantity,
+								});
+							}
+
+							// Salvar o pedido no banco de dados ou executar outras ações necessárias
+							await order.save();
+						} else {
+							console.error(
+								`Comissão não encontrada para o parceiro ${partnerID}`
+							);
+						}
+					} else {
+						console.error(
+							`Custo de envio não encontrado para o parceiro ${partnerID}`
+						);
 					}
-
-					// Salvar o pedido no banco de dados ou executar outras ações necessárias
-					await order.save();
 				}
 			}
-
-			// // Iterar sobre os custos de frete por parceiro e adicionar cada valor à ordem
-			// for (const partnerCost of partnersTotalCostWithShipping) {
-			// 	const shipping = shippingCost.find(
-			// 		(cost: any) => cost.partnerID === partnerCost.partnerID
-			// 	);
-			// 	if (shipping) {
-			// 		order.shippingCostTotal = shipping.vlrFrete;
-			// 		// Adicionar mais lógica aqui conforme necessário
-			// 	}
-			// }
 
 			// ************************* ATUALIZAÇÕES EM BANCO DE DADOS ********************************************//
 

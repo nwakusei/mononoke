@@ -6,7 +6,7 @@ interface IOrderItem {
 	productID: mongoose.Schema.Types.ObjectId;
 	productName: string;
 	productQuantity: number;
-	// productsCostTotal: number;
+	daysShipping: number;
 }
 
 // Interface tipando os dados que irão no Banco de Dados.
@@ -28,7 +28,6 @@ interface IOrder {
 	customerAdress: [{}];
 	shippingMethod: string;
 	statusShipping: string;
-	daysShipping: number;
 	trackingCode: string;
 	discountsApplied: number;
 	orderNote: string;
@@ -73,6 +72,9 @@ const orderSchema = new Schema<IOrder>(
 				productQuantity: {
 					type: Number,
 				},
+				daysShipping: {
+					type: Number,
+				},
 				// productsCostTotal: {
 				// 	type: Number,
 				// },
@@ -97,9 +99,6 @@ const orderSchema = new Schema<IOrder>(
 		},
 		statusShipping: {
 			type: String,
-		},
-		daysShipping: {
-			type: Number,
 		},
 		trackingCode: {
 			type: String,
