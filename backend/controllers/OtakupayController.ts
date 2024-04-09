@@ -19,7 +19,6 @@ import qs from "qs";
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
 import mongoose, { isValidObjectId } from "mongoose";
-import { Console } from "console";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -178,12 +177,12 @@ class OtakupayController {
 		}
 
 		try {
-			// Obter informações completas sobre os produtos do banco de dados
+			// Pegar os IDs dos produtos da Requisição
 			const productIDs = products.map(
 				(product: any) => product.productID
 			);
 
-			// Verificar se todos os IDs têm o formato correto de ObjectId
+			// Verificar se todos os IDs possuem o formato correto de ObjectId
 			for (const id of productIDs) {
 				if (!mongoose.Types.ObjectId.isValid(id)) {
 					res.status(400).json({
@@ -199,7 +198,7 @@ class OtakupayController {
 
 			// Verificar se todos os produtos foram encontrados no banco de dados
 			if (productsFromDB.length !== productIDs.length) {
-				// Alguns IDs não foram encontrados, interromper a transação
+				// Se algum dos IDs não forem encontrados, interromper a transação
 				const missingProductIDs = productIDs.filter(
 					(id: any) =>
 						!productsFromDB.find((product) => product._id === id)
@@ -211,7 +210,7 @@ class OtakupayController {
 				return;
 			}
 
-			// Verificar se algum dos produtos possui estoque disponível
+			// Verificar se algum dos produtos possui estoque indisponível
 			const produtoSemEstoque = productsFromDB.find(
 				(product: any) => product.stock <= 0
 			);
@@ -222,11 +221,12 @@ class OtakupayController {
 				});
 			}
 
+			// Pegar o OtakuPay do Customer
 			const customerOtakupay: any = await OtakupayModel.findOne({
 				_id: customer.otakupayID,
 			});
 
-			// Verifica se o saldo do Customer existe
+			// Verificar se o saldo do Customer existe
 			if (!customerOtakupay || !customerOtakupay.balanceAvailable) {
 				res.status(422).json({
 					message: "Customer Balance Available não encontrado!",
@@ -234,9 +234,11 @@ class OtakupayController {
 				return;
 			}
 
+			// Pegar o Balance Available do Customer Criptografado
 			const encryptedCustomerBalanceAvailable =
 				customerOtakupay.balanceAvailable;
 
+			// Descriptografar o Balance Available do Customer
 			const decryptedCustomerBalanceAvailable = decrypt(
 				encryptedCustomerBalanceAvailable
 			);
@@ -254,7 +256,7 @@ class OtakupayController {
 				decryptedCustomerBalanceAvailable
 			);
 
-			// Array para armazenar os custos totais dos produtos por parceiro
+			// Array para armazenar os custos totais dos produtos por PartnerID
 			const partnersTotalCost: {
 				partnerID: string;
 				totalCost: number;
@@ -298,7 +300,7 @@ class OtakupayController {
 				}
 			}
 
-			// Verificar se algum parceiro não teve produtos
+			// Verificar se algum parceiro possui produtos
 			if (partnersTotalCost.length === 0) {
 				res.status(422).json({
 					message:
@@ -308,11 +310,11 @@ class OtakupayController {
 			}
 
 			console.log(
-				"Custo total dos produtos por parceiro:",
+				"CUSTO TOTAL DOS PRODUTOS POR PARCEIRO:",
 				partnersTotalCost
 			);
 
-			console.log("Custo total do Frete por parceiro:", shippingCost);
+			console.log("CUSTO TOTAL DO FRETE POR PARCEIRO:", shippingCost);
 
 			// Função para calcular o custo total de um produto
 			function getProductCost(product: any): number {
@@ -341,7 +343,7 @@ class OtakupayController {
 				totalCostWithShipping: number;
 			}[] = [];
 
-			// Iterar sobre cada produto para calcular o custo total com base no parceiro e no frete correspondente
+			// Iterar sobre cada produto para calcular o custo total com base no partnerID e no frete correspondente
 			for (const product of products) {
 				// Calcular o custo total do produto
 				const productCost = getProductCost(product);
@@ -379,7 +381,7 @@ class OtakupayController {
 			}
 
 			console.log(
-				"Custo total dos produtos + frete por parceiro:",
+				"CUSTO TOTAL DOS PRODUTOS + FRETE POR PARCEIRO:",
 				partnersTotalCostWithShipping
 			);
 
@@ -397,7 +399,7 @@ class OtakupayController {
 			// Verificar se orderCostTotal é um número válido
 			if (isNaN(customerOrderCostTotal)) {
 				res.status(422).json({
-					message: "Custo total do pedido inválido.",
+					message: "Custo total do pedido inválido!",
 				});
 				return;
 			}
@@ -440,7 +442,7 @@ class OtakupayController {
 
 			if (logDecryptedCustomerBalanceAvailable !== null) {
 				console.log(
-					"Novo Customer Balance Available disponível:",
+					"NOVO CUSTOMER BALANCE AVAILABLE DISPONÍVEL:",
 					logDecryptedCustomerBalanceAvailable.toFixed(2) // Exibindo o saldo com 2 casas decimais
 				);
 			} else {
@@ -452,10 +454,10 @@ class OtakupayController {
 			// Array para armazenar os parceiros
 			const partners = [];
 
-			// Array para armazenar os Otakupays associados aos parceiros
+			// Array para armazenar os OtakuPays associados aos parceiros
 			const partnerOtakupays = [];
 
-			// Mapa para armazenar os Partner Balance Pending Criptografados por ID de parceiro
+			// Map para armazenar os Partner Balance Pending Criptografados por partnerID
 			const encryptedPartnerBalancePendingMap = new Map<string, string>();
 
 			// Iterar sobre cada produto para obter os parceiros e seus Otakupays associados
@@ -471,14 +473,14 @@ class OtakupayController {
 					});
 				}
 
-				// Acessar o Otakupay do parceiro usando o otakupayID
+				// Acessar o OtakuPay do parceiro usando o otakupayID
 				const partnerOtakupay = await OtakupayModel.findOne({
 					_id: partner.otakupayID,
 				});
 
-				// Verificar se o Otakupay do parceiro existe
+				// Verificar se o OtakuPay do parceiro existe
 				if (!partnerOtakupay) {
-					// Se o Otakupay do parceiro não existir, retornar um erro
+					// Se o OtakuPay do parceiro não existir, retornar um erro
 					return res.status(422).json({
 						message: "Otakupay do Partner não encontrado!",
 					});
@@ -487,7 +489,7 @@ class OtakupayController {
 				// Adicionar o parceiro ao array de parceiros
 				partners.push(partner);
 
-				// Adicionar o Otakupay associado ao array de Otakupays
+				// Adicionar o OtakuPay associado ao array de Otakupays
 				partnerOtakupays.push(partnerOtakupay);
 
 				// Adicionar o Partner Balance Pending ao mapa, se existir
@@ -504,7 +506,7 @@ class OtakupayController {
 				}
 			}
 
-			// Converter o mapa para um array de Partner Balance Pending Criptografados
+			// Converter o map para um array de Partner Balance Pending Criptografados
 			const encryptedPartnerBalancePendingList = Array.from(
 				encryptedPartnerBalancePendingMap.entries()
 			).map(([partnerID, balancePending]) => ({
@@ -534,7 +536,7 @@ class OtakupayController {
 				return;
 			}
 
-			// Array para armazenar os novos balanços pendentes dos parceiros
+			// Array para armazenar os novos Partner Balance Pending
 			const newBalances = [];
 
 			// Iterar sobre cada parceiro para calcular o novo balancePending
@@ -565,19 +567,19 @@ class OtakupayController {
 			}
 
 			// Console log para exibir os novos balanços pendentes dos parceiros
-			console.log("Novos Balanços Pendentes dos Parceiros:", newBalances);
+			console.log("NOVO PARTNER BALANCE PENDING:", newBalances);
 
-			// Array para armazenar os novos balanços pendentes criptografados dos parceiros
+			// Array para armazenar os novos Partner Balance Pending criptografados
 			const newEncryptedBalances = [];
 
-			// Iterar sobre cada novo balancePending para criptografá-lo
+			// Iterar sobre cada novo balancePending para criptografá-los
 			for (const balance of newBalances) {
 				// Criptografar o balancePending usando a função encrypt
 				const encryptedBalance = encrypt(
 					balance.balancePending.toString()
 				);
 
-				// Adicionar o balancePending criptografado ao array de novos balanços criptografados
+				// Adicionar o balancePending criptografado ao array de novos Balance Pending criptografados
 				newEncryptedBalances.push({
 					partnerID: balance.partnerID,
 					balancePending: encryptedBalance,
@@ -586,11 +588,11 @@ class OtakupayController {
 
 			// Console log para exibir os novos balanços pendentes criptografados dos parceiros
 			console.log(
-				"Novos Balanços Pendentes Criptografados dos Parceiros:",
+				"NOVOS PARTNER BALANCE PENDING CRIPTOGRAFADOS:",
 				newEncryptedBalances
 			);
 
-			// Array para armazenar os cashbacks por parceiro
+			// Array para armazenar os cashbacks (Otaku Points) que serão pagos por parceiro
 			const partnerCashbacks: {
 				partnerID: string;
 				cashbackAmount: number;
@@ -609,17 +611,17 @@ class OtakupayController {
 			}
 
 			console.log(
-				"Cashbacks a serem pagos pelo Partner individualmente:",
+				"CASHBACKS/OTAKU POINTS A SEREM PAGOS PELO PARTNER INDIVIDUALMENTE:",
 				partnerCashbacks
 			);
 
-			// Array para armazenar os cashbacks criptografados por parceiro
+			// Array para armazenar os cashbacks (Otaku Points) criptografados, a serem pagos por parceiro
 			const encryptedPartnerCashbacks: {
 				partnerID: string;
 				encryptedCashback: string;
 			}[] = [];
 
-			// Iterar sobre cada parceiro para calcular e criptografar o cashback
+			// Iterar sobre cada parceiro para calcular e criptografar o cashback (Otaku Points)
 			for (const partnerCost of partnersTotalCost) {
 				// Calcular o valor do cashback (2% do custo total dos produtos)
 				const cashbackAmount = partnerCost.totalCost * 0.02;
@@ -635,16 +637,11 @@ class OtakupayController {
 			}
 
 			console.log(
-				"Cashbacks a serem pagos pelo Partner individualmente, CRIPTOGRAFADOS:",
+				"CASHBACKS/OTAKU POINTS A SEREM PAGOS PELO PARTNER INDIVIDUALMENTE, CRIPTOGRAFADOS:",
 				encryptedPartnerCashbacks
 			);
 
-			// // Criptografar o Cashback a ser pago pelo Partner para Salvar na Order criada
-			// const encryptedPartnerOtakuPointsPaid = encrypt(
-			// 	partnerCashbackPaidOrder.toString()
-			// );
-
-			// Array para armazenar os cashbacks do cliente por parceiro
+			// Array para armazenar os cashbacks (Otaku Points) do Customer por parceiro
 			const customerCashbacks: {
 				partnerID: string;
 				customerCashbackAmount: number;
@@ -665,12 +662,12 @@ class OtakupayController {
 					});
 				}
 
-				// Acessar o Otakupay do parceiro usando o otakupayID
+				// Acessar o OtakuPay do Partner usando o otakupayID
 				const partnerOtakupay = await OtakupayModel.findOne({
 					_id: partner.otakupayID,
 				});
 
-				// Verificar se o Otakupay do parceiro existe
+				// Verificar se o OtakuPay do parceiro existe
 				if (!partnerOtakupay) {
 					// Se o Otakupay do parceiro não existir, retornar um erro
 					return res.status(422).json({
@@ -696,14 +693,14 @@ class OtakupayController {
 			}
 
 			console.log(
-				"Cashbacks do cliente por parceiro:",
+				"CASHBACK/OTAKU POINTS DO CUSTOMER POR PARCEIRO:",
 				customerCashbacks
 			);
 
-			// Variável para armazenar o total de cashback do cliente
+			// Variável para armazenar o total de cashback (Otaku Points) do Customer
 			let totalCustomerCashback = 0;
 
-			// Iterar sobre cada cashback do cliente por parceiro para calcular o total de cashback
+			// Iterar sobre cada cashback (Otaku Points) do cliente por parceiro para calcular o total de cashback
 			for (const customerCashback of customerCashbacks) {
 				// Adicionar o valor do cashback do cliente ao total
 				totalCustomerCashback +=
@@ -711,11 +708,11 @@ class OtakupayController {
 			}
 
 			console.log(
-				"Total de cashback do cliente ganho na compra:",
+				"TOTAL DE CASHBACK/OTAKU POINTS DO CUSTOMER GANHO NA COMPRA:",
 				totalCustomerCashback
 			);
 
-			// Descriptografar o saldo de pontos pendentes do cliente
+			// Descriptografar o Otaku Points Pending do Customer
 			const decryptedOtakuPointsPending = decrypt(
 				customerOtakupay.otakuPointsPending
 			);
@@ -729,22 +726,22 @@ class OtakupayController {
 				return;
 			}
 
-			// Somar o total de cashback ao saldo de pontos pendentes do cliente
+			// Somar o total de cashback (Otaku Points) ao Otaku Points Pending do Customer
 			const newOtakuPointsPending =
 				Number(decryptedOtakuPointsPending) + totalCustomerCashback;
 
 			console.log(
-				"Novo saldo de pontos pendentes do cliente EM NÚMEROS:",
+				"NOVO OTAKU POINTS PENDING DO CUSTOMER EM NÚMEROS:",
 				newOtakuPointsPending
 			);
 
-			// Criptografar o novo saldo de pontos pendentes do cliente
+			// Criptografar o novo Otaku Points Pending do Customer
 			const encryptedNewOtakuPointsPending = encrypt(
 				newOtakuPointsPending.toString()
 			);
 
 			console.log(
-				"Novo saldo de pontos pendentes do cliente CRIPTOGRAFADO:",
+				"NOVO OTAKU POINTS PENDING DO CUSTOMER CRIPTOGRAFADO:",
 				encryptedNewOtakuPointsPending
 			);
 
@@ -923,12 +920,17 @@ class OtakupayController {
 								orderNote: "",
 							});
 
+							const productShippingInfo = shippingCost.find(
+								(info: any) => info.partnerID === partnerID
+							);
+
 							// Adicionar os itens do pedido
 							for (const product of partnerProducts) {
 								order.itemsList.push({
 									productID: product.productID,
 									productName: product.productName,
-									daysShipping: product.daysShipping,
+									daysShipping:
+										productShippingInfo.daysShipping,
 									productQuantity: product.productQuantity,
 								});
 							}
@@ -1029,6 +1031,7 @@ class OtakupayController {
 
 			res.status(200).json({
 				message: "Pagamento processado com sucesso!",
+				savedOrders,
 			});
 		} catch (error) {
 			console.log(error);

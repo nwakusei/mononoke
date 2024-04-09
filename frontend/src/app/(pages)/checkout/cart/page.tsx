@@ -146,8 +146,10 @@ function CartPage() {
 
 					// Adicionando os dados da transportadora ao objeto transportadoraData
 					transportadoraData[partnerID] = {
+						partnerID: partnerID,
 						transpNome: transportadoraCorreta?.transp_nome,
-						vlrFrete: transportadoraCorreta?.vlrFrete || 0,
+						vlrFrete: transportadoraCorreta?.vlrFrete,
+						prazoEnt: transportadoraCorreta?.prazoEnt,
 						// Adicione outras informações que você precisar aqui
 					};
 				}
