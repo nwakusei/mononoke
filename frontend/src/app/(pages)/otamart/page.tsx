@@ -89,7 +89,9 @@ function OtamartPage() {
 					<div className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<PiTShirt className="mb-1" size={40} />
-							<span className="text-xs select-none">Roupas</span>
+							<span className="text-xs select-none">
+								Vestuário
+							</span>
 						</div>
 					</div>
 

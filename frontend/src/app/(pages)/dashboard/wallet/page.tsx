@@ -76,7 +76,7 @@ function WalletPage() {
 
 				{/* Gadget 2 */}
 				<div className="flex flex-row gap-4 mb-4">
-					<div className="bg-purple-400 w-[430px] p-6 rounded-md">
+					<div className="bg-purple-400 w-[460px] p-6 rounded-md">
 						{/* Saldo Disponivel */}
 						<div className="flex flex-col -mb-4">
 							<div className="flex flex-row items-center ml-6 gap-2">
@@ -94,7 +94,7 @@ function WalletPage() {
 									</h1>
 								</div>
 								<div className="flex flex-col mx-6 gap-4">
-									<button className="btn btn-outline btn-success">
+									<button className="flex flex-row btn btn-outline btn-success w-[200px]">
 										<Deposit size={18} />
 										Adicionar Crédito
 									</button>

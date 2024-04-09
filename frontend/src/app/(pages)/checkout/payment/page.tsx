@@ -153,60 +153,37 @@ function PaymentPage() {
 
 	async function handlePayment() {
 		try {
-			const groupedProducts = {};
-			// Agrupar produtos por partnerID
-			productsInCart.forEach((product) => {
-				if (!groupedProducts[product.partnerID]) {
-					groupedProducts[product.partnerID] = [];
-				}
-				groupedProducts[product.partnerID].push(product);
-			});
+			const productsList = productsInCart.map((product) => ({
+				productID: product.productID,
+				productName: product.productName,
+				productQuantity: product.quantityThisProduct,
+				partnerID: product.partnerID,
+			}));
 
-			const responses = [];
+			const shippingCost = Object.values(transportadoraInfo).map(
+				(info) => ({
+					partnerID: info.partnerID,
+					vlrFrete: info.vlrFrete,
+					daysShipping: info.prazoEnt,
+				})
+			);
 
-			// Iterar sobre os grupos de produtos e criar pedidos separados
-			for (const partnerID in groupedProducts) {
-				// Calcular o custo total dos produtos e o custo total do pedido
-				let productsCostTotal = 0;
-				groupedProducts[partnerID].forEach((product) => {
-					productsCostTotal += product.productPriceTotal;
-				});
-
-				const itemsList = groupedProducts[partnerID].map((product) => ({
-					productID: product.productID,
-					productName: product.productName,
-					productQuantity: product.quantityThisProduct,
-				}));
-
-				// Enviar pedido para a API
-				const response = await api.post(
-					"/otakupay/buy-otamart",
-					{
-						productID: groupedProducts[partnerID][0].productID,
-						productName: groupedProducts[partnerID][0].productName,
-						productQuantity:
-							groupedProducts[partnerID][0].quantityThisProduct,
-						productsCostTotal,
-						shippingCostTotal: 10, // Ou o valor real do frete, se aplicável
-						paymentMethod: "OtakuPay",
-						shippingMethod: "Loggi",
-						itemsList,
+			const response = await api.post(
+				"/otakupay/buy-otamart",
+				{
+					products: productsList,
+					shippingCost: shippingCost,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
 					},
-					{
-						headers: {
-							Authorization: `Bearer ${JSON.parse(token)}`,
-						},
-					}
-				);
-
-				responses.push(response);
-			}
+				}
+			);
 
 			// Limpar o localStorage após o pagamento ser aprovado
-			setCart(localStorage.removeItem("productsInCart"));
-			setTransportadoraInfo(
-				localStorage.removeItem("transportadoraInfo")
-			);
+			localStorage.removeItem("productsInCart");
+			localStorage.removeItem("transportadoraInfo");
 
 			Swal.fire({
 				title: "Pagamento Realizado com Sucesso!",
@@ -217,18 +194,16 @@ function PaymentPage() {
 
 			router.push("/otamart");
 
-			// Tratar as respostas da API conforme necessário
-			responses.forEach((response) => {
-				console.log(response.data);
-			});
-		} catch (error: any) {
-			Swal.fire({
-				title: error.response.data.message,
-				width: 900,
-				text: "....",
-				icon: "error",
-			});
-			return error.response.data;
+			console.log(response.data);
+		} catch (error) {
+			console.log(error);
+			// Swal.fire({
+			// 	title: error.response.data.message,
+			// 	width: 900,
+			// 	text: "....",
+			// 	icon: "error",
+			// });
+			// return error.response.data;
 		}
 	}
 

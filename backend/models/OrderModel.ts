@@ -1,30 +1,25 @@
-import { StringDecoder } from "string_decoder";
 import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
-import { Decimal128 } from "mongodb";
 
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOrderItem {
 	productID: mongoose.Schema.Types.ObjectId;
 	productName: string;
 	productQuantity: number;
-	productsCostTotal: number;
+	daysShipping: number;
 }
 
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOrder {
-	productsID: [];
 	orderNumber: string;
 	statusOrder: string;
 	paymentMethod: string;
 	shippingCostTotal: number;
-	orderCostTotal: number;
-	commissionOtamart: String;
-	totalCommissionOtamart: String;
-	otakuPointsEarned: string;
-	otakuPointsPaid: string;
+	customerOrderCostTotal: number;
+	partnerCommissionOtamart: String;
+	customerOtakuPointsEarned: string;
+	partnerOtakuPointsPaid: string;
 	itemsList: IOrderItem[];
-	productQuantity: number;
 	orderDetail: string;
 	partnerID: object;
 	partnerName: string;
@@ -33,7 +28,6 @@ interface IOrder {
 	customerAdress: [{}];
 	shippingMethod: string;
 	statusShipping: string;
-	daysShipping: number;
 	trackingCode: string;
 	discountsApplied: number;
 	orderNote: string;
@@ -44,36 +38,26 @@ const orderSchema = new Schema<IOrder>(
 	{
 		orderNumber: {
 			type: String,
-			required: true,
 		},
 		statusOrder: {
 			type: String,
-			required: true,
 		},
 		paymentMethod: {
 			type: String,
-			required: true,
 		},
 		shippingCostTotal: {
 			type: Number,
-			required: true,
 		},
-		orderCostTotal: {
+		customerOrderCostTotal: {
 			type: Number,
-			required: true,
 		},
-		commissionOtamart: {
-			type: String,
-			required: true,
-		},
-		totalCommissionOtamart: {
-			type: String,
-			required: true,
-		},
-		otakuPointsEarned: {
+		partnerCommissionOtamart: {
 			type: String,
 		},
-		otakuPointsPaid: {
+		customerOtakuPointsEarned: {
+			type: String,
+		},
+		partnerOtakuPointsPaid: {
 			type: String,
 		},
 		itemsList: [
@@ -81,20 +65,19 @@ const orderSchema = new Schema<IOrder>(
 				productID: {
 					type: mongoose.Schema.Types.ObjectId,
 					ref: "ProductModel",
-					required: true,
 				},
 				productName: {
 					type: String,
-					required: true,
 				},
 				productQuantity: {
 					type: Number,
-					required: true,
 				},
-				productsCostTotal: {
+				daysShipping: {
 					type: Number,
-					required: true,
 				},
+				// productsCostTotal: {
+				// 	type: Number,
+				// },
 			},
 		],
 		orderDetail: {
@@ -103,28 +86,19 @@ const orderSchema = new Schema<IOrder>(
 		partnerID: Object,
 		partnerName: {
 			type: String,
-			required: true,
 		},
 		customerID: Object,
 		customerName: {
 			type: String,
-			required: true,
 		},
 		customerAdress: {
 			type: [{}],
-			required: true,
 		},
 		shippingMethod: {
 			type: String,
-			required: true,
 		},
 		statusShipping: {
 			type: String,
-			required: true,
-		},
-		daysShipping: {
-			type: Number,
-			required: true,
 		},
 		trackingCode: {
 			type: String,

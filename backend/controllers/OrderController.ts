@@ -646,7 +646,7 @@ class OrderController {
 			}
 
 			// SERÁ NECESSÁRIO ALTERAR O MODEL DE ORDER, POIS É NECESSÁRIO DESMEBRAR OS VALORES PARA QUE NÃO TENHA ERROS
-			const orderCostTotal = order.orderCostTotal;
+			const orderCostTotal = order.customerOrderCostTotal;
 
 			if (currentDecryptPartnerBalancePending < Number(orderCostTotal)) {
 				res.status(500).json({
@@ -657,10 +657,10 @@ class OrderController {
 			}
 
 			// Atenção: Foi usado o any para parar o erro, verificar a tipagem adequada
-			const commissionOtamart: any = order.commissionOtamart;
+			const commissionOtamart: any = order.partnerCommissionOtamart;
 			const decryptCommissionOtamart = decrypt(commissionOtamart);
 
-			const otakuPointsPaid = decrypt(order.otakuPointsPaid);
+			const otakuPointsPaid = decrypt(order.partnerOtakuPointsPaid);
 
 			if (otakuPointsPaid === null) {
 				res.status(500).json({
@@ -760,7 +760,9 @@ class OrderController {
 				currentDecryptCustomerOtakuPointsAvailable.toFixed(2)
 			);
 
-			const customerOtakuPointsEarned = decrypt(order.otakuPointsEarned);
+			const customerOtakuPointsEarned = decrypt(
+				order.customerOtakuPointsEarned
+			);
 
 			// Verificar se o Customer Otaku Points Earned não é nulo
 			if (customerOtakuPointsEarned === null) {
