@@ -1,9 +1,8 @@
 "use client";
 
 // Imports Essenciais
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
 
 // Axios
@@ -18,6 +17,28 @@ import { FiInfo } from "react-icons/fi";
 import { Coupon } from "@icon-park/react";
 
 function YourOrderComp({ productsInfo, shippingInfo }) {
+	const [totalPedido, setTotalPedido] = useState(0);
+
+	useEffect(() => {
+		// Função para calcular o total do pedido
+		const calcularTotalPedido = () => {
+			let subtotal = productsInfo.reduce(
+				(total, productInCart) =>
+					total + productInCart.productPriceTotal,
+				0
+			);
+
+			let frete = calculateTotalFrete();
+			// Calcula o total do pedido (subtotal + frete)
+			let total = subtotal + frete;
+
+			setTotalPedido(total);
+		};
+
+		// Chama a função para calcular o total do pedido sempre que houver mudanças nos produtos ou no frete
+		calcularTotalPedido();
+	}, [productsInfo, shippingInfo]);
+
 	const calculateTotalFrete = () => {
 		let totalFrete = 0;
 
@@ -118,7 +139,13 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 								<h2 className="font-semibold">
 									Total do Pedido
 								</h2>
-								<h2>R$ 640,00</h2>
+								<h2>
+									{" "}
+									{totalPedido.toLocaleString("pt-BR", {
+										style: "currency",
+										currency: "BRL",
+									})}
+								</h2>
 							</div>
 						</div>
 					</div>

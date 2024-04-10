@@ -751,7 +751,7 @@ class OtakupayController {
 
 			// *********************************************************************************************** //
 
-			// Array para armazenar as comissões dos parceiros
+			// Array para armazenar as comissões por parceiros
 			const partnerCommissions: {
 				partnerID: string;
 				commissionAmount: number;
@@ -775,14 +775,14 @@ class OtakupayController {
 					});
 				}
 
-				// Acessar o Otakupay do parceiro usando o otakupayID
+				// Acessar o OtakuPay do parceiro usando o otakupayID
 				const partnerOtakupay = await OtakupayModel.findOne({
 					_id: partner.otakupayID,
 				});
 
-				// Verificar se o Otakupay do parceiro existe
+				// Verificar se o OtakuPay do parceiro existe
 				if (!partnerOtakupay) {
-					// Se o Otakupay do parceiro não existir, retornar um erro
+					// Se o OtakuPay do parceiro não existir, retornar um erro
 					return res.status(422).json({
 						message: "Otakupay do Partner não encontrado!",
 					});
@@ -795,7 +795,7 @@ class OtakupayController {
 					// Somar o cashback ao valor da comissão
 					const totalAmount = commissionAmount + cashbackAmount;
 
-					// Adicionar a comissão do parceiro ao array de comissões
+					// Adicionar a comissão a ser paga pelo Parceiro ao array de comissões
 					partnerCommissions.push({
 						partnerID: partnerCost.partnerID,
 						commissionAmount: totalAmount,
@@ -817,9 +817,12 @@ class OtakupayController {
 				}
 			}
 
-			console.log("Comissões dos parceiros:", partnerCommissions);
+			console.log(
+				"COMISSÕES A SEREM PAGAS PELOS PARTNERS:",
+				partnerCommissions
+			);
 
-			// Array para armazenar as comissões criptografadas dos parceiros
+			// Array para armazenar as comissões criptografadas por parceiros
 			const encryptedPartnerCommissions: {
 				partnerID: string;
 				encryptedCommissionAmount: string;
@@ -827,7 +830,7 @@ class OtakupayController {
 
 			// Iterar sobre cada comissão dos parceiros para criptografar o valor
 			for (const commission of partnerCommissions) {
-				// Criptografar o valor da comissão usando a função encrypt
+				// Criptografar o valor da comissão por Parceiro
 				const encryptedCommissionAmount = encrypt(
 					commission.commissionAmount.toString()
 				);
@@ -848,7 +851,7 @@ class OtakupayController {
 				productsByPartner[product.partnerID].push(product);
 			}
 
-			let orders: any[] = []; // Array para armazenar todas as ordens
+			let orders: any[] = []; // Array para armazenar todas as Ordens
 
 			// CRIAR UM NOVO PEDIDO (NEW ORDER)
 			// Iterar sobre cada grupo de produtos por partnerID
@@ -898,19 +901,19 @@ class OtakupayController {
 								continue; // Pular para a próxima iteração do loop
 							}
 
-							// Criar uma nova instância de OrderModel para cada pedido
+							// Criar uma nova Order para cada PartnerID
 							const order = new OrderModel({
 								orderNumber: new ObjectId()
 									.toHexString()
 									.toUpperCase(),
 								statusOrder: "Aprovado",
 								paymentMethod: "OtakuPay",
-								shippingCostTotal: vlrFrete, // Usando o valor do custo de envio
+								shippingCostTotal: vlrFrete,
 								customerOrderCostTotal: partnerOrderCostTotal,
-								partnerCommissionOtamart: commissionAmount, // Usando a comissão não criptografada
+								partnerCommissionOtamart: commissionAmount,
 								itemsList: [],
 								partnerID: partnerID,
-								partnerName: partner.name, // Inserir o nome do parceiro
+								partnerName: partner.name,
 								customerID: customer._id,
 								customerName: customer.name,
 								customerAdress: [],
@@ -935,7 +938,7 @@ class OtakupayController {
 								});
 							}
 
-							// Adicionar a ordem ao array de ordens
+							// Adicionar a Order ao array de ordens
 							orders.push(order);
 						} else {
 							console.error(
