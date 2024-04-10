@@ -19,6 +19,7 @@ import qs from "qs";
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
 import mongoose, { isValidObjectId } from "mongoose";
+import { CouponModel } from "../models/CouponModel.js";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -142,7 +143,7 @@ class OtakupayController {
 	}
 
 	static async buyOtamart(req: Request, res: Response) {
-		const { products, shippingCost } = req.body;
+		const { products, shippingCost, cupons } = req.body;
 
 		// Verificar se o array de produtos é válido
 		if (!products || products.length === 0) {
@@ -300,6 +301,40 @@ class OtakupayController {
 				}
 			}
 
+			// Aplicar desconto do cupom, se houver
+			if (cupons && cupons.length > 0) {
+				const couponCode = cupons[0].couponCode;
+
+				// Buscar o cupom no banco de dados usando o código do cupom
+				const coupon = await CouponModel.findOne({
+					couponCode: couponCode,
+				});
+
+				if (coupon) {
+					// Iterar sobre cada parceiro para aplicar o desconto do cupom
+					for (const partner of partnersTotalCost) {
+						if (
+							String(partner.partnerID) ===
+							String(coupon.partnerID)
+						) {
+							// Calcular o valor do desconto com base na porcentagem do cupom
+							const discountAmount =
+								(partner.totalCost *
+									coupon.discountPercentage) /
+								100;
+
+							// Subtrair o valor do desconto do custo total do parceiro
+							partner.totalCost -= discountAmount;
+						}
+					}
+				} else {
+					res.status(404).json({
+						message: "Cupom de desconto não encontrado.",
+					});
+					return;
+				}
+			}
+
 			// Verificar se algum parceiro possui produtos
 			if (partnersTotalCost.length === 0) {
 				res.status(422).json({
@@ -344,40 +379,23 @@ class OtakupayController {
 			}[] = [];
 
 			// Iterar sobre cada produto para calcular o custo total com base no partnerID e no frete correspondente
-			for (const product of products) {
-				// Calcular o custo total do produto
-				const productCost = getProductCost(product);
+			// Iterar sobre cada parceiro para calcular o custo total com base nos valores já descontados e no frete correspondente
+			for (const partner of partnersTotalCost) {
+				// Encontrar o frete correspondente ao parceiro
+				const shipping = shippingCost.find(
+					(cost: any) => cost.partnerID === partner.partnerID
+				);
 
-				// Se o produto tiver um custo válido
-				if (productCost >= 0) {
-					// Encontrar o frete correspondente ao parceiro do produto
-					const shipping = shippingCost.find(
-						(cost: any) => cost.partnerID === product.partnerID
-					);
+				// Se o frete for encontrado, calcular o custo total com frete, caso contrário, considerar apenas o valor já descontado
+				const totalCostWithShipping = shipping
+					? partner.totalCost + shipping.vlrFrete
+					: partner.totalCost;
 
-					// Calcular o custo total com frete
-					const totalCostWithShipping =
-						productCost + (shipping ? shipping.vlrFrete : 0);
-
-					// Verificar se já existe um registro para esse parceiro no array
-					const partnerIndex =
-						partnersTotalCostWithShipping.findIndex(
-							(item) => item.partnerID === product.partnerID
-						);
-
-					if (partnerIndex === -1) {
-						// Se não existir, adicionar um novo registro ao array
-						partnersTotalCostWithShipping.push({
-							partnerID: product.partnerID,
-							totalCostWithShipping: totalCostWithShipping,
-						});
-					} else {
-						// Se existir, adicionar o custo total com frete ao custo total existente
-						partnersTotalCostWithShipping[
-							partnerIndex
-						].totalCostWithShipping += totalCostWithShipping;
-					}
-				}
+				// Adicionar o custo total com frete ao array partnersTotalCostWithShipping
+				partnersTotalCostWithShipping.push({
+					partnerID: partner.partnerID,
+					totalCostWithShipping: totalCostWithShipping,
+				});
 			}
 
 			console.log(
@@ -386,7 +404,7 @@ class OtakupayController {
 			);
 
 			// Calcular o valor total do pedido com frete (PARA O CUSTOMER PAGAR)
-			const customerOrderCostTotal = partnersTotalCostWithShipping.reduce(
+			let customerOrderCostTotal = partnersTotalCostWithShipping.reduce(
 				(total, item) => total + item.totalCostWithShipping,
 				0
 			);
@@ -865,10 +883,22 @@ class OtakupayController {
 					const partnerProducts = productsByPartner[partnerID];
 					let partnerOrderCostTotal = 0;
 
-					// Calcular o custo total do pedido para este parceiro
-					for (const product of partnerProducts) {
-						partnerOrderCostTotal += getProductCost(product);
+					// Encontrar o custo total dos produtos com frete para este parceiro
+					const partnerTotalCostWithShipping =
+						partnersTotalCostWithShipping.find(
+							(cost) => cost.partnerID === partnerID
+						);
+
+					if (!partnerTotalCostWithShipping) {
+						console.error(
+							`Custo total dos produtos com frete não encontrado para o parceiro ${partnerID}`
+						);
+						continue; // Pular para a próxima iteração do loop
 					}
+
+					// Atribuir o custo total dos produtos com frete ao partnerOrderCostTotal
+					partnerOrderCostTotal =
+						partnerTotalCostWithShipping.totalCostWithShipping;
 
 					// Encontrar o custo de envio para este parceiro
 					const shippingCostForPartner = shippingCost.find(
