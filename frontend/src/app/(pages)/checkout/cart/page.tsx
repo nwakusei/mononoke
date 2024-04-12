@@ -30,8 +30,6 @@ function CartPage() {
 	const [productsInCart, setProductsInCart] = useState([]);
 	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
 
-	console.log(transportadoraInfo);
-
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
 		if (savedProductsInCart) {

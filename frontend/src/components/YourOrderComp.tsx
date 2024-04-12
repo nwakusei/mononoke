@@ -22,7 +22,6 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 	const [cupomCode, setCupomCode] = useState("");
 
 	useEffect(() => {
-		// Função para calcular o total do pedido
 		const calcularTotalPedido = () => {
 			let subtotal = productsInfo.reduce(
 				(total, productInCart) =>
@@ -37,7 +36,6 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 			setTotalPedido(total < 0 ? 0 : total);
 		};
 
-		// Chama a função para calcular o total do pedido sempre que houver mudanças nos produtos ou no frete
 		calcularTotalPedido();
 	}, [productsInfo, shippingInfo, applyCupom]);
 
@@ -53,38 +51,46 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 		return totalFrete;
 	};
 
-	const aplicarCupom = () => {
-		// Simulação de aplicação de cupom, você pode ajustar isso conforme necessário
-		const valorCupom = 50; // Exemplo: R$ 50,00 de desconto
+	const aplicarCupom = async () => {
+		try {
+			const cupomResponse = await api.get("/coupons/allcoupons");
+			const cupons = cupomResponse.data.coupons;
 
-		// Atualiza o valor do cupom no estado
-		setAplyCupom(valorCupom);
-
-		// Atualiza o valor do cupom no localStorage
-		if (localStorage.getItem("productsInCart")) {
-			const productsInCart = JSON.parse(
-				localStorage.getItem("productsInCart")
+			const cupomInfo = cupons.find(
+				(cupom) => cupom.couponCode === cupomCode
 			);
-			const updatedProductsInCart = productsInCart.map((product) => {
-				const newProduct = { ...product };
-				newProduct.productPriceTotal -= valorCupom;
-				return newProduct;
-			});
-			localStorage.setItem(
-				"productsInCart",
-				JSON.stringify(updatedProductsInCart)
+
+			if (cupomInfo) {
+				const produtosComPartnerIDCorreto = productsInfo.map(
+					(product) => {
+						if (product.partnerID === cupomInfo.partnerID) {
+							const descontoPercentual =
+								cupomInfo.discountPercentage / 100;
+							const desconto =
+								product.productPriceTotal * descontoPercentual;
+							product.productPriceTotal -= desconto;
+							return product;
+						}
+						return product;
+					}
+				);
+
+				localStorage.setItem(
+					"productsInCart",
+					JSON.stringify(produtosComPartnerIDCorreto)
+				);
+
+				setAplyCupom(cupomInfo.discountPercentage);
+
+				toast.success("Cupom aplicado com sucesso!");
+			} else {
+				toast.error("Cupom inválido!");
+			}
+		} catch (error) {
+			toast.error(
+				"Erro ao aplicar cupom. Por favor, tente novamente mais tarde."
 			);
 		}
-
-		// Criar objeto com as informações do cupom
-		const cupomInfo = {
-			couponCode: "DESC50", // Exemplo de código do cupom
-		};
-
-		// Adicionar o objeto do cupom ao array de cupons no localStorage
-		let cupons = JSON.parse(localStorage.getItem("cupons")) || [];
-		cupons.push(cupomInfo);
-		localStorage.setItem("cupons", JSON.stringify(cupons));
 	};
 
 	return (
@@ -105,7 +111,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 										{productInCart.productName}
 									</h2>
 									<h2>
-										{productInCart.productPriceTotal.toLocaleString(
+										{productInCart.productPrice.toLocaleString(
 											"pt-BR",
 											{
 												style: "currency",
@@ -191,6 +197,8 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 								type="text"
 								placeholder="Insira o código do Cupom"
 								className="input input-bordered w-full mb-2"
+								value={cupomCode}
+								onChange={(e) => setCupomCode(e.target.value)}
 							/>
 						</div>
 						<button
