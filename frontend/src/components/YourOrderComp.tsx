@@ -1,7 +1,7 @@
 "use client";
 
 // Imports Essenciais
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 
@@ -17,9 +17,11 @@ import { FiInfo } from "react-icons/fi";
 import { Coupon } from "@icon-park/react";
 
 function YourOrderComp({ productsInfo, shippingInfo }) {
+	const { transportadoraInfo } = useContext(CheckoutContext);
 	const [totalPedido, setTotalPedido] = useState(0);
-	const [applyCupom, setAplyCupom] = useState(0);
+	const [couponApplied, setCouponApplied] = useState(0);
 	const [cupomCode, setCupomCode] = useState("");
+	const [totalFrete, setTotalFrete] = useState(0);
 
 	useEffect(() => {
 		const calcularTotalPedido = () => {
@@ -32,12 +34,26 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 			let frete = calculateTotalFrete();
 
 			// Calcula o total do pedido (subtotal + frete)
-			let total = subtotal + frete - applyCupom;
+			let total = subtotal + frete - couponApplied;
 			setTotalPedido(total < 0 ? 0 : total);
 		};
 
 		calcularTotalPedido();
-	}, [productsInfo, shippingInfo, applyCupom]);
+
+		// Calcula o desconto total
+		const descontoTotal = productsInfo.reduce((totalDesconto, product) => {
+			// Considera apenas produtos que têm desconto aplicado
+			if (product.productPriceTotal !== product.productPrice) {
+				const desconto =
+					product.productPrice * product.quantityThisProduct -
+					product.productPriceTotal;
+				return totalDesconto + desconto;
+			}
+			return totalDesconto;
+		}, 0);
+
+		setCouponApplied(descontoTotal); // Define o desconto total aplicado
+	}, [productsInfo, shippingInfo, couponApplied]);
 
 	const calculateTotalFrete = () => {
 		let totalFrete = 0;
@@ -75,12 +91,45 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 					}
 				);
 
+				// Calcula o desconto total para o partnerID correspondente
+				const descontoTotal = produtosComPartnerIDCorreto.reduce(
+					(totalDesconto, product) => {
+						if (product.partnerID === cupomInfo.partnerID) {
+							const desconto =
+								product.productPrice *
+									product.quantityThisProduct -
+								product.productPriceTotal;
+							return totalDesconto + desconto;
+						}
+						return totalDesconto;
+					},
+					0
+				);
+
+				// Armazena as informações do cupom no localStorage
+				const cupomLocalStorage = {
+					partnerID: cupomInfo.partnerID,
+					cupomCode: cupomInfo.couponCode,
+					discountAmount: descontoTotal, // Adiciona o desconto total
+				};
+
+				// Obtém o array de cupons do localStorage
+				const cuponsStorage = JSON.parse(
+					localStorage.getItem("cupons") || "[]"
+				);
+
+				// Adiciona o novo cupom ao array
+				cuponsStorage.push(cupomLocalStorage);
+
+				// Armazena o array atualizado no localStorage
+				localStorage.setItem("cupons", JSON.stringify(cuponsStorage));
+
 				localStorage.setItem(
 					"productsInCart",
 					JSON.stringify(produtosComPartnerIDCorreto)
 				);
 
-				setAplyCupom(cupomInfo.discountPercentage);
+				setCouponApplied(descontoTotal); // Define o desconto total aplicado
 
 				toast.success("Cupom aplicado com sucesso!");
 			} else {
@@ -169,7 +218,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 							<div className="flex justify-between mb-1">
 								<h2>Desconto do cupom</h2>
 								<h2>
-									{applyCupom.toLocaleString("pt-BR", {
+									{couponApplied.toLocaleString("pt-BR", {
 										style: "currency",
 										currency: "BRL",
 									})}
