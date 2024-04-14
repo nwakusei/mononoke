@@ -19,7 +19,6 @@ import { MdOutlineDeleteOutline, MdArrowForwardIos } from "react-icons/md";
 import { PiCreditCardBold } from "react-icons/pi";
 import { BiIdCard } from "react-icons/Bi";
 import { LiaShippingFastSolid } from "react-icons/lia";
-import { FiInfo } from "react-icons/fi";
 
 // Components
 import { YourOrderComp } from "@/components/YourOrderComp";
@@ -28,7 +27,6 @@ function CartPage() {
 	const { setCart, transportadoraInfo, setTransportadoraInfo } =
 		useContext(CheckoutContext);
 	const [productsInCart, setProductsInCart] = useState([]);
-	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -160,8 +158,6 @@ function CartPage() {
 				"transportadoraInfo",
 				JSON.stringify(transportadoraData)
 			);
-
-			console.log(transportadoraData);
 		} catch (error) {
 			console.error("Ocorreu um erro:", error);
 		}

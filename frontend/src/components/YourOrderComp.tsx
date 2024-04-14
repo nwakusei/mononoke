@@ -17,11 +17,177 @@ import { FiInfo } from "react-icons/fi";
 import { Coupon } from "@icon-park/react";
 
 function YourOrderComp({ productsInfo, shippingInfo }) {
-	const { transportadoraInfo } = useContext(CheckoutContext);
+	const { transportadoraInfo, setTransportadoraInfo } =
+		useContext(CheckoutContext);
 	const [totalPedido, setTotalPedido] = useState(0);
 	const [couponApplied, setCouponApplied] = useState(0);
 	const [cupomCode, setCupomCode] = useState("");
-	const [totalFrete, setTotalFrete] = useState(0);
+
+	useEffect(() => {
+		const savedProductsInCart = localStorage.getItem("productsInCart");
+
+		if (savedProductsInCart) {
+			const products = JSON.parse(savedProductsInCart);
+
+			// Objeto para armazenar as informações dos produtos por parceiro
+			const partnerInfo = {};
+
+			// Variável para armazenar o cepDestino de um dos produtos
+			let cepDestino = null;
+
+			// Calcular as informações dos produtos por parceiro
+			products.forEach((product) => {
+				const partnerID = product.partnerID;
+				const weight = product.weight || 0;
+				const length = product.length || 0;
+				const width = product.width || 0;
+				const height = product.height || 0;
+				cepDestino = product.cepDestino; // Obter o cepDestino de um dos produtos
+				const productPrice = product.productPrice || 0;
+				const productPriceTotal = product.productPriceTotal || 0;
+				const quantityThisProduct = product.quantityThisProduct || 0;
+				const transpID = product.transportadora?.id; // Obter apenas o ID da transportadora
+
+				if (!partnerInfo[partnerID]) {
+					partnerInfo[partnerID] = {
+						weight: weight,
+						length: length,
+						width: width,
+						height: height,
+						productPrice: productPrice,
+						productPriceTotal: productPriceTotal,
+						quantityThisProduct: quantityThisProduct,
+						transportadora: {
+							id: transpID, // Inicializa o ID da transportadora
+						},
+					};
+				} else {
+					// Se o peso atual for menor que o peso acumulado até agora, atualize-o
+					if (weight < partnerInfo[partnerID].weight) {
+						partnerInfo[partnerID].weight = weight;
+						partnerInfo[partnerID].length = length;
+						partnerInfo[partnerID].width = width;
+						partnerInfo[partnerID].height = height;
+						partnerInfo[partnerID].transportadora.id = transpID;
+					}
+
+					// Atualizar os valores de productPriceTotal e quantityThisProduct para a soma de todos os itens
+					partnerInfo[partnerID].productPriceTotal +=
+						productPriceTotal;
+					partnerInfo[partnerID].quantityThisProduct +=
+						quantityThisProduct;
+				}
+			});
+
+			console.log("Informações dos produtos por parceiro:", partnerInfo);
+
+			// Certifique-se de que cepDestino esteja definido antes de chamar handleSimulateShipping
+			if (cepDestino) {
+				// Chamada da função para simular o frete
+				handleSimulateShipping(cepDestino, partnerInfo);
+			} else {
+				console.error("CepDestino não definido.");
+			}
+		}
+	}, []);
+
+	async function handleSimulateShipping(cepDestino, partnerInfo) {
+		console.log(partnerInfo);
+		try {
+			const transportadoraData = {};
+
+			for (const partnerID in partnerInfo) {
+				if (partnerInfo.hasOwnProperty(partnerID)) {
+					const partnerData = partnerInfo[partnerID];
+
+					const response = await api.post(
+						"/products/simulate-shipping",
+						{
+							cepDestino: cepDestino,
+							weight: partnerData.weight,
+							height: partnerData.height,
+							width: partnerData.width,
+							length: partnerData.length,
+							productPrice: partnerData.productPrice,
+							productPriceTotal: partnerData.productPriceTotal,
+							quantityThisProduct:
+								partnerData.quantityThisProduct,
+						}
+					);
+
+					console.log(response.data);
+
+					const transportadoraCorreta = response.data.find(
+						(transportadora) =>
+							transportadora.idTransp ===
+							partnerData.transportadora?.id
+					);
+
+					console.log(
+						"Transportadora correta:",
+						transportadoraCorreta
+					);
+
+					// Adicionando os dados da transportadora ao objeto transportadoraData
+					transportadoraData[partnerID] = {
+						partnerID: partnerID,
+						transpNome: transportadoraCorreta?.transp_nome,
+						vlrFrete: transportadoraCorreta?.vlrFrete,
+						prazoEnt: transportadoraCorreta?.prazoEnt,
+						// Adicione outras informações que você precisar aqui
+					};
+				}
+			}
+			// Atualizando o estado com os dados da transportadora
+			setTransportadoraInfo(transportadoraData);
+
+			// Armazenando os dados da transportadora no localStorage
+			localStorage.setItem(
+				"transportadoraInfo",
+				JSON.stringify(transportadoraData)
+			);
+
+			console.log(transportadoraData);
+		} catch (error) {
+			console.error("Ocorreu um erro:", error);
+		}
+	}
+
+	// useEffect(() => {
+	// 	const calcularTotalPedido = () => {
+	// 		let subtotal = productsInfo.reduce(
+	// 			(total, productInCart) =>
+	// 				total + productInCart.productPriceTotal,
+	// 			0
+	// 		);
+
+	// 		let frete = calculateTotalFrete();
+
+	// 		// Calcula o desconto total
+	// 		const descontoTotal = productsInfo.reduce(
+	// 			(totalDesconto, product) => {
+	// 				// Considera apenas produtos que têm desconto aplicado
+	// 				if (product.productPriceTotal !== product.productPrice) {
+	// 					const desconto =
+	// 						product.productPrice * product.quantityThisProduct -
+	// 						product.productPriceTotal;
+	// 					return totalDesconto + desconto;
+	// 				}
+	// 				return totalDesconto;
+	// 			},
+	// 			0
+	// 		);
+
+	// 		// Subtrai o desconto do total
+	// 		let total = subtotal + frete;
+	// 		setTotalPedido(total < 0 ? 0 : total);
+
+	// 		// Define o desconto total aplicado
+	// 		setCouponApplied(descontoTotal);
+	// 	};
+
+	// 	calcularTotalPedido();
+	// }, [productsInfo, shippingInfo]);
 
 	useEffect(() => {
 		const calcularTotalPedido = () => {
@@ -33,27 +199,48 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 
 			let frete = calculateTotalFrete();
 
-			// Calcula o total do pedido (subtotal + frete)
-			let total = subtotal + frete - couponApplied;
+			// Calcula o desconto total
+			const descontoTotal = productsInfo.reduce(
+				(totalDesconto, product) => {
+					// Considera apenas produtos que têm desconto aplicado
+					if (product.productPriceTotal !== product.productPrice) {
+						const desconto =
+							product.productPrice * product.quantityThisProduct -
+							product.productPriceTotal;
+						return totalDesconto + desconto;
+					}
+					return totalDesconto;
+				},
+				0
+			);
+
+			// Soma os valores de discountAmount dos cupons no localStorage
+			const cuponsStorage = JSON.parse(
+				localStorage.getItem("cupons") || "[]"
+			);
+			const totalDiscountAmount = cuponsStorage.reduce(
+				(total, cupom) => total + cupom.discountAmount,
+				0
+			);
+
+			// Subtrai o desconto do total
+			let total = subtotal + frete;
 			setTotalPedido(total < 0 ? 0 : total);
+
+			// Define o desconto total aplicado
+			setCouponApplied(totalDiscountAmount);
 		};
 
 		calcularTotalPedido();
-
-		// Calcula o desconto total
-		const descontoTotal = productsInfo.reduce((totalDesconto, product) => {
-			// Considera apenas produtos que têm desconto aplicado
-			if (product.productPriceTotal !== product.productPrice) {
-				const desconto =
-					product.productPrice * product.quantityThisProduct -
-					product.productPriceTotal;
-				return totalDesconto + desconto;
-			}
-			return totalDesconto;
-		}, 0);
-
-		setCouponApplied(descontoTotal); // Define o desconto total aplicado
 	}, [productsInfo, shippingInfo, couponApplied]);
+
+	// Recupera o valor de couponApplied do localStorage ao carregar a página
+	useEffect(() => {
+		const couponAppliedFromStorage = localStorage.getItem("couponApplied");
+		if (couponAppliedFromStorage) {
+			setCouponApplied(parseFloat(couponAppliedFromStorage));
+		}
+	}, []);
 
 	const calculateTotalFrete = () => {
 		let totalFrete = 0;
@@ -67,6 +254,96 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 		return totalFrete;
 	};
 
+	// const aplicarCupom = async () => {
+	// 	try {
+	// 		const cupomResponse = await api.get("/coupons/allcoupons");
+	// 		const cupons = cupomResponse.data.coupons;
+
+	// 		const cupomInfo = cupons.find(
+	// 			(cupom) => cupom.couponCode === cupomCode
+	// 		);
+
+	// 		if (cupomInfo) {
+	// 			// Verifica se o cupom é aplicável ao parceiro do produto
+	// 			const isCouponApplicable = productsInfo.some(
+	// 				(product) => product.partnerID === cupomInfo.partnerID
+	// 			);
+
+	// 			if (isCouponApplicable) {
+	// 				const produtosComPartnerIDCorreto = productsInfo.map(
+	// 					(product) => {
+	// 						if (product.partnerID === cupomInfo.partnerID) {
+	// 							const descontoPercentual =
+	// 								cupomInfo.discountPercentage / 100;
+	// 							const desconto =
+	// 								product.productPriceTotal *
+	// 								descontoPercentual;
+	// 							product.productPriceTotal -= desconto;
+	// 							return product;
+	// 						}
+	// 						return product;
+	// 					}
+	// 				);
+
+	// 				// Calcula o desconto total para o partnerID correspondente
+	// 				const descontoTotal = produtosComPartnerIDCorreto.reduce(
+	// 					(totalDesconto, product) => {
+	// 						if (product.partnerID === cupomInfo.partnerID) {
+	// 							const desconto =
+	// 								product.productPrice *
+	// 									product.quantityThisProduct -
+	// 								product.productPriceTotal;
+	// 							return totalDesconto + desconto;
+	// 						}
+	// 						return totalDesconto;
+	// 					},
+	// 					0
+	// 				);
+
+	// 				// Armazena as informações do cupom no localStorage
+	// 				const cupomLocalStorage = {
+	// 					partnerID: cupomInfo.partnerID,
+	// 					cupomCode: cupomInfo.couponCode,
+	// 					discountAmount: descontoTotal, // Adiciona o desconto total
+	// 				};
+
+	// 				// Obtém o array de cupons do localStorage
+	// 				const cuponsStorage = JSON.parse(
+	// 					localStorage.getItem("cupons") || "[]"
+	// 				);
+
+	// 				// Adiciona o novo cupom ao array
+	// 				cuponsStorage.push(cupomLocalStorage);
+
+	// 				// Armazena o array atualizado no localStorage
+	// 				localStorage.setItem(
+	// 					"cupons",
+	// 					JSON.stringify(cuponsStorage)
+	// 				);
+
+	// 				localStorage.setItem(
+	// 					"productsInCart",
+	// 					JSON.stringify(produtosComPartnerIDCorreto)
+	// 				);
+
+	// 				setCouponApplied(descontoTotal); // Define o desconto total aplicado
+
+	// 				toast.success("Cupom aplicado com sucesso!");
+	// 			} else {
+	// 				toast.error(
+	// 					"Este cupom não é aplicável aos produtos no seu carrinho."
+	// 				);
+	// 			}
+	// 		} else {
+	// 			toast.error("Cupom inválido!");
+	// 		}
+	// 	} catch (error) {
+	// 		toast.error(
+	// 			"Erro ao aplicar cupom. Por favor, tente novamente mais tarde."
+	// 		);
+	// 	}
+	// };
+
 	const aplicarCupom = async () => {
 		try {
 			const cupomResponse = await api.get("/coupons/allcoupons");
@@ -77,61 +354,89 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 			);
 
 			if (cupomInfo) {
-				const produtosComPartnerIDCorreto = productsInfo.map(
-					(product) => {
-						if (product.partnerID === cupomInfo.partnerID) {
-							const descontoPercentual =
-								cupomInfo.discountPercentage / 100;
-							const desconto =
-								product.productPriceTotal * descontoPercentual;
-							product.productPriceTotal -= desconto;
-							return product;
-						}
-						return product;
-					}
-				);
-
-				// Calcula o desconto total para o partnerID correspondente
-				const descontoTotal = produtosComPartnerIDCorreto.reduce(
-					(totalDesconto, product) => {
-						if (product.partnerID === cupomInfo.partnerID) {
-							const desconto =
-								product.productPrice *
-									product.quantityThisProduct -
-								product.productPriceTotal;
-							return totalDesconto + desconto;
-						}
-						return totalDesconto;
-					},
-					0
-				);
-
-				// Armazena as informações do cupom no localStorage
-				const cupomLocalStorage = {
-					partnerID: cupomInfo.partnerID,
-					cupomCode: cupomInfo.couponCode,
-					discountAmount: descontoTotal, // Adiciona o desconto total
-				};
-
-				// Obtém o array de cupons do localStorage
+				// Verifica se o cupom já foi aplicado anteriormente
 				const cuponsStorage = JSON.parse(
 					localStorage.getItem("cupons") || "[]"
 				);
-
-				// Adiciona o novo cupom ao array
-				cuponsStorage.push(cupomLocalStorage);
-
-				// Armazena o array atualizado no localStorage
-				localStorage.setItem("cupons", JSON.stringify(cuponsStorage));
-
-				localStorage.setItem(
-					"productsInCart",
-					JSON.stringify(produtosComPartnerIDCorreto)
+				const cupomJaAplicado = cuponsStorage.some(
+					(cupom) =>
+						cupom.partnerID === cupomInfo.partnerID &&
+						cupom.cupomCode === cupomInfo.couponCode
 				);
 
-				setCouponApplied(descontoTotal); // Define o desconto total aplicado
+				if (!cupomJaAplicado) {
+					// Verifica se o cupom é aplicável ao parceiro do produto
+					const isCouponApplicable = productsInfo.some(
+						(product) => product.partnerID === cupomInfo.partnerID
+					);
 
-				toast.success("Cupom aplicado com sucesso!");
+					if (isCouponApplicable) {
+						const produtosComPartnerIDCorreto = productsInfo.map(
+							(product) => {
+								if (product.partnerID === cupomInfo.partnerID) {
+									const descontoPercentual =
+										cupomInfo.discountPercentage / 100;
+									const desconto =
+										product.productPriceTotal *
+										descontoPercentual;
+									product.productPriceTotal -= desconto;
+									return product;
+								}
+								return product;
+							}
+						);
+
+						// Calcula o desconto total para o partnerID correspondente
+						const descontoTotal =
+							produtosComPartnerIDCorreto.reduce(
+								(totalDesconto, product) => {
+									if (
+										product.partnerID ===
+										cupomInfo.partnerID
+									) {
+										const desconto =
+											product.productPrice *
+												product.quantityThisProduct -
+											product.productPriceTotal;
+										return totalDesconto + desconto;
+									}
+									return totalDesconto;
+								},
+								0
+							);
+
+						// Armazena as informações do cupom no localStorage
+						const cupomLocalStorage = {
+							partnerID: cupomInfo.partnerID,
+							cupomCode: cupomInfo.couponCode,
+							discountAmount: descontoTotal, // Adiciona o desconto total
+						};
+
+						// Adiciona o novo cupom ao array
+						cuponsStorage.push(cupomLocalStorage);
+
+						// Armazena o array atualizado no localStorage
+						localStorage.setItem(
+							"cupons",
+							JSON.stringify(cuponsStorage)
+						);
+
+						localStorage.setItem(
+							"productsInCart",
+							JSON.stringify(produtosComPartnerIDCorreto)
+						);
+
+						setCouponApplied(descontoTotal); // Define o desconto total aplicado
+
+						toast.success("Cupom aplicado com sucesso!");
+					} else {
+						toast.error(
+							"Este cupom não é aplicável aos produtos no seu carrinho."
+						);
+					}
+				} else {
+					toast.warn("Este cupom já foi aplicado anteriormente.");
+				}
 			} else {
 				toast.error("Cupom inválido!");
 			}
