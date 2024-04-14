@@ -19,6 +19,7 @@ import qs from "qs";
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
 import mongoose, { isValidObjectId } from "mongoose";
+import { CouponModel } from "../models/CouponModel.js";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -142,7 +143,7 @@ class OtakupayController {
 	}
 
 	static async buyOtamart(req: Request, res: Response) {
-		const { products, shippingCost } = req.body;
+		const { products, shippingCost, cupons } = req.body;
 
 		// Verificar se o array de produtos é válido
 		if (!products || products.length === 0) {
@@ -300,6 +301,40 @@ class OtakupayController {
 				}
 			}
 
+			// Aplicar desconto do cupom, se houver
+			if (cupons && cupons.length > 0) {
+				const couponCode = cupons[0].couponCode;
+
+				// Buscar o cupom no banco de dados usando o código do cupom
+				const coupon = await CouponModel.findOne({
+					couponCode: couponCode,
+				});
+
+				if (coupon) {
+					// Iterar sobre cada parceiro para aplicar o desconto do cupom
+					for (const partner of partnersTotalCost) {
+						if (
+							String(partner.partnerID) ===
+							String(coupon.partnerID)
+						) {
+							// Calcular o valor do desconto com base na porcentagem do cupom
+							const discountAmount =
+								(partner.totalCost *
+									coupon.discountPercentage) /
+								100;
+
+							// Subtrair o valor do desconto do custo total do parceiro
+							partner.totalCost -= discountAmount;
+						}
+					}
+				} else {
+					res.status(404).json({
+						message: "Cupom de desconto não encontrado.",
+					});
+					return;
+				}
+			}
+
 			// Verificar se algum parceiro possui produtos
 			if (partnersTotalCost.length === 0) {
 				res.status(422).json({
@@ -344,40 +379,23 @@ class OtakupayController {
 			}[] = [];
 
 			// Iterar sobre cada produto para calcular o custo total com base no partnerID e no frete correspondente
-			for (const product of products) {
-				// Calcular o custo total do produto
-				const productCost = getProductCost(product);
+			// Iterar sobre cada parceiro para calcular o custo total com base nos valores já descontados e no frete correspondente
+			for (const partner of partnersTotalCost) {
+				// Encontrar o frete correspondente ao parceiro
+				const shipping = shippingCost.find(
+					(cost: any) => cost.partnerID === partner.partnerID
+				);
 
-				// Se o produto tiver um custo válido
-				if (productCost >= 0) {
-					// Encontrar o frete correspondente ao parceiro do produto
-					const shipping = shippingCost.find(
-						(cost: any) => cost.partnerID === product.partnerID
-					);
+				// Se o frete for encontrado, calcular o custo total com frete, caso contrário, considerar apenas o valor já descontado
+				const totalCostWithShipping = shipping
+					? partner.totalCost + shipping.vlrFrete
+					: partner.totalCost;
 
-					// Calcular o custo total com frete
-					const totalCostWithShipping =
-						productCost + (shipping ? shipping.vlrFrete : 0);
-
-					// Verificar se já existe um registro para esse parceiro no array
-					const partnerIndex =
-						partnersTotalCostWithShipping.findIndex(
-							(item) => item.partnerID === product.partnerID
-						);
-
-					if (partnerIndex === -1) {
-						// Se não existir, adicionar um novo registro ao array
-						partnersTotalCostWithShipping.push({
-							partnerID: product.partnerID,
-							totalCostWithShipping: totalCostWithShipping,
-						});
-					} else {
-						// Se existir, adicionar o custo total com frete ao custo total existente
-						partnersTotalCostWithShipping[
-							partnerIndex
-						].totalCostWithShipping += totalCostWithShipping;
-					}
-				}
+				// Adicionar o custo total com frete ao array partnersTotalCostWithShipping
+				partnersTotalCostWithShipping.push({
+					partnerID: partner.partnerID,
+					totalCostWithShipping: totalCostWithShipping,
+				});
 			}
 
 			console.log(
@@ -386,7 +404,7 @@ class OtakupayController {
 			);
 
 			// Calcular o valor total do pedido com frete (PARA O CUSTOMER PAGAR)
-			const customerOrderCostTotal = partnersTotalCostWithShipping.reduce(
+			let customerOrderCostTotal = partnersTotalCostWithShipping.reduce(
 				(total, item) => total + item.totalCostWithShipping,
 				0
 			);
@@ -751,7 +769,7 @@ class OtakupayController {
 
 			// *********************************************************************************************** //
 
-			// Array para armazenar as comissões dos parceiros
+			// Array para armazenar as comissões por parceiros
 			const partnerCommissions: {
 				partnerID: string;
 				commissionAmount: number;
@@ -775,14 +793,14 @@ class OtakupayController {
 					});
 				}
 
-				// Acessar o Otakupay do parceiro usando o otakupayID
+				// Acessar o OtakuPay do parceiro usando o otakupayID
 				const partnerOtakupay = await OtakupayModel.findOne({
 					_id: partner.otakupayID,
 				});
 
-				// Verificar se o Otakupay do parceiro existe
+				// Verificar se o OtakuPay do parceiro existe
 				if (!partnerOtakupay) {
-					// Se o Otakupay do parceiro não existir, retornar um erro
+					// Se o OtakuPay do parceiro não existir, retornar um erro
 					return res.status(422).json({
 						message: "Otakupay do Partner não encontrado!",
 					});
@@ -795,7 +813,7 @@ class OtakupayController {
 					// Somar o cashback ao valor da comissão
 					const totalAmount = commissionAmount + cashbackAmount;
 
-					// Adicionar a comissão do parceiro ao array de comissões
+					// Adicionar a comissão a ser paga pelo Parceiro ao array de comissões
 					partnerCommissions.push({
 						partnerID: partnerCost.partnerID,
 						commissionAmount: totalAmount,
@@ -817,9 +835,12 @@ class OtakupayController {
 				}
 			}
 
-			console.log("Comissões dos parceiros:", partnerCommissions);
+			console.log(
+				"COMISSÕES A SEREM PAGAS PELOS PARTNERS:",
+				partnerCommissions
+			);
 
-			// Array para armazenar as comissões criptografadas dos parceiros
+			// Array para armazenar as comissões criptografadas por parceiros
 			const encryptedPartnerCommissions: {
 				partnerID: string;
 				encryptedCommissionAmount: string;
@@ -827,7 +848,7 @@ class OtakupayController {
 
 			// Iterar sobre cada comissão dos parceiros para criptografar o valor
 			for (const commission of partnerCommissions) {
-				// Criptografar o valor da comissão usando a função encrypt
+				// Criptografar o valor da comissão por Parceiro
 				const encryptedCommissionAmount = encrypt(
 					commission.commissionAmount.toString()
 				);
@@ -848,7 +869,7 @@ class OtakupayController {
 				productsByPartner[product.partnerID].push(product);
 			}
 
-			let orders: any[] = []; // Array para armazenar todas as ordens
+			let orders: any[] = []; // Array para armazenar todas as Ordens
 
 			// CRIAR UM NOVO PEDIDO (NEW ORDER)
 			// Iterar sobre cada grupo de produtos por partnerID
@@ -862,10 +883,22 @@ class OtakupayController {
 					const partnerProducts = productsByPartner[partnerID];
 					let partnerOrderCostTotal = 0;
 
-					// Calcular o custo total do pedido para este parceiro
-					for (const product of partnerProducts) {
-						partnerOrderCostTotal += getProductCost(product);
+					// Encontrar o custo total dos produtos com frete para este parceiro
+					const partnerTotalCostWithShipping =
+						partnersTotalCostWithShipping.find(
+							(cost) => cost.partnerID === partnerID
+						);
+
+					if (!partnerTotalCostWithShipping) {
+						console.error(
+							`Custo total dos produtos com frete não encontrado para o parceiro ${partnerID}`
+						);
+						continue; // Pular para a próxima iteração do loop
 					}
+
+					// Atribuir o custo total dos produtos com frete ao partnerOrderCostTotal
+					partnerOrderCostTotal =
+						partnerTotalCostWithShipping.totalCostWithShipping;
 
 					// Encontrar o custo de envio para este parceiro
 					const shippingCostForPartner = shippingCost.find(
@@ -898,19 +931,19 @@ class OtakupayController {
 								continue; // Pular para a próxima iteração do loop
 							}
 
-							// Criar uma nova instância de OrderModel para cada pedido
+							// Criar uma nova Order para cada PartnerID
 							const order = new OrderModel({
 								orderNumber: new ObjectId()
 									.toHexString()
 									.toUpperCase(),
 								statusOrder: "Aprovado",
 								paymentMethod: "OtakuPay",
-								shippingCostTotal: vlrFrete, // Usando o valor do custo de envio
+								shippingCostTotal: vlrFrete,
 								customerOrderCostTotal: partnerOrderCostTotal,
-								partnerCommissionOtamart: commissionAmount, // Usando a comissão não criptografada
+								partnerCommissionOtamart: commissionAmount,
 								itemsList: [],
 								partnerID: partnerID,
-								partnerName: partner.name, // Inserir o nome do parceiro
+								partnerName: partner.name,
 								customerID: customer._id,
 								customerName: customer.name,
 								customerAdress: [],
@@ -935,7 +968,7 @@ class OtakupayController {
 								});
 							}
 
-							// Adicionar a ordem ao array de ordens
+							// Adicionar a Order ao array de ordens
 							orders.push(order);
 						} else {
 							console.error(

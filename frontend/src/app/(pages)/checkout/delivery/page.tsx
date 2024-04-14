@@ -30,10 +30,6 @@ import { YourOrderComp } from "@/components/YourOrderComp";
 function DeliveryPage() {
 	const { transportadoraInfo } = useContext(CheckoutContext);
 	const [productsInCart, setProductsInCart] = useState([]);
-	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
-
-	console.log(productsInCart);
-	console.log(transportadoraInfo);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
