@@ -49,8 +49,7 @@ import { toast } from "react-toastify";
 
 function PaymentPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
-	const { transportadoraInfo, setCart, setTransportadoraInfo } =
-		useContext(CheckoutContext);
+	const { transportadoraInfo } = useContext(CheckoutContext);
 
 	const [productsInCart, setProductsInCart] = useState([]);
 	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
@@ -69,6 +68,7 @@ function PaymentPage() {
 			const productsList = productsInCart.map((product) => ({
 				productID: product.productID,
 				productName: product.productName,
+				productPrice: product.priceCost,
 				productQuantity: product.quantityThisProduct,
 				partnerID: product.partnerID,
 			}));
@@ -101,6 +101,7 @@ function PaymentPage() {
 			// Limpar o localStorage após o pagamento ser aprovado
 			localStorage.removeItem("productsInCart");
 			localStorage.removeItem("transportadoraInfo");
+			localStorage.removeItem("coupons");
 
 			Swal.fire({
 				title: "Pagamento Realizado com Sucesso!",

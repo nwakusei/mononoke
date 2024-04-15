@@ -256,7 +256,7 @@ function SideComponent() {
 			setCart(totalQuantityProducts);
 			// Calcula o preço total do carrinho
 			const totalCartValue = productsInCart.reduce(
-				(total, product) => total + product.productPriceTotal, // Soma os preços totais de cada produto
+				(total, product) => total + product.productPrice, // Soma os preços totais de cada produto
 				0
 			);
 			// Define o subtotal como 0 se o carrinho estiver vazio

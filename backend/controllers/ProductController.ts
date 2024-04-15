@@ -546,6 +546,8 @@ class ProductController {
 
 			let data = await response.json();
 
+			console.log(typeof data);
+
 			// Filtrar apenas as transportadoras dos Correios com os serviços desejados (X, E, M)
 			data = data.filter((transportadora: any) => {
 				const servico = transportadora.servico;
