@@ -21,7 +21,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 		useContext(CheckoutContext);
 	const [totalPedido, setTotalPedido] = useState(0);
 	const [couponApplied, setCouponApplied] = useState(0);
-	const [cupomCode, setCupomCode] = useState("");
+	const [couponCode, setCouponCode] = useState("");
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -193,7 +193,9 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 		const calcularTotalPedido = () => {
 			let subtotal = productsInfo.reduce(
 				(total, productInCart) =>
-					total + productInCart.productPriceTotal,
+					total +
+					productInCart.productPrice *
+						productInCart.quantityThisProduct, // Corrigido para "quantityThisProduct"
 				0
 			);
 
@@ -214,17 +216,17 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 				0
 			);
 
-			// Soma os valores de discountAmount dos cupons no localStorage
-			const cuponsStorage = JSON.parse(
-				localStorage.getItem("cupons") || "[]"
+			// Soma os valores de discountAmount dos coupons no localStorage
+			const couponsStorage = JSON.parse(
+				localStorage.getItem("coupons") || "[]"
 			);
-			const totalDiscountAmount = cuponsStorage.reduce(
-				(total, cupom) => total + cupom.discountAmount,
+			const totalDiscountAmount = couponsStorage.reduce(
+				(total, coupon) => total + coupon.discountAmount,
 				0
 			);
 
 			// Subtrai o desconto do total
-			let total = subtotal + frete;
+			let total = subtotal + frete - totalDiscountAmount;
 			setTotalPedido(total < 0 ? 0 : total);
 
 			// Define o desconto total aplicado
@@ -254,114 +256,24 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 		return totalFrete;
 	};
 
-	// const aplicarCupom = async () => {
-	// 	try {
-	// 		const cupomResponse = await api.get("/coupons/allcoupons");
-	// 		const cupons = cupomResponse.data.coupons;
-
-	// 		const cupomInfo = cupons.find(
-	// 			(cupom) => cupom.couponCode === cupomCode
-	// 		);
-
-	// 		if (cupomInfo) {
-	// 			// Verifica se o cupom é aplicável ao parceiro do produto
-	// 			const isCouponApplicable = productsInfo.some(
-	// 				(product) => product.partnerID === cupomInfo.partnerID
-	// 			);
-
-	// 			if (isCouponApplicable) {
-	// 				const produtosComPartnerIDCorreto = productsInfo.map(
-	// 					(product) => {
-	// 						if (product.partnerID === cupomInfo.partnerID) {
-	// 							const descontoPercentual =
-	// 								cupomInfo.discountPercentage / 100;
-	// 							const desconto =
-	// 								product.productPriceTotal *
-	// 								descontoPercentual;
-	// 							product.productPriceTotal -= desconto;
-	// 							return product;
-	// 						}
-	// 						return product;
-	// 					}
-	// 				);
-
-	// 				// Calcula o desconto total para o partnerID correspondente
-	// 				const descontoTotal = produtosComPartnerIDCorreto.reduce(
-	// 					(totalDesconto, product) => {
-	// 						if (product.partnerID === cupomInfo.partnerID) {
-	// 							const desconto =
-	// 								product.productPrice *
-	// 									product.quantityThisProduct -
-	// 								product.productPriceTotal;
-	// 							return totalDesconto + desconto;
-	// 						}
-	// 						return totalDesconto;
-	// 					},
-	// 					0
-	// 				);
-
-	// 				// Armazena as informações do cupom no localStorage
-	// 				const cupomLocalStorage = {
-	// 					partnerID: cupomInfo.partnerID,
-	// 					cupomCode: cupomInfo.couponCode,
-	// 					discountAmount: descontoTotal, // Adiciona o desconto total
-	// 				};
-
-	// 				// Obtém o array de cupons do localStorage
-	// 				const cuponsStorage = JSON.parse(
-	// 					localStorage.getItem("cupons") || "[]"
-	// 				);
-
-	// 				// Adiciona o novo cupom ao array
-	// 				cuponsStorage.push(cupomLocalStorage);
-
-	// 				// Armazena o array atualizado no localStorage
-	// 				localStorage.setItem(
-	// 					"cupons",
-	// 					JSON.stringify(cuponsStorage)
-	// 				);
-
-	// 				localStorage.setItem(
-	// 					"productsInCart",
-	// 					JSON.stringify(produtosComPartnerIDCorreto)
-	// 				);
-
-	// 				setCouponApplied(descontoTotal); // Define o desconto total aplicado
-
-	// 				toast.success("Cupom aplicado com sucesso!");
-	// 			} else {
-	// 				toast.error(
-	// 					"Este cupom não é aplicável aos produtos no seu carrinho."
-	// 				);
-	// 			}
-	// 		} else {
-	// 			toast.error("Cupom inválido!");
-	// 		}
-	// 	} catch (error) {
-	// 		toast.error(
-	// 			"Erro ao aplicar cupom. Por favor, tente novamente mais tarde."
-	// 		);
-	// 	}
-	// };
-
 	const aplicarCupom = async () => {
 		try {
 			const cupomResponse = await api.get("/coupons/allcoupons");
-			const cupons = cupomResponse.data.coupons;
+			const coupons = cupomResponse.data.coupons;
 
-			const cupomInfo = cupons.find(
-				(cupom) => cupom.couponCode === cupomCode
+			const cupomInfo = coupons.find(
+				(coupon) => coupon.couponCode === couponCode
 			);
 
 			if (cupomInfo) {
 				// Verifica se o cupom já foi aplicado anteriormente
-				const cuponsStorage = JSON.parse(
-					localStorage.getItem("cupons") || "[]"
+				const couponsStorage = JSON.parse(
+					localStorage.getItem("coupons") || "[]"
 				);
-				const cupomJaAplicado = cuponsStorage.some(
-					(cupom) =>
-						cupom.partnerID === cupomInfo.partnerID &&
-						cupom.cupomCode === cupomInfo.couponCode
+				const cupomJaAplicado = couponsStorage.some(
+					(coupon) =>
+						coupon.partnerID === cupomInfo.partnerID &&
+						coupon.couponCode === cupomInfo.couponCode
 				);
 
 				if (!cupomJaAplicado) {
@@ -408,17 +320,17 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 						// Armazena as informações do cupom no localStorage
 						const cupomLocalStorage = {
 							partnerID: cupomInfo.partnerID,
-							cupomCode: cupomInfo.couponCode,
+							couponCode: cupomInfo.couponCode,
 							discountAmount: descontoTotal, // Adiciona o desconto total
 						};
 
 						// Adiciona o novo cupom ao array
-						cuponsStorage.push(cupomLocalStorage);
+						couponsStorage.push(cupomLocalStorage);
 
 						// Armazena o array atualizado no localStorage
 						localStorage.setItem(
-							"cupons",
-							JSON.stringify(cuponsStorage)
+							"coupons",
+							JSON.stringify(couponsStorage)
 						);
 
 						localStorage.setItem(
@@ -496,7 +408,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 										.reduce(
 											(total, productInCart) =>
 												total +
-												productInCart.productPriceTotal,
+												productInCart.productPrice,
 											0
 										)
 										.toLocaleString("pt-BR", {
@@ -551,8 +463,8 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 								type="text"
 								placeholder="Insira o código do Cupom"
 								className="input input-bordered w-full mb-2"
-								value={cupomCode}
-								onChange={(e) => setCupomCode(e.target.value)}
+								value={couponCode}
+								onChange={(e) => setCouponCode(e.target.value)}
 							/>
 						</div>
 						<button

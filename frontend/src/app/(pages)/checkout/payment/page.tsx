@@ -64,93 +64,6 @@ function PaymentPage() {
 		}
 	}, []);
 
-	// async function handlePayment() {
-	// 	try {
-	// 		const groupedProducts = {};
-	// 		// Agrupar produtos por partnerID
-	// 		productsInCart.forEach((product) => {
-	// 			if (!groupedProducts[product.partnerID]) {
-	// 				groupedProducts[product.partnerID] = [];
-	// 			}
-	// 			groupedProducts[product.partnerID].push(product);
-	// 		});
-
-	// 		const responses = [];
-
-	// 		// Iterar sobre os grupos de produtos e criar pedidos separados
-	// 		for (const partnerID in groupedProducts) {
-	// 			const productsData = groupedProducts[partnerID].map(
-	// 				(product) => ({
-	// 					productID: product.productID,
-	// 					productName: product.productName,
-	// 					productQuantity: product.quantityThisProduct,
-	// 					productsCostTotal: product.productPriceTotal,
-	// 					shippingCostTotal: 10,
-	// 					paymentMethod: "OtakuPay",
-	// 					itemsList: groupedProducts[partnerID].map((item) => ({
-	// 						productID: item.productID,
-	// 						productName: item.productName,
-	// 						productQuantity: item.quantityThisProduct,
-	// 					})),
-	// 					shippingMethod: "Loggi",
-	// 				})
-	// 			);
-
-	// 			// Enviar pedido para a API
-	// 			const response = await api.post(
-	// 				"/otakupay/buy-otamart",
-	// 				{
-	// 					productID: groupedProducts[partnerID][0].productID,
-	// 					productName: groupedProducts[partnerID][0].productName,
-	// 					productQuantity:
-	// 						groupedProducts[partnerID][0].quantityThisProduct,
-	// 					productsCostTotal:
-	// 						groupedProducts[partnerID][0].productPriceTotal,
-	// 					shippingCostTotal: 10, // Ou o valor real do frete, se aplicável
-	// 					paymentMethod: "OtakuPay",
-	// 					shippingMethod: "Loggi",
-	// 					itemsList: productsData[0].itemsList,
-	// 				},
-	// 				{
-	// 					headers: {
-	// 						Authorization: `Bearer ${JSON.parse(token)}`,
-	// 					},
-	// 				}
-	// 			);
-
-	// 			responses.push(response);
-	// 		}
-
-	// 		// Limpar o localStorage após o pagamento ser aprovado
-	// 		setCart(localStorage.removeItem("productsInCart"));
-	// 		setTransportadoraInfo(
-	// 			localStorage.removeItem("transportadoraInfo")
-	// 		);
-
-	// 		Swal.fire({
-	// 			title: "Pagamento Realizado com Sucesso!",
-	// 			width: 700,
-	// 			text: "Agora é só aguardar o envio o/",
-	// 			icon: "success",
-	// 		});
-
-	// 		router.push("/otamart");
-
-	// 		// Tratar as respostas da API conforme necessário
-	// 		responses.forEach((response) => {
-	// 			console.log(response.data);
-	// 		});
-	// 	} catch (error: any) {
-	// 		Swal.fire({
-	// 			title: error.response.data.message,
-	// 			width: 900,
-	// 			text: "....",
-	// 			icon: "error",
-	// 		});
-	// 		return error.response.data;
-	// 	}
-	// }
-
 	async function handlePayment() {
 		try {
 			const productsList = productsInCart.map((product) => ({
@@ -168,11 +81,15 @@ function PaymentPage() {
 				})
 			);
 
+			// Recupera os cupons do localStorage
+			const coupons = JSON.parse(localStorage.getItem("coupons") || "[]");
+
 			const response = await api.post(
 				"/otakupay/buy-otamart",
 				{
 					products: productsList,
 					shippingCost: shippingCost,
+					coupons: coupons,
 				},
 				{
 					headers: {
