@@ -143,7 +143,7 @@ class OtakupayController {
 	}
 
 	static async buyOtamart(req: Request, res: Response) {
-		const { products, shippingCost, cupons } = req.body;
+		const { products, shippingCost, coupons } = req.body;
 
 		// Verificar se o array de produtos é válido
 		if (!products || products.length === 0) {
@@ -302,36 +302,39 @@ class OtakupayController {
 			}
 
 			// Aplicar desconto do cupom, se houver
-			if (cupons && cupons.length > 0) {
-				const couponCode = cupons[0].couponCode;
+			if (coupons && coupons.length > 0) {
+				for (const coupon of coupons) {
+					const couponCode = coupon.couponCode;
 
-				// Buscar o cupom no banco de dados usando o código do cupom
-				const coupon = await CouponModel.findOne({
-					couponCode: couponCode,
-				});
-
-				if (coupon) {
-					// Iterar sobre cada parceiro para aplicar o desconto do cupom
-					for (const partner of partnersTotalCost) {
-						if (
-							String(partner.partnerID) ===
-							String(coupon.partnerID)
-						) {
-							// Calcular o valor do desconto com base na porcentagem do cupom
-							const discountAmount =
-								(partner.totalCost *
-									coupon.discountPercentage) /
-								100;
-
-							// Subtrair o valor do desconto do custo total do parceiro
-							partner.totalCost -= discountAmount;
-						}
-					}
-				} else {
-					res.status(404).json({
-						message: "Cupom de desconto não encontrado.",
+					// Buscar o cupom no banco de dados usando o código do cupom
+					const couponData = await CouponModel.findOne({
+						couponCode: couponCode,
 					});
-					return;
+
+					if (couponData) {
+						// Iterar sobre cada parceiro para aplicar o desconto do cupom
+						for (const partner of partnersTotalCost) {
+							if (
+								String(partner.partnerID) ===
+								String(couponData.partnerID)
+							) {
+								// Calcular o valor do desconto com base na porcentagem do cupom
+								const discountAmount =
+									(partner.totalCost *
+										couponData.discountPercentage) /
+									100;
+
+								// Subtrair o valor do desconto do custo total do parceiro
+								partner.totalCost -= discountAmount;
+							}
+						}
+					} else {
+						// Se algum cupom não for encontrado, enviar resposta de erro
+						res.status(404).json({
+							message: "Cupom de desconto não encontrado.",
+						});
+						return;
+					}
 				}
 			}
 
