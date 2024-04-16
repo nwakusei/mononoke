@@ -108,9 +108,7 @@ function MyProductsPage() {
 													</td>
 													<td>
 														{Number(
-															product
-																.originalPrice
-																.$numberDecimal
+															product.originalPrice
 														).toLocaleString(
 															"pt-BR",
 															{

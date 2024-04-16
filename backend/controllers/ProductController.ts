@@ -521,11 +521,11 @@ class ProductController {
 			pesoMerc: weight * quantityThisProduct,
 			volumes: [
 				{
-					peso: weight * quantityThisProduct,
+					peso: weight * quantityThisProduct + 0.011,
 					altura: height,
 					largura: width,
 					comprimento: length,
-					valor: productPriceTotal,
+					valor: productPrice,
 					quantidade: quantityThisProduct,
 				},
 			],

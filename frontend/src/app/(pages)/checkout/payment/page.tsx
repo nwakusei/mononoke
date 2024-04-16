@@ -49,7 +49,8 @@ import { toast } from "react-toastify";
 
 function PaymentPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
-	const { transportadoraInfo } = useContext(CheckoutContext);
+	const { transportadoraInfo, setSubtotal, setCart } =
+		useContext(CheckoutContext);
 
 	const [productsInCart, setProductsInCart] = useState([]);
 	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
@@ -103,6 +104,9 @@ function PaymentPage() {
 			localStorage.removeItem("transportadoraInfo");
 			localStorage.removeItem("coupons");
 
+			setCart(0);
+			setSubtotal(0);
+
 			Swal.fire({
 				title: "Pagamento Realizado com Sucesso!",
 				width: 700,
@@ -111,17 +115,15 @@ function PaymentPage() {
 			});
 
 			router.push("/otamart");
-
-			console.log(response.data);
-		} catch (error) {
+		} catch (error: any) {
 			console.log(error);
-			// Swal.fire({
-			// 	title: error.response.data.message,
-			// 	width: 900,
-			// 	text: "....",
-			// 	icon: "error",
-			// });
-			// return error.response.data;
+			Swal.fire({
+				title: error.response.data.message,
+				width: 900,
+				text: "....",
+				icon: "error",
+			});
+			return error.response.data;
 		}
 	}
 

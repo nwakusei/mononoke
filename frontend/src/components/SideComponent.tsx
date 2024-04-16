@@ -284,6 +284,8 @@ function SideComponent() {
 			return;
 		}
 
+		console.log(product);
+
 		try {
 			const response = await api.post("/products/simulate-shipping", {
 				cepDestino: cep,
