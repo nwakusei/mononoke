@@ -81,19 +81,24 @@ function decryptString(encryptedData: string): string | null {
 
 class OrderController {
 	static async getAllPartnerOrders(req: Request, res: Response) {
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		const partnerID = partner._id.toString();
+
 		try {
-			const token: any = getToken(req);
-			const partner = await getUserByToken(token);
-
+			// Buscar as orders associadas ao parceiro
 			const orders = await OrderModel.find({
-				partnerID: partner._id,
-			}).sort("-createdAt");
+				partnerID: partnerID,
+			});
 
-			if (partner.accountType !== "partner") {
-				res.status(422).json({
-					message:
-						"Você não tem permissão para acessar essa requisição!",
-				});
+			console.log(orders); // Adicione esta linha para verificar as orders
+
+			// Verificar se há orders
+			if (orders.length === 0) {
+				return res
+					.status(404)
+					.json({ message: "Você não possui Orders!" });
 			}
 
 			res.status(200).json({ orders: orders });
@@ -117,7 +122,6 @@ class OrderController {
 
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
-		console.log(partner.id);
 
 		if (!partner) {
 			res.status(422).json({ message: "Usuário não encontrado!" });
@@ -136,7 +140,7 @@ class OrderController {
 
 		// Verificar se o produto existe
 		if (!order) {
-			res.status(404).json({ message: "Produto não encontrado!" });
+			res.status(404).json({ message: "Pedido não encontrado!" });
 			return;
 		}
 
@@ -448,16 +452,16 @@ class OrderController {
 			const token: any = getToken(req);
 			const customer = await getUserByToken(token);
 
-			const orders = await OrderModel.find({
-				customerID: customer._id,
-			}).sort("-createdAt");
-
 			if (customer.accountType !== "customer") {
 				res.status(422).json({
 					message:
 						"Você não tem permissão para acessar essa requisição!",
 				});
 			}
+
+			const orders = await OrderModel.find({
+				customerID: customer._id,
+			}).sort("-createdAt");
 
 			res.status(200).json({ orders: orders });
 		} catch (error) {

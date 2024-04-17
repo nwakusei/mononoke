@@ -1077,6 +1077,8 @@ class OtakupayController {
 										product.productID.toString()
 								);
 
+								console.log(productFromDB);
+
 								// Se o produto correspondente não for encontrado, continuar para o próximo produto
 								if (!productFromDB) {
 									continue;
@@ -1092,6 +1094,7 @@ class OtakupayController {
 								order.itemsList.push({
 									productID: product.productID,
 									productName: product.productName,
+									productImage: product.imagesProduct,
 									productPrice: productCost,
 									daysShipping:
 										shippingCostForPartner.daysShipping,

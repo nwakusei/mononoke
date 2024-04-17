@@ -69,10 +69,13 @@ function PaymentPage() {
 			const productsList = productsInCart.map((product) => ({
 				productID: product.productID,
 				productName: product.productName,
+				productImage: product.imageProduct,
 				productPrice: product.priceCost,
 				productQuantity: product.quantityThisProduct,
 				partnerID: product.partnerID,
 			}));
+
+			console.log(productsList);
 
 			const shippingCost = Object.values(transportadoraInfo).map(
 				(info) => ({

@@ -7,44 +7,8 @@ import Image from "next/image";
 import { Sidebar } from "@/components/Sidebar";
 
 // Imagens e Logos
-import Otakuyasan from "../../../../../public/otakuyasan.png";
-import Otakuyasan2 from "../../../../../public/otakuyasan2.png";
-import Amora from "../../../../../public/amora.jpg";
-import MundosInfinitos from "../../../../../public/mundos-infinitos.png";
 
 // Icons
-import {
-	ShoppingCartOne,
-	ShoppingBag,
-	Coupon,
-	PaymentMethod,
-	Currency,
-	Credit,
-	Deposit,
-	Expenses,
-	Send,
-	AddPicture,
-} from "@icon-park/react";
-import { GrChat } from "react-icons/gr";
-import { LuSettings, LuQrCode } from "react-icons/lu";
-import { RiAccountPinBoxLine } from "react-icons/ri";
-import { MdOutlineWarehouse } from "react-icons/md";
-import {
-	BsShopWindow,
-	BsChatSquareText,
-	BsCurrencyDollar,
-	BsCheck2All,
-	BsCheck2,
-} from "react-icons/bs";
-import { GoArrowUpRight, GoLinkExternal } from "react-icons/go";
-import { PiHandHeartDuotone, PiChatCenteredText } from "react-icons/pi";
-import { IoIosSearch } from "react-icons/io";
-import { IoImageOutline } from "react-icons/io5";
-import { IoIosArrowDown } from "react-icons/io";
-import { HiOutlineEllipsisVertical } from "react-icons/hi2";
-import { TbCurrencyReal } from "react-icons/tb";
-import { CiWarning } from "react-icons/ci";
-import { FaPlus } from "react-icons/fa6";
 
 // Axios
 import api from "@/utils/api";
@@ -80,13 +44,13 @@ function MyOrdersPage() {
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
 					<div className="bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
-						{/* Adicionar Porduto */}
+						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
 							<h1 className="text-2xl font-semibold">
 								Meus Pedidos
 							</h1>
 
-							{/* Produtos em Catálogo */}
+							{/* Lista de Pedidos */}
 							<div className="overflow-x-auto">
 								<table className="table">
 									{/* head */}
@@ -143,23 +107,35 @@ function MyOrdersPage() {
 															</div>
 															<div>
 																<div className="font-bold">
-																	{myorder.itemsList.map(
-																		(
-																			item
-																		) => (
-																			<h2 className="w-[230px] overflow-x-auto mb-2">
-																				{
-																					item
-																				}
-																			</h2>
-																		)
-																	)}
+																	<h2 className="w-[230px] overflow-x-hidden mb-2">
+																		{myorder.itemsList.map(
+																			(
+																				item,
+																				index
+																			) => (
+																				<span
+																					key={
+																						index
+																					}>
+																					{
+																						item.productName
+																					}
+																					{index !==
+																						myorder
+																							.itemsList
+																							.length -
+																							1 &&
+																						", "}
+																				</span>
+																			)
+																		)}
+																	</h2>
 																</div>
 															</div>
 														</div>
 													</td>
 													<td>
-														{myorder.orderCostTotal.toLocaleString(
+														{myorder.customerOrderCostTotal.toLocaleString(
 															"pt-BR",
 															{
 																style: "currency",
@@ -179,12 +155,12 @@ function MyOrdersPage() {
 																myorder.statusOrder
 															}
 														</div>
-														<div className="text-xs opacity-50">
+														{/* <div className="text-xs opacity-50">
 															{
 																myorder.daysShipping
 															}{" "}
 															dias
-														</div>
+														</div> */}
 													</td>
 													<td className="w-[200px] overflow-x-auto">
 														{myorder.customerName}
@@ -194,8 +170,11 @@ function MyOrdersPage() {
 													</td>
 													<th>
 														<button className="flex items-center btn btn-ghost btn-xs">
-															+ Detalhes
-														</button>
+															<Link
+																href={`/dashboard/myorders/${myorder._id}`}>
+																+ Detalhes
+															</Link>
+														</button>{" "}
 													</th>
 												</tr>
 											))}
