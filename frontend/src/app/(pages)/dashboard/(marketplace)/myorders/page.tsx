@@ -96,27 +96,33 @@ function MyOrdersPage() {
 														</label>
 													</th>
 													<td>
-														<div className="flex items-center gap-3 mb-2">
-															<div className="avatar">
-																<div className="mask mask-squircle w-12 h-12">
-																	<img
-																		src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
-																		alt="Avatar Tailwind CSS Component"
-																	/>
-																</div>
-															</div>
-															<div>
-																<div className="font-bold">
-																	<h2 className="w-[230px] overflow-x-hidden mb-2">
-																		{myorder.itemsList.map(
-																			(
-																				item,
-																				index
-																			) => (
-																				<span
-																					key={
-																						index
-																					}>
+														{myorder.itemsList.map(
+															(item, index) => (
+																<div
+																	key={index}
+																	className="flex items-center gap-3 mb-2">
+																	<div className="avatar">
+																		<div className="mask mask-squircle w-12 h-12">
+																			<Image
+																				src={`http://localhost:5000/images/products/${item.productImage}`}
+																				alt={
+																					item.productName
+																				}
+																				width={
+																					280
+																				}
+																				height={
+																					10
+																				}
+																				unoptimized
+																			/>
+																		</div>
+																	</div>
+
+																	<div>
+																		<div className="font-bold">
+																			<h2 className="w-[230px] overflow-x-hidden mb-2">
+																				<span>
 																					{
 																						item.productName
 																					}
@@ -127,12 +133,12 @@ function MyOrdersPage() {
 																							1 &&
 																						", "}
 																				</span>
-																			)
-																		)}
-																	</h2>
+																			</h2>
+																		</div>
+																	</div>
 																</div>
-															</div>
-														</div>
+															)
+														)}
 													</td>
 													<td>
 														{myorder.customerOrderCostTotal.toLocaleString(

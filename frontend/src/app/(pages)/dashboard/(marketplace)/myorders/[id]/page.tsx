@@ -89,9 +89,18 @@ function MyOrderByIDPage() {
 															<div className="flex items-center gap-3 mb-2">
 																<div className="avatar">
 																	<div className="mask mask-squircle w-12 h-12">
-																		<img
-																			src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
-																			alt="Avatar Tailwind CSS Component"
+																		<Image
+																			src={`http://localhost:5000/images/products/${item.productImage}`}
+																			alt={
+																				item.productName
+																			}
+																			width={
+																				280
+																			}
+																			height={
+																				10
+																			}
+																			unoptimized
 																		/>
 																	</div>
 																</div>
