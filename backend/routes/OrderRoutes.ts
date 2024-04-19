@@ -8,8 +8,9 @@ import verifyToken from "../helpers/verify-token.js";
 import { imageUpload } from "../helpers/image-upload.js";
 
 router.get("/partner-orders", verifyToken, OrderController.getAllPartnerOrders);
+
 router.get(
-	"/partner-order/:id",
+	"/partner-orders/:id",
 	verifyToken,
 	OrderController.getPartnerOrderByID
 );
@@ -25,7 +26,7 @@ router.get(
 	OrderController.getAllCustomerOrders
 );
 router.get(
-	"/customer-order/:id",
+	"/customer-orders/:id",
 	verifyToken,
 	OrderController.getCustomerOrderByID
 );

@@ -408,7 +408,8 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 										.reduce(
 											(total, productInCart) =>
 												total +
-												productInCart.productPrice,
+												productInCart.productPrice *
+													productInCart.quantityThisProduct,
 											0
 										)
 										.toLocaleString("pt-BR", {

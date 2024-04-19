@@ -521,11 +521,11 @@ class ProductController {
 			pesoMerc: weight * quantityThisProduct,
 			volumes: [
 				{
-					peso: weight * quantityThisProduct,
+					peso: weight * quantityThisProduct + 0.011,
 					altura: height,
 					largura: width,
 					comprimento: length,
-					valor: productPriceTotal,
+					valor: productPrice,
 					quantidade: quantityThisProduct,
 				},
 			],
@@ -545,6 +545,8 @@ class ProductController {
 			});
 
 			let data = await response.json();
+
+			console.log(typeof data);
 
 			// Filtrar apenas as transportadoras dos Correios com os serviços desejados (X, E, M)
 			data = data.filter((transportadora: any) => {

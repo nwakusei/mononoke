@@ -827,8 +827,12 @@ class OtakupayController {
 						partnerCost.totalCost *
 						(partnerOtakupay.cashback / 100);
 
+					console.log("VALOR DO CASHBACK", cashbackAmount);
+
 					// Somar o cashback ao valor da comissão
 					const totalAmount = commissionAmount + cashbackAmount;
+
+					console.log("VALOR DO CASHBACK + COMISSÃO", totalAmount);
 
 					// Adicionar a comissão do parceiro ao array de comissões
 					partnerCommissions.push({
@@ -956,17 +960,36 @@ class OtakupayController {
 								orderNote: "",
 							});
 
-							const productShippingInfo = shippingCost.find(
-								(info: any) => info.partnerID === partnerID
-							);
-
 							// Adicionar os itens do pedido
 							for (const product of partnerProducts) {
+								// Encontrar o produto correspondente na lista de produtos do banco de dados
+								const productFromDB = productsFromDB.find(
+									(p: any) =>
+										p._id.toString() ===
+										product.productID.toString()
+								);
+
+								console.log(product);
+
+								// Se o produto correspondente não for encontrado, continuar para o próximo produto
+								if (!productFromDB) {
+									continue;
+								}
+
+								// Calcular o custo total do produto levando em consideração a quantidade
+								const productCost =
+									productFromDB.promocionalPrice > 0
+										? productFromDB.promocionalPrice
+										: productFromDB.originalPrice;
+
+								// Adicionar o item ao pedido
 								order.itemsList.push({
 									productID: product.productID,
 									productName: product.productName,
+									productImage: product.productImage,
+									productPrice: productCost,
 									daysShipping:
-										productShippingInfo.daysShipping,
+										shippingCostForPartner.daysShipping,
 									productQuantity: product.productQuantity,
 								});
 							}

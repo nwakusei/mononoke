@@ -49,7 +49,7 @@ import { toast } from "react-toastify";
 
 function PaymentPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
-	const { transportadoraInfo, setCart, setTransportadoraInfo } =
+	const { transportadoraInfo, setSubtotal, setCart } =
 		useContext(CheckoutContext);
 
 	const [productsInCart, setProductsInCart] = useState([]);
@@ -69,9 +69,13 @@ function PaymentPage() {
 			const productsList = productsInCart.map((product) => ({
 				productID: product.productID,
 				productName: product.productName,
+				productImage: product.imageProduct,
+				productPrice: product.priceCost,
 				productQuantity: product.quantityThisProduct,
 				partnerID: product.partnerID,
 			}));
+
+			console.log(productsList);
 
 			const shippingCost = Object.values(transportadoraInfo).map(
 				(info) => ({
@@ -101,6 +105,10 @@ function PaymentPage() {
 			// Limpar o localStorage após o pagamento ser aprovado
 			localStorage.removeItem("productsInCart");
 			localStorage.removeItem("transportadoraInfo");
+			localStorage.removeItem("coupons");
+
+			setCart(0);
+			setSubtotal(0);
 
 			Swal.fire({
 				title: "Pagamento Realizado com Sucesso!",
@@ -110,17 +118,15 @@ function PaymentPage() {
 			});
 
 			router.push("/otamart");
-
-			console.log(response.data);
-		} catch (error) {
+		} catch (error: any) {
 			console.log(error);
-			// Swal.fire({
-			// 	title: error.response.data.message,
-			// 	width: 900,
-			// 	text: "....",
-			// 	icon: "error",
-			// });
-			// return error.response.data;
+			Swal.fire({
+				title: error.response.data.message,
+				width: 900,
+				text: "....",
+				icon: "error",
+			});
+			return error.response.data;
 		}
 	}
 

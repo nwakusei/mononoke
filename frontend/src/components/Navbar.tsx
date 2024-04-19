@@ -78,6 +78,8 @@ function Navbar() {
 	const handleRemoveFromCart = () => {
 		try {
 			localStorage.removeItem("productsInCart");
+			localStorage.removeItem("transportadoraInfo");
+			localStorage.removeItem("coupons");
 			setCart(0);
 			setSubtotal(0);
 		} catch (error) {
