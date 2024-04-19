@@ -827,8 +827,12 @@ class OtakupayController {
 						partnerCost.totalCost *
 						(partnerOtakupay.cashback / 100);
 
+					console.log("VALOR DO CASHBACK", cashbackAmount);
+
 					// Somar o cashback ao valor da comissão
 					const totalAmount = commissionAmount + cashbackAmount;
+
+					console.log("VALOR DO CASHBACK + COMISSÃO", totalAmount);
 
 					// Adicionar a comissão do parceiro ao array de comissões
 					partnerCommissions.push({
@@ -873,118 +877,6 @@ class OtakupayController {
 			}
 
 			let orders: any[] = []; // Array para armazenar todas as Ordens
-
-			// // CRIAR UM NOVO PEDIDO (NEW ORDER)
-			// // Iterar sobre cada grupo de produtos por partnerID
-			// for (const partnerID in productsByPartner) {
-			// 	if (
-			// 		Object.prototype.hasOwnProperty.call(
-			// 			productsByPartner,
-			// 			partnerID
-			// 		)
-			// 	) {
-			// 		const partnerProducts = productsByPartner[partnerID];
-			// 		let partnerOrderCostTotal = 0;
-
-			// 		// Encontrar o custo total dos produtos com frete para este parceiro
-			// 		const partnerTotalCostWithShipping =
-			// 			partnersTotalCostWithShipping.find(
-			// 				(cost) => cost.partnerID === partnerID
-			// 			);
-
-			// 		if (!partnerTotalCostWithShipping) {
-			// 			console.error(
-			// 				`Custo total dos produtos com frete não encontrado para o parceiro ${partnerID}`
-			// 			);
-			// 			continue; // Pular para a próxima iteração do loop
-			// 		}
-
-			// 		// Atribuir o custo total dos produtos com frete ao partnerOrderCostTotal
-			// 		partnerOrderCostTotal =
-			// 			partnerTotalCostWithShipping.totalCostWithShipping;
-
-			// 		// Encontrar o custo de envio para este parceiro
-			// 		const shippingCostForPartner = shippingCost.find(
-			// 			(cost: any) => cost.partnerID === partnerID
-			// 		);
-
-			// 		// Verificar se o custo de envio para este parceiro foi encontrado
-			// 		if (shippingCostForPartner) {
-			// 			// Extrair o valor do custo de envio
-			// 			const { vlrFrete } = shippingCostForPartner;
-
-			// 			// Encontrar a comissão correspondente ao parceiro
-			// 			const partnerCommission = partnerCommissions.find(
-			// 				(commission) => commission.partnerID === partnerID
-			// 			);
-
-			// 			// Verificar se a comissão foi encontrada
-			// 			if (partnerCommission) {
-			// 				const { commissionAmount } = partnerCommission;
-
-			// 				// Buscar o nome do parceiro no banco de dados usando o partnerID
-			// 				const partner = await PartnerModel.findOne({
-			// 					_id: partnerID,
-			// 				});
-
-			// 				if (!partner) {
-			// 					console.error(
-			// 						`Parceiro não encontrado para o ID ${partnerID}`
-			// 					);
-			// 					continue; // Pular para a próxima iteração do loop
-			// 				}
-
-			// 				// Criar uma nova Order para cada PartnerID
-			// 				const order = new OrderModel({
-			// 					orderNumber: new ObjectId()
-			// 						.toHexString()
-			// 						.toUpperCase(),
-			// 					statusOrder: "Aprovado",
-			// 					paymentMethod: "OtakuPay",
-			// 					shippingCostTotal: vlrFrete,
-			// 					customerOrderCostTotal: partnerOrderCostTotal,
-			// 					partnerCommissionOtamart: commissionAmount,
-			// 					itemsList: [],
-			// 					partnerID: partnerID,
-			// 					partnerName: partner.name,
-			// 					customerID: customer._id,
-			// 					customerName: customer.name,
-			// 					customerAdress: [],
-			// 					shippingMethod: "Loggi",
-			// 					statusShipping: "Envio Pendente",
-			// 					discountsApplied: 0,
-			// 					orderNote: "",
-			// 				});
-
-			// 				const productShippingInfo = shippingCost.find(
-			// 					(info: any) => info.partnerID === partnerID
-			// 				);
-
-			// 				// Adicionar os itens do pedido
-			// 				for (const product of partnerProducts) {
-			// 					order.itemsList.push({
-			// 						productID: product.productID,
-			// 						productName: product.productName,
-			// 						daysShipping:
-			// 							productShippingInfo.daysShipping,
-			// 						productQuantity: product.productQuantity,
-			// 					});
-			// 				}
-
-			// 				// Adicionar a Order ao array de ordens
-			// 				orders.push(order);
-			// 			} else {
-			// 				console.error(
-			// 					`Comissão não encontrada para o parceiro ${partnerID}`
-			// 				);
-			// 			}
-			// 		} else {
-			// 			console.error(
-			// 				`Custo de envio não encontrado para o parceiro ${partnerID}`
-			// 			);
-			// 		}
-			// 	}
-			// }
 
 			// CRIAR UM NOVO PEDIDO (NEW ORDER)
 			// Iterar sobre cada grupo de produtos por partnerID

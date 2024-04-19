@@ -40,7 +40,7 @@ function Sidebar() {
 				<div className="flex flex-col mb-2">
 					<Link
 						className="flex flex-row items-center ml-7 gap-2"
-						href={"/dashboard/myorders"}>
+						href={"/dashboard/mysales"}>
 						<span className="text-xs">○</span>
 						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 							Vendas

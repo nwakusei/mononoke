@@ -13,12 +13,12 @@ import api from "@/utils/api";
 // icons
 import { GrMapLocation } from "react-icons/gr";
 
-function MyOrderByIDPage() {
+function MySaleByIDPage() {
 	const { id } = useParams();
 	const [token] = useState(localStorage.getItem("token") || "");
-	const [myorder, setMyorder] = useState([]);
+	const [mysale, setMysale] = useState([]);
 
-	console.log(myorder);
+	console.log(mysale);
 
 	useEffect(() => {
 		const fetchOrder = async () => {
@@ -29,7 +29,7 @@ function MyOrderByIDPage() {
 					},
 				});
 				if (response.data && response.data.order) {
-					setMyorder(response.data.order);
+					setMysale(response.data.order);
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
@@ -47,7 +47,7 @@ function MyOrderByIDPage() {
 				{/* Gadget 1 */}
 				<div className="flex flex-row items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
 					<h1 className="text-lg">
-						ID do Pedido: {myorder.orderNumber}
+						ID do Pedido: {mysale.orderNumber}
 					</h1>
 					<button className="btn btn-error">Cancelar Pedido</button>{" "}
 					<button className="btn btn-error">
@@ -66,7 +66,7 @@ function MyOrderByIDPage() {
 
 							{/* Lista de Produtos */}
 							<div className="overflow-x-auto">
-								<table className="table">
+								<table className="table mb-8">
 									{/* head */}
 									<thead>
 										<tr>
@@ -80,9 +80,9 @@ function MyOrderByIDPage() {
 									</thead>
 									<tbody>
 										{/* row 1 */}
-										{Array.isArray(myorder.itemsList) &&
-											myorder.itemsList.length > 0 &&
-											myorder.itemsList.map(
+										{Array.isArray(mysale.itemsList) &&
+											mysale.itemsList.length > 0 &&
+											mysale.itemsList.map(
 												(item, index) => (
 													<tr key={index}>
 														<td>
@@ -154,7 +154,7 @@ function MyOrderByIDPage() {
 									</tbody>
 
 									{/* foot */}
-									<tfoot>
+									{/* <tfoot>
 										<tr>
 											<th></th>
 											<th>Name</th>
@@ -162,7 +162,191 @@ function MyOrderByIDPage() {
 											<th>Favorite Color</th>
 											<th></th>
 										</tr>
-									</tfoot>
+									</tfoot> */}
+								</table>
+
+								{/* Valores totais */}
+								<table className="table mb-8">
+									{/* head */}
+									<thead>
+										<tr>
+											<th className="text-sm">
+												Subtotal
+											</th>
+											<th className="text-sm">
+												Subtotal Frete
+											</th>
+											<th className="text-sm">
+												Desconto
+											</th>
+											<th className="text-sm">Total</th>
+										</tr>
+									</thead>
+									<tbody>
+										{/* row 1 */}
+
+										<tr>
+											<td>
+												{Array.isArray(
+													mysale.itemsList
+												) &&
+													mysale.itemsList.length >
+														0 && (
+														<div>
+															{mysale.itemsList
+																.reduce(
+																	(
+																		total,
+																		item
+																	) =>
+																		total +
+																		item.productPrice,
+																	0
+																)
+																.toLocaleString(
+																	"pt-BR",
+																	{
+																		style: "currency",
+																		currency:
+																			"BRL",
+																	}
+																)}
+														</div>
+													)}
+											</td>
+											<td>
+												<div>
+													{mysale.shippingCostTotal >
+														0 &&
+														mysale.shippingCostTotal.toLocaleString(
+															"pt-BR",
+															{
+																style: "currency",
+																currency: "BRL",
+															}
+														)}
+												</div>
+											</td>
+
+											<td>
+												{Array.isArray(
+													mysale.itemsList
+												) &&
+													mysale.itemsList.length >
+														0 && (
+														<div>
+															{(() => {
+																const productTotal =
+																	mysale.itemsList.reduce(
+																		(
+																			total,
+																			item
+																		) =>
+																			total +
+																			item.productPrice,
+																		0
+																	);
+																const totalWithShipping =
+																	productTotal +
+																	mysale.shippingCostTotal;
+																const discount =
+																	totalWithShipping -
+																	mysale.customerOrderCostTotal;
+
+																// Formata o desconto para o formato de moeda brasileira (BRL)
+																const formattedDiscount =
+																	discount.toLocaleString(
+																		"pt-BR",
+																		{
+																			style: "currency",
+																			currency:
+																				"BRL",
+																		}
+																	);
+
+																// Adiciona o sinal de menos diretamente ao valor do desconto se necessário
+																return discount >
+																	0
+																	? `- ${formattedDiscount}`
+																	: formattedDiscount;
+															})()}
+														</div>
+													)}
+											</td>
+
+											<td>
+												<div>
+													{mysale.customerOrderCostTotal >
+														0 &&
+														mysale.customerOrderCostTotal.toLocaleString(
+															"pt-BR",
+															{
+																style: "currency",
+																currency: "BRL",
+															}
+														)}
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+
+								{/* A RECEBER */}
+								<table className="table">
+									{/* head */}
+									<thead>
+										<tr>
+											<th className="text-sm">
+												Comissão a ser Paga
+											</th>
+											<th className="text-sm">
+												A receber pelo Pedido
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										{/* row 1 */}
+
+										<tr>
+											<td>
+												<div>
+													{(() => {
+														const partnerCommissionOtamart =
+															Number(
+																mysale.partnerCommissionOtamart
+															);
+														const formattedCommission =
+															partnerCommissionOtamart.toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															);
+
+														// Adiciona o sinal de menos diretamente ao valor da comissão do parceiro se necessário
+														return partnerCommissionOtamart >
+															0
+															? `- ${formattedCommission}`
+															: formattedCommission;
+													})()}
+												</div>
+											</td>
+
+											<td>
+												{(
+													mysale.customerOrderCostTotal -
+													Number(
+														mysale.partnerCommissionOtamart
+													)
+												).toLocaleString("pt-BR", {
+													style: "currency",
+													currency: "BRL",
+												})}
+											</td>
+										</tr>
+									</tbody>
 								</table>
 							</div>
 						</div>
@@ -172,13 +356,13 @@ function MyOrderByIDPage() {
 						{/* Gadget 3 */}
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<h1 className="text-lg">
-								Nome: {myorder.customerName}
+								Nome: {mysale.customerName}
 							</h1>
 							<h2>CPF: 000.000.000-00</h2>
 
 							<div className="divider"></div>
 
-							<h1 className="text-lg">
+							<h1 className="text-lg mb-3">
 								Endereço de entrega e cobrança
 							</h1>
 							<h2>Endereço: 000.000.000-00</h2>
@@ -190,11 +374,11 @@ function MyOrderByIDPage() {
 						{/* Gadget 4 */}
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<div className="mb-4">
-								<h1>Tranportadora: {myorder.shippingMethod}</h1>
-								{myorder.shippingCostTotal && (
+								<h1>Tranportadora: {mysale.shippingMethod}</h1>
+								{mysale.shippingCostTotal && (
 									<h2>
 										Valor:{" "}
-										{myorder.shippingCostTotal.toLocaleString(
+										{mysale.shippingCostTotal.toLocaleString(
 											"pt-BR",
 											{
 												style: "currency",
@@ -203,7 +387,7 @@ function MyOrderByIDPage() {
 										)}
 									</h2>
 								)}
-								<h2>Status: {myorder.statusShipping}</h2>
+								<h2>Status: {mysale.statusShipping}</h2>
 							</div>
 							<label className="flex flex-col w-[300px] pr-6">
 								<div className="flex flex-col w-full">
@@ -214,7 +398,7 @@ function MyOrderByIDPage() {
 									/>
 								</div>
 								<button className="btn btn-primary  w-full">
-									<GrMapLocation size={20} /> Enviar
+									Enviar <GrMapLocation size={20} />
 								</button>
 							</label>
 						</div>
@@ -225,4 +409,4 @@ function MyOrderByIDPage() {
 	);
 }
 
-export default MyOrderByIDPage;
+export default MySaleByIDPage;

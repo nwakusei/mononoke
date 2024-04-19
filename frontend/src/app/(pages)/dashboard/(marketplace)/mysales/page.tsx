@@ -13,8 +13,8 @@ import { Sidebar } from "@/components/Sidebar";
 // Axios
 import api from "@/utils/api";
 
-function MyOrdersPage() {
-	const [myorders, setMyorders] = useState([]);
+function MySalesPage() {
+	const [mysales, setMysales] = useState([]);
 	const [token] = useState(localStorage.getItem("token") || "");
 
 	useEffect(() => {
@@ -26,7 +26,7 @@ function MyOrdersPage() {
 					},
 				});
 				if (response.data && response.data.orders) {
-					setMyorders(response.data.orders);
+					setMysales(response.data.orders);
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
@@ -84,9 +84,9 @@ function MyOrdersPage() {
 									</thead>
 									<tbody>
 										{/* row 1 */}
-										{myorders.length > 0 &&
-											myorders.map((myorder) => (
-												<tr key={myorder._id}>
+										{mysales.length > 0 &&
+											mysales.map((mysale) => (
+												<tr key={mysale._id}>
 													<th>
 														<label>
 															<input
@@ -96,7 +96,7 @@ function MyOrdersPage() {
 														</label>
 													</th>
 													<td>
-														{myorder.itemsList.map(
+														{mysale.itemsList.map(
 															(item, index) => (
 																<div
 																	key={index}
@@ -127,11 +127,10 @@ function MyOrdersPage() {
 																						item.productName
 																					}
 																					{index !==
-																						myorder
+																						mysale
 																							.itemsList
 																							.length -
-																							1 &&
-																						", "}
+																							1}
 																				</span>
 																			</h2>
 																		</div>
@@ -141,7 +140,7 @@ function MyOrdersPage() {
 														)}
 													</td>
 													<td>
-														{myorder.customerOrderCostTotal.toLocaleString(
+														{mysale.customerOrderCostTotal.toLocaleString(
 															"pt-BR",
 															{
 																style: "currency",
@@ -151,15 +150,13 @@ function MyOrdersPage() {
 														<br />
 														<span className="badge badge-success badge-sm">
 															{
-																myorder.paymentMethod
+																mysale.paymentMethod
 															}
 														</span>
 													</td>
 													<td>
 														<div>
-															{
-																myorder.statusOrder
-															}
+															{mysale.statusOrder}
 														</div>
 														{/* <div className="text-xs opacity-50">
 															{
@@ -169,15 +166,15 @@ function MyOrdersPage() {
 														</div> */}
 													</td>
 													<td className="w-[200px] overflow-x-auto">
-														{myorder.customerName}
+														{mysale.customerName}
 													</td>
 													<td className="text-xs">
-														{myorder.orderNumber}
+														{mysale.orderNumber}
 													</td>
 													<th>
 														<button className="flex items-center btn btn-ghost btn-xs">
 															<Link
-																href={`/dashboard/myorders/${myorder._id}`}>
+																href={`/dashboard/mysales/${mysale._id}`}>
 																+ Detalhes
 															</Link>
 														</button>{" "}
@@ -206,4 +203,4 @@ function MyOrdersPage() {
 	);
 }
 
-export default MyOrdersPage;
+export default MySalesPage;
