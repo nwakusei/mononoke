@@ -855,6 +855,66 @@ class OrderController {
 			console.log(err);
 		}
 	}
+
+	static async updateTrackingCode(req: Request, res: Response) {
+		const { id } = req.params;
+		const { trackingCode } = req.body;
+
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({
+				message: "Usuário não encontrado!",
+			});
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message:
+					"Você não possuo autorização para realizar essa requsição!",
+			});
+			return;
+		}
+
+		if (!trackingCode) {
+			res.status(422).json({
+				message: "O código de rastreio é obrigatório!",
+			});
+			return;
+		}
+
+		try {
+			const order = await OrderModel.findById(id);
+
+			if (!order) {
+				res.status(422).json({
+					message: "Pedido não encontrado!",
+				});
+				return;
+			}
+
+			if (order.statusShipping === "Enviado") {
+				res.status(422).json({
+					message: "Pedido já enviado!",
+				});
+				return;
+			}
+
+			order.statusShipping = "Enviado";
+			order.trackingCode = trackingCode;
+
+			await order.save(); // Salva as alterações no banco de dados
+
+			res.status(200).json({ message: "Rastreio enviado com sucesso!" });
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({
+				message: "Erro ao atualizar o código de rastreamento.",
+			});
+		}
+	}
 }
 
 export default OrderController;

@@ -1,8 +1,10 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { format } from "date-fns";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
@@ -16,9 +18,19 @@ import { GrMapLocation } from "react-icons/gr";
 function MySaleByIDPage() {
 	const { id } = useParams();
 	const [token] = useState(localStorage.getItem("token") || "");
+	// const [token] = useState(() => {
+	// 	if (typeof window !== "undefined") {
+	// 		return localStorage.getItem("token") || "";
+	// 	} else {
+	// 		return "";
+	// 	}
+	// });
 	const [mysale, setMysale] = useState([]);
+	const [trackingCode, setTrackingCode] = useState("");
 
-	console.log(mysale);
+	const formattedDate = mysale.createdAt
+		? `${format(new Date(mysale.createdAt), "dd/MM/yyyy HH:mm")} hs`
+		: "";
 
 	useEffect(() => {
 		const fetchOrder = async () => {
@@ -40,15 +52,46 @@ function MySaleByIDPage() {
 		fetchOrder();
 	}, [token, id]);
 
+	async function handleTracking(e) {
+		e.preventDefault();
+		try {
+			const response = await api.patch(
+				`/orders/update-trackingcode/${id}`,
+				{
+					trackingCode: trackingCode,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
+					},
+				}
+			);
+			if (response.data && response.data.success) {
+				alert("Código de rastreamento atualizado com sucesso!");
+				// Você pode optar por atualizar o estado mysale aqui se necessário
+			} else {
+				console.error(
+					"Erro ao atualizar o código de rastreamento:",
+					response.data.message
+				);
+			}
+		} catch (error) {
+			console.error("Erro ao atualizar o código de rastreamento:", error);
+		}
+	}
+
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="flex flex-col bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				{/* Gadget 1 */}
 				<div className="flex flex-row items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
-					<h1 className="text-lg">
-						ID do Pedido: {mysale.orderNumber}
-					</h1>
+					<div className="flex flex-col">
+						<h1 className="text-lg">
+							ID do Pedido: {mysale.orderNumber}
+						</h1>
+						<h2>Data do Pagamento: {formattedDate}</h2>
+					</div>
 					<button className="btn btn-error">Cancelar Pedido</button>{" "}
 					<button className="btn btn-error">
 						Solcitar Cancelamento
@@ -152,17 +195,6 @@ function MySaleByIDPage() {
 												)
 											)}
 									</tbody>
-
-									{/* foot */}
-									{/* <tfoot>
-										<tr>
-											<th></th>
-											<th>Name</th>
-											<th>Job</th>
-											<th>Favorite Color</th>
-											<th></th>
-										</tr>
-									</tfoot> */}
 								</table>
 
 								{/* Valores totais */}
@@ -389,18 +421,30 @@ function MySaleByIDPage() {
 								)}
 								<h2>Status: {mysale.statusShipping}</h2>
 							</div>
-							<label className="flex flex-col w-[300px] pr-6">
-								<div className="flex flex-col w-full">
+
+							<form onSubmit={handleTracking}>
+								<label className="form-control w-full max-w-xs mb-4">
 									<input
 										type="text"
 										placeholder="Insira o código de Rastreio"
-										className="input input-bordered w-full mb-2"
+										className="input input-bordered w-full"
+										value={trackingCode}
+										onChange={(e) =>
+											setTrackingCode(e.target.value)
+										}
 									/>
-								</div>
-								<button className="btn btn-primary  w-full">
+									<div className="label">
+										<span className="label-text-alt">
+											Msg de erro a ser exibida
+										</span>
+									</div>
+								</label>
+								<button
+									type="submit"
+									className="btn btn-primary w-full">
 									Enviar <GrMapLocation size={20} />
 								</button>
-							</label>
+							</form>
 						</div>
 					</div>
 				</div>

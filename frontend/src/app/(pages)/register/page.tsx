@@ -6,10 +6,10 @@ import Image from "next/image";
 // Zod Hook Form
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 // Imagens
 import Logo from "../../../../public/logo.png";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 // Components
 import { InputUserForm } from "@/components/InputUserForm";

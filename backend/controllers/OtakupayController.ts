@@ -955,6 +955,7 @@ class OtakupayController {
 								customerName: customer.name,
 								customerAdress: [],
 								shippingMethod: "Loggi",
+								trackingCode: "",
 								statusShipping: "Envio Pendente",
 								discountsApplied: 0,
 								orderNote: "",

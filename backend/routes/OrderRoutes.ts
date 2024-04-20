@@ -37,4 +37,10 @@ router.patch(
 	OrderController.confirmReceiptCustomerOrder
 );
 
+router.patch(
+	"/update-trackingcode/:id",
+	verifyToken,
+	OrderController.updateTrackingCode
+);
+
 export default router;
