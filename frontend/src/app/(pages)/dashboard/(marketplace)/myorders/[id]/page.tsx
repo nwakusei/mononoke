@@ -15,8 +15,12 @@ import api from "@/utils/api";
 
 // icons
 import { GrMapLocation } from "react-icons/gr";
+import { ShoppingCartOne } from "@icon-park/react";
+import { LiaShippingFastSolid } from "react-icons/lia";
+import { BiIdCard } from "react-icons/Bi";
+import { PiCreditCardBold } from "react-icons/pi";
 
-function MySaleByIDPage() {
+function MyOrderByIDPage() {
 	const { id } = useParams();
 	const [token] = useState(localStorage.getItem("token") || "");
 	// const [token] = useState(() => {
@@ -26,23 +30,25 @@ function MySaleByIDPage() {
 	// 		return "";
 	// 	}
 	// });
-	const [mysale, setMysale] = useState([]);
-	const [trackingCode, setTrackingCode] = useState("");
+	const [myorder, setMyorder] = useState([]);
 
-	const formattedDate = mysale.createdAt
-		? `${format(new Date(mysale.createdAt), "dd/MM/yyyy HH:mm")} hs`
+	const formattedDate = myorder.createdAt
+		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy HH:mm")} hs`
 		: "";
 
 	useEffect(() => {
 		const fetchOrder = async () => {
 			try {
-				const response = await api.get(`/orders/partner-orders/${id}`, {
-					headers: {
-						Authorization: `Bearer ${JSON.parse(token)}`,
-					},
-				});
+				const response = await api.get(
+					`/orders/customer-orders/${id}`,
+					{
+						headers: {
+							Authorization: `Bearer ${JSON.parse(token)}`,
+						},
+					}
+				);
 				if (response.data && response.data.order) {
-					setMysale(response.data.order);
+					setMyorder(response.data.order);
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
@@ -53,22 +59,6 @@ function MySaleByIDPage() {
 		fetchOrder();
 	}, [token, id]);
 
-	async function handleTracking(e) {
-		e.preventDefault();
-		try {
-			const response = await api.patch(
-				`/orders/update-trackingcode/${id}`,
-				{ trackingCode },
-				{ headers: { Authorization: `Bearer ${JSON.parse(token)}` } }
-			);
-			console.log("Response:", response); // Verifique se esta linha é executada
-			toast.success(response.data.message);
-		} catch (error) {
-			toast.error(error.response.data.message);
-			console.error("Erro ao atualizar o código de rastreamento:", error);
-		}
-	}
-
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
@@ -77,7 +67,7 @@ function MySaleByIDPage() {
 				<div className="flex flex-row items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
 					<div className="flex flex-col">
 						<h1 className="text-lg">
-							ID do Pedido: {mysale.orderNumber}
+							ID do Pedido: {myorder.orderNumber}
 						</h1>
 						<h2>Data do Pagamento: {formattedDate}</h2>
 					</div>
@@ -112,9 +102,9 @@ function MySaleByIDPage() {
 									</thead>
 									<tbody>
 										{/* row 1 */}
-										{Array.isArray(mysale.itemsList) &&
-											mysale.itemsList.length > 0 &&
-											mysale.itemsList.map(
+										{Array.isArray(myorder.itemsList) &&
+											myorder.itemsList.length > 0 &&
+											myorder.itemsList.map(
 												(item, index) => (
 													<tr key={index}>
 														<td>
@@ -200,7 +190,12 @@ function MySaleByIDPage() {
 											<th className="text-sm">
 												Desconto
 											</th>
-											<th className="text-sm">Total</th>
+											<th className="text-sm">
+												Total do Pedido
+											</th>
+											<th className="text-sm">
+												Otaku Points a receber
+											</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -209,12 +204,12 @@ function MySaleByIDPage() {
 										<tr>
 											<td>
 												{Array.isArray(
-													mysale.itemsList
+													myorder.itemsList
 												) &&
-													mysale.itemsList.length >
+													myorder.itemsList.length >
 														0 && (
 														<div>
-															{mysale.itemsList
+															{myorder.itemsList
 																.reduce(
 																	(
 																		total,
@@ -237,9 +232,9 @@ function MySaleByIDPage() {
 											</td>
 											<td>
 												<div>
-													{mysale.shippingCostTotal >
+													{myorder.shippingCostTotal >
 														0 &&
-														mysale.shippingCostTotal.toLocaleString(
+														myorder.shippingCostTotal.toLocaleString(
 															"pt-BR",
 															{
 																style: "currency",
@@ -251,14 +246,14 @@ function MySaleByIDPage() {
 
 											<td>
 												{Array.isArray(
-													mysale.itemsList
+													myorder.itemsList
 												) &&
-													mysale.itemsList.length >
+													myorder.itemsList.length >
 														0 && (
 														<div>
 															{(() => {
 																const productTotal =
-																	mysale.itemsList.reduce(
+																	myorder.itemsList.reduce(
 																		(
 																			total,
 																			item
@@ -269,10 +264,10 @@ function MySaleByIDPage() {
 																	);
 																const totalWithShipping =
 																	productTotal +
-																	mysale.shippingCostTotal;
+																	myorder.shippingCostTotal;
 																const discount =
 																	totalWithShipping -
-																	mysale.customerOrderCostTotal;
+																	myorder.customerOrderCostTotal;
 
 																// Formata o desconto para o formato de moeda brasileira (BRL)
 																const formattedDiscount =
@@ -297,9 +292,9 @@ function MySaleByIDPage() {
 
 											<td>
 												<div>
-													{mysale.customerOrderCostTotal >
+													{myorder.customerOrderCostTotal >
 														0 &&
-														mysale.customerOrderCostTotal.toLocaleString(
+														myorder.customerOrderCostTotal.toLocaleString(
 															"pt-BR",
 															{
 																style: "currency",
@@ -307,6 +302,10 @@ function MySaleByIDPage() {
 															}
 														)}
 												</div>
+											</td>
+
+											<td>
+												<div>250 OP</div>
 											</td>
 										</tr>
 									</tbody>
@@ -321,7 +320,7 @@ function MySaleByIDPage() {
 												Comissão a ser Paga
 											</th>
 											<th className="text-sm">
-												A receber pelo Pedido
+												Otaku Points a receber
 											</th>
 										</tr>
 									</thead>
@@ -334,7 +333,7 @@ function MySaleByIDPage() {
 													{(() => {
 														const partnerCommissionOtamart =
 															Number(
-																mysale.partnerCommissionOtamart
+																myorder.partnerCommissionOtamart
 															);
 														const formattedCommission =
 															partnerCommissionOtamart.toLocaleString(
@@ -357,9 +356,9 @@ function MySaleByIDPage() {
 
 											<td>
 												{(
-													mysale.customerOrderCostTotal -
+													myorder.customerOrderCostTotal -
 													Number(
-														mysale.partnerCommissionOtamart
+														myorder.partnerCommissionOtamart
 													)
 												).toLocaleString("pt-BR", {
 													style: "currency",
@@ -377,7 +376,7 @@ function MySaleByIDPage() {
 						{/* Gadget 3 */}
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<h1 className="text-lg">
-								Nome: {mysale.customerName}
+								Nome: {myorder.customerName}
 							</h1>
 							<h2>CPF: 000.000.000-00</h2>
 
@@ -395,11 +394,11 @@ function MySaleByIDPage() {
 						{/* Gadget 4 */}
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<div className="mb-4">
-								<h1>Tranportadora: {mysale.shippingMethod}</h1>
-								{mysale.shippingCostTotal && (
+								<h1>Tranportadora: {myorder.shippingMethod}</h1>
+								{myorder.shippingCostTotal && (
 									<h2>
 										Valor:{" "}
-										{mysale.shippingCostTotal.toLocaleString(
+										{myorder.shippingCostTotal.toLocaleString(
 											"pt-BR",
 											{
 												style: "currency",
@@ -408,33 +407,58 @@ function MySaleByIDPage() {
 										)}
 									</h2>
 								)}
-								<h2>Status: {mysale.statusShipping}</h2>
+								<h2>Status: {myorder.statusShipping}</h2>
 							</div>
 
-							<form onSubmit={handleTracking}>
-								<label className="form-control w-full max-w-xs mb-4">
-									<input
-										type="text"
-										placeholder="Insira o código de Rastreio"
-										className="input input-bordered w-full"
-										value={trackingCode}
-										onChange={(e) =>
-											setTrackingCode(e.target.value)
-										}
-									/>
-									<div className="label">
-										<span className="label-text-alt">
-											Msg de erro a ser exibida
-										</span>
-									</div>
-								</label>
-								<button
-									type="submit"
-									className="btn btn-primary w-full">
-									Enviar <GrMapLocation size={20} />
-								</button>
-							</form>
+							<label className="form-control w-full max-w-xs mb-4">
+								<input
+									type="text"
+									placeholder="Insira o código de Rastreio"
+									className="input input-bordered w-full"
+									// value={trackingCode}
+									// onChange={(e) =>
+									// 	setTrackingCode(e.target.value)
+									// }
+								/>
+								<div className="label">
+									<span className="label-text-alt">
+										Msg de erro a ser exibida
+									</span>
+								</div>
+							</label>
 						</div>
+					</div>
+				</div>
+				{/* Rastreio do Pedido */}
+				<div className="flex flex-row items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+					<div className="flex flex-row justify-center mb-8">
+						<ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
+							<li className="step step-primary">
+								<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
+									<p>Envio Pendente</p>
+								</span>
+							</li>
+							<li className="step">
+								<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+									<p>—</p>
+								</span>
+							</li>
+							<li className="step">
+								<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+									<p>—</p>
+								</span>
+							</li>
+							<li className="step">
+								<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+									<p>—</p>
+								</span>
+							</li>
+							<li className="step">
+								<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+									<p>Concluído</p>
+								</span>
+							</li>
+						</ul>
 					</div>
 				</div>
 			</div>
@@ -442,4 +466,4 @@ function MySaleByIDPage() {
 	);
 }
 
-export default MySaleByIDPage;
+export default MyOrderByIDPage;

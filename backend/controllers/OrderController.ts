@@ -84,6 +84,12 @@ class OrderController {
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
 
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message: "Você não tem permissão para acessar essa requisição!",
+			});
+		}
+
 		const partnerID = partner._id.toString();
 
 		try {
@@ -491,7 +497,7 @@ class OrderController {
 			return;
 		}
 
-		if (customer.accountType !== "partner") {
+		if (customer.accountType !== "customer") {
 			res.status(422).json({
 				message: "Você não tem permissão para acessar esta página!",
 			});
