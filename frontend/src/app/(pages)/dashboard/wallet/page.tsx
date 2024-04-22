@@ -215,7 +215,7 @@ function WalletPage() {
 												Otakuya-san
 											</div>
 											<div className="text-sm opacity-50">
-												Japão
+												Otamart
 											</div>
 										</div>
 									</div>
@@ -258,7 +258,7 @@ function WalletPage() {
 												Marina Penharver
 											</div>
 											<div className="text-sm opacity-50">
-												Brasil
+												Site da Loja
 											</div>
 										</div>
 									</div>

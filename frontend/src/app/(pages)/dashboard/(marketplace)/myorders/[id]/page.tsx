@@ -310,64 +310,6 @@ function MyOrderByIDPage() {
 										</tr>
 									</tbody>
 								</table>
-
-								{/* A RECEBER */}
-								<table className="table">
-									{/* head */}
-									<thead>
-										<tr>
-											<th className="text-sm">
-												Comissão a ser Paga
-											</th>
-											<th className="text-sm">
-												Otaku Points a receber
-											</th>
-										</tr>
-									</thead>
-									<tbody>
-										{/* row 1 */}
-
-										<tr>
-											<td>
-												<div>
-													{(() => {
-														const partnerCommissionOtamart =
-															Number(
-																myorder.partnerCommissionOtamart
-															);
-														const formattedCommission =
-															partnerCommissionOtamart.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															);
-
-														// Adiciona o sinal de menos diretamente ao valor da comissão do parceiro se necessário
-														return partnerCommissionOtamart >
-															0
-															? `- ${formattedCommission}`
-															: formattedCommission;
-													})()}
-												</div>
-											</td>
-
-											<td>
-												{(
-													myorder.customerOrderCostTotal -
-													Number(
-														myorder.partnerCommissionOtamart
-													)
-												).toLocaleString("pt-BR", {
-													style: "currency",
-													currency: "BRL",
-												})}
-											</td>
-										</tr>
-									</tbody>
-								</table>
 							</div>
 						</div>
 					</div>
@@ -408,58 +350,46 @@ function MyOrderByIDPage() {
 									</h2>
 								)}
 								<h2>Status: {myorder.statusShipping}</h2>
-							</div>
-
-							<label className="form-control w-full max-w-xs mb-4">
-								<input
-									type="text"
-									placeholder="Insira o código de Rastreio"
-									className="input input-bordered w-full"
-									// value={trackingCode}
-									// onChange={(e) =>
-									// 	setTrackingCode(e.target.value)
-									// }
-								/>
-								<div className="label">
-									<span className="label-text-alt">
-										Msg de erro a ser exibida
+								<h2>
+									Cód. de Rastreio:{" "}
+									<span className="bg-blue-500 px-2 rounded-md">
+										{myorder.trackingCode}
 									</span>
-								</div>
-							</label>
+								</h2>
+							</div>
 						</div>
 					</div>
 				</div>
 				{/* Rastreio do Pedido */}
-				<div className="flex flex-row items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
-					<div className="flex flex-row justify-center mb-8">
-						<ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
-							<li className="step step-primary">
-								<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
-									<p>Envio Pendente</p>
-								</span>
-							</li>
-							<li className="step">
-								<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
-									<p>—</p>
-								</span>
-							</li>
-							<li className="step">
-								<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
-									<p>—</p>
-								</span>
-							</li>
-							<li className="step">
-								<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
-									<p>—</p>
-								</span>
-							</li>
-							<li className="step">
-								<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
-									<p>Concluído</p>
-								</span>
-							</li>
-						</ul>
-					</div>
+				<div className="flex flex-col justify-center items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+					<h1 className="text-lg">Acompanhe seu pedido</h1>
+					<ul className="steps steps-vertical lg:steps-horizontal mt-8 mb-8">
+						<li data-content="✓" className="step step-primary">
+							<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
+								<p>Envio Pendente</p>
+							</span>
+						</li>
+						<li data-content="✕" className="step">
+							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+								<p>—</p>
+							</span>
+						</li>
+						<li data-content="✕" className="step">
+							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+								<p>—</p>
+							</span>
+						</li>
+						<li data-content="✕" className="step">
+							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+								<p>—</p>
+							</span>
+						</li>
+						<li data-content="✕" className="step">
+							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+								<p>Concluído</p>
+							</span>
+						</li>
+					</ul>
 				</div>
 			</div>
 		</section>
