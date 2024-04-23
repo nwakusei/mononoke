@@ -862,63 +862,115 @@ class OrderController {
 		}
 	}
 
-	static async updateTrackingCode(req: Request, res: Response) {
+	// static async updateTrackingCode(req: Request, res: Response) {
+	// 	const { id } = req.params;
+	// 	const { trackingCode } = req.body;
+
+	// 	const token: any = getToken(req);
+	// 	const partner = await getUserByToken(token);
+
+	// 	if (!partner) {
+	// 		res.status(422).json({
+	// 			message: "Usuário não encontrado!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	if (partner.accountType !== "partner") {
+	// 		res.status(422).json({
+	// 			message:
+	// 				"Você não possuo autorização para realizar essa requsição!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	if (!trackingCode) {
+	// 		res.status(422).json({
+	// 			message: "O código de rastreio é obrigatório!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	try {
+	// 		const order = await OrderModel.findById(id);
+
+	// 		if (!order) {
+	// 			res.status(422).json({
+	// 				message: "Pedido não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		if (order.statusShipping === "Enviado") {
+	// 			res.status(422).json({
+	// 				message: "Pedido já enviado!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		order.statusShipping = "Enviado";
+	// 		order.trackingCode = trackingCode;
+
+	// 		await order.save(); // Salva as alterações no banco de dados
+
+	// 		res.status(200).json({ message: "Rastreio enviado com sucesso!" });
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		res.status(500).json({
+	// 			message: "Erro ao atualizar o código de rastreamento.",
+	// 		});
+	// 	}
+	// }
+
+	static async orderTracking(req: Request, res: Response) {
 		const { id } = req.params;
-		const { trackingCode } = req.body;
 
 		const token: any = getToken(req);
-		const partner = await getUserByToken(token);
+		const customer = await getUserByToken(token);
 
-		if (!partner) {
+		if (!customer) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
 			res.status(422).json({
-				message: "Usuário não encontrado!",
+				message: "Você não tem permissão para acessar esta requisição!",
 			});
 			return;
 		}
 
-		if (partner.accountType !== "partner") {
-			res.status(422).json({
-				message:
-					"Você não possuo autorização para realizar essa requsição!",
-			});
-			return;
-		}
+		const order = await OrderModel.findById(id);
 
-		if (!trackingCode) {
+		if (!order) {
 			res.status(422).json({
-				message: "O código de rastreio é obrigatório!",
+				message: "Pedido não encontrado!",
 			});
 			return;
 		}
 
 		try {
-			const order = await OrderModel.findById(id);
+			const trackingCode = order.trackingCode;
 
-			if (!order) {
-				res.status(422).json({
-					message: "Pedido não encontrado!",
-				});
-				return;
-			}
+			const kanguApiUrl = `https://portal.kangu.com.br/tms/transporte/rastrear/${trackingCode}`;
+			const tokenKangu = "8bdcdd65ac61c68aa615f3da4a3754b4";
 
-			if (order.statusShipping === "Enviado") {
-				res.status(422).json({
-					message: "Pedido já enviado!",
-				});
-				return;
-			}
+			const response = await fetch(kanguApiUrl, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					token: tokenKangu,
+				},
+			});
 
-			order.statusShipping = "Enviado";
-			order.trackingCode = trackingCode;
+			const data = await response.json();
 
-			await order.save(); // Salva as alterações no banco de dados
+			console.log(data);
 
-			res.status(200).json({ message: "Rastreio enviado com sucesso!" });
+			res.status(200).json(data);
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({
-				message: "Erro ao atualizar o código de rastreamento.",
-			});
+			res.status(500).json(error);
 		}
 	}
 }

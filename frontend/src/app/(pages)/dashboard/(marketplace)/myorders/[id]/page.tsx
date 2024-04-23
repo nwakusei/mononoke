@@ -31,6 +31,9 @@ function MyOrderByIDPage() {
 	// 	}
 	// });
 	const [myorder, setMyorder] = useState([]);
+	const [tracking, setTracking] = useState({});
+
+	console.log(tracking);
 
 	const formattedDate = myorder.createdAt
 		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy HH:mm")} hs`
@@ -57,6 +60,26 @@ function MyOrderByIDPage() {
 			}
 		};
 		fetchOrder();
+	}, [token, id]);
+
+	useEffect(() => {
+		const fetchShipping = async () => {
+			try {
+				const response = await api.post(
+					`/orders/order-tracking/${id}`,
+					{
+						headers: {
+							Authorization: `Bearer ${JSON.parse(token)}`,
+						},
+					}
+				);
+				setTracking(response.data);
+			} catch (error) {
+				console.log(error);
+			}
+		};
+
+		fetchShipping();
 	}, [token, id]);
 
 	return (
@@ -360,35 +383,115 @@ function MyOrderByIDPage() {
 						</div>
 					</div>
 				</div>
+
 				{/* Rastreio do Pedido */}
 				<div className="flex flex-col justify-center items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
-					<h1 className="text-lg">Acompanhe seu pedido</h1>
-					<ul className="steps steps-vertical lg:steps-horizontal mt-8 mb-8">
-						<li data-content="✓" className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
-								<p>Envio Pendente</p>
+					<h1 className="text-xl font-semibold">
+						Acompanhe seu pedido
+					</h1>
+					<ul className="steps steps-vertical  mt-8 mb-8">
+						{/* Renderizar uma li vazia antes do histórico */}
+						<li
+							data-content="✓"
+							className="step step-primary h-[150px]">
+							<span className="flex flex-col gap-1 py-1 px-2 rounded">
+								<h1 className="mb-2 bg-purple-500">
+									Em transito
+								</h1>
+								<h2 className="bg-purple-500">22/04</h2>
 							</span>
 						</li>
-						<li data-content="✕" className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
-								<p>—</p>
-							</span>
-						</li>
-						<li data-content="✕" className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
-								<p>—</p>
-							</span>
-						</li>
-						<li data-content="✕" className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
-								<p>—</p>
-							</span>
-						</li>
-						<li data-content="✕" className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
-								<p>Concluído</p>
-							</span>
-						</li>
+						{/* Renderizar o histórico */}
+						{tracking.historico &&
+							Object.values(tracking.historico)
+								// Ordenar o histórico pela data e horário
+								.sort((a, b) => {
+									const dateA = new Date(a.dataHora);
+									const dateB = new Date(b.dataHora);
+
+									return dateA - dateB;
+								})
+								// Mapear cada item do histórico
+								.map((item, index) => (
+									<li
+										key={index}
+										data-content="✓"
+										className="step step-primary">
+										<span className="flex flex-col gap-1 bg-purple-500 py-1 px-2 rounded">
+											<p>{item.ocorrencia}</p>
+											<p>
+												{format(
+													new Date(item.dataHora),
+													"dd/MM - HH:mm"
+												)}{" "}
+												hs
+											</p>
+											<p>{item.observacao}</p>
+										</span>
+									</li>
+								))}
+						{tracking.situacao && (
+							<>
+								{tracking.situacao.ocorrencia !==
+									"Entregue" && (
+									<li
+										data-content="✓"
+										className="step step-primary">
+										<span className="flex flex-col gap-1 bg-purple-500 py-1 px-2 rounded">
+											<p>
+												{tracking.situacao.ocorrencia}
+											</p>
+											<p>
+												{format(
+													new Date(
+														tracking.situacao.dataHora
+													),
+													"dd/MM - HH:mm"
+												)}{" "}
+												hs
+											</p>
+											<p>
+												{tracking.situacao.observacao}
+											</p>
+										</span>
+									</li>
+								)}
+								{/* Renderizar uma li vazia se não for entregue */}
+								{tracking.situacao.ocorrencia !==
+									"Concluído" && (
+									<li data-content="✕" className="step">
+										<span className="flex flex-col gap-1 bg-black py-1 px-2 rounded">
+											—
+										</span>
+									</li>
+								)}
+								{/* Renderizar somente se for entregue */}
+								{tracking.situacao.ocorrencia ===
+									"Concluído" && (
+									<li
+										data-content="✓"
+										className="step step-primary">
+										<span className="flex flex-col gap-1 bg-purple-500 py-1 px-2 rounded">
+											<p>
+												{tracking.situacao.ocorrencia}
+											</p>
+											<p>
+												{format(
+													new Date(
+														tracking.situacao.dataHora
+													),
+													"dd/MM - HH:mm"
+												)}{" "}
+												hs
+											</p>
+											<p>
+												{tracking.situacao.observacao}
+											</p>
+										</span>
+									</li>
+								)}
+							</>
+						)}
 					</ul>
 				</div>
 			</div>
