@@ -393,13 +393,18 @@ function MyOrderByIDPage() {
 						{/* Renderizar uma li vazia antes do histórico */}
 						<li
 							data-content="✓"
-							className="step step-primary h-[150px]">
-							<span className="flex flex-col gap-1 py-1 px-2 rounded">
-								<h1 className="mb-2 bg-purple-500">
-									Em transito
-								</h1>
-								<h2 className="bg-purple-500">22/04</h2>
-							</span>
+							className="step step-primary h-[180px]">
+							<div className="flex flex-col gap-1">
+								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+									Embalado
+								</span>
+								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+									10/04 - 16:00 hs
+								</span>
+								<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+									Em processamento de manuseio
+								</span>
+							</div>
 						</li>
 						{/* Renderizar o histórico */}
 						{tracking.historico &&
@@ -417,17 +422,21 @@ function MyOrderByIDPage() {
 										key={index}
 										data-content="✓"
 										className="step step-primary">
-										<span className="flex flex-col gap-1 bg-purple-500 py-1 px-2 rounded">
-											<p>{item.ocorrencia}</p>
-											<p>
+										<div className="flex flex-col gap-1">
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												{item.ocorrencia}
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
 												{format(
 													new Date(item.dataHora),
 													"dd/MM - HH:mm"
 												)}{" "}
 												hs
-											</p>
-											<p>{item.observacao}</p>
-										</span>
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+												{item.observacao}
+											</span>
+										</div>
 									</li>
 								))}
 						{tracking.situacao && (
@@ -437,11 +446,11 @@ function MyOrderByIDPage() {
 									<li
 										data-content="✓"
 										className="step step-primary">
-										<span className="flex flex-col gap-1 bg-purple-500 py-1 px-2 rounded">
-											<p>
+										<div className="flex flex-col gap-1">
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
 												{tracking.situacao.ocorrencia}
-											</p>
-											<p>
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
 												{format(
 													new Date(
 														tracking.situacao.dataHora
@@ -449,20 +458,20 @@ function MyOrderByIDPage() {
 													"dd/MM - HH:mm"
 												)}{" "}
 												hs
-											</p>
-											<p>
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
 												{tracking.situacao.observacao}
-											</p>
-										</span>
+											</span>
+										</div>
 									</li>
 								)}
 								{/* Renderizar uma li vazia se não for entregue */}
 								{tracking.situacao.ocorrencia !==
 									"Concluído" && (
 									<li data-content="✕" className="step">
-										<span className="flex flex-col gap-1 bg-black py-1 px-2 rounded">
+										<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
 											—
-										</span>
+										</div>
 									</li>
 								)}
 								{/* Renderizar somente se for entregue */}
@@ -471,11 +480,11 @@ function MyOrderByIDPage() {
 									<li
 										data-content="✓"
 										className="step step-primary">
-										<span className="flex flex-col gap-1 bg-purple-500 py-1 px-2 rounded">
-											<p>
+										<div className="flex flex-col gap-1">
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
 												{tracking.situacao.ocorrencia}
-											</p>
-											<p>
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
 												{format(
 													new Date(
 														tracking.situacao.dataHora
@@ -483,11 +492,11 @@ function MyOrderByIDPage() {
 													"dd/MM - HH:mm"
 												)}{" "}
 												hs
-											</p>
-											<p>
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
 												{tracking.situacao.observacao}
-											</p>
-										</span>
+											</span>
+										</div>
 									</li>
 								)}
 							</>
