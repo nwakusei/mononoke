@@ -530,7 +530,9 @@ class OrderController {
 
 	static async confirmReceiptCustomerOrder(req: Request, res: Response) {
 		const { id } = req.params;
-		const { newStatusOrder } = req.body;
+		// const { newStatusOrder } = req.body;
+
+		const newStatusOrder = "Concluído";
 
 		if (!isValidObjectId(id)) {
 			res.status(422).json({ message: "ID inválido" });
@@ -567,12 +569,12 @@ class OrderController {
 			return;
 		}
 
-		if (!newStatusOrder) {
-			res.status(422).json({
-				message: "Status do Pedido é obrigatório!",
-			});
-			return;
-		}
+		// if (!newStatusOrder) {
+		// 	res.status(422).json({
+		// 		message: "Status do Pedido é obrigatório!",
+		// 	});
+		// 	return;
+		// }
 
 		const currentStatusOrder = order.statusOrder;
 
@@ -584,18 +586,10 @@ class OrderController {
 			return;
 		}
 
-		if (currentStatusOrder === newStatusOrder) {
+		if (currentStatusOrder === "Concluído" && "concluído") {
 			res.status(422).json({
 				messsage:
 					"Pedido já confirmado, não é possível confirmar novamente!",
-			});
-			return;
-		}
-
-		if (newStatusOrder !== "Recebido" && newStatusOrder !== "recebido") {
-			res.status(422).json({
-				messsage:
-					"Não é possível confirmar o pedido, status incorreto!",
 			});
 			return;
 		}
@@ -670,15 +664,16 @@ class OrderController {
 			const commissionOtamart: any = order.partnerCommissionOtamart;
 			const decryptCommissionOtamart = decrypt(commissionOtamart);
 
-			const otakuPointsPaid = decrypt(order.partnerOtakuPointsPaid);
+			// // PRECISO ALTERAR E INCLUIR ESSA INFORMAÇÃO NA CRIAÇÃO DO PEDDIDO
+			// const otakuPointsPaid = decrypt(order.partnerOtakuPointsPaid);
 
-			if (otakuPointsPaid === null) {
-				res.status(500).json({
-					message:
-						"Erro ao descriptografar o Customer Otaku Points Pending.",
-				});
-				return;
-			}
+			// if (otakuPointsPaid === null) {
+			// 	res.status(500).json({
+			// 		message:
+			// 			"Erro ao descriptografar o Customer Otaku Points Pending.",
+			// 	});
+			// 	return;
+			// }
 
 			console.log("COMISSÃO + CASHBACK PAGO:", decryptCommissionOtamart);
 
@@ -717,7 +712,7 @@ class OrderController {
 				return;
 			}
 
-			// Encontrar o Otaku Points Pending do Customer
+			// Encontrar o OtakuPay do Customer
 			const customerOtakupayID = customer.otakupayID;
 			const customerOtakupay = await OtakupayModel.findById(
 				customerOtakupayID
@@ -737,7 +732,7 @@ class OrderController {
 				customerOtakupay.otakuPointsPending
 			);
 
-			// Verificar se o Partner Balance Available atual não é nulo
+			// Verificar se o Customer Otaku Points Pending Atual não é nulo
 			if (currentDecryptCustomerOtakuPointsPending === null) {
 				res.status(500).json({
 					message:
@@ -756,7 +751,7 @@ class OrderController {
 				customerOtakupay.otakuPointsAvailable
 			);
 
-			// Verificar se o Customer Balance Available atual não é nulo
+			// Verificar se o Customer Otaku Points Available atual não é nulo
 			if (currentDecryptCustomerOtakuPointsAvailable === null) {
 				res.status(500).json({
 					message:
@@ -770,6 +765,7 @@ class OrderController {
 				currentDecryptCustomerOtakuPointsAvailable.toFixed(2)
 			);
 
+			// INCLUIR NOVAMENTE NA ORDER CRIADA
 			const customerOtakuPointsEarned = decrypt(
 				order.customerOtakuPointsEarned
 			);
@@ -829,6 +825,9 @@ class OrderController {
 
 			// Setar o novo Status da Order
 			order.statusOrder = newStatusOrder;
+
+			// Setar o novo Status de Envio
+			order.statusShipping = newStatusOrder;
 
 			// Setar o novo Customer Otaku Points Pending
 			customerOtakupay.otakuPointsPending =

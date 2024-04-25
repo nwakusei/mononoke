@@ -33,7 +33,7 @@ function MyOrderByIDPage() {
 	const [myorder, setMyorder] = useState([]);
 	const [tracking, setTracking] = useState({});
 
-	console.log(tracking);
+	console.log(myorder.updatedAt);
 
 	const formattedDate = myorder.createdAt
 		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy HH:mm")} hs`
@@ -389,6 +389,10 @@ function MyOrderByIDPage() {
 					<h1 className="text-xl font-semibold">
 						Acompanhe seu pedido
 					</h1>
+					{/* <h2>
+						Previsão de entrega:{" "}
+						{format(new Date(tracking.dtPrevEnt), "dd/MM")}
+					</h2> */}
 					<ul className="steps steps-vertical  mt-8 mb-8">
 						{/* Renderizar uma li vazia antes do histórico */}
 						<li
@@ -466,8 +470,7 @@ function MyOrderByIDPage() {
 									</li>
 								)}
 								{/* Renderizar uma li vazia se não for entregue */}
-								{tracking.situacao.ocorrencia !==
-									"Concluído" && (
+								{myorder.statusShipping !== "Concluído" && (
 									<li data-content="✕" className="step">
 										<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
 											—
@@ -475,26 +478,24 @@ function MyOrderByIDPage() {
 									</li>
 								)}
 								{/* Renderizar somente se for entregue */}
-								{tracking.situacao.ocorrencia ===
-									"Concluído" && (
+								{myorder.statusShipping === "Concluído" && (
 									<li
 										data-content="✓"
 										className="step step-primary">
 										<div className="flex flex-col gap-1">
 											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
-												{tracking.situacao.ocorrencia}
+												Concluído
 											</span>
 											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
-												{format(
-													new Date(
-														tracking.situacao.dataHora
-													),
+												{myorder.updatedAt}
+												{/* {format(
+													new Date(myorder.updatedAt),
 													"dd/MM - HH:mm"
 												)}{" "}
-												hs
+												hs */}
 											</span>
 											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
-												{tracking.situacao.observacao}
+												Pedido finalizado
 											</span>
 										</div>
 									</li>
