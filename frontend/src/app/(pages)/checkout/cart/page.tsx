@@ -603,14 +603,16 @@ function CartPage() {
 														</div>
 														<div className="">
 															Frete da Loja:{" "}
-															{info.vlrFrete.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}
+															{info &&
+																info.vlrFrete &&
+																info.vlrFrete.toLocaleString(
+																	"pt-BR",
+																	{
+																		style: "currency",
+																		currency:
+																			"BRL",
+																	}
+																)}
 														</div>
 													</div>
 												);

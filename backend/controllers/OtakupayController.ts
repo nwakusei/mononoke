@@ -756,15 +756,6 @@ class OtakupayController {
 					customerCashback.customerCashbackAmount;
 			}
 
-			// const encryptCustomerOtakuPointsEarned = encrypt(
-			// 	totalCustomerCashback.toString()
-			// );
-
-			// console.log(
-			// 	"TOTAL DE CASHBACK/OTAKU POINTS DO CUSTOMER GANHO NA COMPRA CRIPTOGRAFADO:",
-			// 	encryptCustomerOtakuPointsEarned
-			// );
-
 			// Descriptografar o Otaku Points Pending do Customer
 			const decryptedOtakuPointsPending = decrypt(
 				customerOtakupay.otakuPointsPending
@@ -780,8 +771,12 @@ class OtakupayController {
 			}
 
 			// Somar o total de cashback (Otaku Points) ao Otaku Points Pending do Customer
+			// const newOtakuPointsPending =
+			// 	decryptedOtakuPointsPending + totalCustomerCashback;
+
 			const newOtakuPointsPending =
-				Number(decryptedOtakuPointsPending) + totalCustomerCashback;
+				(decryptedOtakuPointsPending as number) +
+				(totalCustomerCashback as number);
 
 			console.log(
 				"NOVO OTAKU POINTS PENDING DO CUSTOMER EM NÚMEROS:",
@@ -1480,6 +1475,8 @@ class OtakupayController {
 				otakuPointsAvailable: newUserOtakuPointsAvailable,
 				otakuPointsPending: newUserOtakuPointsPending,
 			};
+
+			console.log(newUserOtakupay);
 
 			res.status(200).json(newUserOtakupay);
 		} catch (error) {
