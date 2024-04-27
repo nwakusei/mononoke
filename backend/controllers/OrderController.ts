@@ -662,7 +662,7 @@ class OrderController {
 
 			// Atenção: Foi usado o any para parar o erro, verificar a tipagem adequada
 			const commissionOtamart: any = order.partnerCommissionOtamart;
-			const decryptCommissionOtamart = decrypt(commissionOtamart);
+			const decryptedCommissionOtamart = decrypt(commissionOtamart);
 
 			// // PRECISO ALTERAR E INCLUIR ESSA INFORMAÇÃO NA CRIAÇÃO DO PEDDIDO
 			// const otakuPointsPaid = decrypt(order.partnerOtakuPointsPaid);
@@ -675,11 +675,14 @@ class OrderController {
 			// 	return;
 			// }
 
-			console.log("COMISSÃO + CASHBACK PAGO:", decryptCommissionOtamart);
+			console.log(
+				"COMISSÃO + CASHBACK PAGO:",
+				decryptedCommissionOtamart
+			);
 
 			const newPartnerBalanceAvailable =
 				currentDecryptPartnerBalanceAvailable +
-				(Number(orderCostTotal) - Number(commissionOtamart));
+				(orderCostTotal - Number(decryptedCommissionOtamart));
 
 			const newEncryptedPartnerBalanceAvailable = encrypt(
 				newPartnerBalanceAvailable.toString()

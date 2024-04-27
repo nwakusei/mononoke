@@ -6,6 +6,9 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
+import crypto from "crypto";
+
+const secretKey = "chaveSuperSecretaDe32charsdgklot";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
@@ -32,8 +35,6 @@ function MyOrderByIDPage() {
 	// });
 	const [myorder, setMyorder] = useState([]);
 	const [tracking, setTracking] = useState({});
-
-	console.log(myorder.updatedAt);
 
 	const formattedDate = myorder.createdAt
 		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy HH:mm")} hs`
@@ -81,6 +82,33 @@ function MyOrderByIDPage() {
 
 		fetchShipping();
 	}, [token, id]);
+
+	// Função para Descriptografar dados sensíveis no Banco de Dados
+	function decrypt(encryptedBalance: string): number | null {
+		let decrypted = ""; // Declarando a variável fora do bloco try
+
+		try {
+			const decipher = crypto.createDecipheriv(
+				"aes-256-cbc",
+				Buffer.from(secretKey, "utf-8"),
+				Buffer.alloc(16, 0)
+			);
+
+			decipher.setAutoPadding(false);
+
+			decrypted = decipher.update(encryptedBalance, "hex", "utf8");
+			decrypted += decipher.final("utf8");
+
+			const balanceNumber = parseFloat(decrypted);
+			if (isNaN(balanceNumber)) {
+				return null;
+			}
+			return parseFloat(balanceNumber.toFixed(2));
+		} catch (error) {
+			console.error("Erro ao descriptografar o saldo:", error);
+			return null;
+		}
+	}
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
@@ -328,7 +356,12 @@ function MyOrderByIDPage() {
 											</td>
 
 											<td>
-												<div>250 OP</div>
+												<div>
+													{decrypt(
+														myorder.customerOtakuPointsEarned
+													)?.toLocaleString()}{" "}
+													OP
+												</div>
 											</td>
 										</tr>
 									</tbody>
@@ -400,7 +433,7 @@ function MyOrderByIDPage() {
 							className="step step-primary h-[180px]">
 							<div className="flex flex-col gap-1">
 								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
-									Embalado
+									Pagamento Confirmado
 								</span>
 								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
 									10/04 - 16:00 hs

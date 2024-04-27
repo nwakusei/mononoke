@@ -6,6 +6,9 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
+import crypto from "crypto";
+
+const secretKey = "chaveSuperSecretaDe32charsdgklot";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
@@ -66,6 +69,33 @@ function MySaleByIDPage() {
 		} catch (error) {
 			toast.error(error.response.data.message);
 			console.error("Erro ao atualizar o código de rastreamento:", error);
+		}
+	}
+
+	// Função para Descriptografar dados sensíveis no Banco de Dados
+	function decrypt(encryptedBalance: string): number | null {
+		let decrypted = ""; // Declarando a variável fora do bloco try
+
+		try {
+			const decipher = crypto.createDecipheriv(
+				"aes-256-cbc",
+				Buffer.from(secretKey, "utf-8"),
+				Buffer.alloc(16, 0)
+			);
+
+			decipher.setAutoPadding(false);
+
+			decrypted = decipher.update(encryptedBalance, "hex", "utf8");
+			decrypted += decipher.final("utf8");
+
+			const balanceNumber = parseFloat(decrypted);
+			if (isNaN(balanceNumber)) {
+				return null;
+			}
+			return parseFloat(balanceNumber.toFixed(2));
+		} catch (error) {
+			console.error("Erro ao descriptografar o saldo:", error);
+			return null;
 		}
 	}
 
@@ -331,37 +361,22 @@ function MySaleByIDPage() {
 										<tr>
 											<td>
 												<div>
-													{(() => {
-														const partnerCommissionOtamart =
-															Number(
-																mysale.partnerCommissionOtamart
-															);
-														const formattedCommission =
-															partnerCommissionOtamart.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															);
-
-														// Adiciona o sinal de menos diretamente ao valor da comissão do parceiro se necessário
-														return partnerCommissionOtamart >
-															0
-															? `- ${formattedCommission}`
-															: formattedCommission;
-													})()}
+													{decrypt(
+														mysale.partnerCommissionOtamart
+													)?.toLocaleString("pt-BR", {
+														style: "currency",
+														currency: "BRL",
+													})}
 												</div>
 											</td>
 
 											<td>
 												{(
 													mysale.customerOrderCostTotal -
-													Number(
+													decrypt(
 														mysale.partnerCommissionOtamart
 													)
-												).toLocaleString("pt-BR", {
+												)?.toLocaleString("pt-BR", {
 													style: "currency",
 													currency: "BRL",
 												})}
