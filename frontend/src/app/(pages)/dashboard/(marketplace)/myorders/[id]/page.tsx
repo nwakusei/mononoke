@@ -115,17 +115,21 @@ function MyOrderByIDPage() {
 			<Sidebar />
 			<div className="flex flex-col bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				{/* Gadget 1 */}
-				<div className="flex flex-row items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+				<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
 					<div className="flex flex-col">
 						<h1 className="text-lg">
 							ID do Pedido: {myorder.orderNumber}
 						</h1>
 						<h2>Data do Pagamento: {formattedDate}</h2>
 					</div>
-					<button className="btn btn-error">Cancelar Pedido</button>{" "}
-					<button className="btn btn-error">
-						Solcitar Cancelamento
-					</button>
+					<div className="flex flex-row gap-4">
+						<button className="btn btn-error">
+							Cancelar Pedido
+						</button>
+						<button className="btn btn-error">
+							Solcitar Cancelamento
+						</button>
+					</div>
 				</div>
 
 				<div className="flex flex-row w-[1200px]">
@@ -284,14 +288,16 @@ function MyOrderByIDPage() {
 											<td>
 												<div>
 													{myorder.shippingCostTotal >
-														0 &&
-														myorder.shippingCostTotal.toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-														)}
+													0
+														? myorder.shippingCostTotal.toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+														  )
+														: `R$ 0,00`}
 												</div>
 											</td>
 
@@ -393,7 +399,7 @@ function MyOrderByIDPage() {
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<div className="mb-4">
 								<h1>Tranportadora: {myorder.shippingMethod}</h1>
-								{myorder.shippingCostTotal && (
+								{myorder.shippingCostTotal ? (
 									<h2>
 										Valor:{" "}
 										{myorder.shippingCostTotal.toLocaleString(
@@ -404,6 +410,8 @@ function MyOrderByIDPage() {
 											}
 										)}
 									</h2>
+								) : (
+									`Valor: R$ 0,00`
 								)}
 								<h2>Status: {myorder.statusShipping}</h2>
 								<h2>
@@ -438,8 +446,9 @@ function MyOrderByIDPage() {
 								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
 									10/04 - 16:00 hs
 								</span>
+
 								<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
-									Em processamento de manuseio
+									O pedido será enviado em 0 dias
 								</span>
 							</div>
 						</li>

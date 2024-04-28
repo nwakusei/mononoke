@@ -177,6 +177,13 @@ class OtakupayController {
 			return;
 		}
 
+		if (!customer.cpf || customer.cpf == 0) {
+			res.status(422).json({
+				message: "CPF inválido, atualize antes de prosseguir!",
+			});
+			return;
+		}
+
 		try {
 			// Pegar os IDs dos produtos da Requisição
 			const productIDs = products.map(
@@ -381,6 +388,14 @@ class OtakupayController {
 				totalCostWithShipping: number;
 			}[] = [];
 
+			// Verificar se há dados em partnersTotalCost e shippingCost
+			if (partnersTotalCost.length === 0 || shippingCost.length === 0) {
+				res.status(422).json({
+					message: "Falta de dados, impossível prosseguir!",
+				});
+				return;
+			}
+
 			// Iterar sobre cada produto para calcular o custo total com base no partnerID e no frete correspondente
 			// Iterar sobre cada parceiro para calcular o custo total com base nos valores já descontados e no frete correspondente
 			for (const partner of partnersTotalCost) {
@@ -540,7 +555,10 @@ class OtakupayController {
 				encryptedPartnerBalancePendingList.map(
 					({ partnerID, balancePending }) => {
 						const decryptedValue = decrypt(balancePending);
-						return { partnerID, balancePending: decryptedValue };
+						return {
+							partnerID,
+							balancePending: decryptedValue,
+						};
 					}
 				);
 
@@ -905,139 +923,6 @@ class OtakupayController {
 
 			let orders: any[] = []; // Array para armazenar todas as Ordens
 
-			// CRIAR UM NOVO PEDIDO (NEW ORDER)
-			// // Iterar sobre cada grupo de produtos por partnerID
-			// for (const partnerID in productsByPartner) {
-			// 	if (
-			// 		Object.prototype.hasOwnProperty.call(
-			// 			productsByPartner,
-			// 			partnerID
-			// 		)
-			// 	) {
-			// 		const partnerProducts = productsByPartner[partnerID];
-			// 		let partnerOrderCostTotal = 0;
-
-			// 		// Encontrar o custo total dos produtos com frete para este parceiro
-			// 		const partnerTotalCostWithShipping =
-			// 			partnersTotalCostWithShipping.find(
-			// 				(cost) => cost.partnerID === partnerID
-			// 			);
-
-			// 		if (!partnerTotalCostWithShipping) {
-			// 			console.error(
-			// 				`Custo total dos produtos com frete não encontrado para o parceiro ${partnerID}`
-			// 			);
-			// 			continue; // Pular para a próxima iteração do loop
-			// 		}
-
-			// 		// Atribuir o custo total dos produtos com frete ao partnerOrderCostTotal
-			// 		partnerOrderCostTotal =
-			// 			partnerTotalCostWithShipping.totalCostWithShipping;
-
-			// 		// Encontrar o custo de envio para este parceiro
-			// 		const shippingCostForPartner = shippingCost.find(
-			// 			(cost: any) => cost.partnerID === partnerID
-			// 		);
-
-			// 		// Verificar se o custo de envio para este parceiro foi encontrado
-			// 		if (shippingCostForPartner) {
-			// 			// Extrair o valor do custo de envio
-			// 			const { vlrFrete } = shippingCostForPartner;
-
-			// 			// Encontrar a comissão correspondente ao parceiro
-			// 			const partnerCommission = partnerCommissions.find(
-			// 				(commission) => commission.partnerID === partnerID
-			// 			);
-
-			// 			// Verificar se a comissão foi encontrada
-			// 			if (partnerCommission) {
-			// 				const { commissionAmount } = partnerCommission;
-
-			// 				// Buscar o nome do parceiro no banco de dados usando o partnerID
-			// 				const partner = await PartnerModel.findOne({
-			// 					_id: partnerID,
-			// 				});
-
-			// 				if (!partner) {
-			// 					console.error(
-			// 						`Parceiro não encontrado para o ID ${partnerID}`
-			// 					);
-			// 					continue; // Pular para a próxima iteração do loop
-			// 				}
-
-			// 				// Criar uma nova Order para cada PartnerID
-			// 				const order = new OrderModel({
-			// 					orderNumber: new ObjectId()
-			// 						.toHexString()
-			// 						.toUpperCase(),
-			// 					statusOrder: "Aprovado",
-			// 					paymentMethod: "OtakuPay",
-			// 					shippingCostTotal: vlrFrete,
-			// 					customerOrderCostTotal: partnerOrderCostTotal,
-			// 					partnerCommissionOtamart: commissionAmount,
-			// 					customerOtakuPointsEarned: 10,
-			// 					itemsList: [],
-			// 					partnerID: partnerID,
-			// 					partnerName: partner.name,
-			// 					customerID: customer._id,
-			// 					customerName: customer.name,
-			// 					customerAdress: [],
-			// 					shippingMethod: "Loggi",
-			// 					trackingCode: "",
-			// 					statusShipping: "Envio Pendente",
-			// 					discountsApplied: 0,
-			// 					orderNote: "",
-			// 				});
-
-			// 				// Adicionar os itens do pedido
-			// 				for (const product of partnerProducts) {
-			// 					// Encontrar o produto correspondente na lista de produtos do banco de dados
-			// 					const productFromDB = productsFromDB.find(
-			// 						(p: any) =>
-			// 							p._id.toString() ===
-			// 							product.productID.toString()
-			// 					);
-
-			// 					console.log(product);
-
-			// 					// Se o produto correspondente não for encontrado, continuar para o próximo produto
-			// 					if (!productFromDB) {
-			// 						continue;
-			// 					}
-
-			// 					// Calcular o custo total do produto levando em consideração a quantidade
-			// 					const productCost =
-			// 						productFromDB.promocionalPrice > 0
-			// 							? productFromDB.promocionalPrice
-			// 							: productFromDB.originalPrice;
-
-			// 					// Adicionar o item ao pedido
-			// 					order.itemsList.push({
-			// 						productID: product.productID,
-			// 						productName: product.productName,
-			// 						productImage: product.productImage,
-			// 						productPrice: productCost,
-			// 						daysShipping:
-			// 							shippingCostForPartner.daysShipping,
-			// 						productQuantity: product.productQuantity,
-			// 					});
-			// 				}
-
-			// 				// Adicionar a Order ao array de ordens
-			// 				orders.push(order);
-			// 			} else {
-			// 				console.error(
-			// 					`Comissão não encontrada para o parceiro ${partnerID}`
-			// 				);
-			// 			}
-			// 		} else {
-			// 			console.error(
-			// 				`Custo de envio não encontrado para o parceiro ${partnerID}`
-			// 			);
-			// 		}
-			// 	}
-			// }
-
 			// Iterar sobre cada grupo de produtos por partnerID para criar as ordens
 			for (const partnerID in productsByPartner) {
 				if (
@@ -1049,6 +934,12 @@ class OtakupayController {
 					const partnerProducts = productsByPartner[partnerID];
 					let partnerOrderCostTotal = 0;
 
+					const partner = await PartnerModel.findById(partnerID);
+
+					if (!partner) {
+						console.log("Parceiro não encontrado!");
+						return;
+					}
 					// Encontrar o custo total dos produtos com frete para este parceiro
 					const partnerTotalCostWithShipping =
 						partnersTotalCostWithShipping.find(
@@ -1098,7 +989,7 @@ class OtakupayController {
 								)?.encryptedCustomerCashback,
 							itemsList: [],
 							partnerID: partnerID,
-							partnerName: "", // Aqui podemos deixar em branco, já que você disse que não quer usar o partner.name
+							partnerName: partner.name,
 							customerID: customer._id,
 							customerName: customer.name,
 							customerAdress: [],

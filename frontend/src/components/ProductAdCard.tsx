@@ -36,7 +36,8 @@ function ProductAdCard({
 
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
-		const roundedRating = Math.round(rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
+		// Arredonda o rating para a casa decimal mais próxima
+		const roundedRating = Math.round(rating * 10) / 10;
 
 		// Verifica se o roundedRating é igual a 0
 		if (roundedRating === 0) {
@@ -51,15 +52,12 @@ function ProductAdCard({
 			);
 		}
 
-		const formattedRating = Number.isInteger(roundedRating)
-			? `${roundedRating}.0`
-			: roundedRating;
 		const ratingIcons = [];
 
 		// Adiciona o número correspondente ao rating antes das estrelas
 		ratingIcons.push(
-			<span key={`number-${formattedRating}`} className="mr-1">
-				{formattedRating}
+			<span key={`number-${roundedRating}`} className="mr-1">
+				{roundedRating}
 			</span>
 		);
 

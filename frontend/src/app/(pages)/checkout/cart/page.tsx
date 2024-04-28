@@ -98,7 +98,32 @@ function CartPage() {
 				// Chamada da função para simular o frete
 				handleSimulateShipping(cepDestino, partnerInfo);
 			} else {
-				console.error("CepDestino não definido.");
+				// Define dados padrão para a transportadora
+				const defaultTransportadoraData = {};
+
+				for (const partnerID in partnerInfo) {
+					if (partnerInfo.hasOwnProperty(partnerID)) {
+						const partnerData = partnerInfo[partnerID];
+
+						// Define os dados da transportadora como padrão
+						defaultTransportadoraData[partnerID] = {
+							partnerID: partnerID,
+							transpNome: "Frete Grátis", // Nome da transportadora padrão
+							vlrFrete: 0.0, // Valor do frete padrão (zero para frete grátis)
+							prazoEnt: 3, // Prazo de entrega padrão
+							// Adicione outras informações que você precisar aqui
+						};
+					}
+				}
+
+				// Atualizando o estado com os dados padrão da transportadora
+				setTransportadoraInfo(defaultTransportadoraData);
+
+				// Armazenando os dados padrão da transportadora no localStorage
+				localStorage.setItem(
+					"transportadoraInfo",
+					JSON.stringify(defaultTransportadoraData)
+				);
 			}
 		}
 	}, []);
