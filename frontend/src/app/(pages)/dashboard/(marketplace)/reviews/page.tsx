@@ -142,9 +142,7 @@ function ReviewsPage() {
 														{mysale.statusShipping}
 													</td>
 
-													<td>
-														{mysale.orderNumber}
-													</td>
+													<td>{mysale.orderID}</td>
 													<th>
 														<button className="flex items-center btn btn-warning btn-xs">
 															<Link

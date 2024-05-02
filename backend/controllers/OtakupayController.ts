@@ -970,9 +970,7 @@ class OtakupayController {
 
 						// Criar uma nova Order para cada PartnerID
 						const order = new OrderModel({
-							orderNumber: new ObjectId()
-								.toHexString()
-								.toUpperCase(),
+							orderID: new ObjectId().toHexString().toUpperCase(),
 							statusOrder: "Aprovado",
 							paymentMethod: "OtakuPay",
 							shippingCostTotal: vlrFrete,

@@ -118,7 +118,7 @@ function MyOrderByIDPage() {
 				<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
 					<div className="flex flex-col">
 						<h1 className="text-lg">
-							ID do Pedido: {myorder.orderNumber}
+							ID do Pedido: {myorder.orderID}
 						</h1>
 						<h2>Data do Pagamento: {formattedDate}</h2>
 					</div>

@@ -13,7 +13,7 @@ interface IOrderItem {
 
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOrder {
-	orderNumber: string;
+	orderID: string;
 	statusOrder: string;
 	paymentMethod: string;
 	shippingCostTotal: number;
@@ -38,7 +38,7 @@ interface IOrder {
 // Schema que corresponda a Interface
 const orderSchema = new Schema<IOrder>(
 	{
-		orderNumber: {
+		orderID: {
 			type: String,
 		},
 		statusOrder: {

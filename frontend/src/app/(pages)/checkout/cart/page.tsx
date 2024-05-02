@@ -555,15 +555,27 @@ function CartPage() {
 																	)
 																}
 																className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
-																<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg cursor-pointer active:scale-[.97]">
+																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
 																	-
 																</h1>
 															</button>
-															<span className="text-lg">
+															{/* <span
+																className="text-lg text-center
+																w-[50px]
+																rounded">
 																{
 																	productInCart.quantityThisProduct
 																}
-															</span>
+															</span> */}
+															<input
+																className="text-lg text-center
+																w-[60px] h-[32px]
+																rounded"
+																type="text"
+																value={
+																	productInCart.quantityThisProduct
+																}
+															/>
 															<button
 																onClick={() =>
 																	increaseQuantity(
@@ -571,7 +583,7 @@ function CartPage() {
 																	)
 																}
 																className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
-																<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg  cursor-pointer active:scale-[.97]">
+																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
 																	+
 																</h1>
 															</button>
@@ -629,15 +641,16 @@ function CartPage() {
 														<div className="">
 															Frete da Loja:{" "}
 															{info &&
-																info.vlrFrete &&
-																info.vlrFrete.toLocaleString(
-																	"pt-BR",
-																	{
-																		style: "currency",
-																		currency:
-																			"BRL",
-																	}
-																)}
+															info.vlrFrete
+																? info.vlrFrete.toLocaleString(
+																		"pt-BR",
+																		{
+																			style: "currency",
+																			currency:
+																				"BRL",
+																		}
+																  )
+																: `R$ 0,00`}
 														</div>
 													</div>
 												);

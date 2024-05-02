@@ -74,9 +74,6 @@ function MyOrdersPage() {
 												Status | Prazo
 											</th>
 											<th className="text-sm">
-												Comprador
-											</th>
-											<th className="text-sm">
 												ID do Pedido
 											</th>
 											<th></th>
@@ -167,11 +164,8 @@ function MyOrdersPage() {
 															dias
 														</div> */}
 													</td>
-													<td className="w-[200px] overflow-x-auto">
-														{myorder.customerName}
-													</td>
 													<td className="text-xs">
-														{myorder.orderNumber}
+														{myorder.orderID}
 													</td>
 													<th>
 														<button className="flex items-center btn btn-ghost btn-xs">

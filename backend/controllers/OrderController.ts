@@ -975,6 +975,10 @@ class OrderController {
 			res.status(500).json(error);
 		}
 	}
+
+	// static async reviewOrder(req: Request, res: Response) {
+	// 	res.status(200).json({ message: "Teste realizado com sucesso!" });
+	// }
 }
 
 export default OrderController;
