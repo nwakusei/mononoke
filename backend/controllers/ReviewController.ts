@@ -39,7 +39,7 @@ class ReviewController {
 				return;
 			}
 
-			if (order.statusOrder !== "Recebido") {
+			if (order.statusShipping !== "Entregue") {
 				res.status(422).json({
 					message:
 						"Não é possível enviar a avaliação pois o pedido ainda está em andamento!",
@@ -93,10 +93,10 @@ class ReviewController {
 				return;
 			}
 
-			if (!reviewDescription) {
-				res.status(422).json({ message: "A descrição é obrigatória!" });
-				return;
-			}
+			// if (!reviewDescription) {
+			// 	res.status(422).json({ message: "A descrição é obrigatória!" });
+			// 	return;
+			// }
 
 			// Criar um array para armazenar os caminhos das imagens
 			const imagePaths: string[] = [];
@@ -164,12 +164,14 @@ class ReviewController {
 			await Promise.all(products.map((product) => product.save()));
 
 			res.status(200).json({
-				message: "Avaliação criada com sucesso!",
+				message: "Avaliação enviada com sucesso!",
 				newReview,
 			});
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({ message: "Erro interno do servidor" });
+			res.status(500).json({
+				message: "Erro ao tentar enviar a avaliação!",
+			});
 		}
 	}
 }

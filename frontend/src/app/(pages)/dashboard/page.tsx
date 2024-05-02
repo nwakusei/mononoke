@@ -28,8 +28,8 @@ import { GoArrowUpRight } from "react-icons/go";
 import { PiHandHeartDuotone, PiChatCenteredText } from "react-icons/pi";
 
 function DashboardPage() {
-	const [user, setUser] = useState({});
 	const [token] = useState(localStorage.getItem("token") || "");
+	const [user, setUser] = useState({});
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {

@@ -3,8 +3,6 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-import api from "@/utils/api";
-
 // Components
 import { Sidebar } from "@/components/Sidebar";
 
@@ -12,32 +10,31 @@ import { Sidebar } from "@/components/Sidebar";
 
 // Icons
 
-function ReviewsPage() {
-	const [token] = useState(localStorage.getItem("token") || "");
-	const [mysales, setMysales] = useState([]);
+// Axios
+import api from "@/utils/api";
 
-	console.log(mysales);
+function MyOrdersPage() {
+	const [myorders, setMyorders] = useState([]);
+	const [token] = useState(localStorage.getItem("token") || "");
 
 	useEffect(() => {
-		const fethData = async () => {
+		const fetchData = async () => {
 			try {
 				const response = await api.get("/orders/customer-orders", {
 					headers: {
 						Authorization: `Bearer ${JSON.parse(token)}`,
 					},
 				});
-
 				if (response.data && response.data.orders) {
-					setMysales(response.data.orders);
+					setMyorders(response.data.orders);
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
 			} catch (error) {
-				console.error("Erro ao obter dados do Pedido:", error);
+				console.error("Erro ao obter dados do usuário:", error);
 			}
 		};
-
-		fethData();
+		fetchData();
 	}, [token]);
 
 	return (
@@ -46,14 +43,14 @@ function ReviewsPage() {
 			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[1215px] p-6 rounded-md mt-4">
-						{/* Adicionar Porduto */}
+					<div className="bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
 							<h1 className="text-2xl font-semibold">
-								Pedidos com avaliação pendente
+								Meus Pedidos
 							</h1>
 
-							{/* Produtos em Catálogo */}
+							{/* Lista de Pedidos */}
 							<div className="overflow-x-auto">
 								<table className="table">
 									{/* head */}
@@ -67,11 +64,15 @@ function ReviewsPage() {
 													/>
 												</label>
 											</th>
-
 											<th className="text-sm">
-												Nome do Produto
+												Produtos
 											</th>
-											<th className="text-sm">Status</th>
+											<th className="text-sm">
+												Total do Pedido
+											</th>
+											<th className="text-sm">
+												Status | Prazo
+											</th>
 											<th className="text-sm">
 												ID do Pedido
 											</th>
@@ -79,14 +80,10 @@ function ReviewsPage() {
 										</tr>
 									</thead>
 									<tbody>
-										{mysales
-											.filter(
-												(mysale) =>
-													mysale.statusShipping ===
-													"Entregue"
-											)
-											.map((mysale) => (
-												<tr key={mysale._id}>
+										{/* row 1 */}
+										{myorders.length > 0 &&
+											myorders.map((myorder) => (
+												<tr key={myorder._id}>
 													<th>
 														<label>
 															<input
@@ -96,15 +93,15 @@ function ReviewsPage() {
 														</label>
 													</th>
 													<td>
-														{mysale.itemsList.map(
+														{myorder.itemsList.map(
 															(item, index) => (
 																<div
 																	key={index}
-																	className="flex items-center gap-3">
+																	className="flex items-center gap-3 mb-2">
 																	<div className="avatar">
 																		<div className="mask mask-squircle w-12 h-12">
 																			<Image
-																				src={`http://localhost:5000/images/products/${item.productImage}`} // Troque example.com pelo seu domínio real ou caminho para as imagens
+																				src={`http://localhost:5000/images/products/${item.productImage}`}
 																				alt={
 																					item.productName
 																				}
@@ -121,39 +118,67 @@ function ReviewsPage() {
 
 																	<div>
 																		<div className="font-bold">
-																			<h2 className="w-[250px] overflow-x-auto mb-2">
-																				{
-																					item.productName
-																				}
+																			<h2 className="w-[230px] overflow-x-hidden mb-2">
+																				<span>
+																					{
+																						item.productName
+																					}
+																					{index !==
+																						myorder
+																							.itemsList
+																							.length -
+																							1}
+																				</span>
 																			</h2>
-																		</div>
-																		<div className="text-sm opacity-50">
-																			{
-																				item.category
-																			}
 																		</div>
 																	</div>
 																</div>
 															)
 														)}
 													</td>
-
 													<td>
-														{mysale.statusShipping}
+														{myorder.customerOrderCostTotal.toLocaleString(
+															"pt-BR",
+															{
+																style: "currency",
+																currency: "BRL",
+															}
+														)}
+														<br />
+														<span className="badge badge-success badge-sm">
+															{
+																myorder.paymentMethod
+															}
+														</span>
 													</td>
-
-													<td>{mysale.orderID}</td>
+													<td>
+														<div>
+															{
+																myorder.statusOrder
+															}
+														</div>
+														{/* <div className="text-xs opacity-50">
+															{
+																myorder.daysShipping
+															}{" "}
+															dias
+														</div> */}
+													</td>
+													<td className="text-xs">
+														{myorder.orderID}
+													</td>
 													<th>
-														<button className="flex items-center btn btn-warning btn-xs">
+														<button className="flex items-center btn btn-ghost btn-xs">
 															<Link
-																href={`/dashboard/reviews/${mysale._id}`}>
-																Avaliar
+																href={`/dashboard/myorders/${myorder._id}`}>
+																+ Detalhes
 															</Link>
-														</button>
+														</button>{" "}
 													</th>
 												</tr>
 											))}
 									</tbody>
+
 									{/* foot */}
 									<tfoot>
 										<tr>
@@ -174,4 +199,4 @@ function ReviewsPage() {
 	);
 }
 
-export default ReviewsPage;
+export default MyOrdersPage;

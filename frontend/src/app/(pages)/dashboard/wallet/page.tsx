@@ -37,6 +37,8 @@ function WalletPage() {
 	const [userOtakupay, setUserOtakupay] = useState({});
 	const [token] = useState(localStorage.getItem("token") || "");
 
+	console.log(userOtakupay);
+
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
 			headers: {
@@ -168,13 +170,14 @@ function WalletPage() {
 										Otaku Point Pendente
 									</h2>
 									<h1 className="flex flex-row items-center text-xl font-semibold gap-2">
-										{parseFloat(
-											userOtakupay.otakuPointsPending
-										) === 0
-											? `0,00 OP`
-											: `${parseFloat(
+										{userOtakupay.otakuPointsPending !==
+										undefined
+											? parseFloat(
 													userOtakupay.otakuPointsPending
-											  ).toLocaleString("pt-BR")} OP`}
+											  )
+													.toFixed(2)
+													.replace(".", ",") + " OP"
+											: "0,00 OP"}
 									</h1>
 								</div>
 							</div>
@@ -215,7 +218,7 @@ function WalletPage() {
 												Otakuya-san
 											</div>
 											<div className="text-sm opacity-50">
-												Japão
+												Otamart
 											</div>
 										</div>
 									</div>
@@ -258,7 +261,7 @@ function WalletPage() {
 												Marina Penharver
 											</div>
 											<div className="text-sm opacity-50">
-												Brasil
+												Site da Loja
 											</div>
 										</div>
 									</div>

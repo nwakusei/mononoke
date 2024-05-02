@@ -35,6 +35,20 @@ function ProductPage() {
 		(partner) => partner._id === product.partnerID
 	);
 
+	// Calcular a porcentagem de desconto
+	const calculateDiscountPercentage = () => {
+		if (product.originalPrice === 0 || product.promocionalPrice === 0) {
+			return 0;
+		}
+		const discountPercentage =
+			((product.originalPrice - product.promocionalPrice) /
+				product.originalPrice) *
+			100;
+		return Math.round(discountPercentage);
+	};
+
+	const discountPercentage = calculateDiscountPercentage();
+
 	useEffect(() => {
 		const fetchProduct = async () => {
 			try {
@@ -50,7 +64,8 @@ function ProductPage() {
 
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
-		const roundedRating = Math.round(product.rating * 2) / 2; // Arredonda o rating para a casa decimal mais próxima
+		// Arredonda o rating para a casa decimal mais próxima
+		const roundedRating = Math.round(product.rating * 10) / 10;
 
 		// Verifica se o roundedRating é igual a 0
 		if (roundedRating === 0) {
@@ -65,15 +80,12 @@ function ProductPage() {
 			);
 		}
 
-		const formattedRating = Number.isInteger(roundedRating)
-			? `${roundedRating}.0`
-			: roundedRating;
 		const ratingIcons = [];
 
 		// Adiciona o número correspondente ao rating antes das estrelas
 		ratingIcons.push(
-			<span key={`number-${formattedRating}`} className="mr-1">
-				{formattedRating}
+			<span key={`number-${roundedRating}`} className="mr-1">
+				{roundedRating}
 			</span>
 		);
 
@@ -188,7 +200,7 @@ function ProductPage() {
 									})}
 								</span>
 								<span className="bg-primary text-xs px-1 rounded-sm">
-									20% Off
+									{discountPercentage}% Off
 								</span>
 							</div>
 						</div>

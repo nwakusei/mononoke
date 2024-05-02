@@ -18,8 +18,12 @@ import api from "@/utils/api";
 
 // icons
 import { GrMapLocation } from "react-icons/gr";
+import { ShoppingCartOne } from "@icon-park/react";
+import { LiaShippingFastSolid } from "react-icons/lia";
+import { BiIdCard } from "react-icons/Bi";
+import { PiCreditCardBold } from "react-icons/pi";
 
-function MySaleByIDPage() {
+function MyOrderByIDPage() {
 	const { id } = useParams();
 	const [token] = useState(localStorage.getItem("token") || "");
 	// const [token] = useState(() => {
@@ -29,23 +33,26 @@ function MySaleByIDPage() {
 	// 		return "";
 	// 	}
 	// });
-	const [mysale, setMysale] = useState([]);
-	const [trackingCode, setTrackingCode] = useState("");
+	const [myorder, setMyorder] = useState([]);
+	const [tracking, setTracking] = useState({});
 
-	const formattedDate = mysale.createdAt
-		? `${format(new Date(mysale.createdAt), "dd/MM/yyyy HH:mm")} hs`
+	const formattedDate = myorder.createdAt
+		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy HH:mm")} hs`
 		: "";
 
 	useEffect(() => {
 		const fetchOrder = async () => {
 			try {
-				const response = await api.get(`/orders/partner-orders/${id}`, {
-					headers: {
-						Authorization: `Bearer ${JSON.parse(token)}`,
-					},
-				});
+				const response = await api.get(
+					`/orders/customer-orders/${id}`,
+					{
+						headers: {
+							Authorization: `Bearer ${JSON.parse(token)}`,
+						},
+					}
+				);
 				if (response.data && response.data.order) {
-					setMysale(response.data.order);
+					setMyorder(response.data.order);
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
@@ -56,21 +63,25 @@ function MySaleByIDPage() {
 		fetchOrder();
 	}, [token, id]);
 
-	async function handleTracking(e) {
-		e.preventDefault();
-		try {
-			const response = await api.patch(
-				`/orders/update-trackingcode/${id}`,
-				{ trackingCode },
-				{ headers: { Authorization: `Bearer ${JSON.parse(token)}` } }
-			);
-			console.log("Response:", response); // Verifique se esta linha é executada
-			toast.success(response.data.message);
-		} catch (error) {
-			toast.error(error.response.data.message);
-			console.error("Erro ao atualizar o código de rastreamento:", error);
-		}
-	}
+	useEffect(() => {
+		const fetchShipping = async () => {
+			try {
+				const response = await api.post(
+					`/orders/order-tracking/${id}`,
+					{
+						headers: {
+							Authorization: `Bearer ${JSON.parse(token)}`,
+						},
+					}
+				);
+				setTracking(response.data);
+			} catch (error) {
+				console.log(error);
+			}
+		};
+
+		fetchShipping();
+	}, [token, id]);
 
 	// Função para Descriptografar dados sensíveis no Banco de Dados
 	function decrypt(encryptedBalance: string): number | null {
@@ -104,17 +115,21 @@ function MySaleByIDPage() {
 			<Sidebar />
 			<div className="flex flex-col bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				{/* Gadget 1 */}
-				<div className="flex flex-row items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+				<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
 					<div className="flex flex-col">
 						<h1 className="text-lg">
-							ID do Pedido: {mysale.orderID}
+							ID do Pedido: {myorder.orderID}
 						</h1>
 						<h2>Data do Pagamento: {formattedDate}</h2>
 					</div>
-					<button className="btn btn-error">Cancelar Pedido</button>{" "}
-					<button className="btn btn-error">
-						Solcitar Cancelamento
-					</button>
+					<div className="flex flex-row gap-4">
+						<button className="btn btn-error">
+							Cancelar Pedido
+						</button>
+						<button className="btn btn-error">
+							Solcitar Cancelamento
+						</button>
+					</div>
 				</div>
 
 				<div className="flex flex-row w-[1200px]">
@@ -142,9 +157,9 @@ function MySaleByIDPage() {
 									</thead>
 									<tbody>
 										{/* row 1 */}
-										{Array.isArray(mysale.itemsList) &&
-											mysale.itemsList.length > 0 &&
-											mysale.itemsList.map(
+										{Array.isArray(myorder.itemsList) &&
+											myorder.itemsList.length > 0 &&
+											myorder.itemsList.map(
 												(item, index) => (
 													<tr key={index}>
 														<td>
@@ -230,7 +245,12 @@ function MySaleByIDPage() {
 											<th className="text-sm">
 												Desconto
 											</th>
-											<th className="text-sm">Total</th>
+											<th className="text-sm">
+												Total do Pedido
+											</th>
+											<th className="text-sm">
+												Otaku Points a receber
+											</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -239,12 +259,12 @@ function MySaleByIDPage() {
 										<tr>
 											<td>
 												{Array.isArray(
-													mysale.itemsList
+													myorder.itemsList
 												) &&
-													mysale.itemsList.length >
+													myorder.itemsList.length >
 														0 && (
 														<div>
-															{mysale.itemsList
+															{myorder.itemsList
 																.reduce(
 																	(
 																		total,
@@ -267,28 +287,30 @@ function MySaleByIDPage() {
 											</td>
 											<td>
 												<div>
-													{mysale.shippingCostTotal >
-														0 &&
-														mysale.shippingCostTotal.toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-														)}
+													{myorder.shippingCostTotal >
+													0
+														? myorder.shippingCostTotal.toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+														  )
+														: `R$ 0,00`}
 												</div>
 											</td>
 
 											<td>
 												{Array.isArray(
-													mysale.itemsList
+													myorder.itemsList
 												) &&
-													mysale.itemsList.length >
+													myorder.itemsList.length >
 														0 && (
 														<div>
 															{(() => {
 																const productTotal =
-																	mysale.itemsList.reduce(
+																	myorder.itemsList.reduce(
 																		(
 																			total,
 																			item
@@ -299,10 +321,10 @@ function MySaleByIDPage() {
 																	);
 																const totalWithShipping =
 																	productTotal +
-																	mysale.shippingCostTotal;
+																	myorder.shippingCostTotal;
 																const discount =
 																	totalWithShipping -
-																	mysale.customerOrderCostTotal;
+																	myorder.customerOrderCostTotal;
 
 																// Formata o desconto para o formato de moeda brasileira (BRL)
 																const formattedDiscount =
@@ -327,9 +349,9 @@ function MySaleByIDPage() {
 
 											<td>
 												<div>
-													{mysale.customerOrderCostTotal >
+													{myorder.customerOrderCostTotal >
 														0 &&
-														mysale.customerOrderCostTotal.toLocaleString(
+														myorder.customerOrderCostTotal.toLocaleString(
 															"pt-BR",
 															{
 																style: "currency",
@@ -338,48 +360,14 @@ function MySaleByIDPage() {
 														)}
 												</div>
 											</td>
-										</tr>
-									</tbody>
-								</table>
 
-								{/* A RECEBER */}
-								<table className="table">
-									{/* head */}
-									<thead>
-										<tr>
-											<th className="text-sm">
-												Comissão a ser Paga
-											</th>
-											<th className="text-sm">
-												A receber pelo Pedido
-											</th>
-										</tr>
-									</thead>
-									<tbody>
-										{/* row 1 */}
-
-										<tr>
 											<td>
 												<div>
 													{decrypt(
-														mysale.partnerCommissionOtamart
-													)?.toLocaleString("pt-BR", {
-														style: "currency",
-														currency: "BRL",
-													})}
+														myorder.customerOtakuPointsEarned
+													)?.toLocaleString()}{" "}
+													OP
 												</div>
-											</td>
-
-											<td>
-												{(
-													mysale.customerOrderCostTotal -
-													decrypt(
-														mysale.partnerCommissionOtamart
-													)
-												)?.toLocaleString("pt-BR", {
-													style: "currency",
-													currency: "BRL",
-												})}
 											</td>
 										</tr>
 									</tbody>
@@ -392,7 +380,7 @@ function MySaleByIDPage() {
 						{/* Gadget 3 */}
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<h1 className="text-lg">
-								Nome: {mysale.customerName}
+								Nome: {myorder.customerName}
 							</h1>
 							<h2>CPF: 000.000.000-00</h2>
 
@@ -410,11 +398,11 @@ function MySaleByIDPage() {
 						{/* Gadget 4 */}
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<div className="mb-4">
-								<h1>Tranportadora: {mysale.shippingMethod}</h1>
-								{mysale.shippingCostTotal && (
+								<h1>Tranportadora: {myorder.shippingMethod}</h1>
+								{myorder.shippingCostTotal ? (
 									<h2>
 										Valor:{" "}
-										{mysale.shippingCostTotal.toLocaleString(
+										{myorder.shippingCostTotal.toLocaleString(
 											"pt-BR",
 											{
 												style: "currency",
@@ -422,39 +410,145 @@ function MySaleByIDPage() {
 											}
 										)}
 									</h2>
+								) : (
+									`Valor: R$ 0,00`
 								)}
-								<h2>Status: {mysale.statusShipping}</h2>
+								<h2>Status: {myorder.statusShipping}</h2>
+								<h2>
+									Cód. de Rastreio:{" "}
+									<span className="bg-blue-500 px-2 rounded-md">
+										{myorder.trackingCode}
+									</span>
+								</h2>
 							</div>
-
-							<form onSubmit={handleTracking}>
-								<label className="form-control w-full max-w-xs mb-4">
-									<input
-										type="text"
-										placeholder="Insira o código de Rastreio"
-										className="input input-bordered w-full"
-										value={trackingCode}
-										onChange={(e) =>
-											setTrackingCode(e.target.value)
-										}
-									/>
-									<div className="label">
-										<span className="label-text-alt">
-											Msg de erro a ser exibida
-										</span>
-									</div>
-								</label>
-								<button
-									type="submit"
-									className="btn btn-primary w-full">
-									Enviar <GrMapLocation size={20} />
-								</button>
-							</form>
 						</div>
 					</div>
+				</div>
+
+				{/* Rastreio do Pedido */}
+				<div className="flex flex-col justify-center items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+					<h1 className="text-xl font-semibold">
+						Acompanhe seu pedido
+					</h1>
+					{/* <h2>
+						Previsão de entrega:{" "}
+						{format(new Date(tracking.dtPrevEnt), "dd/MM")}
+					</h2> */}
+					<ul className="steps steps-vertical  mt-8 mb-8">
+						{/* Renderizar uma li vazia antes do histórico */}
+						<li
+							data-content="✓"
+							className="step step-primary h-[180px]">
+							<div className="flex flex-col gap-1">
+								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+									Pagamento Confirmado
+								</span>
+								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+									10/04 - 16:00 hs
+								</span>
+
+								<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+									O pedido será enviado em 0 dias
+								</span>
+							</div>
+						</li>
+						{/* Renderizar o histórico */}
+						{tracking.historico &&
+							Object.values(tracking.historico)
+								// Ordenar o histórico pela data e horário
+								.sort((a, b) => {
+									const dateA = new Date(a.dataHora);
+									const dateB = new Date(b.dataHora);
+
+									return dateA - dateB;
+								})
+								// Mapear cada item do histórico
+								.map((item, index) => (
+									<li
+										key={index}
+										data-content="✓"
+										className="step step-primary">
+										<div className="flex flex-col gap-1">
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												{item.ocorrencia}
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												{format(
+													new Date(item.dataHora),
+													"dd/MM - HH:mm"
+												)}{" "}
+												hs
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+												{item.observacao}
+											</span>
+										</div>
+									</li>
+								))}
+						{tracking.situacao && (
+							<>
+								{tracking.situacao.ocorrencia !==
+									"Entregue" && (
+									<li
+										data-content="✓"
+										className="step step-primary">
+										<div className="flex flex-col gap-1">
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												{tracking.situacao.ocorrencia}
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												{format(
+													new Date(
+														tracking.situacao.dataHora
+													),
+													"dd/MM - HH:mm"
+												)}{" "}
+												hs
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+												{tracking.situacao.observacao}
+											</span>
+										</div>
+									</li>
+								)}
+								{/* Renderizar uma li vazia se não for entregue */}
+								{myorder.statusShipping !== "Concluído" && (
+									<li data-content="✕" className="step">
+										<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
+											—
+										</div>
+									</li>
+								)}
+								{/* Renderizar somente se for entregue */}
+								{myorder.statusShipping === "Concluído" && (
+									<li
+										data-content="✓"
+										className="step step-primary">
+										<div className="flex flex-col gap-1">
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												Concluído
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												{myorder.updatedAt}
+												{/* {format(
+													new Date(myorder.updatedAt),
+													"dd/MM - HH:mm"
+												)}{" "}
+												hs */}
+											</span>
+											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+												Pedido finalizado
+											</span>
+										</div>
+									</li>
+								)}
+							</>
+						)}
+					</ul>
 				</div>
 			</div>
 		</section>
 	);
 }
 
-export default MySaleByIDPage;
+export default MyOrderByIDPage;

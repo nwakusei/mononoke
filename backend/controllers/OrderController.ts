@@ -84,6 +84,12 @@ class OrderController {
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
 
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message: "Você não tem permissão para acessar essa requisição!",
+			});
+		}
+
 		const partnerID = partner._id.toString();
 
 		try {
@@ -491,7 +497,7 @@ class OrderController {
 			return;
 		}
 
-		if (customer.accountType !== "partner") {
+		if (customer.accountType !== "customer") {
 			res.status(422).json({
 				message: "Você não tem permissão para acessar esta página!",
 			});
@@ -524,7 +530,9 @@ class OrderController {
 
 	static async confirmReceiptCustomerOrder(req: Request, res: Response) {
 		const { id } = req.params;
-		const { newStatusOrder } = req.body;
+		// const { newStatusOrder } = req.body;
+
+		const newStatusOrder = "Concluído";
 
 		if (!isValidObjectId(id)) {
 			res.status(422).json({ message: "ID inválido" });
@@ -561,12 +569,12 @@ class OrderController {
 			return;
 		}
 
-		if (!newStatusOrder) {
-			res.status(422).json({
-				message: "Status do Pedido é obrigatório!",
-			});
-			return;
-		}
+		// if (!newStatusOrder) {
+		// 	res.status(422).json({
+		// 		message: "Status do Pedido é obrigatório!",
+		// 	});
+		// 	return;
+		// }
 
 		const currentStatusOrder = order.statusOrder;
 
@@ -578,18 +586,10 @@ class OrderController {
 			return;
 		}
 
-		if (currentStatusOrder === newStatusOrder) {
+		if (currentStatusOrder === "Concluído" && "concluído") {
 			res.status(422).json({
 				messsage:
 					"Pedido já confirmado, não é possível confirmar novamente!",
-			});
-			return;
-		}
-
-		if (newStatusOrder !== "Recebido" && newStatusOrder !== "recebido") {
-			res.status(422).json({
-				messsage:
-					"Não é possível confirmar o pedido, status incorreto!",
 			});
 			return;
 		}
@@ -662,23 +662,27 @@ class OrderController {
 
 			// Atenção: Foi usado o any para parar o erro, verificar a tipagem adequada
 			const commissionOtamart: any = order.partnerCommissionOtamart;
-			const decryptCommissionOtamart = decrypt(commissionOtamart);
+			const decryptedCommissionOtamart = decrypt(commissionOtamart);
 
-			const otakuPointsPaid = decrypt(order.partnerOtakuPointsPaid);
+			// // PRECISO ALTERAR E INCLUIR ESSA INFORMAÇÃO NA CRIAÇÃO DO PEDDIDO
+			// const otakuPointsPaid = decrypt(order.partnerOtakuPointsPaid);
 
-			if (otakuPointsPaid === null) {
-				res.status(500).json({
-					message:
-						"Erro ao descriptografar o Customer Otaku Points Pending.",
-				});
-				return;
-			}
+			// if (otakuPointsPaid === null) {
+			// 	res.status(500).json({
+			// 		message:
+			// 			"Erro ao descriptografar o Customer Otaku Points Pending.",
+			// 	});
+			// 	return;
+			// }
 
-			console.log("COMISSÃO + CASHBACK PAGO:", decryptCommissionOtamart);
+			console.log(
+				"COMISSÃO + CASHBACK PAGO:",
+				decryptedCommissionOtamart
+			);
 
 			const newPartnerBalanceAvailable =
 				currentDecryptPartnerBalanceAvailable +
-				(Number(orderCostTotal) - Number(commissionOtamart));
+				(orderCostTotal - Number(decryptedCommissionOtamart));
 
 			const newEncryptedPartnerBalanceAvailable = encrypt(
 				newPartnerBalanceAvailable.toString()
@@ -711,7 +715,7 @@ class OrderController {
 				return;
 			}
 
-			// Encontrar o Otaku Points Pending do Customer
+			// Encontrar o OtakuPay do Customer
 			const customerOtakupayID = customer.otakupayID;
 			const customerOtakupay = await OtakupayModel.findById(
 				customerOtakupayID
@@ -731,7 +735,7 @@ class OrderController {
 				customerOtakupay.otakuPointsPending
 			);
 
-			// Verificar se o Partner Balance Available atual não é nulo
+			// Verificar se o Customer Otaku Points Pending Atual não é nulo
 			if (currentDecryptCustomerOtakuPointsPending === null) {
 				res.status(500).json({
 					message:
@@ -750,7 +754,7 @@ class OrderController {
 				customerOtakupay.otakuPointsAvailable
 			);
 
-			// Verificar se o Customer Balance Available atual não é nulo
+			// Verificar se o Customer Otaku Points Available atual não é nulo
 			if (currentDecryptCustomerOtakuPointsAvailable === null) {
 				res.status(500).json({
 					message:
@@ -764,6 +768,7 @@ class OrderController {
 				currentDecryptCustomerOtakuPointsAvailable.toFixed(2)
 			);
 
+			// INCLUIR NOVAMENTE NA ORDER CRIADA
 			const customerOtakuPointsEarned = decrypt(
 				order.customerOtakuPointsEarned
 			);
@@ -824,6 +829,9 @@ class OrderController {
 			// Setar o novo Status da Order
 			order.statusOrder = newStatusOrder;
 
+			// Setar o novo Status de Envio
+			order.statusShipping = newStatusOrder;
+
 			// Setar o novo Customer Otaku Points Pending
 			customerOtakupay.otakuPointsPending =
 				newEncryptedCustomerOtakuPointsPending;
@@ -855,6 +863,122 @@ class OrderController {
 			console.log(err);
 		}
 	}
+
+	// static async updateTrackingCode(req: Request, res: Response) {
+	// 	const { id } = req.params;
+	// 	const { trackingCode } = req.body;
+
+	// 	const token: any = getToken(req);
+	// 	const partner = await getUserByToken(token);
+
+	// 	if (!partner) {
+	// 		res.status(422).json({
+	// 			message: "Usuário não encontrado!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	if (partner.accountType !== "partner") {
+	// 		res.status(422).json({
+	// 			message:
+	// 				"Você não possuo autorização para realizar essa requsição!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	if (!trackingCode) {
+	// 		res.status(422).json({
+	// 			message: "O código de rastreio é obrigatório!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	try {
+	// 		const order = await OrderModel.findById(id);
+
+	// 		if (!order) {
+	// 			res.status(422).json({
+	// 				message: "Pedido não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		if (order.statusShipping === "Enviado") {
+	// 			res.status(422).json({
+	// 				message: "Pedido já enviado!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		order.statusShipping = "Enviado";
+	// 		order.trackingCode = trackingCode;
+
+	// 		await order.save(); // Salva as alterações no banco de dados
+
+	// 		res.status(200).json({ message: "Rastreio enviado com sucesso!" });
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		res.status(500).json({
+	// 			message: "Erro ao atualizar o código de rastreamento.",
+	// 		});
+	// 	}
+	// }
+
+	static async orderTracking(req: Request, res: Response) {
+		const { id } = req.params;
+
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
+			res.status(422).json({
+				message: "Você não tem permissão para acessar esta requisição!",
+			});
+			return;
+		}
+
+		const order = await OrderModel.findById(id);
+
+		if (!order) {
+			res.status(422).json({
+				message: "Pedido não encontrado!",
+			});
+			return;
+		}
+
+		try {
+			const trackingCode = order.trackingCode;
+
+			const kanguApiUrl = `https://portal.kangu.com.br/tms/transporte/rastrear/${trackingCode}`;
+			const tokenKangu = "8bdcdd65ac61c68aa615f3da4a3754b4";
+
+			const response = await fetch(kanguApiUrl, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					token: tokenKangu,
+				},
+			});
+
+			const data = await response.json();
+
+			console.log(data);
+
+			res.status(200).json(data);
+		} catch (error) {
+			console.log(error);
+			res.status(500).json(error);
+		}
+	}
+
+	// static async reviewOrder(req: Request, res: Response) {
+	// 	res.status(200).json({ message: "Teste realizado com sucesso!" });
+	// }
 }
 
 export default OrderController;

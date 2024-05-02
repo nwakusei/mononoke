@@ -98,7 +98,32 @@ function CartPage() {
 				// Chamada da função para simular o frete
 				handleSimulateShipping(cepDestino, partnerInfo);
 			} else {
-				console.error("CepDestino não definido.");
+				// Define dados padrão para a transportadora
+				const defaultTransportadoraData = {};
+
+				for (const partnerID in partnerInfo) {
+					if (partnerInfo.hasOwnProperty(partnerID)) {
+						const partnerData = partnerInfo[partnerID];
+
+						// Define os dados da transportadora como padrão
+						defaultTransportadoraData[partnerID] = {
+							partnerID: partnerID,
+							transpNome: "Frete Grátis", // Nome da transportadora padrão
+							vlrFrete: 0.0, // Valor do frete padrão (zero para frete grátis)
+							prazoEnt: 3, // Prazo de entrega padrão
+							// Adicione outras informações que você precisar aqui
+						};
+					}
+				}
+
+				// Atualizando o estado com os dados padrão da transportadora
+				setTransportadoraInfo(defaultTransportadoraData);
+
+				// Armazenando os dados padrão da transportadora no localStorage
+				localStorage.setItem(
+					"transportadoraInfo",
+					JSON.stringify(defaultTransportadoraData)
+				);
 			}
 		}
 	}, []);
@@ -530,15 +555,27 @@ function CartPage() {
 																	)
 																}
 																className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
-																<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg cursor-pointer active:scale-[.97]">
+																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
 																	-
 																</h1>
 															</button>
-															<span className="text-lg">
+															{/* <span
+																className="text-lg text-center
+																w-[50px]
+																rounded">
 																{
 																	productInCart.quantityThisProduct
 																}
-															</span>
+															</span> */}
+															<input
+																className="text-lg text-center
+																w-[60px] h-[32px]
+																rounded"
+																type="text"
+																value={
+																	productInCart.quantityThisProduct
+																}
+															/>
 															<button
 																onClick={() =>
 																	increaseQuantity(
@@ -546,7 +583,7 @@ function CartPage() {
 																	)
 																}
 																className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
-																<h1 className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-white rounded-lg  cursor-pointer active:scale-[.97]">
+																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
 																	+
 																</h1>
 															</button>
@@ -603,14 +640,17 @@ function CartPage() {
 														</div>
 														<div className="">
 															Frete da Loja:{" "}
-															{info.vlrFrete.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}
+															{info &&
+															info.vlrFrete
+																? info.vlrFrete.toLocaleString(
+																		"pt-BR",
+																		{
+																			style: "currency",
+																			currency:
+																				"BRL",
+																		}
+																  )
+																: `R$ 0,00`}
 														</div>
 													</div>
 												);
