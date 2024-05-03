@@ -53,16 +53,16 @@ function ReviewByIdPage() {
 		let newValue = parseFloat(inputValue);
 		if (isNaN(newValue) || newValue < 0) {
 			newValue = 0;
-		} else if (newValue > 10) {
-			newValue = 10;
+		} else if (newValue > 5) {
+			newValue = 5;
 		}
 		setInputValue(newValue.toFixed(1));
 	};
 
 	const increment = () => {
 		let newValue = parseFloat(inputValue) + 0.1;
-		if (newValue > 10) {
-			newValue = 10;
+		if (newValue > 5) {
+			newValue = 5;
 		}
 		setInputValue(newValue.toFixed(1));
 	};
@@ -93,65 +93,68 @@ function ReviewByIdPage() {
 							<div>Loja: {myorder.partnerName}</div>
 						</div>
 						<div className="mb-8">
-							{myorder.itemsList &&
-								myorder.itemsList.map((item, index) => (
-									<div
-										key={index}
-										className="overflow-x-auto">
-										<table className="table">
-											{/* head */}
-											<thead>
-												<tr>
-													<th className="text-base">
-														Produto(s)
-													</th>
-													<th className="text-base">
-														Status
-													</th>
-													<th className="text-base">
-														Favorite Color
-													</th>
-												</tr>
-											</thead>
-											<tbody>
-												{/* row 1 */}
-												<tr>
-													<td>
-														<div className="flex items-center gap-3">
-															<div className="avatar">
-																<div className="mask mask-squircle w-12 h-12">
-																	<Image
-																		src={`http://localhost:5000/images/products/${item.productImage}`}
-																		alt={
+							<div className="overflow-x-auto">
+								<table className="table">
+									{/* head */}
+									<thead>
+										<tr>
+											<th className="text-base">
+												Produto(s)
+											</th>
+											<th className="text-base">
+												Status
+											</th>
+											<th className="text-base">
+												Favorite Color
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										{/* row 1 */}
+										{myorder.itemsList &&
+											myorder.itemsList.map(
+												(item, index) => (
+													<tr key={index}>
+														<td>
+															<div className="flex items-center gap-3">
+																<div className="avatar">
+																	<div className="mask mask-squircle w-12 h-12">
+																		<Image
+																			src={`http://localhost:5000/images/products/${item.productImage}`}
+																			alt={
+																				item.productName
+																			}
+																			width={
+																				10
+																			}
+																			height={
+																				10
+																			}
+																			unoptimized
+																		/>
+																	</div>
+																</div>
+																<div>
+																	<div className="font-bold">
+																		{
 																			item.productName
 																		}
-																		width={
-																			10
-																		}
-																		height={
-																			10
-																		}
-																		unoptimized
-																	/>
+																	</div>
 																</div>
 															</div>
-															<div>
-																<div className="font-bold">
-																	{
-																		item.productName
-																	}
-																</div>
-															</div>
-														</div>
-													</td>
-													<td>
-														{myorder.statusShipping}
-													</td>
-													<td>Purple</td>
-												</tr>
-											</tbody>
-											{/* foot */}
-											{/* <tfoot>
+														</td>
+														<td>
+															{
+																myorder.statusShipping
+															}
+														</td>
+														<td>Purple</td>
+													</tr>
+												)
+											)}
+									</tbody>
+									{/* foot */}
+									{/* <tfoot>
 												<tr>
 													<th></th>
 													<th>Name</th>
@@ -160,9 +163,8 @@ function ReviewByIdPage() {
 													<th></th>
 												</tr>
 											</tfoot> */}
-										</table>
-									</div>
-								))}
+								</table>
+							</div>
 						</div>
 						<div className="flex flex-row gap-16">
 							<div>
@@ -190,7 +192,7 @@ function ReviewByIdPage() {
 											+
 										</div>
 									</div>
-									<div className="-mt-3">Ex.: 10 ou 9.8</div>
+									<div className="-mt-3">Ex.: 4.3 ou 5</div>
 								</div>
 							</div>
 							<div>

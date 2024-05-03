@@ -108,6 +108,70 @@ function ProductPage() {
 		return ratingIcons;
 	};
 
+	const renderReviewRatingIcons = (reviewRating) => {
+		// Convertendo a string da nota para número
+		const rating = parseFloat(reviewRating);
+
+		// Verificando se a nota é um número válido entre 0 e 5
+		if (!isNaN(rating) && rating >= 0 && rating <= 5) {
+			// Arredondando a nota para a casa decimal mais próxima
+			const roundedRating = Math.round(rating * 10) / 10;
+
+			// Array para armazenar os ícones de estrelas
+			const ratingIcons = [];
+
+			// Verifica se a nota é um número inteiro e adiciona ".0"
+			const formattedRating = Number.isInteger(roundedRating)
+				? `${roundedRating}.0`
+				: `${roundedRating}`;
+
+			// Adicionando o número correspondente à nota antes das estrelas
+			ratingIcons.push(
+				<span key={`number-${formattedRating}`} className="mr-1">
+					{formattedRating}
+				</span>
+			);
+
+			// Adicionando ícones de estrela com base na nota arredondada
+			for (let i = 0; i < Math.floor(roundedRating); i++) {
+				ratingIcons.push(<BsStarFill key={`star-${i}`} size={12} />);
+			}
+
+			// Se houver uma parte decimal maior que 0, adiciona um ícone de estrela metade preenchido
+			if (roundedRating % 1 !== 0) {
+				ratingIcons.push(<BsStarHalf key="half" size={12} />);
+			}
+
+			// Preenchendo o restante dos ícones com estrelas vazias
+			const remainingIcons = 5 - Math.ceil(roundedRating);
+			for (let i = 0; i < remainingIcons; i++) {
+				ratingIcons.push(<BsStar key={`empty-${i}`} size={12} />);
+			}
+
+			return ratingIcons;
+		} else {
+			// Se a nota for 0, renderiza "0.0" com 5 estrelas vazias
+			if (rating === 0) {
+				const formattedRating = "0.0";
+				const ratingIcons = [];
+
+				ratingIcons.push(
+					<span key={`number-${formattedRating}`} className="mr-1">
+						{formattedRating}
+					</span>
+				);
+
+				for (let i = 0; i < 5; i++) {
+					ratingIcons.push(<BsStar key={`empty-${i}`} size={12} />);
+				}
+
+				return ratingIcons;
+			} else {
+				return <span>N/A</span>;
+			}
+		}
+	};
+
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">
 			<div className="bg-yellow-500 flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
@@ -310,119 +374,62 @@ function ProductPage() {
 							Avaliações do Produto
 						</div>
 						{/* Avaliação por Usuário*/}
-						<div className="flex flex-row gap-2">
-							<div className="avatar">
-								<div className="w-16 h-16 rounded-full">
-									<Image
-										src={imageProfile}
-										alt="imageProfile"
-									/>
-								</div>
-							</div>
-							<div className="flex flex-col">
-								<div>
-									{/* Avaliações e Vendidos */}
-									<h1 className="text-sm">Reinaldo Guedes</h1>
-									<div className="flex flex-row items-center text-sm">
-										<span className="flex flex-row items-center gap-1">
-											<p className="mr-1 text-sm">5.0</p>
-											<BsStarFill size={12} />
-											<BsStarFill size={12} />
-											<BsStarFill size={12} />
-											<BsStarFill size={12} />
-											<BsStarFill size={12} />
-										</span>
-									</div>
-									<h3 className="text-xs mb-2">24/01/2024</h3>
-									<p className="text-base mb-2">
-										Ótimo produto. Chegou rápido e muito bem
-										embalado, recomendo!
-									</p>
-								</div>
+						{product.reviews &&
+							product.reviews.map((item, index) => (
+								<div key={index} className="-mt-2">
+									<div className="flex flex-row gap-2 mb-1">
+										<div className="avatar">
+											<div className="w-16 h-16 rounded-full">
+												<Image
+													src={imageProfile}
+													alt="imageProfile"
+												/>
+											</div>
+										</div>
 
-								{/* Fotos das avaliações */}
-								<div className="flex flex-row gap-2 mb-2">
-									<div className="bg-base-100 w-[74px] rounded relative shadow-lg">
-										<div className="h-[74px] flex items-center justify-center">
-											<Image
-												className="object-contain  h-full"
-												src={Lycoris}
-												alt="Shoes"
-											/>
+										<div className="flex flex-col">
+											<div>
+												{/* Avaliações e Vendidos */}
+												<h1 className="text-sm">
+													{item.customerName}
+												</h1>
+												<div className="flex flex-row items-center text-sm">
+													<span className="flex flex-row items-center gap-1">
+														<p className="flex flex-row items-center gap-1 mr-1 text-sm">
+															{renderReviewRatingIcons(
+																item.reviewRating
+															)}
+														</p>
+													</span>
+												</div>
+												<h3 className="text-xs mb-2">
+													{item.date}
+												</h3>
+												<p className="text-base mb-2">
+													{item.reviewDescription}
+												</p>
+											</div>
+
+											{/* Fotos das avaliações */}
+											<div className="flex flex-row gap-2 mb-2">
+												<div className="bg-base-100 w-[74px] rounded relative shadow-lg">
+													<div className="h-[74px] flex items-center justify-center">
+														<Image
+															className="object-contain h-full"
+															src={`http://localhost:5000/images/reviews/${item.imagesReview[0]}`}
+															alt="Shoes"
+															width={55}
+															height={55}
+															unoptimized
+														/>
+													</div>
+												</div>
+											</div>
 										</div>
 									</div>
-
-									<div className="bg-base-100 w-[74px] rounded relative shadow-lg">
-										<div className="h-[74px] flex items-center justify-center">
-											<Image
-												className="object-contain  h-full"
-												src={Lycoris}
-												alt="Shoes"
-											/>
-										</div>
-									</div>
+									<hr className="mx-2" /> <br />
 								</div>
-							</div>
-						</div>
-						<hr className="mx-2" /> <br />
-						{/* Avaliação por Usuário*/}
-						<div className="flex flex-row gap-2">
-							<div className="avatar">
-								<div className="w-16 h-16 rounded-full">
-									<Image
-										src={imageProfile}
-										alt="imageProfile"
-									/>
-								</div>
-							</div>
-							<div className="flex flex-col">
-								<div>
-									{/* Avaliações e Vendidos */}
-									<h1 className="text-sm">
-										Marina Penharver
-									</h1>
-									<div className="flex flex-row items-center text-sm">
-										<span className="flex flex-row items-center gap-1">
-											<p className="mr-1 text-sm">5.0</p>
-											<BsStarFill size={12} />
-											<BsStarFill size={12} />
-											<BsStarFill size={12} />
-											<BsStarFill size={12} />
-											<BsStarFill size={12} />
-										</span>
-									</div>
-									<h3 className="text-xs mb-2">24/01/2024</h3>
-									<p className="text-base mb-2">
-										Ótimo produto. Chegou rápido e muito bem
-										embalado, recomendo!
-									</p>
-								</div>
-
-								{/* Fotos das avaliações */}
-								<div className="flex flex-row gap-2 mb-2">
-									<div className="bg-base-100 w-[74px] rounded relative shadow-lg">
-										<div className="h-[74px] flex items-center justify-center">
-											<Image
-												className="object-contain  h-full"
-												src={Lycoris}
-												alt="Shoes"
-											/>
-										</div>
-									</div>
-
-									<div className="bg-base-100 w-[74px] rounded relative shadow-lg">
-										<div className="h-[74px] flex items-center justify-center">
-											<Image
-												className="object-contain  h-full"
-												src={Lycoris}
-												alt="Shoes"
-											/>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<hr className="mx-2" /> <br />
+							))}
 					</div>
 				</div>
 			</div>

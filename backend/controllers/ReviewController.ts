@@ -66,22 +66,22 @@ class ReviewController {
 				reviewDescription: string;
 			}
 
-			// Verificar se já existe uma avaliação do mesmo comprador para o pedido
-			const existingReview = products.some((product) =>
-				product.reviews.some(
-					(review: any) =>
-						(review as IReview).orderID?.toString() ===
-							order._id.toString() &&
-						(review as IReview).customerName === order.customerName
-				)
-			);
+			// // Verificar se já existe uma avaliação do mesmo comprador para o pedido
+			// const existingReview = products.some((product) =>
+			// 	product.reviews.some(
+			// 		(review: any) =>
+			// 			(review as IReview).orderID?.toString() ===
+			// 				order._id.toString() &&
+			// 			(review as IReview).customerName === order.customerName
+			// 	)
+			// );
 
-			if (existingReview) {
-				res.status(422).json({
-					message: "Você já avaliou este pedido!",
-				});
-				return;
-			}
+			// if (existingReview) {
+			// 	res.status(422).json({
+			// 		message: "Você já avaliou este pedido!",
+			// 	});
+			// 	return;
+			// }
 
 			const { reviewRating, reviewDescription } = req.body;
 
@@ -90,6 +90,13 @@ class ReviewController {
 
 			if (!reviewRating) {
 				res.status(422).json({ message: "A nota é obrigatória!" });
+				return;
+			}
+
+			if (reviewRating < 0 || reviewRating > 5) {
+				res.status(422).json({
+					message: "Nota inválida, o valor precisa ser entre 0 e 5!",
+				});
 				return;
 			}
 
@@ -131,6 +138,7 @@ class ReviewController {
 				reviewRating: reviewRating,
 				imagesReview: imagePaths,
 				reviewDescription: reviewDescription,
+				date: new Date(),
 			};
 
 			// Adicionar o novo review ao array de reviews do produto
@@ -160,8 +168,22 @@ class ReviewController {
 				}
 			});
 
+			// Atualizar a quantidade vendida de cada produto
+			for (const item of order.itemsList) {
+				const product = products.find(
+					(p) => p._id.toString() === item.productID.toString()
+				);
+				if (product) {
+					product.productsSold += item.productQuantity;
+				}
+			}
+
 			// Salvar os produtos no banco de dados
-			await Promise.all(products.map((product) => product.save()));
+			await Promise.all(
+				products.map((product) => {
+					product.save();
+				})
+			);
 
 			res.status(200).json({
 				message: "Avaliação enviada com sucesso!",

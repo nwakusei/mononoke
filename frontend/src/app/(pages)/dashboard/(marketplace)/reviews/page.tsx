@@ -100,7 +100,7 @@ function ReviewsPage() {
 															(item, index) => (
 																<div
 																	key={index}
-																	className="flex items-center gap-3">
+																	className="flex items-center gap-3 mb-2">
 																	<div className="avatar">
 																		<div className="mask mask-squircle w-12 h-12">
 																			<Image
