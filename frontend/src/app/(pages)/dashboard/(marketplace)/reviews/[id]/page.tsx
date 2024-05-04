@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import Link from "next/link";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 
@@ -8,6 +8,7 @@ import api from "@/utils/api";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+import { toast } from "react-toastify";
 
 // Imagens e Logos
 
@@ -18,8 +19,8 @@ function ReviewByIdPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [myorder, setMyorder] = useState([]);
 	const [inputValue, setInputValue] = useState(0);
-
-	console.log(myorder);
+	const [description, setDescription] = useState("");
+	const [images, setImages] = useState([]);
 
 	useEffect(() => {
 		const fetchOrder = async () => {
@@ -44,10 +45,10 @@ function ReviewByIdPage() {
 		fetchOrder();
 	}, [token, id]);
 
-	const handleChange = (event) => {
-		const newValue = event.target.value;
-		setInputValue(newValue);
-	};
+	// const handleChange = (event) => {
+	// 	const newValue = event.target.value;
+	// 	setInputValue(newValue);
+	// };
 
 	const handleBlur = () => {
 		let newValue = parseFloat(inputValue);
@@ -73,6 +74,48 @@ function ReviewByIdPage() {
 			newValue = 0;
 		}
 		setInputValue(newValue.toFixed(1));
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Função para enviar a avaliação
+	const handleSubmitReview = async () => {
+		try {
+			const formData = new FormData();
+			formData.append("reviewRating", inputValue);
+			formData.append("reviewDescription", description);
+			images.forEach((image) => {
+				formData.append("imagesReview", image);
+			});
+
+			const response = await api.patch(
+				`/reviews/create-review/${id}`,
+				formData,
+				{
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			);
+
+			toast.success(response.data.message);
+		} catch (error) {
+			toast.error(error.response.data.message);
+		}
+	};
+
+	// Funções para manipular o estado dos inputs
+	const handleChange = (event) => {
+		setInputValue(event.target.value);
+	};
+
+	const handleDescriptionChange = (event) => {
+		setDescription(event.target.value);
+	};
+
+	const handleImageChange = (event) => {
+		const files = event.target.files;
+		setImages([...images, ...files]);
 	};
 
 	return (
@@ -153,16 +196,6 @@ function ReviewByIdPage() {
 												)
 											)}
 									</tbody>
-									{/* foot */}
-									{/* <tfoot>
-												<tr>
-													<th></th>
-													<th>Name</th>
-													<th>Job</th>
-													<th>Favorite Color</th>
-													<th></th>
-												</tr>
-											</tfoot> */}
 								</table>
 							</div>
 						</div>
@@ -184,6 +217,9 @@ function ReviewByIdPage() {
 											onBlur={handleBlur}
 											className="text-center w-[50px] rounded"
 											type="text"
+											min="0"
+											max="5"
+											step="0.1"
 											value={inputValue}
 										/>
 										<div
@@ -202,15 +238,26 @@ function ReviewByIdPage() {
 									</div>
 								</label>
 								<textarea
+									onChange={handleDescriptionChange}
 									className="textarea textarea-bordered w-[600px]"
 									placeholder="Conte como foi a sua experiência..."></textarea>
 							</div>
+						</div>
+						<div>
+							<input
+								type="file"
+								accept="image/*"
+								onChange={handleImageChange}
+								multiple
+							/>
 						</div>
 					</div>
 					{/* Gadget 2 */}
 					<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md">
 						<div className="flex flex-row gap-4">
-							<button className="btn btn-success">
+							<button
+								onClick={handleSubmitReview}
+								className="btn btn-success">
 								Enviar Avaliação
 							</button>
 						</div>

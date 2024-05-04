@@ -4,6 +4,7 @@
 import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { format } from "date-fns";
 
 // Axios
 import api from "@/utils/api";
@@ -28,12 +29,21 @@ import { MdVerified } from "react-icons/md";
 function ProductPage() {
 	const { id } = useParams();
 	const [product, setProduct] = useState({});
+	const [maximizedImage, setMaximizedImage] = useState(null);
 
 	const { partners } = useContext(Context);
 
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
 	);
+
+	const handleOpen = (image) => {
+		setMaximizedImage(image);
+	};
+
+	const handleClose = () => {
+		setMaximizedImage(null);
+	};
 
 	// Calcular a porcentagem de desconto
 	const calculateDiscountPercentage = () => {
@@ -83,9 +93,11 @@ function ProductPage() {
 		const ratingIcons = [];
 
 		// Adiciona o número correspondente ao rating antes das estrelas
+		const formattedRating =
+			roundedRating % 1 === 0 ? `${roundedRating}.0` : `${roundedRating}`;
 		ratingIcons.push(
-			<span key={`number-${roundedRating}`} className="mr-1">
-				{roundedRating}
+			<span key={`number-${formattedRating}`} className="mr-1">
+				{formattedRating}
 			</span>
 		);
 
@@ -374,7 +386,7 @@ function ProductPage() {
 							Avaliações do Produto
 						</div>
 						{/* Avaliação por Usuário*/}
-						{product.reviews &&
+						{product.reviews && product.reviews.length > 0 ? (
 							product.reviews.map((item, index) => (
 								<div key={index} className="-mt-2">
 									<div className="flex flex-row gap-2 mb-1">
@@ -403,7 +415,14 @@ function ProductPage() {
 													</span>
 												</div>
 												<h3 className="text-xs mb-2">
-													{item.date}
+													{item.date
+														? format(
+																new Date(
+																	item.date
+																),
+																"dd/MM/yyyy - HH:mm"
+														  ) + " hs"
+														: ""}
 												</h3>
 												<p className="text-base mb-2">
 													{item.reviewDescription}
@@ -412,24 +431,75 @@ function ProductPage() {
 
 											{/* Fotos das avaliações */}
 											<div className="flex flex-row gap-2 mb-2">
-												<div className="bg-base-100 w-[74px] rounded relative shadow-lg">
-													<div className="h-[74px] flex items-center justify-center">
-														<Image
-															className="object-contain h-full"
-															src={`http://localhost:5000/images/reviews/${item.imagesReview[0]}`}
-															alt="Shoes"
-															width={55}
-															height={55}
-															unoptimized
-														/>
+												<div>
+													{/* Renderizar imagens em miniatura */}
+													<div className="flex flex-row gap-2 mb-2">
+														{item.imagesReview &&
+															item.imagesReview.map(
+																(image, id) => (
+																	<div
+																		key={id}
+																		className="bg-base-100 w-[74px] rounded relative shadow-lg">
+																		<div className="h-[74px] flex items-center justify-center">
+																			<Image
+																				className="object-contain h-full cursor-pointer"
+																				src={`http://localhost:5000/images/reviews/${image}`}
+																				alt="Shoes"
+																				width={
+																					55
+																				}
+																				height={
+																					55
+																				}
+																				unoptimized
+																				onClick={() =>
+																					handleOpen(
+																						image
+																					)
+																				}
+																			/>
+																		</div>
+																	</div>
+																)
+															)}
 													</div>
+
+													{/* Renderizar imagem maximizada se existir */}
+													{maximizedImage && (
+														<div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center">
+															<div className="relative max-w-full max-h-full">
+																<Image
+																	className="object-contain max-w-full max-h-full rounded-md"
+																	src={`http://localhost:5000/images/reviews/${maximizedImage}`}
+																	alt="Maximized Image"
+																	width={400}
+																	height={200}
+																	unoptimized
+																/>
+																<button
+																	className="absolute top-4 right-4 bg-error px-3 py-1 rounded shadow-md text-white"
+																	onClick={
+																		handleClose
+																	}>
+																	✕
+																</button>
+															</div>
+														</div>
+													)}
 												</div>
 											</div>
 										</div>
 									</div>
 									<hr className="mx-2" /> <br />
 								</div>
-							))}
+							))
+						) : (
+							<div>
+								<div className="text-center mb-2">
+									Esse produto ainda não possui avaliações!
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

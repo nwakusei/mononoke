@@ -135,7 +135,7 @@ class ReviewController {
 			const newReview = {
 				orderID: order._id,
 				customerName: order.customerName,
-				reviewRating: reviewRating,
+				reviewRating: parseFloat(reviewRating),
 				imagesReview: imagePaths,
 				reviewDescription: reviewDescription,
 				date: new Date(),
