@@ -152,8 +152,6 @@ function CartPage() {
 						}
 					);
 
-					console.log(response.data);
-
 					const transportadoraCorreta = response.data.find(
 						(transportadora) =>
 							transportadora.idTransp ===

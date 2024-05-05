@@ -51,11 +51,9 @@ function PaymentPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const { transportadoraInfo, setSubtotal, setCart } =
 		useContext(CheckoutContext);
-
 	const [productsInCart, setProductsInCart] = useState([]);
-	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
-
 	const router = useRouter();
+	const [payLoading, setPayLoading] = useState(false);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -66,6 +64,8 @@ function PaymentPage() {
 
 	async function handlePayment() {
 		try {
+			setPayLoading(true);
+
 			const productsList = productsInCart.map((product) => ({
 				productID: product.productID,
 				productName: product.productName,
@@ -109,6 +109,7 @@ function PaymentPage() {
 
 			setCart(0);
 			setSubtotal(0);
+			setPayLoading(false);
 
 			Swal.fire({
 				title: "Pagamento Realizado com Sucesso!",
@@ -120,10 +121,10 @@ function PaymentPage() {
 			router.push("/otamart");
 		} catch (error: any) {
 			console.log(error);
+			setPayLoading(false);
 			Swal.fire({
 				title: error.response.data.message,
 				width: 900,
-				text: "....",
 				icon: "error",
 			});
 			return error.response.data;
@@ -208,20 +209,30 @@ function PaymentPage() {
 				</div>
 
 				<div className="flex flex-row justify-center items-center gap-4">
-					<button className="flex flex-row justify-center items-center gap-2 bg-error w-[120px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
-						<Link
-							className="flex flex-row justify-center items-center gap-2"
-							href="/otamart">
-							<MdOutlineCancel size={20} />
-							Cancelar
-						</Link>
-					</button>
-					<button
-						onClick={handlePayment}
-						className="flex flex-row justify-center items-center gap-2 bg-green-800 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
-						<FaCheck size={18} />
-						Finalizar Pedido
-					</button>
+					{payLoading ? (
+						<button className="btn btn-primary">
+							<span className="loading loading-spinner loading-sm"></span>
+							<span>Processando...</span>
+							{/* <span className="loading loading-dots loading-sm"></span> */}
+						</button>
+					) : (
+						<>
+							<button className="flex flex-row justify-center items-center gap-2 bg-error w-[120px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+								<Link
+									className="flex flex-row justify-center items-center gap-2"
+									href="/otamart">
+									<MdOutlineCancel size={20} />
+									Cancelar
+								</Link>
+							</button>
+							<button
+								onClick={handlePayment}
+								className="flex flex-row justify-center items-center gap-2 bg-green-800 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+								<FaCheck size={18} />
+								Finalizar Pedido
+							</button>
+						</>
+					)}
 				</div>
 			</div>
 		</section>
