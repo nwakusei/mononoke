@@ -9,6 +9,7 @@ import api from "@/utils/api";
 // Components
 import { Sidebar } from "@/components/Sidebar";
 import { toast } from "react-toastify";
+import { AddPicture } from "@icon-park/react";
 
 // Imagens e Logos
 
@@ -21,6 +22,7 @@ function ReviewByIdPage() {
 	const [inputValue, setInputValue] = useState(0);
 	const [description, setDescription] = useState("");
 	const [images, setImages] = useState([]);
+	const [sendReviewLoading, setSendReviewLoading] = useState(false);
 
 	useEffect(() => {
 		const fetchOrder = async () => {
@@ -80,6 +82,8 @@ function ReviewByIdPage() {
 	// Função para enviar a avaliação
 	const handleSubmitReview = async () => {
 		try {
+			setSendReviewLoading(true);
+
 			const formData = new FormData();
 			formData.append("reviewRating", inputValue);
 			formData.append("reviewDescription", description);
@@ -98,8 +102,10 @@ function ReviewByIdPage() {
 				}
 			);
 
+			setSendReviewLoading(false);
 			toast.success(response.data.message);
 		} catch (error) {
+			setSendReviewLoading(false);
 			toast.error(error.response.data.message);
 		}
 	};
@@ -117,6 +123,17 @@ function ReviewByIdPage() {
 		const files = event.target.files;
 		setImages([...images, ...files]);
 	};
+
+	// const handleImageChange = (event) => {
+	// 	const file = event.target.files[0];
+	// 	if (file) {
+	// 		const reader = new FileReader();
+	// 		reader.onload = () => {
+	// 			setImages(reader.result);
+	// 		};
+	// 		reader.readAsDataURL(file);
+	// 	}
+	// };
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
@@ -243,23 +260,29 @@ function ReviewByIdPage() {
 									placeholder="Conte como foi a sua experiência..."></textarea>
 							</div>
 						</div>
-						<div>
-							<input
-								type="file"
-								accept="image/*"
-								onChange={handleImageChange}
-								multiple
-							/>
-						</div>
+
+						<input
+							type="file"
+							accept="image/*"
+							multiple
+							onChange={handleImageChange}
+						/>
 					</div>
 					{/* Gadget 2 */}
 					<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md">
 						<div className="flex flex-row gap-4">
-							<button
-								onClick={handleSubmitReview}
-								className="btn btn-success">
-								Enviar Avaliação
-							</button>
+							{sendReviewLoading ? (
+								<button className="btn btn-primary">
+									<span className="loading loading-spinner loading-sm"></span>
+									<span>Processando...</span>
+								</button>
+							) : (
+								<button
+									onClick={handleSubmitReview}
+									className="btn btn-success">
+									Enviar Avaliação
+								</button>
+							)}
 						</div>
 					</div>
 				</div>

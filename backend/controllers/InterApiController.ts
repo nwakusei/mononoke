@@ -97,6 +97,11 @@ class InterApiController {
 		const tokenCustomer: any = getToken(req);
 		const customer = await getUserByToken(tokenCustomer);
 
+		if (!customer) {
+			res.status(422).json({ message: "Customer não encontrado!" });
+			return;
+		}
+
 		const customerOtakupay: any = await OtakupayModel.findOne({
 			_id: customer.otakupayID,
 		});

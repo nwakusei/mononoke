@@ -216,22 +216,12 @@ function PaymentPage() {
 							{/* <span className="loading loading-dots loading-sm"></span> */}
 						</button>
 					) : (
-						<>
-							<button className="flex flex-row justify-center items-center gap-2 bg-error w-[120px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
-								<Link
-									className="flex flex-row justify-center items-center gap-2"
-									href="/otamart">
-									<MdOutlineCancel size={20} />
-									Cancelar
-								</Link>
-							</button>
-							<button
-								onClick={handlePayment}
-								className="flex flex-row justify-center items-center gap-2 bg-green-800 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
-								<FaCheck size={18} />
-								Finalizar Pedido
-							</button>
-						</>
+						<button
+							onClick={handlePayment}
+							className="flex flex-row justify-center items-center gap-2 bg-green-800 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+							<FaCheck size={18} />
+							Finalizar Pedido
+						</button>
 					)}
 				</div>
 			</div>

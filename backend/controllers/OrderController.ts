@@ -84,10 +84,18 @@ class OrderController {
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
 
+		if (!partner) {
+			res.status(422).json({
+				message: "Partner/Usuário não encontrado!",
+			});
+			return;
+		}
+
 		if (partner.accountType !== "partner") {
 			res.status(422).json({
 				message: "Você não tem permissão para acessar essa requisição!",
 			});
+			return;
 		}
 
 		const partnerID = partner._id.toString();
@@ -458,11 +466,19 @@ class OrderController {
 			const token: any = getToken(req);
 			const customer = await getUserByToken(token);
 
+			if (!customer) {
+				res.status(422).json({
+					message: "Customer/Usuário não encontrado!",
+				});
+				return;
+			}
+
 			if (customer.accountType !== "customer") {
 				res.status(422).json({
 					message:
 						"Você não tem permissão para acessar essa requisição!",
 				});
+				return;
 			}
 
 			const orders = await OrderModel.find({
@@ -490,6 +506,14 @@ class OrderController {
 
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({
+				message: "Customer/Usuário não encontrado!",
+			});
+			return;
+		}
+
 		console.log(customer.id);
 
 		if (!customer) {

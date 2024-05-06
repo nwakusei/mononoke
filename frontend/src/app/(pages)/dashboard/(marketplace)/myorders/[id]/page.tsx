@@ -37,7 +37,7 @@ function MyOrderByIDPage() {
 	const [tracking, setTracking] = useState({});
 
 	const formattedDate = myorder.createdAt
-		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy HH:mm")} hs`
+		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy - HH:mm")} hs`
 		: "";
 
 	useEffect(() => {
@@ -413,13 +413,17 @@ function MyOrderByIDPage() {
 								) : (
 									`Valor: R$ 0,00`
 								)}
-								<h2>Status: {myorder.statusShipping}</h2>
-								<h2>
-									Cód. de Rastreio:{" "}
-									<span className="bg-blue-500 px-2 rounded-md">
-										{myorder.trackingCode}
-									</span>
-								</h2>
+								<div>
+									<h2>Status: {myorder.statusShipping}</h2>
+								</div>
+								<div>
+									Cód. de Rastreio:
+									{myorder.trackingCode && (
+										<span className="ml-2 bg-blue-500 px-2 rounded-md">
+											{myorder.trackingCode}
+										</span>
+									)}
+								</div>
 							</div>
 						</div>
 					</div>
@@ -434,24 +438,75 @@ function MyOrderByIDPage() {
 						Previsão de entrega:{" "}
 						{format(new Date(tracking.dtPrevEnt), "dd/MM")}
 					</h2> */}
-					<ul className="steps steps-vertical  mt-8 mb-8">
+					<ul className="steps steps-vertical mb-8">
 						{/* Renderizar uma li vazia antes do histórico */}
-						<li
-							data-content="✓"
-							className="step step-primary h-[180px]">
-							<div className="flex flex-col gap-1">
-								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
-									Pagamento Confirmado
-								</span>
-								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
-									10/04 - 16:00 hs
-								</span>
+						{myorder.statusOrder === "Realizado" ? (
+							<li
+								data-content="✓"
+								className="step step-primary h-[180px]">
+								<div className="flex flex-col gap-1">
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										Pedido Realizado
+									</span>
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										10/04 - 16:00 hs
+									</span>
 
-								<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
-									O pedido será enviado em 0 dias
-								</span>
-							</div>
-						</li>
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										Pagamento Pendente
+									</span>
+								</div>
+							</li>
+						) : (
+							<></>
+						)}
+
+						{myorder.statusOrder === "Confirmado" && (
+							<li
+								data-content="✓"
+								className="step step-primary h-[180px]">
+								<div className="flex flex-col gap-1">
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										Pagamento Confirmado
+									</span>
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										10/04 - 16:00 hs
+									</span>
+
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										A loja começará a preparar seu pedido
+									</span>
+								</div>
+							</li>
+						)}
+
+						{myorder.statusShipping === "Embalado" && (
+							<li
+								data-content="✓"
+								className="step step-primary h-[180px]">
+								<div className="flex flex-col gap-1">
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										Embalado
+									</span>
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										10/04 - 16:00 hs
+									</span>
+
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										Seu pedido será enviado em breve
+									</span>
+								</div>
+							</li>
+						)}
+
+						{myorder.trackingCode === "" && (
+							<li data-content="✕" className="step">
+								<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
+									—
+								</div>
+							</li>
+						)}
+
 						{/* Renderizar o histórico */}
 						{tracking.historico &&
 							Object.values(tracking.historico)

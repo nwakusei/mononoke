@@ -116,7 +116,7 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											placeholder={`${user.cnpj}`}
+											placeholder={`${user.cpf}`}
 											className={`${
 												errors.productName &&
 												`input-error`
