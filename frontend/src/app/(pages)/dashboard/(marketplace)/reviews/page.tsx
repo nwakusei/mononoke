@@ -43,7 +43,7 @@ function ReviewsPage() {
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="h-screen bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
 					<div className="bg-purple-400 w-[1215px] p-6 rounded-md mt-4">

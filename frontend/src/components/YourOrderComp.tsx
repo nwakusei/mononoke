@@ -17,8 +17,7 @@ import { FiInfo } from "react-icons/fi";
 import { Coupon } from "@icon-park/react";
 
 function YourOrderComp({ productsInfo, shippingInfo }) {
-	const { transportadoraInfo, setTransportadoraInfo } =
-		useContext(CheckoutContext);
+	const { setTransportadoraInfo } = useContext(CheckoutContext);
 	const [totalPedido, setTotalPedido] = useState(0);
 	const [couponApplied, setCouponApplied] = useState(0);
 	const [couponCode, setCouponCode] = useState("");

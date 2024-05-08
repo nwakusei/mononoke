@@ -140,7 +140,7 @@ function MyProfilePage() {
 											</span>
 										</div>
 										<input
-											type="text"
+											type="email"
 											placeholder={`${user.email}`}
 											className={`${
 												errors.productName &&
