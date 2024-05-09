@@ -24,7 +24,7 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 import { YourOrderComp } from "@/components/YourOrderComp";
 
 function CartPage() {
-	const { setCart, transportadoraInfo, setTransportadoraInfo } =
+	const { setCart, setSubtotal, transportadoraInfo, setTransportadoraInfo } =
 		useContext(CheckoutContext);
 	const [productsInCart, setProductsInCart] = useState([]);
 
@@ -97,34 +97,35 @@ function CartPage() {
 			if (cepDestino) {
 				// Chamada da função para simular o frete
 				handleSimulateShipping(cepDestino, partnerInfo);
-			} else {
-				// Define dados padrão para a transportadora
-				const defaultTransportadoraData = {};
-
-				for (const partnerID in partnerInfo) {
-					if (partnerInfo.hasOwnProperty(partnerID)) {
-						const partnerData = partnerInfo[partnerID];
-
-						// Define os dados da transportadora como padrão
-						defaultTransportadoraData[partnerID] = {
-							partnerID: partnerID,
-							transpNome: "Frete Grátis", // Nome da transportadora padrão
-							vlrFrete: 0.0, // Valor do frete padrão (zero para frete grátis)
-							prazoEnt: 3, // Prazo de entrega padrão
-							// Adicione outras informações que você precisar aqui
-						};
-					}
-				}
-
-				// Atualizando o estado com os dados padrão da transportadora
-				setTransportadoraInfo(defaultTransportadoraData);
-
-				// Armazenando os dados padrão da transportadora no localStorage
-				localStorage.setItem(
-					"transportadoraInfo",
-					JSON.stringify(defaultTransportadoraData)
-				);
 			}
+			// } else {
+			// 	// Define dados padrão para a transportadora
+			// 	const defaultTransportadoraData = {};
+
+			// 	for (const partnerID in partnerInfo) {
+			// 		if (partnerInfo.hasOwnProperty(partnerID)) {
+			// 			const partnerData = partnerInfo[partnerID];
+
+			// 			// Define os dados da transportadora como padrão
+			// 			defaultTransportadoraData[partnerID] = {
+			// 				partnerID: partnerID,
+			// 				transpNome: "Frete Grátis", // Nome da transportadora padrão
+			// 				vlrFrete: 0.0, // Valor do frete padrão (zero para frete grátis)
+			// 				prazoEnt: 3, // Prazo de entrega padrão
+			// 				// Adicione outras informações que você precisar aqui
+			// 			};
+			// 		}
+			// 	}
+
+			// 	// Atualizando o estado com os dados padrão da transportadora
+			// 	setTransportadoraInfo(defaultTransportadoraData);
+
+			// 	// Armazenando os dados padrão da transportadora no localStorage
+			// 	localStorage.setItem(
+			// 		"transportadoraInfo",
+			// 		JSON.stringify(defaultTransportadoraData)
+			// 	);
+			// }
 		}
 	}, []);
 
@@ -155,7 +156,8 @@ function CartPage() {
 					const transportadoraCorreta = response.data.find(
 						(transportadora) =>
 							transportadora.idTransp ===
-							partnerData.transportadora?.id
+								partnerData.transportadora?.id &&
+							transportadora.vlrFrete !== 0 // Verifica se o frete não é grátis
 					);
 
 					console.log(
@@ -444,8 +446,10 @@ function CartPage() {
 			}
 
 			localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
+			localStorage.removeItem("transportadoraInfo");
 			setProductsInCart(updatedCart);
-			setCart(updatedCart.length);
+			setCart(0);
+			setSubtotal(0);
 			toast.success("Produto removido com sucesso!");
 		} catch (error) {
 			console.log("Erro ao remover produto!", error);
