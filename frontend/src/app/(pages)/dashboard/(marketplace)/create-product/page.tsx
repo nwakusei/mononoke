@@ -183,7 +183,7 @@ function CreateProductPage() {
 		}
 
 		try {
-			const response = await api.patch("/products/create", formData, {
+			const response = await api.post("/products/create", formData, {
 				headers: {
 					Authorization: `Bearer ${JSON.parse(token)}`,
 					"Content-Type": "Multipart/form-data",
