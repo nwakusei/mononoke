@@ -61,7 +61,7 @@ function DashboardPage() {
 									/>
 								</div>
 							</div>
-							<h1>Bem vindo(a) de volta {user.name}!</h1>
+							<h1>Bem vindo(a) {user.name}!</h1>
 						</div>
 
 						<div className="flex flex-row">

@@ -163,7 +163,7 @@ function Navbar() {
 
 								<li>
 									<Link
-										href="/cupons"
+										href="/coupons"
 										className="btn btn-ghost normal-case flex flex-row items-center text-white">
 										<LuTags size={18} />
 										Cupons
@@ -504,7 +504,7 @@ function Navbar() {
 
 								<li>
 									<Link
-										href="/cupons"
+										href="/coupons"
 										className="btn btn-ghost normal-case flex flex-row items-center text-white">
 										<LuTags size={18} />
 										Cupons

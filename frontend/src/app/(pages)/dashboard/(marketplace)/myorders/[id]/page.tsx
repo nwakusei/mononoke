@@ -127,12 +127,12 @@ function MyOrderByIDPage() {
 							<></>
 						) : (
 							<>
-								<button className="btn btn-error">
+								{/* <button className="btn btn-error">
 									Cancelar Pedido
 								</button>
 								<button className="btn btn-error">
 									Solcitar Cancelamento
-								</button>
+								</button> */}
 							</>
 						)}
 					</div>
@@ -499,24 +499,26 @@ function MyOrderByIDPage() {
 						)}
 
 						{myorder.statusShipping === "Embalado" ||
-							("Enviado" && (
-								<li
-									data-content="✓"
-									className="step step-primary h-[180px]">
-									<div className="flex flex-col gap-1">
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
-											Embalado
-										</span>
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
-											10/04 - 16:00 hs
-										</span>
+						myorder.statusShipping === "Enviado" ? (
+							<li
+								data-content="✓"
+								className="step step-primary h-[180px]">
+								<div className="flex flex-col gap-1">
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										Embalado
+									</span>
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										10/04 - 16:00 hs
+									</span>
 
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
-											Seu pedido será enviado em breve
-										</span>
-									</div>
-								</li>
-							))}
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										Seu pedido será enviado em breve
+									</span>
+								</div>
+							</li>
+						) : (
+							<></>
+						)}
 
 						{myorder.trackingCode === "" && (
 							<li data-content="✕" className="step">

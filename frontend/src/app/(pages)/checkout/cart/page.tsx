@@ -14,7 +14,7 @@ import api from "@/utils/api";
 import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
-import { Coupon, ShoppingCartOne } from "@icon-park/react";
+import { ShoppingCartOne } from "@icon-park/react";
 import { MdOutlineDeleteOutline, MdArrowForwardIos } from "react-icons/md";
 import { PiCreditCardBold } from "react-icons/pi";
 import { BiIdCard } from "react-icons/Bi";
@@ -36,120 +36,6 @@ function CartPage() {
 			setProductsInCart(JSON.parse(savedProductsInCart));
 		}
 	}, []);
-
-	// useEffect(() => {
-	// 	const savedProductsInCart = localStorage.getItem("productsInCart");
-
-	// 	if (savedProductsInCart) {
-	// 		const products = JSON.parse(savedProductsInCart);
-
-	// 		// Array para armazenar as informações de cada produto
-	// 		const productsInfo = [];
-	// 		// Objeto para armazenar as informações dos produtos por parceiro
-	// 		const partnerInfo = {};
-	// 		// Variável para armazenar se há produtos elegíveis para cálculo de frete
-	// 		let hasEligibleProducts = false;
-
-	// 		// Preencher o array de productsInfo e o objeto de partnerInfo com as informações de cada produto
-	// 		products.forEach((product) => {
-	// 			const partnerID = product.partnerID;
-	// 			const weight = product.weight;
-	// 			const length = product.length;
-	// 			const width = product.width;
-	// 			const height = product.height;
-	// 			const cepDestino = product.cepDestino;
-	// 			const productPrice = product.productPrice;
-	// 			const productPriceTotal = product.productPriceTotal;
-	// 			const quantityThisProduct = product.quantityThisProduct;
-	// 			const transpID = product.transportadora?.id;
-
-	// 			// Verificar se o frete é grátis e se o cepDestino está definido
-	// 			if (transpID !== 0 && cepDestino.trim() !== "") {
-	// 				productsInfo.push({
-	// 					partnerID,
-	// 					weight,
-	// 					length,
-	// 					width,
-	// 					height,
-	// 					cepDestino,
-	// 					productPrice,
-	// 					productPriceTotal,
-	// 					quantityThisProduct,
-	// 					transportadoraID: transpID,
-	// 				});
-	// 				hasEligibleProducts = true; // Indicar que há produtos elegíveis para cálculo de frete
-	// 			}
-
-	// 			// Preencher o objeto de partnerInfo com as informações dos produtos por parceiro
-	// 			if (!partnerInfo[partnerID]) {
-	// 				partnerInfo[partnerID] = {
-	// 					weight,
-	// 					length,
-	// 					width,
-	// 					height,
-	// 					productPrice,
-	// 					productPriceTotal,
-	// 					quantityThisProduct,
-	// 					transportadora: {
-	// 						id: transpID, // Inicializa o ID da transportadora
-	// 					},
-	// 				};
-	// 			} else {
-	// 				// Se o peso atual for menor que o peso acumulado até agora, atualize-o
-	// 				if (weight < partnerInfo[partnerID].weight) {
-	// 					partnerInfo[partnerID].weight = weight;
-	// 					partnerInfo[partnerID].length = length;
-	// 					partnerInfo[partnerID].width = width;
-	// 					partnerInfo[partnerID].height = height;
-	// 					partnerInfo[partnerID].transportadora.id = transpID;
-	// 				}
-
-	// 				// Atualizar os valores de productPriceTotal e quantityThisProduct para a soma de todos os itens
-	// 				partnerInfo[partnerID].productPriceTotal +=
-	// 					productPriceTotal;
-	// 				partnerInfo[partnerID].quantityThisProduct +=
-	// 					quantityThisProduct;
-	// 			}
-	// 		});
-
-	// 		// Certifique-se de que há produtos elegíveis para cálculo de frete antes de chamar handleSimulateShipping
-	// 		if (hasEligibleProducts) {
-	// 			// Chamada da função para simular o frete para todos os destinos
-	// 			const cepsDestino = productsInfo.map(
-	// 				(product) => product.cepDestino
-	// 			);
-	// 			console.log(productsInfo);
-	// 			handleSimulateShipping(cepsDestino, productsInfo);
-	// 		} else {
-	// 			// Define dados padrão para a transportadora
-	// 			const defaultTransportadoraData = {};
-
-	// 			for (const partnerID in partnerInfo) {
-	// 				if (partnerInfo.hasOwnProperty(partnerID)) {
-	// 					const partnerData = partnerInfo[partnerID];
-
-	// 					// Define os dados da transportadora como padrão
-	// 					defaultTransportadoraData[partnerID] = {
-	// 						partnerID: partnerID,
-	// 						transpNome: "Frete Grátis", // Nome da transportadora padrão
-	// 						vlrFrete: 0.0, // Valor do frete padrão (zero para frete grátis)
-	// 						prazoEnt: 3, // Prazo de entrega padrão
-	// 						// Adicione outras informações que você precisar aqui
-	// 					};
-	// 				}
-	// 			}
-
-	// 			// Atualizando o estado com os dados padrão da transportadora
-	// 			setTransportadoraInfo(defaultTransportadoraData);
-
-	// 			// Armazenando os dados padrão da transportadora no localStorage
-	// 			localStorage.setItem(
-	// 				"transportadoraInfo",
-	// 				JSON.stringify(defaultTransportadoraData)
-	// 			);
-	// 		}
-	// 	}
-	// }, []);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -814,11 +700,11 @@ function CartPage() {
 													<div
 														key={partnerID}
 														className="bg-gray-500 p-4 rounded-md">
-														<div className="">
+														<div>
 															Transportadora:{" "}
 															{info.transpNome}
 														</div>
-														<div className="">
+														<div>
 															Frete da Loja:{" "}
 															{info &&
 															info.vlrFrete

@@ -405,18 +405,18 @@ function SideComponent() {
 						</button>
 						{/* Componentes pequenos */}
 						<div className="flex flex-row justify-center items-center">
-							<div className="text-sm flex flex-row items-center hover:bg-slate-300 hover:opacity-20 px-2 py-1 gap-1 rounded cursor-pointer">
-								<GrChat size={12} />
+							<div className="flex items-center text-sm hover:bg-slate-300 hover:opacity-20 px-2 py-1 gap-1 rounded cursor-pointer">
+								<GrChat size={10} />
 								<span>Chat</span>
 							</div>
 							|
 							<div className="text-sm flex flex-row items-center hover:bg-slate-300 hover:opacity-20 px-2 py-1 gap-1 rounded cursor-pointer">
-								<BsHeart size={12} />
+								<BsHeart size={10} />
 								<span>Wishlist</span>
 							</div>
 							|
 							<div className="text-sm flex flex-row justify-center items-center hover:bg-slate-300 hover:opacity-20 px-2 py-1 gap-1 rounded cursor-pointer">
-								<GoShareAndroid size={15} />
+								<GoShareAndroid size={13} />
 								<span>Share</span>
 							</div>
 						</div>
@@ -426,7 +426,7 @@ function SideComponent() {
 				<div>
 					{/* Etiqueta de Encomenda */}
 					{product.preOrder === true ? (
-						<div className="flex flex-row justify-center items-center bg-sky-500 p-2 gap-3 rounded shadow mb-2">
+						<div className="flex flex-row justify-center items-center bg-sky-500 p-2 gap-3 rounded shadow-md mb-2">
 							<LuCalendarClock size={20} />
 							<h1>
 								Encomenda (envio em {product.daysShipping} dias)

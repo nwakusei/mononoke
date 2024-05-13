@@ -8,8 +8,11 @@ function CashbackCard({ partnerLogo, cashback, couponInfo }) {
 			<div className="h-[150px] mx-3 mt-2 -mb-3 flex items-center justify-center">
 				<Image
 					className="object-contain w-full h-full"
-					src={partnerLogo}
+					src={`http://localhost:5000/images/users/${partnerLogo}`}
 					alt="Partner Logo"
+					width={150}
+					height={100}
+					unoptimized
 				/>
 			</div>
 			<div className="divider mx-2">Benefícios</div>

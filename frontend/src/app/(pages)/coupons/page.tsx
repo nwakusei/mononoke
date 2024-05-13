@@ -12,7 +12,7 @@ import Otakuyasan from "../../../../public/otakuyasan.png";
 
 import { CouponCard } from "@/components/CouponCard";
 
-function CupomPage() {
+function CoupomPage() {
 	const { partners } = useContext(Context);
 	const [coupons, setCoupons] = useState([]);
 
@@ -50,7 +50,9 @@ function CupomPage() {
 								<CouponCard
 									key={coupon._id}
 									partnerLogo={
-										partner ? partner.logoImage : Otakuyasan
+										partner.logoImage
+											? partner.logoImage
+											: Otakuyasan
 									}
 									siteLink={partner ? partner.site : null}
 									discount={coupon.discountPercentage}
@@ -68,4 +70,4 @@ function CupomPage() {
 	);
 }
 
-export default CupomPage;
+export default CoupomPage;

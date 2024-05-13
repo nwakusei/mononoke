@@ -48,7 +48,11 @@ function CashbackPage() {
 						return (
 							<CashbackCard
 								key={partner._id}
-								partnerLogo={partner.logoImage}
+								partnerLogo={
+									partner.logoImage
+										? partner.logoImage
+										: Otakuyasan
+								}
 								cashback={partner.cashback}
 								couponInfo={
 									associatedCoupon
