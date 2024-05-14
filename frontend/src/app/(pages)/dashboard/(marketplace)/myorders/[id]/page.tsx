@@ -36,8 +36,8 @@ function MyOrderByIDPage() {
 	const [myorder, setMyorder] = useState([]);
 	const [tracking, setTracking] = useState({});
 
-	const formattedDate = myorder.createdAt
-		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy HH:mm")} hs`
+	const dateCreatedOrder = myorder.createdAt
+		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy - HH:mm")} hs`
 		: "";
 
 	useEffect(() => {
@@ -66,8 +66,8 @@ function MyOrderByIDPage() {
 	useEffect(() => {
 		const fetchShipping = async () => {
 			try {
-				const response = await api.post(
-					`/orders/order-tracking/${id}`,
+				const response = await api.get(
+					`/orders/get-order-tracking/${id}`,
 					{
 						headers: {
 							Authorization: `Bearer ${JSON.parse(token)}`,
@@ -120,15 +120,21 @@ function MyOrderByIDPage() {
 						<h1 className="text-lg">
 							ID do Pedido: {myorder.orderID}
 						</h1>
-						<h2>Data do Pagamento: {formattedDate}</h2>
+						<h2>Data do Pagamento: {dateCreatedOrder}</h2>
 					</div>
 					<div className="flex flex-row gap-4">
-						<button className="btn btn-error">
-							Cancelar Pedido
-						</button>
-						<button className="btn btn-error">
-							Solcitar Cancelamento
-						</button>
+						{myorder.statusShipping === "Enviado" ? (
+							<></>
+						) : (
+							<>
+								<button className="btn btn-error">
+									Cancelar Pedido
+								</button>
+								<button className="btn btn-error">
+									Solcitar Cancelamento
+								</button>
+							</>
+						)}
 					</div>
 				</div>
 
@@ -148,10 +154,11 @@ function MyOrderByIDPage() {
 									<thead>
 										<tr>
 											<th className="text-sm">Produto</th>
+
+											<th className="text-sm">Valor</th>
 											<th className="text-sm">
 												Quantidade
 											</th>
-											<th className="text-sm">Valor</th>
 											<th className="text-sm">Total</th>
 										</tr>
 									</thead>
@@ -192,14 +199,7 @@ function MyOrderByIDPage() {
 																</div>
 															</div>
 														</td>
-														<td>
-															<div>
-																{
-																	item.productQuantity
-																}{" "}
-																un
-															</div>
-														</td>
+
 														<td>
 															<div>
 																{item.productPrice.toLocaleString(
@@ -210,6 +210,14 @@ function MyOrderByIDPage() {
 																			"BRL",
 																	}
 																)}
+															</div>
+														</td>
+														<td>
+															<div>
+																{
+																	item.productQuantity
+																}{" "}
+																un
 															</div>
 														</td>
 														<td className="w-[200px] overflow-x-auto">
@@ -413,13 +421,19 @@ function MyOrderByIDPage() {
 								) : (
 									`Valor: R$ 0,00`
 								)}
-								<h2>Status: {myorder.statusShipping}</h2>
-								<h2>
-									Cód. de Rastreio:{" "}
-									<span className="bg-blue-500 px-2 rounded-md">
-										{myorder.trackingCode}
-									</span>
-								</h2>
+								<div>
+									<h2>Status: {myorder.statusShipping}</h2>
+								</div>
+								<div className="flex flex-row gap-2">
+									<div>Cód. de Rastreio:</div>
+									{myorder.trackingCode ? (
+										<span className="bg-blue-500 px-2 rounded-md">
+											{myorder.trackingCode}
+										</span>
+									) : (
+										`—`
+									)}
+								</div>
 							</div>
 						</div>
 					</div>
@@ -434,24 +448,84 @@ function MyOrderByIDPage() {
 						Previsão de entrega:{" "}
 						{format(new Date(tracking.dtPrevEnt), "dd/MM")}
 					</h2> */}
-					<ul className="steps steps-vertical  mt-8 mb-8">
+					<ul className="steps steps-vertical mb-8">
 						{/* Renderizar uma li vazia antes do histórico */}
-						<li
-							data-content="✓"
-							className="step step-primary h-[180px]">
-							<div className="flex flex-col gap-1">
-								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
-									Pagamento Confirmado
-								</span>
-								<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
-									10/04 - 16:00 hs
-								</span>
+						{myorder.statusOrder === "Realizado" ? (
+							<li
+								data-content="✓"
+								className="step step-primary h-[180px]">
+								<div className="flex flex-col gap-1">
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										Pedido Realizado
+									</span>
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										{format(
+											new Date(myorder.createdAt),
+											"dd/MM - HH:mm"
+										)}{" "}
+										hs
+									</span>
 
-								<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
-									O pedido será enviado em 0 dias
-								</span>
-							</div>
-						</li>
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										Pagamento Pendente
+									</span>
+								</div>
+							</li>
+						) : (
+							<></>
+						)}
+
+						{myorder.statusOrder === "Confirmado" && (
+							<li
+								data-content="✓"
+								className="step step-primary h-[180px]">
+								<div className="flex flex-col gap-1">
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										Pagamento Confirmado
+									</span>
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										{format(
+											new Date(myorder.createdAt),
+											"dd/MM - HH:mm"
+										)}{" "}
+										hs
+									</span>
+
+									<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										A loja começará a preparar seu pedido
+									</span>
+								</div>
+							</li>
+						)}
+
+						{myorder.statusShipping === "Embalado" ||
+							("Enviado" && (
+								<li
+									data-content="✓"
+									className="step step-primary h-[180px]">
+									<div className="flex flex-col gap-1">
+										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											Embalado
+										</span>
+										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											10/04 - 16:00 hs
+										</span>
+
+										<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+											Seu pedido será enviado em breve
+										</span>
+									</div>
+								</li>
+							))}
+
+						{myorder.trackingCode === "" && (
+							<li data-content="✕" className="step">
+								<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
+									—
+								</div>
+							</li>
+						)}
+
 						{/* Renderizar o histórico */}
 						{tracking.historico &&
 							Object.values(tracking.historico)
@@ -467,7 +541,7 @@ function MyOrderByIDPage() {
 									<li
 										key={index}
 										data-content="✓"
-										className="step step-primary">
+										className="step step-primary h-[180px]">
 										<div className="flex flex-col gap-1">
 											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
 												{item.ocorrencia}

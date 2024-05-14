@@ -84,10 +84,18 @@ class OrderController {
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
 
+		if (!partner) {
+			res.status(422).json({
+				message: "Partner/Usuário não encontrado!",
+			});
+			return;
+		}
+
 		if (partner.accountType !== "partner") {
 			res.status(422).json({
 				message: "Você não tem permissão para acessar essa requisição!",
 			});
+			return;
 		}
 
 		const partnerID = partner._id.toString();
@@ -96,7 +104,7 @@ class OrderController {
 			// Buscar as orders associadas ao parceiro
 			const orders = await OrderModel.find({
 				partnerID: partnerID,
-			});
+			}).sort("-createdAt");
 
 			console.log(orders); // Adicione esta linha para verificar as orders
 
@@ -458,11 +466,19 @@ class OrderController {
 			const token: any = getToken(req);
 			const customer = await getUserByToken(token);
 
+			if (!customer) {
+				res.status(422).json({
+					message: "Customer/Usuário não encontrado!",
+				});
+				return;
+			}
+
 			if (customer.accountType !== "customer") {
 				res.status(422).json({
 					message:
 						"Você não tem permissão para acessar essa requisição!",
 				});
+				return;
 			}
 
 			const orders = await OrderModel.find({
@@ -490,6 +506,14 @@ class OrderController {
 
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({
+				message: "Customer/Usuário não encontrado!",
+			});
+			return;
+		}
+
 		console.log(customer.id);
 
 		if (!customer) {
@@ -864,67 +888,68 @@ class OrderController {
 		}
 	}
 
-	// static async updateTrackingCode(req: Request, res: Response) {
-	// 	const { id } = req.params;
-	// 	const { trackingCode } = req.body;
+	static async updateTrackingCode(req: Request, res: Response) {
+		const { id } = req.params;
+		const { trackingCode } = req.body;
 
-	// 	const token: any = getToken(req);
-	// 	const partner = await getUserByToken(token);
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
 
-	// 	if (!partner) {
-	// 		res.status(422).json({
-	// 			message: "Usuário não encontrado!",
-	// 		});
-	// 		return;
-	// 	}
+		if (!partner) {
+			res.status(422).json({
+				message: "Usuário não encontrado!",
+			});
+			return;
+		}
 
-	// 	if (partner.accountType !== "partner") {
-	// 		res.status(422).json({
-	// 			message:
-	// 				"Você não possuo autorização para realizar essa requsição!",
-	// 		});
-	// 		return;
-	// 	}
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message:
+					"Você não possuo autorização para realizar essa requsição!",
+			});
+			return;
+		}
 
-	// 	if (!trackingCode) {
-	// 		res.status(422).json({
-	// 			message: "O código de rastreio é obrigatório!",
-	// 		});
-	// 		return;
-	// 	}
+		if (!trackingCode) {
+			res.status(422).json({
+				message: "O código de rastreio é obrigatório!",
+			});
+			return;
+		}
 
-	// 	try {
-	// 		const order = await OrderModel.findById(id);
+		try {
+			const order = await OrderModel.findById(id);
 
-	// 		if (!order) {
-	// 			res.status(422).json({
-	// 				message: "Pedido não encontrado!",
-	// 			});
-	// 			return;
-	// 		}
+			if (!order) {
+				res.status(422).json({
+					message: "Pedido não encontrado!",
+				});
+				return;
+			}
 
-	// 		if (order.statusShipping === "Enviado") {
-	// 			res.status(422).json({
-	// 				message: "Pedido já enviado!",
-	// 			});
-	// 			return;
-	// 		}
+			if (order.statusShipping === "Enviado") {
+				res.status(422).json({
+					message: "Pedido já enviado!",
+				});
+				return;
+			}
 
-	// 		order.statusShipping = "Enviado";
-	// 		order.trackingCode = trackingCode;
+			// order.statusOrder = "Enviado";
+			order.statusShipping = "Enviado";
+			order.trackingCode = trackingCode;
 
-	// 		await order.save(); // Salva as alterações no banco de dados
+			await order.save(); // Salva as alterações no banco de dados
 
-	// 		res.status(200).json({ message: "Rastreio enviado com sucesso!" });
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 		res.status(500).json({
-	// 			message: "Erro ao atualizar o código de rastreamento.",
-	// 		});
-	// 	}
-	// }
+			res.status(200).json({ message: "Rastreio enviado com sucesso!" });
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({
+				message: "Erro ao atualizar o código de rastreamento.",
+			});
+		}
+	}
 
-	static async orderTracking(req: Request, res: Response) {
+	static async getOrderTracking(req: Request, res: Response) {
 		const { id } = req.params;
 
 		const token: any = getToken(req);

@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import Link from "next/link";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 
@@ -8,6 +8,8 @@ import api from "@/utils/api";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+import { toast } from "react-toastify";
+import { AddPicture } from "@icon-park/react";
 
 // Imagens e Logos
 
@@ -18,8 +20,9 @@ function ReviewByIdPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [myorder, setMyorder] = useState([]);
 	const [inputValue, setInputValue] = useState(0);
-
-	console.log(myorder);
+	const [description, setDescription] = useState("");
+	const [images, setImages] = useState([]);
+	const [sendReviewLoading, setSendReviewLoading] = useState(false);
 
 	useEffect(() => {
 		const fetchOrder = async () => {
@@ -44,25 +47,25 @@ function ReviewByIdPage() {
 		fetchOrder();
 	}, [token, id]);
 
-	const handleChange = (event) => {
-		const newValue = event.target.value;
-		setInputValue(newValue);
-	};
+	// const handleChange = (event) => {
+	// 	const newValue = event.target.value;
+	// 	setInputValue(newValue);
+	// };
 
 	const handleBlur = () => {
 		let newValue = parseFloat(inputValue);
 		if (isNaN(newValue) || newValue < 0) {
 			newValue = 0;
-		} else if (newValue > 10) {
-			newValue = 10;
+		} else if (newValue > 5) {
+			newValue = 5;
 		}
 		setInputValue(newValue.toFixed(1));
 	};
 
 	const increment = () => {
 		let newValue = parseFloat(inputValue) + 0.1;
-		if (newValue > 10) {
-			newValue = 10;
+		if (newValue > 5) {
+			newValue = 5;
 		}
 		setInputValue(newValue.toFixed(1));
 	};
@@ -74,6 +77,63 @@ function ReviewByIdPage() {
 		}
 		setInputValue(newValue.toFixed(1));
 	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Função para enviar a avaliação
+	const handleSubmitReview = async () => {
+		try {
+			setSendReviewLoading(true);
+
+			const formData = new FormData();
+			formData.append("reviewRating", inputValue);
+			formData.append("reviewDescription", description);
+			images.forEach((image) => {
+				formData.append("imagesReview", image);
+			});
+
+			const response = await api.patch(
+				`/reviews/create-review/${id}`,
+				formData,
+				{
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			);
+
+			setSendReviewLoading(false);
+			toast.success(response.data.message);
+		} catch (error) {
+			setSendReviewLoading(false);
+			toast.error(error.response.data.message);
+		}
+	};
+
+	// Funções para manipular o estado dos inputs
+	const handleChange = (event) => {
+		setInputValue(event.target.value);
+	};
+
+	const handleDescriptionChange = (event) => {
+		setDescription(event.target.value);
+	};
+
+	const handleImageChange = (event) => {
+		const files = event.target.files;
+		setImages([...images, ...files]);
+	};
+
+	// const handleImageChange = (event) => {
+	// 	const file = event.target.files[0];
+	// 	if (file) {
+	// 		const reader = new FileReader();
+	// 		reader.onload = () => {
+	// 			setImages(reader.result);
+	// 		};
+	// 		reader.readAsDataURL(file);
+	// 	}
+	// };
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
@@ -93,76 +153,68 @@ function ReviewByIdPage() {
 							<div>Loja: {myorder.partnerName}</div>
 						</div>
 						<div className="mb-8">
-							{myorder.itemsList &&
-								myorder.itemsList.map((item, index) => (
-									<div
-										key={index}
-										className="overflow-x-auto">
-										<table className="table">
-											{/* head */}
-											<thead>
-												<tr>
-													<th className="text-base">
-														Produto(s)
-													</th>
-													<th className="text-base">
-														Status
-													</th>
-													<th className="text-base">
-														Favorite Color
-													</th>
-												</tr>
-											</thead>
-											<tbody>
-												{/* row 1 */}
-												<tr>
-													<td>
-														<div className="flex items-center gap-3">
-															<div className="avatar">
-																<div className="mask mask-squircle w-12 h-12">
-																	<Image
-																		src={`http://localhost:5000/images/products/${item.productImage}`}
-																		alt={
+							<div className="overflow-x-auto">
+								<table className="table">
+									{/* head */}
+									<thead>
+										<tr>
+											<th className="text-base">
+												Produto(s)
+											</th>
+											<th className="text-base">
+												Status
+											</th>
+											<th className="text-base">
+												Favorite Color
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										{/* row 1 */}
+										{myorder.itemsList &&
+											myorder.itemsList.map(
+												(item, index) => (
+													<tr key={index}>
+														<td>
+															<div className="flex items-center gap-3">
+																<div className="avatar">
+																	<div className="mask mask-squircle w-12 h-12">
+																		<Image
+																			src={`http://localhost:5000/images/products/${item.productImage}`}
+																			alt={
+																				item.productName
+																			}
+																			width={
+																				10
+																			}
+																			height={
+																				10
+																			}
+																			unoptimized
+																		/>
+																	</div>
+																</div>
+																<div>
+																	<div className="font-bold">
+																		{
 																			item.productName
 																		}
-																		width={
-																			10
-																		}
-																		height={
-																			10
-																		}
-																		unoptimized
-																	/>
+																	</div>
 																</div>
 															</div>
-															<div>
-																<div className="font-bold">
-																	{
-																		item.productName
-																	}
-																</div>
-															</div>
-														</div>
-													</td>
-													<td>
-														{myorder.statusShipping}
-													</td>
-													<td>Purple</td>
-												</tr>
-											</tbody>
-											{/* foot */}
-											{/* <tfoot>
-												<tr>
-													<th></th>
-													<th>Name</th>
-													<th>Job</th>
-													<th>Favorite Color</th>
-													<th></th>
-												</tr>
-											</tfoot> */}
-										</table>
-									</div>
-								))}
+														</td>
+														<td>
+															{
+																myorder.statusShipping
+															}
+														</td>
+														<td>Purple</td>
+													</tr>
+												)
+											)}
+									</tbody>
+								</table>
+							</div>
 						</div>
 						<div className="flex flex-row gap-16">
 							<div>
@@ -182,6 +234,9 @@ function ReviewByIdPage() {
 											onBlur={handleBlur}
 											className="text-center w-[50px] rounded"
 											type="text"
+											min="0"
+											max="5"
+											step="0.1"
 											value={inputValue}
 										/>
 										<div
@@ -190,7 +245,7 @@ function ReviewByIdPage() {
 											+
 										</div>
 									</div>
-									<div className="-mt-3">Ex.: 10 ou 9.8</div>
+									<div className="-mt-3">Ex.: 4.3 ou 5</div>
 								</div>
 							</div>
 							<div>
@@ -200,17 +255,34 @@ function ReviewByIdPage() {
 									</div>
 								</label>
 								<textarea
+									onChange={handleDescriptionChange}
 									className="textarea textarea-bordered w-[600px]"
 									placeholder="Conte como foi a sua experiência..."></textarea>
 							</div>
 						</div>
+
+						<input
+							type="file"
+							accept="image/*"
+							multiple
+							onChange={handleImageChange}
+						/>
 					</div>
 					{/* Gadget 2 */}
 					<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md">
 						<div className="flex flex-row gap-4">
-							<button className="btn btn-success">
-								Enviar Avaliação
-							</button>
+							{sendReviewLoading ? (
+								<button className="btn btn-primary">
+									<span className="loading loading-spinner loading-sm"></span>
+									<span>Processando...</span>
+								</button>
+							) : (
+								<button
+									onClick={handleSubmitReview}
+									className="btn btn-success">
+									Enviar Avaliação
+								</button>
+							)}
 						</div>
 					</div>
 				</div>

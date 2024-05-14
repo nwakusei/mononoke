@@ -161,9 +161,16 @@ function SideComponent() {
 
 	function handleAddProductInCart(quantity, product, selectedTransportadora) {
 		// Verifica se alguma transportadora foi selecionada
-		const transportadoraSelecionada = Object.values(
-			selectedTransportadora
-		).some((value) => value);
+		const transportadoraSelecionada =
+			selectedTransportadora &&
+			Object.values(selectedTransportadora).some((value) => value);
+
+		const transpFreeShipping = {
+			id: 0,
+			nome: "Free Shipping",
+			prazoEnt: 3,
+			vlrFrete: 0.0,
+		};
 
 		if (!transportadoraSelecionada && !product.freeShipping === true) {
 			toast.warning("Selecione uma opção de frete!");
@@ -198,8 +205,7 @@ function SideComponent() {
 		);
 
 		if (existingProduct) {
-			// Se o produto já estiver no carrinho, apenas atualiza a quantidade,
-			// limitando ao estoque disponível
+			// Se o produto já estiver no carrinho, apenas atualiza a quantidade, limitando ao estoque disponível
 			const totalQuantity =
 				existingProduct.quantityThisProduct + quantity;
 			existingProduct.quantityThisProduct = Math.min(
@@ -235,7 +241,9 @@ function SideComponent() {
 				cepDestino: cepDestino,
 				daysShipping: product.daysShipping,
 				freeShipping: product.freeShipping,
-				transportadora: selectedTransportadora,
+				transportadora: transportadoraSelecionada
+					? selectedTransportadora
+					: transpFreeShipping,
 			};
 			console.log(newProduct);
 			productsInCart.push(newProduct);

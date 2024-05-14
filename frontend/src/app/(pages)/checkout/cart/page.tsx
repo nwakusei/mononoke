@@ -24,9 +24,11 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 import { YourOrderComp } from "@/components/YourOrderComp";
 
 function CartPage() {
-	const { setCart, transportadoraInfo, setTransportadoraInfo } =
+	const { setCart, setSubtotal, transportadoraInfo, setTransportadoraInfo } =
 		useContext(CheckoutContext);
 	const [productsInCart, setProductsInCart] = useState([]);
+
+	console.log(transportadoraInfo);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -41,148 +43,85 @@ function CartPage() {
 		if (savedProductsInCart) {
 			const products = JSON.parse(savedProductsInCart);
 
-			// Objeto para armazenar as informações dos produtos por parceiro
-			const partnerInfo = {};
+			// Array para armazenar as informações de cada produto
+			const productsInfo = [];
 
-			// Variável para armazenar o cepDestino de um dos produtos
-			let cepDestino = null;
-
-			// Calcular as informações dos produtos por parceiro
+			// Preencher o array de productsInfo com as informações de cada produto
 			products.forEach((product) => {
 				const partnerID = product.partnerID;
-				const weight = product.weight || 0;
-				const length = product.length || 0;
-				const width = product.width || 0;
-				const height = product.height || 0;
-				cepDestino = product.cepDestino; // Obter o cepDestino de um dos produtos
-				const productPrice = product.productPrice || 0;
-				const productPriceTotal = product.productPriceTotal || 0;
-				const quantityThisProduct = product.quantityThisProduct || 0;
-				const transpID = product.transportadora?.id; // Obter apenas o ID da transportadora
+				const weight = product.weight;
+				const length = product.length;
+				const width = product.width;
+				const height = product.height;
+				const cepDestino = product.cepDestino;
+				const productPrice = product.productPrice;
+				const productPriceTotal = product.productPriceTotal;
+				const quantityThisProduct = product.quantityThisProduct;
+				const transpID = product.transportadora?.id;
 
-				if (!partnerInfo[partnerID]) {
-					partnerInfo[partnerID] = {
-						weight: weight,
-						length: length,
-						width: width,
-						height: height,
-						productPrice: productPrice,
-						productPriceTotal: productPriceTotal,
-						quantityThisProduct: quantityThisProduct,
-						transportadora: {
-							id: transpID, // Inicializa o ID da transportadora
-						},
-					};
-				} else {
-					// Se o peso atual for menor que o peso acumulado até agora, atualize-o
-					if (weight < partnerInfo[partnerID].weight) {
-						partnerInfo[partnerID].weight = weight;
-						partnerInfo[partnerID].length = length;
-						partnerInfo[partnerID].width = width;
-						partnerInfo[partnerID].height = height;
-						partnerInfo[partnerID].transportadora.id = transpID;
-					}
-
-					// Atualizar os valores de productPriceTotal e quantityThisProduct para a soma de todos os itens
-					partnerInfo[partnerID].productPriceTotal +=
-						productPriceTotal;
-					partnerInfo[partnerID].quantityThisProduct +=
-						quantityThisProduct;
+				if (transpID !== 0) {
+					productsInfo.push({
+						partnerID,
+						weight,
+						length,
+						width,
+						height,
+						cepDestino,
+						productPrice,
+						productPriceTotal,
+						quantityThisProduct,
+						transportadoraID: transpID,
+					});
 				}
 			});
 
-			console.log("Informações dos produtos por parceiro:", partnerInfo);
+			console.log("Informações dos produtos:", productsInfo);
 
 			// Certifique-se de que cepDestino esteja definido antes de chamar handleSimulateShipping
-			if (cepDestino) {
-				// Chamada da função para simular o frete
-				handleSimulateShipping(cepDestino, partnerInfo);
-			} else {
-				// Define dados padrão para a transportadora
-				const defaultTransportadoraData = {};
-
-				for (const partnerID in partnerInfo) {
-					if (partnerInfo.hasOwnProperty(partnerID)) {
-						const partnerData = partnerInfo[partnerID];
-
-						// Define os dados da transportadora como padrão
-						defaultTransportadoraData[partnerID] = {
-							partnerID: partnerID,
-							transpNome: "Frete Grátis", // Nome da transportadora padrão
-							vlrFrete: 0.0, // Valor do frete padrão (zero para frete grátis)
-							prazoEnt: 3, // Prazo de entrega padrão
-							// Adicione outras informações que você precisar aqui
-						};
-					}
-				}
-
-				// Atualizando o estado com os dados padrão da transportadora
-				setTransportadoraInfo(defaultTransportadoraData);
-
-				// Armazenando os dados padrão da transportadora no localStorage
-				localStorage.setItem(
-					"transportadoraInfo",
-					JSON.stringify(defaultTransportadoraData)
-				);
+			const cepsDestino = productsInfo.map(
+				(product) => product.cepDestino
+			);
+			if (cepsDestino.length > 0) {
+				// Chamada da função para simular o frete para todos os destinos
+				handleSimulateShipping(cepsDestino, productsInfo);
 			}
 		}
 	}, []);
 
-	async function handleSimulateShipping(cepDestino, partnerInfo) {
-		console.log(partnerInfo);
+	async function handleSimulateShipping(cepsDestino, productsInfo) {
 		try {
 			const transportadoraData = {};
 
-			for (const partnerID in partnerInfo) {
-				if (partnerInfo.hasOwnProperty(partnerID)) {
-					const partnerData = partnerInfo[partnerID];
+			for (const product of productsInfo) {
+				const { partnerID, transportadoraID, ...rest } = product;
 
-					const response = await api.post(
-						"/products/simulate-shipping",
-						{
-							cepDestino: cepDestino,
-							weight: partnerData.weight,
-							height: partnerData.height,
-							width: partnerData.width,
-							length: partnerData.length,
-							productPrice: partnerData.productPrice,
-							productPriceTotal: partnerData.productPriceTotal,
-							quantityThisProduct:
-								partnerData.quantityThisProduct,
-						}
-					);
+				const response = await api.post("/products/simulate-shipping", {
+					cepDestino: product.cepDestino,
+					...rest,
+				});
 
-					console.log(response.data);
+				const transportadoraCorreta = response.data.find(
+					(transportadora) =>
+						transportadora.idTransp === transportadoraID &&
+						transportadora.vlrFrete !== 0
+				);
 
-					const transportadoraCorreta = response.data.find(
-						(transportadora) =>
-							transportadora.idTransp ===
-							partnerData.transportadora?.id
-					);
-
-					console.log(
-						"Transportadora correta:",
-						transportadoraCorreta
-					);
-
-					// Adicionando os dados da transportadora ao objeto transportadoraData
+				if (transportadoraCorreta) {
 					transportadoraData[partnerID] = {
-						partnerID: partnerID,
-						transpNome: transportadoraCorreta?.transp_nome,
-						vlrFrete: transportadoraCorreta?.vlrFrete,
-						prazoEnt: transportadoraCorreta?.prazoEnt,
-						// Adicione outras informações que você precisar aqui
+						partnerID,
+						transpNome: transportadoraCorreta.transp_nome,
+						vlrFrete: transportadoraCorreta.vlrFrete,
+						prazoEnt: transportadoraCorreta.prazoEnt,
 					};
+				} else {
+					console.warn(
+						"Nenhuma transportadora adequada encontrada para o parceiro:",
+						partnerID
+					);
 				}
 			}
-			// Atualizando o estado com os dados da transportadora
-			setTransportadoraInfo(transportadoraData);
 
-			// Armazenando os dados da transportadora no localStorage
-			localStorage.setItem(
-				"transportadoraInfo",
-				JSON.stringify(transportadoraData)
-			);
+			setTransportadoraInfo(transportadoraData);
 		} catch (error) {
 			console.error("Ocorreu um erro:", error);
 		}
@@ -311,8 +250,16 @@ function CartPage() {
 				setProductsInCart([...productsInCart]);
 			}
 
-			// Verificar se há produtos no carrinho
-			if (productsInCart.length > 0) {
+			// Filtrar os produtos para remover aqueles com frete grátis e cep vazio
+			const filteredProducts = productsInCart.filter(
+				(product) =>
+					product.cepDestino &&
+					product.cepDestino.trim() !== "" &&
+					!product.freeShipping
+			);
+
+			// Verificar se há produtos no carrinho após a filtragem
+			if (filteredProducts.length > 0) {
 				// Inicializar objeto para armazenar informações dos produtos por parceiro
 				const partnerInfo = {};
 
@@ -320,7 +267,7 @@ function CartPage() {
 				let cepDestino = null;
 
 				// Calcular as informações dos produtos por parceiro
-				productsInCart.forEach((product) => {
+				filteredProducts.forEach((product) => {
 					const partnerID = product.partnerID;
 					const weight = product.weight || 0;
 					const length = product.length || 0;
@@ -383,7 +330,6 @@ function CartPage() {
 		}
 	};
 
-	// Função para remover itens do carrinho de compra
 	const handleRemoveFromCart = async (productId) => {
 		try {
 			let productsInCart =
@@ -446,8 +392,10 @@ function CartPage() {
 			}
 
 			localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
+			localStorage.removeItem("transportadoraInfo");
 			setProductsInCart(updatedCart);
-			setCart(updatedCart.length);
+			setCart(0);
+			setSubtotal(0);
 			toast.success("Produto removido com sucesso!");
 		} catch (error) {
 			console.log("Erro ao remover produto!", error);
@@ -623,13 +571,51 @@ function CartPage() {
 										)
 									)}
 									{/* Renderizar o total do frete para este parceiro */}
-									{Object.entries(transportadoraInfo).map(
+									{/* {Object.entries(transportadoraInfo).map(
 										([partnerID, info]) => {
 											// Verifica se o partnerID do transporte corresponde ao partnerID atual
 											if (
 												partnerID ===
 												partnerProducts[0].partnerID
 											) {
+												return (
+													<div
+														key={partnerID}
+														className="bg-gray-500 p-4 rounded-md">
+														<div className="">
+															Transportadora:{" "}
+															{info.transpNome}
+														</div>
+														<div className="">
+															Frete da Loja:{" "}
+															{info &&
+															info.vlrFrete
+																? info.vlrFrete.toLocaleString(
+																		"pt-BR",
+																		{
+																			style: "currency",
+																			currency:
+																				"BRL",
+																		}
+																  )
+																: `R$ 0,00`}
+														</div>
+													</div>
+												);
+											}
+											return null; // Retorna null para não renderizar nada se não houver correspondência
+										}
+									)} */}
+									{Object.entries(transportadoraInfo).map(
+										([partnerID, info]) => {
+											// Verifica se o partnerID do transporte corresponde ao partnerID atual
+											const matchingProduct =
+												partnerProducts.find(
+													(product) =>
+														product.partnerID ===
+														partnerID
+												);
+											if (matchingProduct) {
 												return (
 													<div
 														key={partnerID}

@@ -17,8 +17,7 @@ import { FiInfo } from "react-icons/fi";
 import { Coupon } from "@icon-park/react";
 
 function YourOrderComp({ productsInfo, shippingInfo }) {
-	const { transportadoraInfo, setTransportadoraInfo } =
-		useContext(CheckoutContext);
+	const { setTransportadoraInfo } = useContext(CheckoutContext);
 	const [totalPedido, setTotalPedido] = useState(0);
 	const [couponApplied, setCouponApplied] = useState(0);
 	const [couponCode, setCouponCode] = useState("");
@@ -91,63 +90,40 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 		}
 	}, []);
 
-	async function handleSimulateShipping(cepDestino, partnerInfo) {
-		console.log(partnerInfo);
+	async function handleSimulateShipping(cepsDestino, productsInfo) {
 		try {
 			const transportadoraData = {};
 
-			for (const partnerID in partnerInfo) {
-				if (partnerInfo.hasOwnProperty(partnerID)) {
-					const partnerData = partnerInfo[partnerID];
+			for (const product of productsInfo) {
+				const { partnerID, transportadoraID, ...rest } = product;
 
-					const response = await api.post(
-						"/products/simulate-shipping",
-						{
-							cepDestino: cepDestino,
-							weight: partnerData.weight,
-							height: partnerData.height,
-							width: partnerData.width,
-							length: partnerData.length,
-							productPrice: partnerData.productPrice,
-							productPriceTotal: partnerData.productPriceTotal,
-							quantityThisProduct:
-								partnerData.quantityThisProduct,
-						}
-					);
+				const response = await api.post("/products/simulate-shipping", {
+					cepDestino: product.cepDestino,
+					...rest,
+				});
 
-					console.log(response.data);
+				const transportadoraCorreta = response.data.find(
+					(transportadora) =>
+						transportadora.idTransp === transportadoraID &&
+						transportadora.vlrFrete !== 0
+				);
 
-					const transportadoraCorreta = response.data.find(
-						(transportadora) =>
-							transportadora.idTransp ===
-							partnerData.transportadora?.id
-					);
-
-					console.log(
-						"Transportadora correta:",
-						transportadoraCorreta
-					);
-
-					// Adicionando os dados da transportadora ao objeto transportadoraData
+				if (transportadoraCorreta) {
 					transportadoraData[partnerID] = {
-						partnerID: partnerID,
-						transpNome: transportadoraCorreta?.transp_nome,
-						vlrFrete: transportadoraCorreta?.vlrFrete,
-						prazoEnt: transportadoraCorreta?.prazoEnt,
-						// Adicione outras informações que você precisar aqui
+						partnerID,
+						transpNome: transportadoraCorreta.transp_nome,
+						vlrFrete: transportadoraCorreta.vlrFrete,
+						prazoEnt: transportadoraCorreta.prazoEnt,
 					};
+				} else {
+					console.warn(
+						"Nenhuma transportadora adequada encontrada para o parceiro:",
+						partnerID
+					);
 				}
 			}
-			// Atualizando o estado com os dados da transportadora
+
 			setTransportadoraInfo(transportadoraData);
-
-			// Armazenando os dados da transportadora no localStorage
-			localStorage.setItem(
-				"transportadoraInfo",
-				JSON.stringify(transportadoraData)
-			);
-
-			console.log(transportadoraData);
 		} catch (error) {
 			console.error("Ocorreu um erro:", error);
 		}

@@ -107,7 +107,10 @@ function ChatPage() {
 						<div className="flex flex-row items-center hover:bg-sky-500 transition-all ease-in duration-200 cursor-pointer px-4 py-2 gap-3">
 							<div className="avatar online">
 								<div className="w-12 rounded-full">
-									<img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+									<img
+										alt="Tailwind CSS chat bubble component"
+										src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+									/>
 								</div>
 							</div>
 							<div className="flex flex-row justify-between items-center">
@@ -125,7 +128,10 @@ function ChatPage() {
 						<div className="flex flex-row items-center hover:bg-sky-500 transition-all ease-in duration-200 cursor-pointer px-4 py-2 gap-3">
 							<div className="avatar online">
 								<div className="w-12 rounded-full">
-									<img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+									<img
+										alt="Tailwind CSS chat bubble component"
+										src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+									/>
 								</div>
 							</div>
 							<div className="flex flex-row justify-between items-center">
@@ -143,7 +149,10 @@ function ChatPage() {
 						<div className="flex flex-row items-center hover:bg-sky-500 transition-all ease-in duration-200 cursor-pointer px-4 py-2 gap-3">
 							<div className="avatar online">
 								<div className="w-12 rounded-full">
-									<img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+									<img
+										alt="Tailwind CSS chat bubble component"
+										src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+									/>
 								</div>
 							</div>
 							<div className="flex flex-row justify-between items-center">
@@ -165,7 +174,10 @@ function ChatPage() {
 								<div className="flex flex-row items-center gap-2">
 									<div className="avatar online">
 										<div className="w-12 rounded-full">
-											<img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+											<img
+												alt="Tailwind CSS chat bubble component"
+												src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+											/>
 										</div>
 									</div>
 									<div>
@@ -183,7 +195,7 @@ function ChatPage() {
 									<div className="w-10 rounded-full">
 										<img
 											alt="Tailwind CSS chat bubble component"
-											src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+											src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
 										/>
 									</div>
 								</div>
@@ -205,7 +217,7 @@ function ChatPage() {
 									<div className="w-10 rounded-full">
 										<img
 											alt="Tailwind CSS chat bubble component"
-											src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+											src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
 										/>
 									</div>
 								</div>
@@ -226,7 +238,7 @@ function ChatPage() {
 									<div className="w-10 rounded-full">
 										<img
 											alt="Tailwind CSS chat bubble component"
-											src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+											src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
 										/>
 									</div>
 								</div>
@@ -239,7 +251,7 @@ function ChatPage() {
 								<img
 									className="w-[120px] rounded shadow-md "
 									alt="Tailwind CSS chat bubble component"
-									src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+									src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
 								/>
 								<div className="chat-footer opacity-50 text-xs flex flex-row items-center gap-1">
 									Visto às 12:46 hs <BsCheck2All size={16} />
@@ -254,14 +266,9 @@ function ChatPage() {
 								scrollbarColor: "dark", // Cor da barra de rolagem (pode ser "auto", "dark" ou "light")
 							}}>
 							{/* Área de edição de mensagem */}
-							<div
-								className="relative"
-								style={{
-									border: "1px solid #ccc",
-									borderRadius: "5px",
-								}}>
+							<div className="relative">
 								<textarea
-									className="w-full h-[155px] pt-2 px-2 pb-0 bg-transparent resize-none outline-none mb-2"
+									className="w-full h-[155px] textarea textarea-bordered"
 									placeholder={
 										selectedImage || isTyping
 											? ""
@@ -269,8 +276,10 @@ function ChatPage() {
 									}
 									value={message}
 									onChange={(e) => setMessage(e.target.value)}
-									disabled={!isTyping && !!selectedImage}
-								/>
+									disabled={
+										!isTyping && !!selectedImage
+									}></textarea>
+
 								{/* Miniatura da imagem selecionada */}
 								{selectedImage && (
 									<div className="absolute inset-y-0 left-2 flex items-center">

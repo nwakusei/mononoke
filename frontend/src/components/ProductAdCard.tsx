@@ -55,9 +55,11 @@ function ProductAdCard({
 		const ratingIcons = [];
 
 		// Adiciona o número correspondente ao rating antes das estrelas
+		const formattedRating =
+			roundedRating % 1 === 0 ? `${roundedRating}.0` : `${roundedRating}`;
 		ratingIcons.push(
-			<span key={`number-${roundedRating}`} className="mr-1">
-				{roundedRating}
+			<span key={`number-${formattedRating}`} className="mr-1">
+				{formattedRating}
 			</span>
 		);
 

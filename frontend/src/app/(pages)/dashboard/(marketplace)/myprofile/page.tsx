@@ -116,7 +116,7 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											placeholder={`${user.cnpj}`}
+											placeholder={`${user.cpf}`}
 											className={`${
 												errors.productName &&
 												`input-error`
@@ -140,7 +140,7 @@ function MyProfilePage() {
 											</span>
 										</div>
 										<input
-											type="text"
+											type="email"
 											placeholder={`${user.email}`}
 											className={`${
 												errors.productName &&

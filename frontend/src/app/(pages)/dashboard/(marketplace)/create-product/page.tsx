@@ -93,6 +93,24 @@ function CreateProductPage() {
 		}
 	};
 
+	// const handleImagemSelecionada = (event) => {
+	// 	const files = event.target.files;
+	// 	const fileList = [];
+	// 	for (let i = 0; i < files.length; i++) {
+	// 		const file = files[i];
+	// 		const reader = new FileReader();
+	// 		reader.onload = () => {
+	// 			fileList.push(reader.result);
+	// 			// Se você deseja processar os arquivos aqui, você pode chamar uma função
+	// 			// para fazer isso dentro do evento onload.
+	// 			// Por exemplo: processarArquivo(reader.result);
+	// 		};
+	// 		reader.readAsDataURL(file);
+	// 	}
+	// 	// Aqui você pode fazer algo com a lista de arquivos processados, como armazená-la em um estado.
+	// 	// Por exemplo: setListaDeArquivos(fileList);
+	// };
+
 	const handleFreeShippingChange = (event) => {
 		const value = event.target.value;
 		if (value === "false") {
@@ -168,7 +186,7 @@ function CreateProductPage() {
 			const response = await api.post("/products/create", formData, {
 				headers: {
 					Authorization: `Bearer ${JSON.parse(token)}`,
-					"Content-Type": "multipart/form-data",
+					"Content-Type": "Multipart/form-data",
 				},
 			});
 			// Exibe toast de sucesso

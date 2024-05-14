@@ -31,9 +31,10 @@ function MySaleByIDPage() {
 	// });
 	const [mysale, setMysale] = useState([]);
 	const [trackingCode, setTrackingCode] = useState("");
+	const [trackingLoading, setTrackingLoading] = useState(false);
 
-	const formattedDate = mysale.createdAt
-		? `${format(new Date(mysale.createdAt), "dd/MM/yyyy HH:mm")} hs`
+	const dateCreatedOrder = mysale.createdAt
+		? `${format(new Date(mysale.createdAt), "dd/MM - HH:mm")} hs`
 		: "";
 
 	useEffect(() => {
@@ -59,14 +60,18 @@ function MySaleByIDPage() {
 	async function handleTracking(e) {
 		e.preventDefault();
 		try {
+			setTrackingLoading(true);
 			const response = await api.patch(
 				`/orders/update-trackingcode/${id}`,
 				{ trackingCode },
 				{ headers: { Authorization: `Bearer ${JSON.parse(token)}` } }
 			);
 			console.log("Response:", response); // Verifique se esta linha é executada
+
+			setTrackingLoading(false);
 			toast.success(response.data.message);
 		} catch (error) {
+			setTrackingLoading(false);
 			toast.error(error.response.data.message);
 			console.error("Erro ao atualizar o código de rastreamento:", error);
 		}
@@ -104,17 +109,22 @@ function MySaleByIDPage() {
 			<Sidebar />
 			<div className="flex flex-col bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				{/* Gadget 1 */}
-				<div className="flex flex-row items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+				<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
 					<div className="flex flex-col">
 						<h1 className="text-lg">
 							ID do Pedido: {mysale.orderID}
 						</h1>
-						<h2>Data do Pagamento: {formattedDate}</h2>
+						<h2>Data do Pagamento: {dateCreatedOrder}</h2>
 					</div>
-					<button className="btn btn-error">Cancelar Pedido</button>{" "}
-					<button className="btn btn-error">
-						Solcitar Cancelamento
-					</button>
+					<div>
+						{mysale.statusShipping === "Enviado" ? (
+							<></>
+						) : (
+							<button className="btn btn-error">
+								Cancelar Pedido
+							</button>
+						)}
+					</div>
 				</div>
 
 				<div className="flex flex-row w-[1200px]">
@@ -133,10 +143,11 @@ function MySaleByIDPage() {
 									<thead>
 										<tr>
 											<th className="text-sm">Produto</th>
+											<th className="text-sm">Valor</th>
 											<th className="text-sm">
 												Quantidade
 											</th>
-											<th className="text-sm">Valor</th>
+
 											<th className="text-sm">Total</th>
 										</tr>
 									</thead>
@@ -177,14 +188,7 @@ function MySaleByIDPage() {
 																</div>
 															</div>
 														</td>
-														<td>
-															<div>
-																{
-																	item.productQuantity
-																}{" "}
-																un
-															</div>
-														</td>
+
 														<td>
 															<div>
 																{item.productPrice.toLocaleString(
@@ -195,6 +199,14 @@ function MySaleByIDPage() {
 																			"BRL",
 																	}
 																)}
+															</div>
+														</td>
+														<td>
+															<div>
+																{
+																	item.productQuantity
+																}{" "}
+																un
 															</div>
 														</td>
 														<td className="w-[200px] overflow-x-auto">
@@ -268,14 +280,16 @@ function MySaleByIDPage() {
 											<td>
 												<div>
 													{mysale.shippingCostTotal >
-														0 &&
-														mysale.shippingCostTotal.toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-														)}
+													0
+														? mysale.shippingCostTotal.toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+														  )
+														: `R$ 0,00`}
 												</div>
 											</td>
 
@@ -388,8 +402,8 @@ function MySaleByIDPage() {
 						</div>
 					</div>
 
+					{/* Gadget 3 */}
 					<div className="flex flex-col">
-						{/* Gadget 3 */}
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<h1 className="text-lg">
 								Nome: {mysale.customerName}
@@ -411,45 +425,69 @@ function MySaleByIDPage() {
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<div className="mb-4">
 								<h1>Tranportadora: {mysale.shippingMethod}</h1>
-								{mysale.shippingCostTotal && (
-									<h2>
-										Valor:{" "}
-										{mysale.shippingCostTotal.toLocaleString(
-											"pt-BR",
-											{
-												style: "currency",
-												currency: "BRL",
-											}
-										)}
-									</h2>
-								)}
+								<h2>
+									Valor:{" "}
+									{mysale.shippingCostTotal > 0
+										? mysale.shippingCostTotal.toLocaleString(
+												"pt-BR",
+												{
+													style: "currency",
+													currency: "BRL",
+												}
+										  )
+										: "R$ 0,00"}
+								</h2>
 								<h2>Status: {mysale.statusShipping}</h2>
 							</div>
 
-							<form onSubmit={handleTracking}>
-								<label className="form-control w-full max-w-xs mb-4">
-									<input
-										type="text"
-										placeholder="Insira o código de Rastreio"
-										className="input input-bordered w-full"
-										value={trackingCode}
-										onChange={(e) =>
-											setTrackingCode(e.target.value)
-										}
-									/>
-									<div className="label">
-										<span className="label-text-alt">
-											Msg de erro a ser exibida
-										</span>
-									</div>
-								</label>
-								<button
-									type="submit"
-									className="btn btn-primary w-full">
-									Enviar <GrMapLocation size={20} />
-								</button>
-							</form>
+							{mysale.trackingCode === "" ? (
+								<form onSubmit={handleTracking}>
+									<label className="form-control w-full max-w-xs mb-4">
+										<input
+											type="text"
+											placeholder="Insira o código de Rastreio"
+											className="input input-bordered w-full"
+											value={trackingCode}
+											onChange={(e) =>
+												setTrackingCode(e.target.value)
+											}
+										/>
+										<div className="label">
+											<span className="label-text-alt">
+												Msg de erro a ser exibida
+											</span>
+										</div>
+									</label>
+									{trackingLoading ? (
+										<button className="btn btn-primary w-full">
+											<span className="loading loading-spinner loading-sm"></span>
+											<span>Processando...</span>
+										</button>
+									) : (
+										<button
+											type="submit"
+											className="btn btn-primary w-full">
+											Enviar <GrMapLocation size={20} />
+										</button>
+									)}
+								</form>
+							) : (
+								`Código de Rastreio:`
+							)}
 						</div>
+					</div>
+				</div>
+				{/* Gadget 4 */}
+				<div className="flex flex-col gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+					<div className="flex flex-col">
+						<h1 className="text-lg">Nota do Cliente</h1>
+					</div>
+					<div>
+						<p>
+							{mysale.orderNote
+								? mysale.orderNote
+								: `Nenhuma nota adicionada...`}
+						</p>
 					</div>
 				</div>
 			</div>
