@@ -349,7 +349,10 @@ function ProductPage() {
 									/>
 								</div>
 								<div className="flex flex-row items-center">
-									<BsStar size={14} />
+									<BsStarFill
+										className="text-blue-500"
+										size={14}
+									/>
 									<span className="ml-1 mr-2">5.0</span> |
 									<span className="ml-2">10 Seguidores</span>
 								</div>
@@ -359,7 +362,7 @@ function ProductPage() {
 									</button>
 								</div>
 							</div>
-							<div className="divider divider-horizontal">|</div>
+							<div className="divider divider-horizontal"></div>
 							<div className="flex flex-col justify-center">
 								<div>
 									<h1>Avaliações: 5.1mil</h1>

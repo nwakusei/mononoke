@@ -8,7 +8,7 @@ function CashbackCard({ partnerLogo, cashback, couponInfo }) {
 			<div className="h-[150px] mx-3 mt-2 -mb-3 flex items-center justify-center">
 				<Image
 					className="object-contain w-full h-full"
-					src={`http://localhost:5000/images/users/${partnerLogo}`}
+					src={partnerLogo}
 					alt="Partner Logo"
 					width={150}
 					height={100}

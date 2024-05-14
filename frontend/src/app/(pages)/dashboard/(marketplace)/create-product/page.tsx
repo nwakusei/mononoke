@@ -271,10 +271,15 @@ function CreateProductPage() {
 										<option disabled selected value="">
 											Escolha a categoria do Produto
 										</option>
-										<option>Mangá</option>
+										<option>Impresso</option>
 										<option>Figure</option>
 										<option>Game</option>
+										<option>CD/DVD</option>
+										<option>Vestuário</option>
+										<option>Acessório</option>
 										<option>TGC (Card Game)</option>
+										<option>Papelaria</option>
+										<option>Óculos</option>
 									</select>
 									<div className="label -mt-1">
 										{errors.category && (

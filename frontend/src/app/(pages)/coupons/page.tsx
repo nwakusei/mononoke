@@ -35,10 +35,12 @@ function CoupomPage() {
 					Cupons em Destaque
 				</div>
 
-				<p className="text-center mb-4">
-					※ Cupons exclusivos para uso nas lojas online de nossos
-					parceiros! ※
-				</p>
+				<div className="flex justify-center">
+					<p className="bg-primary w-[550px] text-center py-1 rounded shadow-md mb-6">
+						※ Cupons exclusivos para uso nas lojas online de nossos
+						parceiros! ※
+					</p>
+				</div>
 
 				<div className="flex flex-row flex-wrap gap-4 justify-center mb-4">
 					{coupons.length > 0 ? (
