@@ -117,9 +117,14 @@ function MyProductsPage() {
 															}
 														)}
 														<br />
-														<span className="badge badge-accent badge-sm">
-															Em Promoção
-														</span>
+														{product.promocionalPrice >
+														0 ? (
+															<span className="badge badge-accent badge-sm">
+																Em Promoção
+															</span>
+														) : (
+															<></>
+														)}
 													</td>
 													<td>{product.stock} un</td>
 													<th>

@@ -934,7 +934,7 @@ class OrderController {
 				return;
 			}
 
-			// order.statusOrder = "Enviado";
+			order.statusOrder = "Enviado";
 			order.statusShipping = "Enviado";
 			order.trackingCode = trackingCode;
 

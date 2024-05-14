@@ -1,28 +1,27 @@
 "use client";
 
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+import api from "@/utils/api";
+
 // imagens estáticas
-import Lycoris from "../../../../../public/lycoris.jpg";
 
 // Context
 import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
-import { Coupon, IdCardH, ShoppingCartOne } from "@icon-park/react";
+import { ShoppingCartOne } from "@icon-park/react";
 import {
 	MdOutlineDeleteOutline,
 	MdArrowBackIos,
 	MdArrowForwardIos,
 } from "react-icons/md";
 import { GrLocation } from "react-icons/gr";
-import { HiOutlineCreditCard } from "react-icons/hi";
 import { PiCreditCardBold } from "react-icons/pi";
 import { BiIdCard } from "react-icons/Bi";
 import { LiaShippingFastSolid } from "react-icons/lia";
-import { FiInfo } from "react-icons/fi";
 
 // Components
 import { YourOrderComp } from "@/components/YourOrderComp";
@@ -30,6 +29,18 @@ import { YourOrderComp } from "@/components/YourOrderComp";
 function DeliveryPage() {
 	const { transportadoraInfo } = useContext(CheckoutContext);
 	const [productsInCart, setProductsInCart] = useState([]);
+	const [token] = useState(localStorage.getItem("token") || "");
+	const [user, setUser] = useState({});
+
+	useEffect(() => {
+		api.get("/otakuprime/check-user", {
+			headers: {
+				Authorization: `Bearer ${JSON.parse(token)}`,
+			},
+		}).then((response) => {
+			setUser(response.data);
+		});
+	}, [token]);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -70,27 +81,45 @@ function DeliveryPage() {
 				<div className="flex flex-row justify-center gap-6 bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 					<div className="flex flex-col items-center">
 						<div className="flex flex-row justify-between gap-4 bg-gray-500 w-[650px] min-h-[100px] p-4 rounded-md mb-4">
-							<div className="flex flex-row gap-4">
-								<GrLocation size={25} />
+							{user.address && user.address.length > 0 ? (
+								user.address.map((end) => (
+									<>
+										<div
+											key={end.id}
+											className="flex flex-row gap-4">
+											<GrLocation size={25} />
+											<div>
+												<h1 className="text-base font-semibold mb-2">
+													Endereço de Entrega:
+												</h1>
+												<h1 className="text-base">
+													{end.logradouro}
+												</h1>
+												<h2>{end.complemento}</h2>
+												<h2>{end.bairro}</h2>
+												<h2>
+													{end.cidade}/{end.uf}
+												</h2>
+												<h2>{end.cep}</h2>
+											</div>
+										</div>
+
+										<div>
+											<div className="flex flex-col items-center justify-center border-[1px] border-purple-500 w-10 h-10 transition-all ease-in duration-200 hover:shadow-md hover:bg-purple-500 rounded cursor-pointer">
+												<MdOutlineDeleteOutline
+													size={25}
+												/>
+											</div>
+										</div>
+									</>
+								))
+							) : (
 								<div>
 									<h1 className="text-base font-semibold mb-2">
-										Endereço de Entrega:
+										Nenhum endereço disponpivel
 									</h1>
-									<h1 className="text-base">
-										Avenida Lourenço Cabreira, 648
-									</h1>
-									<h2>Apto. 12 A</h2>
-									<h2>Jardim Ana Lúcia</h2>
-									<h2>São Paulo/SP</h2>
-									<h2>04812-010</h2>
 								</div>
-							</div>
-
-							<div>
-								<div className="flex flex-col items-center justify-center border-[1px] border-purple-500 w-10 h-10 transition-all ease-in duration-200 hover:shadow-md hover:bg-purple-500 rounded cursor-pointer">
-									<MdOutlineDeleteOutline size={25} />
-								</div>
-							</div>
+							)}
 						</div>
 						{Object.entries(transportadoraInfo).map(
 							([key, info]) => (

@@ -16,7 +16,7 @@ import { Sidebar } from "@/components/Sidebar";
 function MyCouponsPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [coupons, setCoupons] = useState([]);
-	const [deletLoading, setDeletLoading] = useState(null);
+	const [deleteLoading, setDeletLoading] = useState(null);
 
 	useEffect(() => {
 		api.get("/coupons/partner-coupons", {
@@ -152,10 +152,10 @@ function MyCouponsPage() {
 														}
 														className="btn btn-error btn-xs w-[80px]"
 														disabled={
-															deletLoading ===
+															deleteLoading ===
 															coupon._id
 														}>
-														{deletLoading ===
+														{deleteLoading ===
 														coupon._id ? (
 															<div className="btn btn-error btn-xs w-[80px]">
 																<span className="loading loading-dots loading-xs"></span>

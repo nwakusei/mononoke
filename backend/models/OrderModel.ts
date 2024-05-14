@@ -27,7 +27,8 @@ interface IOrder {
 	partnerName: string;
 	customerID: object;
 	customerName: string;
-	customerAdress: [{}];
+	customerCPF: string;
+	customerAddress: [{}];
 	shippingMethod: string;
 	statusShipping: string;
 	trackingCode: string;
@@ -99,7 +100,10 @@ const orderSchema = new Schema<IOrder>(
 		customerName: {
 			type: String,
 		},
-		customerAdress: {
+		customerCPF: {
+			type: String,
+		},
+		customerAddress: {
 			type: [{}],
 		},
 		shippingMethod: {

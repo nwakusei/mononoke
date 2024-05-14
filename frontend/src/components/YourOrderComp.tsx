@@ -85,45 +85,91 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 				// Chamada da função para simular o frete
 				handleSimulateShipping(cepDestino, partnerInfo);
 			} else {
-				console.error("CepDestino não definido.");
+				// Define dados padrão para a transportadora
+				const defaultTransportadoraData = {};
+
+				for (const partnerID in partnerInfo) {
+					if (partnerInfo.hasOwnProperty(partnerID)) {
+						const partnerData = partnerInfo[partnerID];
+
+						// Define os dados da transportadora como padrão
+						defaultTransportadoraData[partnerID] = {
+							partnerID: partnerID,
+							transpNome: "Frete Grátis", // Nome da transportadora padrão
+							vlrFrete: 0.0, // Valor do frete padrão (zero para frete grátis)
+							prazoEnt: 3, // Prazo de entrega padrão
+							// Adicione outras informações que você precisar aqui
+						};
+					}
+				}
+
+				// Atualizando o estado com os dados padrão da transportadora
+				setTransportadoraInfo(defaultTransportadoraData);
+
+				// Armazenando os dados padrão da transportadora no localStorage
+				localStorage.setItem(
+					"transportadoraInfo",
+					JSON.stringify(defaultTransportadoraData)
+				);
 			}
 		}
 	}, []);
 
-	async function handleSimulateShipping(cepsDestino, productsInfo) {
+	async function handleSimulateShipping(cepDestino, partnerInfo) {
+		console.log(partnerInfo);
 		try {
 			const transportadoraData = {};
 
-			for (const product of productsInfo) {
-				const { partnerID, transportadoraID, ...rest } = product;
+			for (const partnerID in partnerInfo) {
+				if (partnerInfo.hasOwnProperty(partnerID)) {
+					const partnerData = partnerInfo[partnerID];
 
-				const response = await api.post("/products/simulate-shipping", {
-					cepDestino: product.cepDestino,
-					...rest,
-				});
-
-				const transportadoraCorreta = response.data.find(
-					(transportadora) =>
-						transportadora.idTransp === transportadoraID &&
-						transportadora.vlrFrete !== 0
-				);
-
-				if (transportadoraCorreta) {
-					transportadoraData[partnerID] = {
-						partnerID,
-						transpNome: transportadoraCorreta.transp_nome,
-						vlrFrete: transportadoraCorreta.vlrFrete,
-						prazoEnt: transportadoraCorreta.prazoEnt,
-					};
-				} else {
-					console.warn(
-						"Nenhuma transportadora adequada encontrada para o parceiro:",
-						partnerID
+					const response = await api.post(
+						"/products/simulate-shipping",
+						{
+							cepDestino: cepDestino,
+							weight: partnerData.weight,
+							height: partnerData.height,
+							width: partnerData.width,
+							length: partnerData.length,
+							productPrice: partnerData.productPrice,
+							productPriceTotal: partnerData.productPriceTotal,
+							quantityThisProduct:
+								partnerData.quantityThisProduct,
+						}
 					);
+
+					console.log(response.data);
+
+					const transportadoraCorreta = response.data.find(
+						(transportadora) =>
+							transportadora.idTransp ===
+							partnerData.transportadora?.id
+					);
+
+					console.log(
+						"Transportadora correta:",
+						transportadoraCorreta
+					);
+
+					// Adicionando os dados da transportadora ao objeto transportadoraData
+					transportadoraData[partnerID] = {
+						partnerID: partnerID,
+						transpNome: transportadoraCorreta?.transp_nome,
+						vlrFrete: transportadoraCorreta?.vlrFrete,
+						prazoEnt: transportadoraCorreta?.prazoEnt,
+						// Adicione outras informações que você precisar aqui
+					};
 				}
 			}
-
+			// Atualizando o estado com os dados da transportadora
 			setTransportadoraInfo(transportadoraData);
+
+			// Armazenando os dados da transportadora no localStorage
+			localStorage.setItem(
+				"transportadoraInfo",
+				JSON.stringify(transportadoraData)
+			);
 		} catch (error) {
 			console.error("Ocorreu um erro:", error);
 		}

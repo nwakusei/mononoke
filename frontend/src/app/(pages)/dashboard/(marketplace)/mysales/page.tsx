@@ -56,23 +56,13 @@ function MySalesPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th>
-												<label>
-													<input
-														type="checkbox"
-														className="checkbox"
-													/>
-												</label>
-											</th>
 											<th className="text-sm">
 												Produtos
 											</th>
 											<th className="text-sm">
 												Total do Pedido
 											</th>
-											<th className="text-sm">
-												Status | Prazo
-											</th>
+											<th className="text-sm">Status</th>
 											<th className="text-sm">
 												Comprador
 											</th>
@@ -87,14 +77,6 @@ function MySalesPage() {
 										{mysales.length > 0 &&
 											mysales.map((mysale) => (
 												<tr key={mysale._id}>
-													<th>
-														<label>
-															<input
-																type="checkbox"
-																className="checkbox"
-															/>
-														</label>
-													</th>
 													<td>
 														{mysale.itemsList.map(
 															(item, index) => (
@@ -169,7 +151,7 @@ function MySalesPage() {
 														{mysale.customerName}
 													</td>
 													<td className="text-xs">
-														{mysale.orderNumber}
+														{mysale.orderID}
 													</td>
 													<th>
 														<button className="flex items-center btn btn-ghost btn-xs">

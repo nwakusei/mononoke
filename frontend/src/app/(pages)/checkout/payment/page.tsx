@@ -75,8 +75,6 @@ function PaymentPage() {
 				partnerID: product.partnerID,
 			}));
 
-			console.log(productsList);
-
 			const shippingCost = Object.values(transportadoraInfo).map(
 				(info) => ({
 					partnerID: info.partnerID,

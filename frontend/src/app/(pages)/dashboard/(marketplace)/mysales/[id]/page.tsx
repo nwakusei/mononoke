@@ -408,17 +408,32 @@ function MySaleByIDPage() {
 							<h1 className="text-lg">
 								Nome: {mysale.customerName}
 							</h1>
-							<h2>CPF: 000.000.000-00</h2>
+							<h2>CPF: {mysale.customerCPF}</h2>
 
 							<div className="divider"></div>
 
-							<h1 className="text-lg mb-3">
-								Endereço de entrega e cobrança
-							</h1>
-							<h2>Endereço: 000.000.000-00</h2>
-							<h2>Bairro: 000.000.000-00</h2>
-							<h2>Cidade/Estado: 000.000.000-00</h2>
-							<h2>CEP: 00000-000</h2>
+							{mysale.customerAdress &&
+								mysale.customerAdress.length > 0 &&
+								mysale.customerAdress.map((end) => (
+									<div key={end.id}>
+										<div className="text-lg mb-3">
+											Endereço de entrega e cobrança
+										</div>
+										<div>Endereço: {end.logradoro}</div>
+										<div>
+											{end.complemento ? (
+												`Complemento: ${end.complemento}`
+											) : (
+												<></>
+											)}
+										</div>
+										<div>Bairro: {end.bairro}</div>
+										<div>
+											Cidade/UF: {end.cidade}/{end.uf}
+										</div>
+										<div>CEP: {end.cep}</div>
+									</div>
+								))}
 						</div>
 
 						{/* Gadget 4 */}
@@ -472,7 +487,12 @@ function MySaleByIDPage() {
 									)}
 								</form>
 							) : (
-								`Código de Rastreio:`
+								<div className="flex flex-row gap-2">
+									<div>Cod. de Rastreio:</div>
+									<div className="bg-blue-500 rounded px-2">
+										{mysale.trackingCode}
+									</div>
+								</div>
 							)}
 						</div>
 					</div>

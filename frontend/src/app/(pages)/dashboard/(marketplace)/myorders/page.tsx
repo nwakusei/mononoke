@@ -56,24 +56,16 @@ function MyOrdersPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th>
-												<label>
-													<input
-														type="checkbox"
-														className="checkbox"
-													/>
-												</label>
-											</th>
-											<th className="text-sm">
+											<th className="text-base">
 												Produtos
 											</th>
-											<th className="text-sm">
+											<th className="text-base">
 												Total do Pedido
 											</th>
-											<th className="text-sm">
-												Status | Prazo
+											<th className="text-base">
+												Status
 											</th>
-											<th className="text-sm">
+											<th className="text-base">
 												ID do Pedido
 											</th>
 											<th></th>
@@ -84,14 +76,6 @@ function MyOrdersPage() {
 										{myorders.length > 0 &&
 											myorders.map((myorder) => (
 												<tr key={myorder._id}>
-													<th>
-														<label>
-															<input
-																type="checkbox"
-																className="checkbox"
-															/>
-														</label>
-													</th>
 													<td>
 														{myorder.itemsList.map(
 															(item, index) => (
@@ -168,12 +152,15 @@ function MyOrdersPage() {
 														{myorder.orderID}
 													</td>
 													<th>
-														<button className="flex items-center btn btn-ghost btn-xs">
+														<button className="flex flex-row items-center btn btn-info btn-xs w-[80px]">
 															<Link
 																href={`/dashboard/myorders/${myorder._id}`}>
 																+ Detalhes
 															</Link>
-														</button>{" "}
+															<div className="btn btn-error btn-xs w-[80px]">
+																<span className="loading loading-dots loading-sm"></span>
+															</div>
+														</button>
 													</th>
 												</tr>
 											))}

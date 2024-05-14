@@ -32,6 +32,9 @@ function CouponCard({ partnerLogo, siteLink, discount, cashback, coupon }) {
 					className="object-contain w-full h-full"
 					src={partnerLogo}
 					alt="Logo Partner"
+					width={150}
+					height={100}
+					unoptimized
 				/>
 			</div>
 			<div className="divider mx-2">

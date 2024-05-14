@@ -12,7 +12,7 @@ import Otakuyasan from "../../../../public/otakuyasan.png";
 
 import { CouponCard } from "@/components/CouponCard";
 
-function CupomPage() {
+function CoupomPage() {
 	const { partners } = useContext(Context);
 	const [coupons, setCoupons] = useState([]);
 
@@ -35,10 +35,12 @@ function CupomPage() {
 					Cupons em Destaque
 				</div>
 
-				<p className="text-center mb-4">
-					※ Cupons exclusivos para uso nas lojas online de nossos
-					parceiros! ※
-				</p>
+				<div className="flex justify-center">
+					<p className="bg-primary w-[550px] text-center py-1 rounded shadow-md mb-6">
+						※ Cupons exclusivos para uso nas lojas online de nossos
+						parceiros! ※
+					</p>
+				</div>
 
 				<div className="flex flex-row flex-wrap gap-4 justify-center mb-4">
 					{coupons.length > 0 ? (
@@ -50,7 +52,9 @@ function CupomPage() {
 								<CouponCard
 									key={coupon._id}
 									partnerLogo={
-										partner ? partner.logoImage : Otakuyasan
+										partner.logoImage
+											? partner.logoImage
+											: Otakuyasan
 									}
 									siteLink={partner ? partner.site : null}
 									discount={coupon.discountPercentage}
@@ -68,4 +72,4 @@ function CupomPage() {
 	);
 }
 
-export default CupomPage;
+export default CoupomPage;

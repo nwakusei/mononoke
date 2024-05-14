@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+import api from "@/utils/api";
+
 // imagens estáticas
 import Lycoris from "../../../../../public/lycoris.jpg";
 
@@ -31,12 +33,19 @@ import { YourOrderComp } from "@/components/YourOrderComp";
 
 function ReviewInfoPage() {
 	const { transportadoraInfo } = useContext(CheckoutContext);
-
 	const [productsInCart, setProductsInCart] = useState([]);
-	// const [transportadoraInfo, setTransportadoraInfo] = useState([]);
+	const [token] = useState(localStorage.getItem("token") || "");
+	const [user, setUser] = useState({});
 
-	console.log(productsInCart);
-	console.log(transportadoraInfo);
+	useEffect(() => {
+		api.get("/otakuprime/check-user", {
+			headers: {
+				Authorization: `Bearer ${JSON.parse(token)}`,
+			},
+		}).then((response) => {
+			setUser(response.data);
+		});
+	}, [token]);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -88,21 +97,37 @@ function ReviewInfoPage() {
 							</div>
 						</div>
 						<div className="flex flex-row justify-between gap-4 bg-gray-500 w-[650px] min-h-[100px] p-4 rounded-md mb-4">
-							<div className="flex flex-row gap-4">
-								<GrLocation size={25} />
+							{user.address && user.address.length > 0 ? (
+								user.address.map((end) => (
+									<>
+										<div
+											key={end.id}
+											className="flex flex-row gap-4">
+											<GrLocation size={25} />
+											<div>
+												<h1 className="text-base font-semibold mb-2">
+													Endereço de Entrega:
+												</h1>
+												<h1 className="text-base">
+													{end.logradouro}
+												</h1>
+												<h2>{end.complemento}</h2>
+												<h2>{end.bairro}</h2>
+												<h2>
+													{end.cidade}/{end.uf}
+												</h2>
+												<h2>{end.cep}</h2>
+											</div>
+										</div>
+									</>
+								))
+							) : (
 								<div>
 									<h1 className="text-base font-semibold mb-2">
-										Endereço de Entrega:
+										Nenhum endereço disponpivel
 									</h1>
-									<h1 className="text-base">
-										Avenida Lourenço Cabreira, 648
-									</h1>
-									<h2>Apto. 12 A</h2>
-									<h2>Jardim Ana Lúcia</h2>
-									<h2>São Paulo/SP</h2>
-									<h2>04812-010</h2>
 								</div>
-							</div>
+							)}
 						</div>
 						{Object.entries(transportadoraInfo).map(
 							([key, info]) => (
@@ -141,6 +166,9 @@ function ReviewInfoPage() {
 										className="textarea textarea-bordered w-full"
 										placeholder="Bio"></textarea>
 								</div>
+								<button className="btn btn-primary w-[150px] shadow-md">
+									Salvar
+								</button>
 							</div>
 						</div>
 					</div>

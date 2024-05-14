@@ -9,35 +9,14 @@ import { Sidebar } from "@/components/Sidebar";
 
 // Imagens e Logos
 import Otakuyasan from "../../../../../public/otakuyasan.png";
-import Otakuyasan2 from "../../../../../public/otakuyasan2.png";
-import Amora from "../../../../../public/amora.jpg";
-import MundosInfinitos from "../../../../../public/mundos-infinitos.png";
 
 // Icons
-import {
-	ShoppingCartOne,
-	ShoppingBag,
-	Coupon,
-	PaymentMethod,
-	Currency,
-	Credit,
-	Deposit,
-	Expenses,
-} from "@icon-park/react";
-import { GrChat } from "react-icons/gr";
-import { LuSettings, LuQrCode } from "react-icons/lu";
-import { RiAccountPinBoxLine } from "react-icons/ri";
-import { MdOutlineWarehouse } from "react-icons/md";
-import { BsShopWindow, BsChatSquareText } from "react-icons/bs";
-import { GoArrowUpRight } from "react-icons/go";
-import { PiHandHeartDuotone, PiChatCenteredText } from "react-icons/pi";
+import { Deposit } from "@icon-park/react";
 
 function WalletPage() {
 	const [user, setUser] = useState({});
 	const [userOtakupay, setUserOtakupay] = useState({});
 	const [token] = useState(localStorage.getItem("token") || "");
-
-	console.log(userOtakupay);
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -193,10 +172,14 @@ function WalletPage() {
 						{/* head */}
 						<thead>
 							<tr>
-								<th className="text-sm">Loja/Cliente</th>
-								<th className="text-sm">Job</th>
-								<th className="text-sm">Valor</th>
-								<th className="text-sm">Data</th>
+								<th className="text-base">
+									{user.accountType === "partner"
+										? `Cliente`
+										: `Loja`}
+								</th>
+								<th className="text-base">Transação</th>
+								<th className="text-base">Valor Total</th>
+								<th className="text-base">Data</th>
 								<th></th>
 							</tr>
 						</thead>

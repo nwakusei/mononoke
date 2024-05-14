@@ -8,7 +8,7 @@ interface ICustomer {
 	name: string;
 	email: string;
 	password: string;
-	cpf: number;
+	cpf: string;
 	address: [{}];
 	accountStatus: string;
 	otakupayID: mongoose.Schema.Types.ObjectId;
@@ -40,7 +40,7 @@ const customerSchema = new Schema<ICustomer>(
 			max: 64,
 		},
 		cpf: {
-			type: Number,
+			type: String,
 		},
 		address: {
 			type: [{}],
