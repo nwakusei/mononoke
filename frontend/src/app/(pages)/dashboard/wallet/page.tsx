@@ -75,10 +75,13 @@ function WalletPage() {
 									</h1>
 								</div>
 								<div className="flex flex-col mx-6 gap-4">
-									<button className="flex flex-row btn btn-outline btn-success w-[200px]">
-										<Deposit size={18} />
-										Adicionar Crédito
-									</button>
+									<Link href="/dashboard/wallet/add-balance">
+										<button className="flex flex-row btn btn-outline btn-success w-[200px]">
+											<Deposit size={18} />
+											Adicionar Crédito
+										</button>
+									</Link>
+
 									{/* <button className="btn btn-success">
 										<Expenses size={18} />
 										Sacar

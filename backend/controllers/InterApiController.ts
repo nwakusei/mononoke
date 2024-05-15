@@ -106,8 +106,6 @@ class InterApiController {
 			_id: customer.otakupayID,
 		});
 
-		console.log(customer._id);
-
 		// Configuração da requisição para obter o token
 		const tokenRequestConfig: AxiosRequestConfig = {
 			method: "post",
@@ -127,23 +125,25 @@ class InterApiController {
 
 		const { access_token } = responseToken.data;
 
+		const customerCPF = customer.cpf.toString().replace(/\D/g, "");
+
 		try {
-			const { customerName, customerCPF, originalValue } = req.body;
+			const originalValue = req.body;
 
 			const pixData = {
-				chave: process.env.INTER_PIX_KEY,
+				calendario: {
+					expiracao: 86400,
+				},
 				devedor: {
 					cpf: customerCPF,
-					nome: customerName,
+					nome: customerOtakupay.name,
 				},
 				valor: {
 					original: originalValue,
 					modalidadeAlteracao: 0,
 				},
+				chave: process.env.INTER_PIX_KEY,
 				solicitacaoPagador: "OtakuPay: Adicionar saldo por PIX.",
-				calendario: {
-					expiracao: 86400,
-				},
 			};
 			const url = "https://cdpj.partners.bancointer.com.br/pix/v2/cob";
 
@@ -198,6 +198,37 @@ class InterApiController {
 			});
 		} catch (error) {
 			console.error("Erro ao criar cobrança PIX:", error);
+
+			if (axios.isAxiosError(error)) {
+				// Se o erro for do tipo AxiosError, significa que a solicitação HTTP falhou
+				if (error.response) {
+					// Se houver uma resposta do servidor
+					console.error("Status do erro:", error.response.status);
+					console.error("Detalhes do erro:", error.response.data);
+
+					if (error.response.data.violacoes) {
+						// Se houver violações na resposta
+						console.error("Violacoes:");
+						error.response.data.violacoes.forEach(
+							(violacao: any) => {
+								console.error("- Razão:", violacao.razao);
+								console.error(
+									"- Propriedade:",
+									violacao.propriedade
+								);
+							}
+						);
+					}
+				} else {
+					// Se não houver uma resposta do servidor
+					console.error("Erro de servidor:", error.message);
+				}
+			} else {
+				// Se o erro não for do tipo AxiosError
+				console.error("Erro desconhecido:", error);
+			}
+
+			// Retorne uma resposta de erro para o cliente
 			res.status(500).json({ error: "Erro ao criar cobrança PIX" });
 		}
 	}
