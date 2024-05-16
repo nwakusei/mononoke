@@ -28,7 +28,7 @@ interface IOrder {
 	customerID: object;
 	customerName: string;
 	customerCPF: string;
-	customerAddress: [{}];
+	customerAddress: [];
 	shippingMethod: string;
 	statusShipping: string;
 	trackingCode: string;
@@ -103,9 +103,29 @@ const orderSchema = new Schema<IOrder>(
 		customerCPF: {
 			type: String,
 		},
-		customerAddress: {
-			type: [{}],
-		},
+		customerAddress: [
+			{
+				id: mongoose.Schema.Types.ObjectId,
+				logradouro: {
+					type: String,
+				},
+				complemento: {
+					type: String,
+				},
+				bairro: {
+					type: String,
+				},
+				cidade: {
+					type: String,
+				},
+				uf: {
+					type: String,
+				},
+				cep: {
+					type: String,
+				},
+			},
+		],
 		shippingMethod: {
 			type: String,
 		},

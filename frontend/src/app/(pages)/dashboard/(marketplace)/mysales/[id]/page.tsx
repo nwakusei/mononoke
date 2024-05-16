@@ -33,6 +33,8 @@ function MySaleByIDPage() {
 	const [trackingCode, setTrackingCode] = useState("");
 	const [trackingLoading, setTrackingLoading] = useState(false);
 
+	console.log(mysale);
+
 	const dateCreatedOrder = mysale.createdAt
 		? `${format(new Date(mysale.createdAt), "dd/MM - HH:mm")} hs`
 		: "";
@@ -412,14 +414,14 @@ function MySaleByIDPage() {
 
 							<div className="divider"></div>
 
-							{mysale.customerAdress &&
-								mysale.customerAdress.length > 0 &&
-								mysale.customerAdress.map((end) => (
-									<div key={end.id}>
+							{mysale.customerAddress &&
+								mysale.customerAddress.length > 0 &&
+								mysale.customerAddress.map((end) => (
+									<div key={end._id}>
 										<div className="text-lg mb-3">
 											Endereço de entrega e cobrança
 										</div>
-										<div>Endereço: {end.logradoro}</div>
+										<div>Endereço: {end.logradouro}</div>
 										<div>
 											{end.complemento ? (
 												`Complemento: ${end.complemento}`

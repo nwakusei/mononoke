@@ -25,3 +25,24 @@ body {
 		)
 		rgb(var(--background-start-rgb));
 }
+
+/* Estilização do componente Barra de Rolagem */
+body::-webkit-scrollbar {
+	/* width of the entire scrollbar */
+	width: 12px;
+}
+
+body::-webkit-scrollbar-track {
+	/* Cor da área que possui a Barra de Rolagem */
+	background: #828df8;
+}
+
+/* Estilização da Barra de Rolagem*/
+body::-webkit-scrollbar-thumb {
+	/* Cor da Barra de Rolagem*/
+	background-color: #6633cc;
+	/* Border Radius da Barra de Rolagem */
+	border-radius: 20px;
+	/* Borda da Barra de Rolagem */
+	border: 3px solid #828df8;
+}

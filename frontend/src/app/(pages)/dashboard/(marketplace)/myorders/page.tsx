@@ -157,9 +157,9 @@ function MyOrdersPage() {
 																href={`/dashboard/myorders/${myorder._id}`}>
 																+ Detalhes
 															</Link>
-															<div className="btn btn-error btn-xs w-[80px]">
+															{/* <div className="btn btn-error btn-xs w-[80px]">
 																<span className="loading loading-dots loading-sm"></span>
-															</div>
+															</div> */}
 														</button>
 													</th>
 												</tr>

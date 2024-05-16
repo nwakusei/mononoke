@@ -475,7 +475,11 @@ function MyOrderByIDPage() {
 							<></>
 						)}
 
-						{myorder.statusOrder === "Confirmado" && (
+						{(myorder.statusOrder === "Confirmado" ||
+							myorder.statusShipping === "Embalado" ||
+							myorder.statusShipping === "Enviado" ||
+							myorder.statusOrder === "Entregue" ||
+							myorder.statusOrder === "Concluído") && (
 							<li
 								data-content="✓"
 								className="step step-primary h-[180px]">
@@ -499,7 +503,9 @@ function MyOrderByIDPage() {
 						)}
 
 						{myorder.statusShipping === "Embalado" ||
-						myorder.statusShipping === "Enviado" ? (
+						myorder.statusShipping === "Enviado" ||
+						myorder.statusOrder === "Entregue" ||
+						myorder.statusOrder === "Concluído" ? (
 							<li
 								data-content="✓"
 								className="step step-primary h-[180px]">

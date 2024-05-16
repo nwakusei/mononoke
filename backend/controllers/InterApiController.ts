@@ -128,7 +128,7 @@ class InterApiController {
 		const customerCPF = customer.cpf.toString().replace(/\D/g, "");
 
 		try {
-			const originalValue = req.body;
+			const { originalValue } = req.body;
 
 			const pixData = {
 				calendario: {
@@ -229,7 +229,9 @@ class InterApiController {
 			}
 
 			// Retorne uma resposta de erro para o cliente
-			res.status(500).json({ error: "Erro ao criar cobrança PIX" });
+			res.status(500).json({
+				message: "Erro ao gerar QR Code!",
+			});
 		}
 	}
 
@@ -288,7 +290,7 @@ class InterApiController {
 			// Construa o corpo da solicitação para criar o webhook
 			const webhookData = {
 				webhookUrl:
-					"https://MEUDOMINIO.COM.BR/interapi/addBalanceByPixInter",
+					"https://MEUDOMINIOAPI.com/interapi/addBalanceByPixInter",
 			};
 
 			const createWebhookConfig: AxiosRequestConfig = {

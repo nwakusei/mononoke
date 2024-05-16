@@ -991,7 +991,16 @@ class OtakupayController {
 							customerID: customer._id,
 							customerName: customer.name,
 							customerCPF: customer.cpf,
-							customerAddress: [],
+							customerAddress: [
+								{
+									logradouro: "Rua Pernambuco, 23",
+									complemento: "Casa A",
+									bairro: "Jardim Monte Verde",
+									cidade: "São Paulo",
+									uf: "SP",
+									cep: "04851-511",
+								},
+							],
 							shippingMethod: "Loggi",
 							trackingCode: "",
 							statusShipping: "Envio Pendente",
