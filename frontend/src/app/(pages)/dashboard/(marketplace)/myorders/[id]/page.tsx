@@ -388,7 +388,7 @@ function MyOrderByIDPage() {
 						{/* Gadget 3 */}
 						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
 							<h1 className="text-lg">
-								Nome: {myorder.customerName}
+								Loja: {myorder.partnerName}
 							</h1>
 							<h2>CPF: 000.000.000-00</h2>
 

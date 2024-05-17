@@ -440,12 +440,24 @@ function SideComponent() {
 				{/* Meios de envio/Frete */}
 				<div className="flex flex-col border border-solid p-2 rounded">
 					<div>
-						<h2 className="flex flex-row items-center gap-2 mb-2">
+						<div className="flex flex-row items-center gap-2 mb-2">
 							<GrLocation size={18} />
 							<span className="text-sm">
-								Enviado de Joinville/SC
+								{partner &&
+								partner.address &&
+								partner.address.length > 0 ? (
+									partner.address.map((end) => (
+										<div key={end._id}>
+											<div>{`Enviado de ${end.cidade}/${end.uf}`}</div>
+										</div>
+									))
+								) : (
+									<div>
+										<h1>Cidade de origem Indefinida...</h1>
+									</div>
+								)}
 							</span>
-						</h2>
+						</div>
 
 						{product.freeShipping === true ? (
 							<div className="flex flex-row justify-between items-center gap-2 mb-1">

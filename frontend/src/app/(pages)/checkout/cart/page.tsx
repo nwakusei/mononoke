@@ -153,17 +153,10 @@ function CartPage() {
 						}
 					);
 
-					console.log(response.data);
-
 					const transportadoraCorreta = response.data.find(
 						(transportadora) =>
 							transportadora.idTransp ===
 							partnerData.transportadora?.id
-					);
-
-					console.log(
-						"Transportadora correta:",
-						transportadoraCorreta
 					);
 
 					// Adicionando os dados da transportadora ao objeto transportadoraData

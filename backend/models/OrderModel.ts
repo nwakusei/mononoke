@@ -28,7 +28,15 @@ interface IOrder {
 	customerID: object;
 	customerName: string;
 	customerCPF: string;
-	customerAddress: [];
+	customerAddress: {
+		id: mongoose.Schema.Types.ObjectId;
+		logradouro: string;
+		complemento: string;
+		bairro: string;
+		cidade: string;
+		uf: string;
+		cep: string;
+	}[];
 	shippingMethod: string;
 	statusShipping: string;
 	trackingCode: string;

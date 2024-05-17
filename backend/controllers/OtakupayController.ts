@@ -966,7 +966,18 @@ class OtakupayController {
 					// Verificar se o custo de envio para este parceiro foi encontrado
 					if (shippingCostForPartner) {
 						// Extrair o valor do custo de envio
-						const { vlrFrete } = shippingCostForPartner;
+						const { transportadora, vlrFrete } =
+							shippingCostForPartner;
+
+						const customerAddress: any = customer.address[0];
+
+						if (!customerAddress) {
+							res.status(422).json({
+								message:
+									"É necessário informar o endereço de entrega!",
+							});
+							return;
+						}
 
 						// Criar uma nova Order para cada PartnerID
 						const order = new OrderModel({
@@ -993,15 +1004,15 @@ class OtakupayController {
 							customerCPF: customer.cpf,
 							customerAddress: [
 								{
-									logradouro: "Rua Pernambuco, 23",
-									complemento: "Casa A",
-									bairro: "Jardim Monte Verde",
-									cidade: "São Paulo",
-									uf: "SP",
-									cep: "04851-511",
+									logradouro: customerAddress.logradouro,
+									complemento: customerAddress.complemento,
+									bairro: customerAddress.bairro,
+									cidade: customerAddress.cidade,
+									uf: customerAddress.uf,
+									cep: customerAddress.cep,
 								},
 							],
-							shippingMethod: "Loggi",
+							shippingMethod: transportadora,
 							trackingCode: "",
 							statusShipping: "Envio Pendente",
 							discountsApplied: 0,

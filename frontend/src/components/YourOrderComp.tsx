@@ -34,8 +34,13 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 			// Variável para armazenar o cepDestino de um dos produtos
 			let cepDestino = null;
 
+			// Filtrar produtos elegíveis para cálculo de frete
+			const eligibleProducts = products.filter(
+				(product) => product.cepDestino.trim() !== ""
+			);
+
 			// Calcular as informações dos produtos por parceiro
-			products.forEach((product) => {
+			eligibleProducts.forEach((product) => {
 				const partnerID = product.partnerID;
 				const weight = product.weight || 0;
 				const length = product.length || 0;
@@ -105,18 +110,12 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 
 				// Atualizando o estado com os dados padrão da transportadora
 				setTransportadoraInfo(defaultTransportadoraData);
-
-				// Armazenando os dados padrão da transportadora no localStorage
-				localStorage.setItem(
-					"transportadoraInfo",
-					JSON.stringify(defaultTransportadoraData)
-				);
 			}
 		}
 	}, []);
 
 	async function handleSimulateShipping(cepDestino, partnerInfo) {
-		console.log(partnerInfo);
+		console.log(cepDestino);
 		try {
 			const transportadoraData = {};
 
