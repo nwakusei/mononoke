@@ -522,7 +522,7 @@ class ProductController {
 			volumes: [
 				{
 					peso: weight * quantityThisProduct + 0.011,
-					altura: height,
+					altura: height + 0.1,
 					largura: width,
 					comprimento: length,
 					valor: productPrice,
@@ -546,19 +546,29 @@ class ProductController {
 
 			let data = await response.json();
 
-			console.log(typeof data);
+			// Verificar se data é um array
+			if (Array.isArray(data)) {
+				// Filtrar apenas as transportadoras dos Correios com os serviços desejados (X, E, M)
+				data = data.filter((transportadora: any) => {
+					const servico = transportadora.servico;
+					return (
+						servico === "X" || servico === "E" || servico === "M"
+					);
+				});
 
-			// Filtrar apenas as transportadoras dos Correios com os serviços desejados (X, E, M)
-			data = data.filter((transportadora: any) => {
-				const servico = transportadora.servico;
-				return servico === "X" || servico === "E" || servico === "M";
-			});
+				// Ordenar as transportadoras pelo valor do frete (do mais barato ao mais caro)
+				data.sort((a: any, b: any) => a.vlrFrete - b.vlrFrete);
 
-			// Ordenar as transportadoras pelo valor do frete (do mais barato ao mais caro)
-			data.sort((a: any, b: any) => a.vlrFrete - b.vlrFrete);
-
-			console.log(data);
-			res.json(data); // Retorna os dados recebidos da API como resposta
+				console.log(data);
+				res.json(data); // Retorna os dados recebidos da API como resposta
+			} else {
+				console.error(
+					"Os dados retornados pela API não estão no formato esperado."
+				);
+				res.status(500).json({
+					error: "Erro ao processar os dados da API",
+				});
+			}
 		} catch (error) {
 			console.error("Ocorreu um erro:", error);
 			res.status(500).json({ error: "Erro ao fazer a requisição à API" }); // Retorna um erro 500 em caso de falha na requisição

@@ -44,7 +44,7 @@ function DashboardPage() {
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-yellow-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10">
+			<div className="h-screen bg-yellow-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10">
 				<div className="flex flex-row gap-4">
 					{/* Gadget 1 */}
 					<div className="bg-purple-400 w-[700px] p-6 rounded-md ">

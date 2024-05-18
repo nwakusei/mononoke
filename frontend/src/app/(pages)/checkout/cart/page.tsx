@@ -184,7 +184,7 @@ function CartPage() {
 						weight * quantityThisProduct;
 					partnerInfo[partnerID].length = length;
 					partnerInfo[partnerID].width = width;
-					partnerInfo[partnerID].height += height;
+					partnerInfo[partnerID].height = height;
 					partnerInfo[partnerID].productPriceTotal +=
 						productPriceTotal;
 					partnerInfo[partnerID].quantityThisProduct +=
@@ -255,14 +255,6 @@ function CartPage() {
 			for (const partnerID in partnerInfo) {
 				if (partnerInfo.hasOwnProperty(partnerID)) {
 					const partnerData = partnerInfo[partnerID];
-
-					console.log(partnerData.weight);
-					console.log(partnerData.height);
-					console.log(partnerData.width);
-					console.log(partnerData.length);
-					console.log(partnerData.productPrice);
-					console.log(partnerData.productPriceTotal);
-					console.log(partnerData.quantityThisProduct);
 
 					const response = await api.post(
 						"/products/simulate-shipping",
@@ -380,7 +372,7 @@ function CartPage() {
 									weight * quantityThisProduct;
 								partnerInfo[partnerID].length = length;
 								partnerInfo[partnerID].width = width;
-								partnerInfo[partnerID].height += height;
+								partnerInfo[partnerID].height = height;
 								partnerInfo[partnerID].productPriceTotal +=
 									productPriceTotal;
 								partnerInfo[partnerID].quantityThisProduct +=
@@ -495,7 +487,7 @@ function CartPage() {
 							weight * quantityThisProduct;
 						partnerInfo[partnerID].length = length;
 						partnerInfo[partnerID].width = width;
-						partnerInfo[partnerID].height += height;
+						partnerInfo[partnerID].height = height;
 						partnerInfo[partnerID].productPriceTotal +=
 							productPriceTotal;
 						partnerInfo[partnerID].quantityThisProduct +=
@@ -581,7 +573,7 @@ function CartPage() {
 							weight * quantityThisProduct;
 						partnerInfo[partnerID].length = length;
 						partnerInfo[partnerID].width = width;
-						partnerInfo[partnerID].height += height;
+						partnerInfo[partnerID].height = height;
 						partnerInfo[partnerID].productPriceTotal +=
 							productPriceTotal;
 						partnerInfo[partnerID].quantityThisProduct +=
