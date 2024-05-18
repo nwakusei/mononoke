@@ -55,6 +55,8 @@ function PaymentPage() {
 	const router = useRouter();
 	const [payLoading, setPayLoading] = useState(false);
 
+	console.log(transportadoraInfo);
+
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
 		if (savedProductsInCart) {
@@ -74,6 +76,8 @@ function PaymentPage() {
 				productQuantity: product.quantityThisProduct,
 				partnerID: product.partnerID,
 			}));
+
+			console.log(transportadoraInfo);
 
 			const shippingCost = Object.values(transportadoraInfo).map(
 				(info) => ({
