@@ -256,6 +256,9 @@ function CartPage() {
 				if (partnerInfo.hasOwnProperty(partnerID)) {
 					const partnerData = partnerInfo[partnerID];
 
+					console.log(partnerData.weight);
+					console.log(partnerData.productPriceTotal);
+
 					const response = await api.post(
 						"/products/simulate-shipping",
 						{
@@ -330,8 +333,7 @@ function CartPage() {
 					const filteredProducts = productsInCart.filter(
 						(product) =>
 							product.cepDestino &&
-							product.cepDestino.trim() !== "" &&
-							!product.freeShipping
+							product.cepDestino.trim() !== ""
 					);
 
 					// Verificar se há produtos no carrinho após a filtragem
@@ -442,9 +444,7 @@ function CartPage() {
 			// Filtrar os produtos para remover aqueles com frete grátis e cep vazio
 			const filteredProducts = productsInCart.filter(
 				(product) =>
-					product.cepDestino &&
-					product.cepDestino.trim() !== "" &&
-					!product.freeShipping
+					product.cepDestino && product.cepDestino.trim() !== ""
 			);
 
 			// Verificar se há produtos no carrinho após a filtragem
@@ -533,9 +533,7 @@ function CartPage() {
 			// Recalcular o frete após a remoção do produto
 			const filteredProducts = updatedCart.filter(
 				(product) =>
-					product.cepDestino &&
-					product.cepDestino.trim() !== "" &&
-					!product.freeShipping
+					product.cepDestino && product.cepDestino.trim() !== ""
 			);
 
 			if (filteredProducts.length > 0) {

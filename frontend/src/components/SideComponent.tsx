@@ -41,6 +41,24 @@ function SideComponent() {
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
 	);
+	const [token] = useState(localStorage.getItem("token") || "");
+	const [user, setUser] = useState({});
+
+	const partnerAddress = partner ? partner.address[0].uf : "";
+	const userAddress = user.address ? user.address[0].uf : "";
+
+	console.log(partnerAddress);
+	console.log(userAddress);
+
+	useEffect(() => {
+		api.get("/otakuprime/check-user", {
+			headers: {
+				Authorization: `Bearer ${JSON.parse(token)}`,
+			},
+		}).then((responser) => {
+			setUser(responser.data);
+		});
+	}, [token]);
 
 	useEffect(() => {
 		const fetchProduct = async () => {
@@ -459,7 +477,8 @@ function SideComponent() {
 							</span>
 						</div>
 
-						{product.freeShipping === true ? (
+						{product.freeShipping === true &&
+						partnerAddress === userAddress ? (
 							<div className="flex flex-row justify-between items-center gap-2 mb-1">
 								<div className="flex flex-row items-center gap-2">
 									<LiaShippingFastSolid size={24} />

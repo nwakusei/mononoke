@@ -279,7 +279,8 @@ function MyOrderByIDPage() {
 																		item
 																	) =>
 																		total +
-																		item.productPrice,
+																		item.productPrice *
+																			item.productQuantity,
 																	0
 																)
 																.toLocaleString(
@@ -324,7 +325,8 @@ function MyOrderByIDPage() {
 																			item
 																		) =>
 																			total +
-																			item.productPrice,
+																			item.productPrice *
+																				item.productQuantity,
 																		0
 																	);
 																const totalWithShipping =

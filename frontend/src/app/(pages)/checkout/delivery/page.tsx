@@ -135,15 +135,13 @@ function DeliveryPage() {
 											</h1>
 											<h2>
 												Custo do Frete:{" "}
-												{info &&
-													info.vlrFrete &&
-													info.vlrFrete.toLocaleString(
-														"pt-BR",
-														{
-															style: "currency",
-															currency: "BRL",
-														}
-													)}
+												{info.vlrFrete.toLocaleString(
+													"pt-BR",
+													{
+														style: "currency",
+														currency: "BRL",
+													}
+												)}
 											</h2>
 											<h2>Prazo de Envio: 3 dias</h2>
 											<h2>
