@@ -43,6 +43,7 @@ import InterApiRoutes from "./routes/InterApiRoutes.js";
 import OtakuPrimeRoutes from "./routes/OtakuPrimeRoutes.js";
 import CouponRoutes from "./routes/CouponRoutes.js";
 import ReviewRoutes from "./routes/ReviewRoutes.js";
+import TrackingRoutes from "./routes/TrackingRoutes.js";
 
 // Definição das rotas
 app.use("/customers", CustomerRoutes);
@@ -54,6 +55,7 @@ app.use("/interapi", InterApiRoutes);
 app.use("/otakuprime", OtakuPrimeRoutes);
 app.use("/coupons", CouponRoutes);
 app.use("/reviews", ReviewRoutes);
+app.use("/tracking", TrackingRoutes);
 
 // Configuração do Listen
 app.listen(port, () => {

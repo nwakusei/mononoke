@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { CustomerModel } from "../models/CustomerModel.js";
 import { CouponModel } from "../models/CouponModel.js";
 import bcrypt from "bcrypt";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -9,7 +10,6 @@ import fetch from "node-fetch";
 // Middlewares/Helpers
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
-import { CustomerModel } from "../models/CustomerModel.js";
 
 class CouponController {
 	static async create(req: Request, res: Response) {

@@ -40,6 +40,7 @@ interface IOrder {
 	shippingMethod: string;
 	statusShipping: string;
 	trackingCode: string;
+	logisticOperator: string;
 	discountsApplied: number;
 	orderNote: string;
 }
@@ -141,6 +142,9 @@ const orderSchema = new Schema<IOrder>(
 			type: String,
 		},
 		trackingCode: {
+			type: String,
+		},
+		logisticOperator: {
 			type: String,
 		},
 		discountsApplied: {

@@ -43,12 +43,6 @@ router.patch(
 	OrderController.updateTrackingCode
 );
 
-router.get(
-	"/get-order-tracking/:id",
-	verifyToken,
-	OrderController.getOrderTracking
-);
-
 // router.post("/review-order", verifyToken, OrderController.reviewOrder);
 
 export default router;

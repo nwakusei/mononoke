@@ -949,58 +949,6 @@ class OrderController {
 		}
 	}
 
-	static async getOrderTracking(req: Request, res: Response) {
-		const { id } = req.params;
-
-		const token: any = getToken(req);
-		const customer = await getUserByToken(token);
-
-		if (!customer) {
-			res.status(422).json({ message: "Usuário não encontrado!" });
-			return;
-		}
-
-		if (customer.accountType !== "customer") {
-			res.status(422).json({
-				message: "Você não tem permissão para acessar esta requisição!",
-			});
-			return;
-		}
-
-		const order = await OrderModel.findById(id);
-
-		if (!order) {
-			res.status(422).json({
-				message: "Pedido não encontrado!",
-			});
-			return;
-		}
-
-		try {
-			const trackingCode = order.trackingCode;
-
-			const kanguApiUrl = `https://portal.kangu.com.br/tms/transporte/rastrear/${trackingCode}`;
-			const tokenKangu = "8bdcdd65ac61c68aa615f3da4a3754b4";
-
-			const response = await fetch(kanguApiUrl, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					token: tokenKangu,
-				},
-			});
-
-			const data = await response.json();
-
-			console.log(data);
-
-			res.status(200).json(data);
-		} catch (error) {
-			console.log(error);
-			res.status(500).json(error);
-		}
-	}
-
 	// static async reviewOrder(req: Request, res: Response) {
 	// 	res.status(200).json({ message: "Teste realizado com sucesso!" });
 	// }
