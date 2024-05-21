@@ -1159,47 +1159,35 @@ class OtakupayController {
 		}
 	}
 
-	static async creditCardOtamart(req: Request, res: Response) {
-		// const session = await stripeInstance.checkout.sessions.create({
-		// 	payment_method_types: ["card"],
-		// 	line_items: [
-		// 		{
-		// 			price_data: {
-		// 				currency: "brl",
-		// 				product_data: {
-		// 					name: "Produto",
-		// 				},
-		// 				unit_amount: 1000, // preço em centavos
-		// 			},
-		// 			quantity: 1,
-		// 		},
-		// 	],
-		// 	mode: "payment",
-		// 	success_url: "https://meusite.com.br/success",
-		// 	cancel_url: "https://meusite.com.br/cancel",
-		// });
-		// res.json({ id: session.id });
-		// console.log("ID Session criado com sucesso!");
+	// Requisição para enviar a Public Key Stripe para o frontend, segundo o tutorial
+	static async stripeConfig(req: Request, res: Response) {
+		res.send({
+			publishableKey:
+				"pk_test_51NoKxfCpHjNCai65Us34PtzFZVqGvqvOChovzEw8EcC9JO0cGj6n0C2Rxa814cqBacxRhWuNo8QDitE2KpyrMVyS00EbiLs7wk",
+		});
+	}
 
-		const { payment_method_id } = req.body;
-
+	static async createPaymentIntent(req: Request, res: Response) {
 		try {
 			const paymentIntent = await stripe.paymentIntents.create({
-				payment_method: payment_method_id,
-				amount: 1000, // Valor em centavos
 				currency: "brl",
-				confirmation_method: "manual",
-				confirm: true,
-				return_url: "http://localhost:3000", // Substitua pela sua URL real
+				amount: 1999,
+				automatic_payment_methods: {
+					enabled: true,
+				},
 			});
-			// Lidar com o sucesso do pagamento
-			res.json({ success: true, paymentIntent });
-		} catch (error: any) {
-			console.error("Erro ao processar pagamento:", error);
-			// Lidar com o erro do pagamento
-			res.status(500).json({ error: error.message });
+
+			res.send({ clientSecret: paymentIntent.client_secret });
+		} catch (e: any) {
+			return res.status(400).send({
+				error: {
+					message: e.messsage,
+				},
+			});
 		}
 	}
+
+	static async creditCardOtamart(req: Request, res: Response) {}
 
 	static async pixOtamart(req: Request, res: Response) {
 		console.log("PAGAMENTO PIX REALIZADO COM SUCESSO!");

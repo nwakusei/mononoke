@@ -16,5 +16,7 @@ router.get(
 	verifyToken,
 	OtakupayController.getUserOtakupay
 );
+router.get("/stripe-config", OtakupayController.stripeConfig);
+router.post("/create-payment-intent", OtakupayController.createPaymentIntent);
 
 export default router;
