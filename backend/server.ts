@@ -49,7 +49,7 @@ import TrackingRoutes from "./routes/TrackingRoutes.js";
 app.use("/customers", CustomerRoutes);
 app.use("/partners", PartnerRoutes);
 app.use("/products", ProductRoutes);
-app.use("/otakupay", OtakupayRoutes);
+app.use("/otakupay", express.raw({ type: "application/json" }), OtakupayRoutes);
 app.use("/orders", OrderRoutes);
 app.use("/interapi", InterApiRoutes);
 app.use("/otakuprime", OtakuPrimeRoutes);

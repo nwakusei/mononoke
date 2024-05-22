@@ -1,33 +1,36 @@
 import { useState } from "react";
 
+// Stripe Features
 import { useStripe, useElements } from "@stripe/react-stripe-js";
 import { PaymentElement } from "@stripe/react-stripe-js";
-import { StripePaymentElementOptions } from "@stripe/stripe-js";
 
-function CheckoutForm() {
+import { toast } from "react-toastify";
+
+function CheckoutCreditCardForm() {
 	const stripe = useStripe();
 	const elements = useElements();
 	const [message, setMessage] = useState<string | null>(null);
-	const [isProcessing, setIsProcessing] = useState(false);
+	const [processing, setProcessing] = useState(false);
 
-	const handleSubmit = async (e) => {
+	async function handleSubmit(e) {
 		e.preventDefault();
 
 		if (!stripe || !elements) {
 			return;
 		}
 
-		setIsProcessing(true);
+		setProcessing(true);
 
 		const { error, paymentIntent } = await stripe.confirmPayment({
 			elements,
 			confirmParams: {
-				return_url: `${window.location.origin}/success`,
+				return_url: `${window.location.origin}/`,
 			},
 			redirect: "if_required",
 		});
 
 		if (error) {
+			toast.error(error.message);
 			setMessage(error.message);
 		} else if (paymentIntent && paymentIntent.status === "succeeded") {
 			console.log(paymentIntent);
@@ -36,33 +39,27 @@ function CheckoutForm() {
 			setMessage("Unexpected state");
 		}
 
-		setIsProcessing(false);
-	};
+		setProcessing(false);
+	}
 
 	return (
-		<div className="flex justify-center">
-			<form
-				className="w-[500px]"
-				id="payment-form"
-				onSubmit={handleSubmit}>
-				<PaymentElement
-					options={{
-						layout: "tabs",
-					}}
-				/>
+		<div>
+			<form className="w-[350px]" onSubmit={handleSubmit}>
+				<div className="payment-element-wrapper">
+					<PaymentElement options={{ layout: "tabs" }} />
+				</div>
+
 				<button
-					className="btn btn-primary w-full mt-4"
-					disabled={isProcessing}
-					id="submit">
-					<span id="button-text">
-						{isProcessing ? "Processing..." : "Pay now"}
-					</span>
+					type="submit"
+					className="btn btn-primary w-full mt-4 shadow-md"
+					disabled={processing}>
+					<span>{processing ? "´Processando" : "Pagar Agora"}</span>
 				</button>
 
-				{message && <div id="payment-message">{message}</div>}
+				{message && <div>{message}</div>}
 			</form>
 		</div>
 	);
 }
 
-export { CheckoutForm };
+export { CheckoutCreditCardForm };

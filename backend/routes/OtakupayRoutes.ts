@@ -16,7 +16,17 @@ router.get(
 	verifyToken,
 	OtakupayController.getUserOtakupay
 );
-router.get("/stripe-config", OtakupayController.stripeConfig);
-router.post("/create-payment-intent", OtakupayController.createPaymentIntent);
+router.get(
+	"/send-public-key",
+	verifyToken,
+	OtakupayController.stripeSendPublicKey
+);
+router.post(
+	"/create-payment-intent",
+	verifyToken,
+	OtakupayController.createPaymentIntent
+);
+
+router.post("/credit-card-otamart", OtakupayController.creditCardOtamart);
 
 export default router;

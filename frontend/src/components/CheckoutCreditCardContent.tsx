@@ -1,27 +1,32 @@
-"use client";
-
 import { useEffect, useState } from "react";
 
 import api from "@/utils/api";
 
-// Stripe
+// Stripe Features
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 
-import { CheckoutForm } from "@/components/CheckoutForm";
+// Components
+import { CheckoutCreditCardForm } from "@/components/CheckoutCreditCardForm";
 
-function PaymentPage() {
+// Icons
+import { PiCreditCardBold } from "react-icons/pi";
+
+function CheckoutCreditCardContent() {
 	const [stripePromise, setStripePromise] = useState<Stripe | null>(null);
 	const [clientSecret, setClientSecret] = useState("");
 
 	useEffect(() => {
 		const fetchStripeConfig = async () => {
 			try {
-				const response = await api.get("/otakupay/stripe-config");
-				const stripe = await loadStripe(response.data.publishableKey);
-				setStripePromise(stripe);
+				const response = await api.get("/otakupay/send-public-key");
+				const publishableKeyStripe = await loadStripe(
+					response.data.publishableKey
+				);
+
+				setStripePromise(publishableKeyStripe);
 			} catch (error) {
-				console.error("Failed to load Stripe:", error);
+				console.log(error);
 			}
 		};
 
@@ -39,7 +44,7 @@ function PaymentPage() {
 
 				setClientSecret(clientSecret);
 			} catch (error) {
-				console.error("Failed to load Stripe:", error);
+				console.log(error);
 			}
 		};
 
@@ -47,17 +52,18 @@ function PaymentPage() {
 	}, []);
 
 	return (
-		<div className="h-screen">
-			<h1 className="text-center my-4">
-				NextJS Stripe and the Payment Element
-			</h1>
+		<div className="flex flex-col justify-center items-center">
+			<div className="flex flex-row justify-center items-center w-[350px] bg-primary px-2 py-1 mb-4 gap-1 rounded shadow-md">
+				<h1 className="select-none">Pague com Cartão de Crédito!</h1>
+				<PiCreditCardBold size={18} />
+			</div>
 			{stripePromise && clientSecret && (
 				<Elements stripe={stripePromise} options={{ clientSecret }}>
-					<CheckoutForm />
+					<CheckoutCreditCardForm />
 				</Elements>
 			)}
 		</div>
 	);
 }
 
-export default PaymentPage;
+export { CheckoutCreditCardContent };

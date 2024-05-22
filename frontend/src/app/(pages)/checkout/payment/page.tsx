@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useContext } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
 
 // Axios
@@ -13,39 +11,30 @@ import Swal from "sweetalert2";
 
 // imagens estáticas
 
+// Stripe Features
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
+// Components
+import { CheckoutBalanceContent } from "@/components/CheckoutBalanceContent";
+import { CheckoutPixContent } from "@/components/CheckoutPixContent";
+import { CheckoutCreditCardContent } from "@/components/CheckoutCreditCardContent";
+import { CheckoutCreditCardForm } from "@/components/CheckoutCreditCardForm";
+
 // Context
 import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
-import {
-	PaymentMethod,
-	Coupon,
-	IdCardH,
-	ShoppingCartOne,
-} from "@icon-park/react";
-import {
-	MdOutlineDeleteOutline,
-	MdArrowBackIos,
-	MdArrowForwardIos,
-	MdOutlineCancel,
-	MdOutlinePix,
-} from "react-icons/md";
-import { GrLocation } from "react-icons/gr";
-import { HiOutlineCreditCard } from "react-icons/hi";
+import { PaymentMethod, ShoppingCartOne } from "@icon-park/react";
+import { MdOutlinePix } from "react-icons/md";
 import { PiCreditCardBold } from "react-icons/pi";
 import { BiIdCard } from "react-icons/Bi";
 import { LiaShippingFastSolid } from "react-icons/lia";
-import { FiInfo } from "react-icons/fi";
-import { CiStickyNote } from "react-icons/ci";
-import { PiNoteBold } from "react-icons/pi";
-import { RiCopperCoinLine } from "react-icons/ri";
 import { IoWalletOutline } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa";
 
 // Components
 import { YourOrderComp } from "@/components/YourOrderComp";
-import { headers } from "next/headers";
-import { toast } from "react-toastify";
 
 function PaymentPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
@@ -54,8 +43,9 @@ function PaymentPage() {
 	const [productsInCart, setProductsInCart] = useState([]);
 	const router = useRouter();
 	const [payLoading, setPayLoading] = useState(false);
-
-	console.log(transportadoraInfo);
+	const [visiblePaymentContent, setVisiblePaymentContent] = useState(null);
+	const [stripePromise, setStripePromise] = useState(null);
+	const [clientSecret, setClientSecret] = useState("");
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -63,6 +53,48 @@ function PaymentPage() {
 			setProductsInCart(JSON.parse(savedProductsInCart));
 		}
 	}, []);
+
+	useEffect(() => {
+		const fetchStripeConfig = async () => {
+			try {
+				const response = await api.get("/otakupay/send-public-key");
+				const publishableKeyStripe = await loadStripe(
+					response.data.publishableKey
+				);
+				setStripePromise(publishableKeyStripe);
+			} catch (error) {
+				console.log(error);
+			}
+		};
+		fetchStripeConfig();
+	}, []);
+
+	useEffect(() => {
+		const fetchPaymentIntent = async () => {
+			try {
+				const response = await api.post(
+					"/otakupay/create-payment-intent"
+				);
+				const clientSecret = response.data.clientSecret;
+				setClientSecret(clientSecret);
+			} catch (error) {
+				console.log(error);
+			}
+		};
+		fetchPaymentIntent();
+	}, []);
+
+	const showBalancePaymentContent = () => {
+		setVisiblePaymentContent("balanceContent");
+	};
+
+	const showPixPaymentContent = () => {
+		setVisiblePaymentContent("pixContent");
+	};
+
+	const showCreditCardContent = () => {
+		setVisiblePaymentContent("creditCardContent");
+	};
 
 	async function handlePayment() {
 		try {
@@ -182,22 +214,24 @@ function PaymentPage() {
 								</div>
 							</div>
 							<div className="flex flex-row items-center gap-4">
-								<button className="flex flex-row justify-center items-center gap-2 bg-purple-500 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+								<button
+									onClick={showBalancePaymentContent}
+									className="flex flex-row justify-center items-center gap-2 bg-purple-500 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
 									<PaymentMethod size={20} />
 									Saldo em Conta
 								</button>
-								<button className="flex flex-row justify-center items-center gap-2 bg-purple-500 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+								<button
+									onClick={showCreditCardContent}
+									className="flex flex-row justify-center items-center gap-2 bg-purple-500 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
 									<PiCreditCardBold size={20} />
 									Cartão de Crédito
 								</button>
-								<button className="flex flex-row justify-center items-center gap-2 bg-purple-500 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+								<button
+									onClick={showPixPaymentContent}
+									className="flex flex-row justify-center items-center gap-2 bg-purple-500 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
 									<MdOutlinePix size={20} />
 									Pix
 								</button>
-								{/* <button className="flex flex-row justify-center items-center gap-2 bg-gray-300 w-[200px] p-3 rounded-lg cursor-not-allowed">
-									<RiCopperCoinLine size={20} />
-									Otaku Point
-								</button> */}
 							</div>
 						</div>
 					</div>
@@ -210,12 +244,28 @@ function PaymentPage() {
 					</div>
 				</div>
 
+				<div className="flex flex-col justify-center items-center gap-4 mb-8">
+					{stripePromise &&
+						clientSecret &&
+						visiblePaymentContent === "creditCardContent" && (
+							<CheckoutCreditCardContent />
+						)}
+				</div>
+
+				<div className="flex flex-col justify-center items-center gap-4 mb-8">
+					{visiblePaymentContent === "balanceContent" && (
+						<CheckoutBalanceContent />
+					)}
+					{visiblePaymentContent === "pixContent" && (
+						<CheckoutPixContent />
+					)}
+				</div>
+
 				<div className="flex flex-row justify-center items-center gap-4">
 					{payLoading ? (
 						<button className="btn btn-primary">
 							<span className="loading loading-spinner loading-sm"></span>
 							<span>Processando...</span>
-							{/* <span className="loading loading-dots loading-sm"></span> */}
 						</button>
 					) : (
 						<button
