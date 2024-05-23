@@ -15,6 +15,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 	apiVersion: "2024-04-10", // Use a versão mais recente da API do Stripe
 });
 
+// Import Mercado Pago
+import { MercadoPagoConfig, Payment } from "mercadopago";
+
+// Configurações Mercado Pago
+const client = new MercadoPagoConfig({
+	accessToken:
+		"TEST-5204040920262282-052221-e36dbd0d926a5d5038eacf8c186c1056-1343096213",
+});
+const payment = new Payment(client);
+
 import https from "https";
 import * as fs from "fs";
 import * as path from "path";
@@ -1239,6 +1249,32 @@ class OtakupayController {
 			return res
 				.status(400)
 				.json({ success: false, message: error.message });
+		}
+	}
+
+	static async PaymentCreditCardMP(req: Request, res: Response) {
+		try {
+			payment
+				.create({
+					body: req.body,
+				})
+				.then((paymentInfo) => {
+					console.log("Pagamento Criado", paymentInfo);
+					if (paymentInfo.status === "approved") {
+						res.status(200).json({
+							message: "Pagamento aprovado!",
+						});
+						return;
+					}
+				})
+				.catch((error) => {
+					console.error("Pagamento não aprovado!", error);
+					// res.status(500).json({
+					// 	error: "Erro ao processar pagamento",
+					// });
+				});
+		} catch (error) {
+			console.log(error);
 		}
 	}
 

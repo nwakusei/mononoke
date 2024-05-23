@@ -28,5 +28,6 @@ router.post(
 );
 
 router.post("/credit-card-otamart", OtakupayController.creditCardOtamart);
+router.post("/payment-credit-card-MP", OtakupayController.PaymentCreditCardMP);
 
 export default router;
