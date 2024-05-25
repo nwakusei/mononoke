@@ -20,7 +20,7 @@ import { CheckoutBalanceContent } from "@/components/CheckoutBalanceContent";
 import { CheckoutPixContent } from "@/components/CheckoutPixContent";
 import { CheckoutCreditCardContent } from "@/components/CheckoutCreditCardContent";
 import { CheckoutCreditCardForm } from "@/components/CheckoutCreditCardForm";
-import { CheckoutCreditCardParcelContent } from "@/components/CheckoutCreditCardParcelContent";
+import { CheckoutCreditCardInstallmentsContent } from "@/components/CheckoutCreditCardInstallmentsContent";
 
 // Context
 import { CheckoutContext } from "@/context/CheckoutContext";
@@ -249,7 +249,7 @@ function PaymentPage() {
 					{stripePromise &&
 						clientSecret &&
 						visiblePaymentContent === "creditCardContent" && (
-							<CheckoutCreditCardParcelContent />
+							<CheckoutCreditCardInstallmentsContent />
 						)}
 				</div>
 

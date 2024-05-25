@@ -1269,12 +1269,19 @@ class OtakupayController {
 				})
 				.catch((error) => {
 					console.error("Pagamento não aprovado!", error);
-					// res.status(500).json({
-					// 	error: "Erro ao processar pagamento",
-					// });
+					res.status(500).json({
+						error: "Erro ao processar pagamento",
+						details: error.message, // Adicionando a mensagem de erro
+						stack: error.stack, // Adicionando a pilha de chamadas
+					});
+					return;
 				});
 		} catch (error) {
 			console.log(error);
+			// Se houver um erro no bloco try, você pode responder com o status 500 e uma mensagem genérica
+			res.status(500).json({
+				error: "Erro ao processar pagamento",
+			});
 		}
 	}
 
