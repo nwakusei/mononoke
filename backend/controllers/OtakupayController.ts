@@ -18,12 +18,22 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 // Import Mercado Pago
 import { MercadoPagoConfig, Payment } from "mercadopago";
 
-// Configurações Mercado Pago
 const client = new MercadoPagoConfig({
 	accessToken:
-		"TEST-5204040920262282-052221-e36dbd0d926a5d5038eacf8c186c1056-1343096213",
+		"TEST-5400991308790926-052601-a0c99529a4300eaf3f887fbffe5fe691-1343096213",
 });
+
+console.log(client);
+
 const payment = new Payment(client);
+
+console.log(payment);
+
+// const client = new MercadoPagoConfig({
+// 	accessToken:
+// 		"TEST-5400991308790926-052601-a0c99529a4300eaf3f887fbffe5fe691-1343096213",
+// 	options: { timeout: 5000 },
+// });
 
 import https from "https";
 import * as fs from "fs";
@@ -36,6 +46,7 @@ import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import { CouponModel } from "../models/CouponModel.js";
+import { error } from "console";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -1252,36 +1263,62 @@ class OtakupayController {
 		}
 	}
 
+	// static async PaymentCreditCardMP(req: Request, res: Response) {
+	// 	console.log("Dados do pagamento: ", req.body);
+	// 	try {
+	// 		// Envie a solicitação ao Mercado Pago com os dados recebidos
+	// 		const paymentInfo = await payment
+	// 			.create({ body: req.body })
+	// 			.then(console.log)
+	// 			.catch(console.log);
+
+	// 		console.log(paymentInfo);
+
+	// 		// Responda com as informações do pagamento
+	// 		res.status(200).json(paymentInfo);
+	// 	} catch (error) {
+	// 		console.error("Error processing payment:", error);
+	// 		res.status(500).json({ error: "Internal server error" });
+	// 	}
+	// }
+
 	static async PaymentCreditCardMP(req: Request, res: Response) {
+		console.log("Dados do pagamento: ", req.body);
 		try {
-			payment
-				.create({
-					body: req.body,
-				})
-				.then((paymentInfo) => {
-					console.log("Pagamento Criado", paymentInfo);
-					if (paymentInfo.status === "approved") {
-						res.status(200).json({
-							message: "Pagamento aprovado!",
-						});
-						return;
-					}
-				})
-				.catch((error) => {
-					console.error("Pagamento não aprovado!", error);
-					res.status(500).json({
-						error: "Erro ao processar pagamento",
-						details: error.message, // Adicionando a mensagem de erro
-						stack: error.stack, // Adicionando a pilha de chamadas
-					});
-					return;
-				});
+			// Estrutura correta para a criação de pagamento no Mercado Pago
+			const paymentData = {
+				body: {
+					transaction_amount: 100,
+					token: req.body.token,
+					description: "Descrição da compra",
+					installments: req.body.installments,
+					payment_method_id: req.body.payment_method_id,
+					issuer_id: req.body.issuer_id,
+					payer: {
+						email: req.body.payer.email,
+						identification: {
+							type: req.body.payer.identification.type,
+							number: req.body.payer.identification.number,
+						},
+					},
+				},
+			};
+
+			console.log(paymentData);
+
+			// Criação do pagamento utilizando a instância de Payment
+			const paymentInfo = await payment
+				.create(paymentData)
+				.then(console.log)
+				.catch(console.log);
+
+			console.log(paymentInfo);
+
+			// Responde com as informações do pagamento
+			res.status(200).json(paymentInfo);
 		} catch (error) {
-			console.log(error);
-			// Se houver um erro no bloco try, você pode responder com o status 500 e uma mensagem genérica
-			res.status(500).json({
-				error: "Erro ao processar pagamento",
-			});
+			console.error("Erro ao processar pagamento:", error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
