@@ -16,24 +16,14 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 });
 
 // Import Mercado Pago
-import { MercadoPagoConfig, Payment } from "mercadopago";
+import { Payment, MercadoPagoConfig } from "mercadopago";
 
 const client = new MercadoPagoConfig({
 	accessToken:
-		"TEST-5400991308790926-052601-a0c99529a4300eaf3f887fbffe5fe691-1343096213",
+		"TEST-2023320515790107-052700-d6e58ad319db9600118d272cb78a027e-1343096213",
 });
 
-console.log(client);
-
 const payment = new Payment(client);
-
-console.log(payment);
-
-// const client = new MercadoPagoConfig({
-// 	accessToken:
-// 		"TEST-5400991308790926-052601-a0c99529a4300eaf3f887fbffe5fe691-1343096213",
-// 	options: { timeout: 5000 },
-// });
 
 import https from "https";
 import * as fs from "fs";
@@ -1263,63 +1253,35 @@ class OtakupayController {
 		}
 	}
 
-	// static async PaymentCreditCardMP(req: Request, res: Response) {
-	// 	console.log("Dados do pagamento: ", req.body);
-	// 	try {
-	// 		// Envie a solicitação ao Mercado Pago com os dados recebidos
-	// 		const paymentInfo = await payment
-	// 			.create({ body: req.body })
-	// 			.then(console.log)
-	// 			.catch(console.log);
-
-	// 		console.log(paymentInfo);
-
-	// 		// Responda com as informações do pagamento
-	// 		res.status(200).json(paymentInfo);
-	// 	} catch (error) {
-	// 		console.error("Error processing payment:", error);
-	// 		res.status(500).json({ error: "Internal server error" });
-	// 	}
-	// }
-
 	static async PaymentCreditCardMP(req: Request, res: Response) {
-		console.log("Dados do pagamento: ", req.body);
-		try {
-			// Estrutura correta para a criação de pagamento no Mercado Pago
-			const paymentData = {
+		console.log(req.body);
+
+		const idempotencyKey = req.headers["x-idempotency-key"];
+
+		await payment
+			.create({
 				body: {
-					transaction_amount: 100,
+					transaction_amount: req.body.transaction_amount,
 					token: req.body.token,
-					description: "Descrição da compra",
+					description: req.body.description,
 					installments: req.body.installments,
-					payment_method_id: req.body.payment_method_id,
-					issuer_id: req.body.issuer_id,
+					payment_method_id: req.body.paymentMethodId,
+					issuer_id: req.body.issuer,
 					payer: {
-						email: req.body.payer.email,
+						email: req.body.email,
 						identification: {
-							type: req.body.payer.identification.type,
-							number: req.body.payer.identification.number,
+							type: req.body.identificationType,
+							number: req.body.number,
 						},
 					},
 				},
-			};
+				requestOptions: { idempotencyKey: idempotencyKey as string },
+			})
+			.then(console.log)
+			.catch(console.log);
 
-			console.log(paymentData);
-
-			// Criação do pagamento utilizando a instância de Payment
-			const paymentInfo = await payment
-				.create(paymentData)
-				.then(console.log)
-				.catch(console.log);
-
-			console.log(paymentInfo);
-
-			// Responde com as informações do pagamento
-			res.status(200).json(paymentInfo);
-		} catch (error) {
-			console.error("Erro ao processar pagamento:", error);
-			res.status(500).json({ error: "Internal server error" });
-		}
+		// Responda com as informações do pagamento
+		res.status(200).json("PAGAMENTO REALIZADO COM SUCESSO");
 	}
 
 	static async pixOtamart(req: Request, res: Response) {
@@ -1576,3 +1538,6 @@ class OtakupayController {
 }
 
 export default OtakupayController;
+function validateError(error: any): { errorMessage: any; errorStatus: any } {
+	throw new Error("Function not implemented.");
+}
