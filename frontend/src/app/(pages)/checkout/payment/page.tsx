@@ -235,6 +235,25 @@ function PaymentPage() {
 								</button>
 							</div>
 						</div>
+						<div className="flex flex-col justify-between gap-4 w-[650px] min-h-[100px] p-4 mb-4">
+							<div className="flex flex-col justify-center items-center gap-4 mb-8">
+								{stripePromise &&
+									clientSecret &&
+									visiblePaymentContent ===
+										"creditCardContent" && (
+										<CheckoutCreditCardInstallmentsContent />
+									)}
+							</div>
+
+							<div className="flex flex-col justify-center items-center gap-4 mb-8">
+								{visiblePaymentContent === "balanceContent" && (
+									<CheckoutBalanceContent />
+								)}
+								{visiblePaymentContent === "pixContent" && (
+									<CheckoutPixContent />
+								)}
+							</div>
+						</div>
 					</div>
 
 					<div className="flex flex-col">
@@ -243,23 +262,6 @@ function PaymentPage() {
 							shippingInfo={transportadoraInfo}
 						/>
 					</div>
-				</div>
-
-				<div className="flex flex-col justify-center items-center gap-4 mb-8">
-					{stripePromise &&
-						clientSecret &&
-						visiblePaymentContent === "creditCardContent" && (
-							<CheckoutCreditCardInstallmentsContent />
-						)}
-				</div>
-
-				<div className="flex flex-col justify-center items-center gap-4 mb-8">
-					{visiblePaymentContent === "balanceContent" && (
-						<CheckoutBalanceContent />
-					)}
-					{visiblePaymentContent === "pixContent" && (
-						<CheckoutPixContent />
-					)}
 				</div>
 
 				<div className="flex flex-row justify-center items-center gap-4">

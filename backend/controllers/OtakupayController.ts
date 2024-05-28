@@ -1254,34 +1254,77 @@ class OtakupayController {
 	}
 
 	static async PaymentCreditCardMP(req: Request, res: Response) {
-		console.log(req.body);
+		// console.log(req.body);
+
+		// const idempotencyKey = req.headers["x-idempotency-key"];
+
+		// await payment
+		// 	.create({
+		// 		body: {
+		// 			transaction_amount: req.body.transaction_amount,
+		// 			token: req.body.token,
+		// 			description: req.body.description,
+		// 			installments: req.body.installments,
+		// 			payment_method_id: req.body.paymentMethodId,
+		// 			issuer_id: req.body.issuer,
+		// 			payer: {
+		// 				email: req.body.email,
+		// 				identification: {
+		// 					type: req.body.identificationType,
+		// 					number: req.body.number,
+		// 				},
+		// 			},
+		// 		},
+		// 		requestOptions: { idempotencyKey: idempotencyKey as string },
+		// 	})
+		// 	.then(console.log)
+		// 	.catch(console.log);
+
+		// // Responda com as informações do pagamento
+		// res.status(200).json("PAGAMENTO REALIZADO COM SUCESSO");
+
+		// Log completo do corpo e cabeçalhos da requisição
+		console.log("Request Headers:", req.headers);
+		console.log("Request Body:", req.body);
 
 		const idempotencyKey = req.headers["x-idempotency-key"];
 
-		await payment
-			.create({
-				body: {
-					transaction_amount: req.body.transaction_amount,
-					token: req.body.token,
-					description: req.body.description,
-					installments: req.body.installments,
-					payment_method_id: req.body.paymentMethodId,
-					issuer_id: req.body.issuer,
-					payer: {
-						email: req.body.email,
-						identification: {
-							type: req.body.identificationType,
-							number: req.body.number,
-						},
+		try {
+			const paymentData = {
+				transaction_amount: req.body.transaction_amount,
+				token: req.body.token,
+				description: req.body.description,
+				installments: req.body.installments,
+				payment_method_id: req.body.payment_method_id, // Verifique o nome dos parâmetros
+				issuer_id: req.body.issuer_id,
+				payer: {
+					email: req.body.payer.email,
+					identification: {
+						type: req.body.payer.identification.type,
+						number: req.body.payer.identification.number,
 					},
 				},
-				requestOptions: { idempotencyKey: idempotencyKey as string },
-			})
-			.then(console.log)
-			.catch(console.log);
+			};
 
-		// Responda com as informações do pagamento
-		res.status(200).json("PAGAMENTO REALIZADO COM SUCESSO");
+			const data = await payment
+				.create({
+					body: paymentData,
+					requestOptions: {
+						idempotencyKey: idempotencyKey as string,
+					},
+				})
+				.then(console.log)
+				.catch(console.log);
+
+			res.status(200).json({
+				message: "PAGAMENTO REALIZADO COM SUCESSO",
+				data,
+			});
+		} catch (error) {
+			console.log(error);
+			const { errorMessage, errorStatus } = validateError(error);
+			res.status(errorStatus).json({ error_message: errorMessage });
+		}
 	}
 
 	static async pixOtamart(req: Request, res: Response) {
