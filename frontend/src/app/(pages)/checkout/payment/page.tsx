@@ -48,12 +48,96 @@ function PaymentPage() {
 	const [stripePromise, setStripePromise] = useState(null);
 	const [clientSecret, setClientSecret] = useState("");
 
+	const [totalPedido, setTotalPedido] = useState(0);
+	const [couponApplied, setCouponApplied] = useState(0);
+
+	const productsList = productsInCart.map((product) => ({
+		productID: product.productID,
+		productName: product.productName,
+		productImage: product.imageProduct,
+		productPrice: product.productPrice,
+		productQuantity: product.quantityThisProduct,
+		partnerID: product.partnerID,
+	}));
+	const shippingCost = Object.values(transportadoraInfo).map((info) => ({
+		partnerID: info.partnerID,
+		vlrFrete: info.vlrFrete,
+		daysShipping: info.prazoEnt,
+	}));
+	const coupons = JSON.parse(localStorage.getItem("coupons") || "[]");
+
+	console.log(totalPedido);
+
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
 		if (savedProductsInCart) {
 			setProductsInCart(JSON.parse(savedProductsInCart));
 		}
 	}, []);
+
+	// Calculo do total do Pedido
+	useEffect(() => {
+		const calcularTotalPedido = () => {
+			if (!productsInCart || productsInCart.length === 0) {
+				setTotalPedido(0);
+				return;
+			}
+
+			// Calcula o subtotal dos produtos no carrinho
+			let subtotal = productsInCart.reduce((total, product) => {
+				const productPrice = parseFloat(product.productPrice) || 0;
+				const productQuantity =
+					parseInt(product.quantityThisProduct, 10) || 0;
+				return total + productPrice * productQuantity;
+			}, 0);
+
+			// Calcula o total do frete
+			let frete = Object.values(transportadoraInfo).reduce(
+				(total, info) => {
+					return total + (parseFloat(info.vlrFrete) || 0);
+				},
+				0
+			);
+
+			// Calcula o desconto total aplicado aos produtos
+			const descontoTotalProdutos = productsInCart.reduce(
+				(totalDesconto, product) => {
+					const productPrice = parseFloat(product.productPrice) || 0;
+					const productPriceTotal =
+						parseFloat(product.productPriceTotal) || 0;
+					const productQuantity =
+						parseInt(product.quantityThisProduct, 10) || 0;
+					if (productPriceTotal !== productPrice) {
+						const desconto =
+							productPrice * productQuantity - productPriceTotal;
+						return totalDesconto + desconto;
+					}
+					return totalDesconto;
+				},
+				0
+			);
+
+			// Soma os valores de discountAmount dos coupons no localStorage
+			const couponsStorage = JSON.parse(
+				localStorage.getItem("coupons") || "[]"
+			);
+			const totalDiscountAmount = couponsStorage.reduce(
+				(total, coupon) => {
+					return total + (parseFloat(coupon.discountAmount) || 0);
+				},
+				0
+			);
+
+			// Subtrai o desconto do total
+			let total = subtotal + frete - totalDiscountAmount;
+			setTotalPedido(total < 0 ? 0 : total);
+
+			// Define o desconto total aplicado
+			setCouponApplied(totalDiscountAmount);
+		};
+
+		calcularTotalPedido();
+	}, [productsInCart, transportadoraInfo]);
 
 	useEffect(() => {
 		const fetchStripeConfig = async () => {
@@ -105,7 +189,7 @@ function PaymentPage() {
 				productID: product.productID,
 				productName: product.productName,
 				productImage: product.imageProduct,
-				productPrice: product.priceCost,
+				productPrice: product.productPrice,
 				productQuantity: product.quantityThisProduct,
 				partnerID: product.partnerID,
 			}));
@@ -241,7 +325,14 @@ function PaymentPage() {
 									clientSecret &&
 									visiblePaymentContent ===
 										"creditCardContent" && (
-										<CheckoutCreditCardInstallmentsContent />
+										<CheckoutCreditCardInstallmentsContent
+											orderTotalCost={Number(
+												totalPedido.toFixed(2)
+											)}
+											products={productsList}
+											shippingCost={shippingCost}
+											coupons={coupons}
+										/>
 									)}
 							</div>
 

@@ -1,22 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { useRouter } from "next/navigation";
 import api from "@/utils/api";
-import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid"; // Importe o pacote uuid
 import { CardPayment } from "@mercadopago/sdk-react";
 import { initMercadoPago } from "@mercadopago/sdk-react";
 
 // Inicialize o Mercado Pago com sua chave pública
-initMercadoPago("TEST-d1327b33-b651-48cf-a372-1407ef47bad7");
+initMercadoPago("TEST-27513d0a-03f4-46b9-ab38-7dae67d7da3f");
+
+// Context
+import { CheckoutContext } from "@/context/CheckoutContext";
+
+// Sweet Alert
+import Swal from "sweetalert2";
 
 // Icons
 import { PiCreditCardBold } from "react-icons/pi";
 
-function CheckoutCreditCardInstallmentsContent() {
+function CheckoutCreditCardInstallmentsContent({
+	orderTotalCost,
+	products,
+	shippingCost,
+	coupons,
+}) {
+	const { setSubtotal, setCart } = useContext(CheckoutContext);
+	const router = useRouter();
 	const [paymentBrickController, setPaymentBrickController] = useState(null);
 
 	// Função de inicialização fora do useEffect
 	const initialization = {
-		amount: 100,
+		amount: orderTotalCost,
 	};
 
 	const customization = {
@@ -26,6 +39,9 @@ function CheckoutCreditCardInstallmentsContent() {
 				customVariables: {
 					baseColor: "#3C1A7D",
 					buttonTextColor: "#fff",
+					borderRadiusSmall: "4px", // Border Radius das Bandeiras
+					borderRadiusMedium: "8px", // Border Radius dos Inputs/Campos e do Button
+					borderRadiusLarge: "10px", // Border Radius do Container Card Payment Bricks
 				},
 			},
 			texts: {
@@ -57,14 +73,20 @@ function CheckoutCreditCardInstallmentsContent() {
 				formSubmit: "",
 			},
 		},
+		paymentMethods: {
+			minInstallments: 1,
+			maxInstallments: 3,
+			// types: {
+			//  excluded: ["debit_card"],
+			// },
+		},
 	};
 
 	// Função de envio de dados fora do useEffect
-
 	const onSubmit = async (formData) => {
 		try {
 			const response = await api.post(
-				"/otakupay/payment-credit-card-MP",
+				"/otakupay/payment-creditcard-MP",
 				JSON.stringify(formData),
 				{
 					headers: {
@@ -74,18 +96,59 @@ function CheckoutCreditCardInstallmentsContent() {
 				}
 			);
 
-			if (response.status === 200) {
+			if (response.status === 201) {
 				// Se o pagamento foi criado com sucesso, exibe a mensagem para o usuário
-				toast.success(response.data.message);
+				const webhookResponse = await api.post(
+					"/otakupay/webhook-payment-creditcard-MP",
+					JSON.stringify({ products, shippingCost, coupons }),
+					{
+						headers: {
+							"Content-Type": "application/json",
+						},
+					}
+				);
+
+				// Limpar o localStorage após o pagamento ser aprovado
+				localStorage.removeItem("productsInCart");
+				localStorage.removeItem("transportadoraInfo");
+				localStorage.removeItem("coupons");
+
+				setCart(0);
+				setSubtotal(0);
+
+				Swal.fire({
+					title: "Pagamento Realizado com Sucesso!",
+					width: 700,
+					icon: "success",
+				});
+
+				router.push("/otamart");
+			} else if (response.status === 202) {
+				// Limpar o localStorage após o pagamento ser aprovado
+				localStorage.removeItem("productsInCart");
+				localStorage.removeItem("transportadoraInfo");
+				localStorage.removeItem("coupons");
+
+				setCart(0);
+				setSubtotal(0);
+
+				Swal.fire({
+					title: "Pagamento em processamento!",
+					width: 700,
+					icon: "info",
+				});
 			}
 		} catch (error) {
-			toast.error("Pagamento não aprovado!");
-			// Aqui você pode tratar erros de criação de pagamento, se necessário
+			Swal.fire({
+				title: "Pagamento não aprovado!",
+				width: 700,
+				icon: "error",
+			});
 		}
 	};
 
 	// Função de tratamento de erro fora do useEffect
-	const onError = async (error) => {
+	const onError = async (error: any) => {
 		console.error(error);
 	};
 
@@ -95,7 +158,7 @@ function CheckoutCreditCardInstallmentsContent() {
 	};
 
 	useEffect(() => {
-		initMercadoPago("TEST-d1327b33-b651-48cf-a372-1407ef47bad7");
+		initMercadoPago("TEST-27513d0a-03f4-46b9-ab38-7dae67d7da3f");
 
 		// Renderize o Brick de pagamento
 		const renderPaymentBrick = async (bricksBuilder) => {
@@ -110,7 +173,6 @@ function CheckoutCreditCardInstallmentsContent() {
 					"paymentBrick_container",
 					settings
 				);
-				console.log(controller);
 				setPaymentBrickController(controller);
 			} catch (error) {
 				console.log("Erro ao criar o Brick de pagamento:", error);
@@ -148,199 +210,3 @@ function CheckoutCreditCardInstallmentsContent() {
 }
 
 export { CheckoutCreditCardInstallmentsContent };
-
-// import { useEffect } from "react";
-// import { loadMercadoPago } from "@mercadopago/sdk-js";
-// import api from "@/utils/api";
-// import { toast } from "react-toastify";
-// import { v4 as uuidv4 } from "uuid"; // Importe o pacote uuid
-// import "./CheckoutCreditCardInstallmentsContent.css";
-
-// function CheckoutCreditCardInstallmentsContent() {
-// 	useEffect(() => {
-// 		const initializeMercadoPago = async () => {
-// 			try {
-// 				await loadMercadoPago();
-// 				const mp = new (window as any).MercadoPago(
-// 					"TEST-d1327b33-b651-48cf-a372-1407ef47bad7"
-// 				);
-// 				// Coloque aqui o código para inicializar o Mercado Pago e qualquer outra lógica assíncrona
-
-// 				const cardForm = mp.cardForm({
-// 					amount: "100",
-// 					iframe: true,
-// 					form: {
-// 						id: "form-checkout",
-// 						cardNumber: {
-// 							id: "form-checkout__cardNumber",
-// 							placeholder: "Número do cartão",
-// 						},
-// 						expirationDate: {
-// 							id: "form-checkout__expirationDate",
-// 							placeholder: "MM/YY",
-// 						},
-// 						securityCode: {
-// 							id: "form-checkout__securityCode",
-// 							placeholder: "Código de segurança",
-// 						},
-// 						cardholderName: {
-// 							id: "form-checkout__cardholderName",
-// 							placeholder: "Titular do cartão",
-// 						},
-// 						issuer: {
-// 							id: "form-checkout__issuer",
-// 							placeholder: "Banco emissor",
-// 						},
-// 						installments: {
-// 							id: "form-checkout__installments",
-// 							placeholder: "Parcelas",
-// 						},
-// 						identificationType: {
-// 							id: "form-checkout__identificationType",
-// 							placeholder: "Tipo de documento",
-// 						},
-// 						identificationNumber: {
-// 							id: "form-checkout__identificationNumber",
-// 							placeholder: "Número do documento",
-// 						},
-// 						cardholderEmail: {
-// 							id: "form-checkout__cardholderEmail",
-// 							placeholder: "E-mail",
-// 						},
-// 					},
-// 					callbacks: {
-// 						onFormMounted: (error) => {
-// 							if (error)
-// 								return console.warn(
-// 									"Form Mounted handling error: ",
-// 									error
-// 								);
-// 							console.log("Form mounted");
-// 						},
-// 						onSubmit: (event) => {
-// 							event.preventDefault();
-
-// 							const {
-// 								paymentMethodId: payment_method_id,
-// 								issuerId: issuer_id,
-// 								cardholderEmail: email,
-// 								amount,
-// 								token,
-// 								installments,
-// 								identificationNumber,
-// 								identificationType,
-// 							} = cardForm.getCardFormData();
-
-// 							fetch(
-// 								"http://localhost:5000/otakupay/payment-credit-card-MP",
-// 								{
-// 									method: "POST",
-// 									headers: {
-// 										"Content-Type": "application/json",
-// 										"X-Idempotency-Key": uuidv4(),
-// 									},
-// 									body: JSON.stringify({
-// 										token,
-// 										issuer_id,
-// 										payment_method_id,
-// 										transaction_amount: Number(amount),
-// 										installments: Number(installments),
-// 										description: "Descrição do produto",
-// 										payer: {
-// 											email,
-// 											identification: {
-// 												type: identificationType,
-// 												number: identificationNumber,
-// 											},
-// 										},
-// 									}),
-// 								}
-// 							);
-// 						},
-// 						onFetching: (resource) => {
-// 							console.log("Fetching resource: ", resource);
-
-// 							// Animate progress bar
-// 							const progressBar =
-// 								document.querySelector(".progress-bar");
-// 							progressBar.removeAttribute("value");
-
-// 							return () => {
-// 								progressBar.setAttribute("value", "0");
-// 							};
-// 						},
-// 					},
-// 				});
-// 			} catch (error) {
-// 				console.error("Erro ao carregar o Mercado Pago:", error);
-// 			}
-// 		};
-
-// 		initializeMercadoPago();
-// 	}, []);
-
-// 	return (
-// 		<div>
-// 			<form
-// 				id="form-checkout"
-// 				className="flex flex-col gap-2 progress-bar">
-// 				<div className="flex flex-row gap-2">
-// 					<div
-// 						id="form-checkout__cardNumber"
-// 						placeholder="Type here"
-// 						className="input input-bordered input-primary w-[300px]"></div>
-// 					<div
-// 						id="form-checkout__expirationDate"
-// 						placeholder="Type here"
-// 						className="input input-bordered input-primary w-[150px]"></div>
-// 					<div
-// 						id="form-checkout__securityCode"
-// 						placeholder="Type here"
-// 						className="input input-bordered input-primary w-[200px]"></div>
-// 				</div>
-
-// 				<div className="flex flex-row gap-2">
-// 					<input
-// 						type="text"
-// 						id="form-checkout__cardholderName"
-// 						placeholder="Títular do Cartão"
-// 						className="input input-bordered input-primary w-[300px]"
-// 					/>
-// 					<select
-// 						id="form-checkout__identificationType"
-// 						className="select select-primary w-[150px]"></select>
-// 					<input
-// 						type="text"
-// 						id="form-checkout__identificationNumber"
-// 						placeholder="Número do documento"
-// 						className="input input-bordered input-primary w-[200px]"
-// 					/>
-// 				</div>
-
-// 				<select
-// 					id="form-checkout__issuer"
-// 					className="select select-primary w-full max-w-xs"></select>
-// 				<select
-// 					id="form-checkout__installments"
-// 					className="select select-primary w-full max-w-xs"></select>
-
-// 				<input
-// 					type="email"
-// 					id="form-checkout__cardholderEmail"
-// 					placeholder="E-mail"
-// 					className="input input-bordered input-primary w-full max-w-xs"
-// 				/>
-
-// 				<button
-// 					type="submit"
-// 					id="form-checkout__submit"
-// 					className="btn btn-primary">
-// 					Pagar
-// 				</button>
-// 				{/* <progress className="progress-bar"></progress> */}
-// 			</form>
-// 		</div>
-// 	);
-// }
-
-// export { CheckoutCreditCardInstallmentsContent };
