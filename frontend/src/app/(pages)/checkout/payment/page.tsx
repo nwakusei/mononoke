@@ -3,11 +3,14 @@
 import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
 
+import QRCode from "qrcode"; // Importe a biblioteca QRCode
+
 // Axios
 import api from "@/utils/api";
 
 // Sweet Alert
 import Swal from "sweetalert2";
+import { toast, toat } from "react-toastify";
 
 // imagens estáticas
 
@@ -66,7 +69,12 @@ function PaymentPage() {
 	}));
 	const coupons = JSON.parse(localStorage.getItem("coupons") || "[]");
 
-	console.log(totalPedido);
+	const [pix, setPix] = useState({});
+	const [qrCodeUrl, setQrCodeUrl] = useState(""); // Estado para armazenar a URL do QR Code
+	const [pixCode, setPixCode] = useState(""); // Estado para armazenar o código do Pix copia e cola
+	const [txid, setTxid] = useState("");
+
+	console.log(pixCode);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -173,8 +181,10 @@ function PaymentPage() {
 		setVisiblePaymentContent("balanceContent");
 	};
 
-	const showPixPaymentContent = () => {
+	const showPixPaymentContent = async () => {
 		setVisiblePaymentContent("pixContent");
+
+		await handleQRCode(totalPedido);
 	};
 
 	const showCreditCardContent = () => {
@@ -249,6 +259,64 @@ function PaymentPage() {
 			return error.response.data;
 		}
 	}
+
+	async function handleQRCode(totalPedido) {
+		let originalValue = totalPedido;
+
+		// // Verificar se a entrada contém uma vírgula e substituí-la por um ponto
+		// if (originalValue.includes(",")) {
+		// 	originalValue = originalValue.replace(",", ".");
+		// }
+
+		try {
+			// setBtnLoading(true);
+			const response = await api.post(
+				"/otakupay/create-payment-pix-otakupay",
+				{ originalValue },
+				{
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
+						"Content-Type": "application/json",
+					},
+				}
+			);
+
+			console.log(response.data.newPaymentPixOtakuPay.status);
+
+			console.log(response.data.newPaymentPixOtakuPay.txid);
+
+			setTxid(response.data.newPaymentPixOtakuPay.txid);
+
+			if (response.data && response.data.newPaymentPixOtakuPay) {
+				setPix(response.data.newPaymentPixOtakuPay);
+				setPixCode(response.data.newPaymentPixOtakuPay.pixCopiaECola);
+
+				// Gerar o QR Code
+				QRCode.toDataURL(
+					response.data.newPaymentPixOtakuPay.pixCopiaECola,
+					(err, url) => {
+						if (err) {
+							console.error(err);
+							return;
+						}
+						// Atualizar o estado com a URL do QR Code
+						setQrCodeUrl(url);
+					}
+				);
+				// setBtnLoading(false);
+			}
+		} catch (error: any) {
+			// setBtnLoading(false);
+			toast.error(error.response.data.message);
+			console.log(error.response.data);
+		}
+	}
+
+	// Função para copiar o código do Pix copia e cola para a área de transferência
+	const copyPixCode = () => {
+		navigator.clipboard.writeText(pixCode);
+		toast.success("Código Pix copiado para a área de transferência!");
+	};
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen mx-4">
@@ -341,7 +409,13 @@ function PaymentPage() {
 									<CheckoutBalanceContent />
 								)}
 								{visiblePaymentContent === "pixContent" && (
-									<CheckoutPixContent />
+									<CheckoutPixContent
+										qrCodeUrl={qrCodeUrl}
+										copyPixCode={copyPixCode}
+										pixCode={pixCode}
+										txid={txid}
+										token={token}
+									/>
 								)}
 							</div>
 						</div>

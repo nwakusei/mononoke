@@ -707,7 +707,12 @@ class InterApiController {
 			const accessToken = responseToken.data.access_token;
 
 			// Configurar a solicitação para consultar a cobrança imediata
-			const txid = "oo3gl7jc8f4qnf8zxykmxzsftg8enosdvh3"; // Certifique-se de que você está recebendo o txid como parâmetro
+			const { txid } = req.query; // Certifique-se de que você está recebendo o txid como parâmetro
+
+			if (!txid) {
+				res.status(422).json({ message: "Txid não encontrado!" });
+				return;
+			}
 
 			const getCobRequestConfig: AxiosRequestConfig = {
 				method: "get",

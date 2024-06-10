@@ -29,10 +29,21 @@ router.post(
 
 router.post("/credit-card-otamart", OtakupayController.creditCardOtamart);
 
-router.post("/payment-creditcard-MP", OtakupayController.PaymentCreditcardMP);
+router.post(
+	"/payment-creditcard-MP",
+	verifyToken,
+	OtakupayController.PaymentCreditcardMP
+);
 router.post(
 	"/webhook-payment-creditcard-MP",
+	verifyToken,
 	OtakupayController.webhookPaymentCreditcard
+);
+
+router.post(
+	"/create-payment-pix-otakupay",
+	verifyToken,
+	OtakupayController.createPaymentPixOtakuPay
 );
 
 export default router;

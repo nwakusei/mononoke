@@ -3,6 +3,7 @@ import { OtakupayModel } from "../models/OtakupayModel.js";
 import { PartnerModel } from "../models/PartnerModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { OrderModel } from "../models/OrderModel.js";
+import { PaymentPixOtakuPayModel } from "../models/PixOtakuPayModel.js";
 // import { CustomerModel } from "../models/CustomerModel.js";
 import crypto from "crypto";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -2316,6 +2317,177 @@ class OtakupayController {
 			});
 		} catch (error) {
 			console.log(error);
+		}
+	}
+
+	static async createPaymentPixOtakuPay(req: Request, res: Response) {
+		const interCertPath = process.env.INTER_CERT_PATH;
+		const interKeyPath = process.env.INTER_KEY_PATH;
+		const interClientId = process.env.INTER_CLIENT_ID;
+		const interClientSecret = process.env.INTER_CLIENT_SECRET;
+		const grant_type = "client_credentials";
+		const scope = "cob.write cob.read";
+
+		if (
+			!interCertPath ||
+			!interKeyPath ||
+			!interClientId ||
+			!interClientSecret
+		) {
+			throw new Error(
+				"CertPath, KeyPath, Client ID, and Client Secret must be defined in environment variables"
+			);
+		}
+
+		// Configuração do certificado e chave privada
+		const cert = fs.readFileSync(interCertPath);
+		const key = fs.readFileSync(interKeyPath);
+
+		const requestBody = {
+			grant_type: grant_type,
+			client_id: interClientId,
+			client_secret: interClientSecret,
+			scope: scope,
+		};
+
+		const tokenCustomer: any = getToken(req);
+		const customer = await getUserByToken(tokenCustomer);
+
+		if (!customer) {
+			res.status(422).json({ message: "Customer não encontrado!" });
+			return;
+		}
+
+		const customerOtakupay: any = await OtakupayModel.findOne({
+			_id: customer.otakupayID,
+		});
+
+		// Configuração da requisição para obter o token
+		const tokenRequestConfig: AxiosRequestConfig = {
+			method: "post",
+			url: "https://cdpj.partners.bancointer.com.br/oauth/v2/token",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			auth: {
+				username: interClientId,
+				password: interClientSecret,
+			},
+			data: qs.stringify(requestBody), // Use a biblioteca 'qs' para formatar o corpo corretamente
+			httpsAgent: new https.Agent({ cert, key }),
+		};
+
+		const responseToken = await axios(tokenRequestConfig);
+
+		const { access_token } = responseToken.data;
+
+		const customerCPF = customer.cpf.toString().replace(/\D/g, "");
+
+		try {
+			const { originalValue } = req.body;
+
+			const pixData = {
+				calendario: {
+					expiracao: 86400,
+				},
+				devedor: {
+					cpf: customerCPF,
+					nome: customerOtakupay.name,
+				},
+				valor: {
+					original: originalValue,
+					modalidadeAlteracao: 0,
+				},
+				chave: process.env.INTER_PIX_KEY,
+				solicitacaoPagador: "OtakuPay: Pagamento de compra por PIX.",
+			};
+			const url = "https://cdpj.partners.bancointer.com.br/pix/v2/cob";
+
+			const tokenOAuth = access_token;
+
+			const responsePix = await axios.post(url, pixData, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${tokenOAuth}`,
+				},
+				httpsAgent: new https.Agent({
+					// Adicionado o new https.Agent
+					cert: cert,
+					key: key,
+				}),
+			});
+
+			const responsePixData = responsePix.data;
+
+			// Criar uma nova atividade PIX
+			const PaymentPixOtakuPay = new PaymentPixOtakuPayModel({
+				txid: responsePixData.txid,
+				devedor: {
+					cpf: responsePixData.devedor.cpf,
+					nome: responsePixData.devedor.nome,
+				},
+				pixCopiaECola: responsePixData.pixCopiaECola,
+				valor: {
+					original: responsePixData.valor.original,
+					modalidadeAlteracao:
+						responsePixData.valor.modalidadeAlteracao,
+				},
+				status: responsePixData.status,
+				calendario: {
+					expiracao: responsePixData.calendario.expiracao,
+					criacao: responsePixData.calendario.criacao, // Adicione essa linha
+				},
+				userID: customerOtakupay._id,
+				// infoAdicionais: [
+				//    {
+				//        nome: string;
+				//        valor: string;
+				//    }
+				// ],
+			});
+
+			const newPaymentPixOtakuPay = await PaymentPixOtakuPay.save();
+
+			res.status(201).json({
+				message: "Pix criado com sucesso!",
+				newPaymentPixOtakuPay,
+			});
+		} catch (error) {
+			console.error("Erro ao criar cobrança PIX:", error);
+
+			if (axios.isAxiosError(error)) {
+				// Se o erro for do tipo AxiosError, significa que a solicitação HTTP falhou
+				if (error.response) {
+					// Se houver uma resposta do servidor
+					console.error("Status do erro:", error.response.status);
+					console.error("Detalhes do erro:", error.response.data);
+
+					if (error.response.data.violacoes) {
+						// Se houver violações na resposta
+						console.error("Violacoes:");
+						error.response.data.violacoes.forEach(
+							(violacao: any) => {
+								console.error("- Razão:", violacao.razao);
+								console.error(
+									"- Propriedade:",
+									violacao.propriedade
+								);
+							}
+						);
+					}
+				} else {
+					// Se não houver uma resposta do servidor
+					console.error("Erro de servidor:", error.message);
+				}
+			} else {
+				// Se o erro não for do tipo AxiosError
+				console.error("Erro desconhecido:", error);
+			}
+
+			// Retorne uma resposta de erro para o cliente
+			res.status(500).json({
+				message: "Erro ao gerar QR Code!",
+			});
 		}
 	}
 
