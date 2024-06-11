@@ -45,5 +45,9 @@ router.post(
 	verifyToken,
 	OtakupayController.createPaymentPixOtakuPay
 );
+router.post(
+	"/finish-payment-pix-otakupay",
+	OtakupayController.finishPaymentPixOtakuPay
+);
 
 export default router;

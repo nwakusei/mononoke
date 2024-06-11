@@ -54,6 +54,9 @@ function PaymentPage() {
 	const [totalPedido, setTotalPedido] = useState(0);
 	const [couponApplied, setCouponApplied] = useState(0);
 
+	// constante para teste PIX
+	const totalPedido2 = 0.01;
+
 	const productsList = productsInCart.map((product) => ({
 		productID: product.productID,
 		productName: product.productName,
@@ -184,7 +187,7 @@ function PaymentPage() {
 	const showPixPaymentContent = async () => {
 		setVisiblePaymentContent("pixContent");
 
-		await handleQRCode(totalPedido);
+		await handleQRCode(totalPedido2);
 	};
 
 	const showCreditCardContent = () => {
@@ -395,7 +398,7 @@ function PaymentPage() {
 										"creditCardContent" && (
 										<CheckoutCreditCardInstallmentsContent
 											orderTotalCost={Number(
-												totalPedido.toFixed(2)
+												totalPedido2.toFixed(2)
 											)}
 											products={productsList}
 											shippingCost={shippingCost}

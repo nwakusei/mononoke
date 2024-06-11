@@ -7,6 +7,7 @@ import { FaCheck } from "react-icons/fa";
 import Swal from "sweetalert2";
 
 import api from "@/utils/api";
+import { toast } from "react-toastify";
 
 function CheckoutPixContent({ qrCodeUrl, copyPixCode, pixCode, txid, token }) {
 	async function handlePaymentPix(e) {
@@ -25,7 +26,19 @@ function CheckoutPixContent({ qrCodeUrl, copyPixCode, pixCode, txid, token }) {
 					}
 				);
 
-				console.log(response.data.status);
+				if (response.data.status === "CONCLUIDA") {
+					Swal.fire({
+						title: "Pagamento confirmado!",
+						width: 700,
+						icon: "success",
+					});
+				} else {
+					Swal.fire({
+						title: "Pagamento pendente!",
+						width: 700,
+						icon: "info",
+					});
+				}
 			} catch (error) {
 				console.log(error);
 			}
@@ -40,7 +53,7 @@ function CheckoutPixContent({ qrCodeUrl, copyPixCode, pixCode, txid, token }) {
 
 	return (
 		<>
-			<div className="flex flex-row justify-center items-center w-[350px] bg-primary px-2 py-1 gap-1 rounded shadow-md">
+			<div className="flex flex-row justify-center items-center w-[650px] bg-primary px-2 py-1 gap-1 rounded shadow-md -mt-8">
 				<h1 className="select-none">Pague com Pix!</h1>
 				<MdOutlinePix size={16} />
 			</div>

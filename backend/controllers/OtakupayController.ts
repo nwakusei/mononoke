@@ -2491,6 +2491,152 @@ class OtakupayController {
 		}
 	}
 
+	static async finishPaymentPixOtakuPay(req: Request, res: Response) {
+		const { txid } = req.body;
+
+		// Obter informações do ambiente
+		const interCertPath = process.env.INTER_CERT_PATH;
+		const interKeyPath = process.env.INTER_KEY_PATH;
+		const interCaCertPath = process.env.INTER_CACERT_PATH;
+		const interClientId = process.env.INTER_CLIENT_ID;
+		const interClientSecret = process.env.INTER_CLIENT_SECRET;
+
+		if (
+			!interCertPath ||
+			!interKeyPath ||
+			!interCaCertPath ||
+			!interClientId ||
+			!interClientSecret
+		) {
+			throw new Error(
+				"CertPath, KeyPath, CA_CERT_PATH, Client ID, and Client Secret must be defined in environment variables"
+			);
+		}
+		try {
+			// Configuração do certificado, chave privada e certificado da autoridade certificadora
+			const cert = fs.readFileSync(interCertPath);
+			const key = fs.readFileSync(interKeyPath);
+			const caCert = fs.readFileSync(interCaCertPath);
+
+			// Configurar a solicitação para obter o token
+			const tokenRequestBody = {
+				grant_type: "client_credentials",
+				client_id: interClientId,
+				client_secret: interClientSecret,
+				scope: "webhook.read cob.read",
+			};
+
+			const tokenRequestConfig: AxiosRequestConfig = {
+				method: "post",
+				url: "https://cdpj.partners.bancointer.com.br/oauth/v2/token",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+				},
+				auth: {
+					username: interClientId,
+					password: interClientSecret,
+				},
+				data: qs.stringify(tokenRequestBody),
+				httpsAgent: new https.Agent({ cert, key }),
+			};
+
+			// Obter token de acesso
+			const responseToken = await axios(tokenRequestConfig);
+			const { access_token } = responseToken.data;
+
+			// COLOCAR ALGUM COMENTARIO QUE RESUMA A LÓGICA
+			if (txid) {
+				// SE TXID EXISTIR, FAZER A CONSULTA DE COBRANÇA IMEDIATA
+				const getCobRequestConfig: AxiosRequestConfig = {
+					method: "get",
+					url: `https://cdpj.partners.bancointer.com.br/pix/v2/cob/${txid}`,
+					headers: {
+						Authorization: `Bearer ${access_token}`,
+					},
+					httpsAgent: new https.Agent({
+						cert,
+						key,
+						ca: caCert,
+						requestCert: true,
+						rejectUnauthorized: false,
+					}),
+				};
+
+				// Realizar a requisição de consulta
+				const responseCob = await axios(getCobRequestConfig);
+
+				const cobData = responseCob.data;
+
+				// Encontrar a transação PIX pelo txid na coleção PaymentPixOtakuPay
+				const PaymentPixOtakuPayTransaction =
+					await PaymentPixOtakuPayModel.findOne({
+						txid: txid,
+					});
+
+				// Verificar se a transação existe e está no estado "ATIVA"
+				if (
+					!PaymentPixOtakuPayTransaction ||
+					PaymentPixOtakuPayTransaction.status !== "ATIVA"
+				) {
+					// Se não estiver no estado "ATIVA", enviar resposta com status 422
+					res.status(422).json({
+						error: "Pagamento já realizado, não é possível prosseguir!",
+					});
+					return;
+				}
+
+				try {
+					const status = cobData.status;
+
+					// Encontrar a transação PIX pelo txid na coleção PaymentPixOtakuPay
+					const PaymentPixOtakuPayTransaction =
+						await PaymentPixOtakuPayModel.findOne({
+							txid: txid,
+						});
+
+					if (status === "CONCLUIDA") {
+						try {
+							if (PaymentPixOtakuPayTransaction) {
+								// AQUI IRÁ ENTRAR A LÓGICA DE FINALIZAÇÃO DO PAGAMENTO DO PEDIDO
+
+								// Atualizar o status da transação PIX com o valor do callback
+								PaymentPixOtakuPayTransaction.status = status;
+								await PaymentPixOtakuPayTransaction.save();
+							} else {
+								console.error(
+									"Transação PIX não encontrada com o txid:",
+									txid
+								);
+							}
+						} catch (error) {
+							console.error(
+								"Erro ao processar transação PIX:",
+								error
+							);
+							res.status(500).json({
+								error: "Erro ao processar transação PIX",
+							});
+						}
+					} else {
+						console.log("Transação ATIVA");
+						res.status(422).json({
+							error: "Transação ATIVA!",
+						});
+					}
+				} catch (err) {
+					console.log(err);
+				}
+			} else {
+				console.log(
+					"ERRO AO REALIZAR REQUISIÇÃO: txid não está presente"
+				);
+			}
+		} catch (error) {
+			console.error("Erro ao processar o callback:", error);
+			res.status(500).json({ error: "Erro ao processar o callback" });
+		}
+	}
+
 	static async pixOtamart(req: Request, res: Response) {
 		console.log("PAGAMENTO PIX REALIZADO COM SUCESSO!");
 	}
