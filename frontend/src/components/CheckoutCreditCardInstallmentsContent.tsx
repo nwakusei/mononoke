@@ -99,7 +99,7 @@ function CheckoutCreditCardInstallmentsContent({
 			if (response.status === 201) {
 				// Se o pagamento foi criado com sucesso, exibe a mensagem para o usuário
 				const webhookResponse = await api.post(
-					"/otakupay/webhook-payment-creditcard-MP",
+					"/otakupay/finish-payment-creditcard-MP",
 					JSON.stringify({ products, shippingCost, coupons }),
 					{
 						headers: {

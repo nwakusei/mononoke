@@ -418,6 +418,9 @@ function PaymentPage() {
 										pixCode={pixCode}
 										txid={txid}
 										token={token}
+										products={productsList}
+										shippingCost={shippingCost}
+										coupons={coupons}
 									/>
 								)}
 							</div>

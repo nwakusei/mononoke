@@ -35,9 +35,9 @@ router.post(
 	OtakupayController.PaymentCreditcardMP
 );
 router.post(
-	"/webhook-payment-creditcard-MP",
+	"/finish-payment-creditcard-MP",
 	verifyToken,
-	OtakupayController.webhookPaymentCreditcard
+	OtakupayController.finishPaymentCreditcard
 );
 
 router.post(

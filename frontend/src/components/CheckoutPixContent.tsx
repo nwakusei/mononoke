@@ -8,8 +8,18 @@ import Swal from "sweetalert2";
 
 import api from "@/utils/api";
 import { toast } from "react-toastify";
+import { headers } from "next/headers";
 
-function CheckoutPixContent({ qrCodeUrl, copyPixCode, pixCode, txid, token }) {
+function CheckoutPixContent({
+	qrCodeUrl,
+	copyPixCode,
+	pixCode,
+	txid,
+	token,
+	products,
+	shippingCost,
+	coupons,
+}) {
 	async function handlePaymentPix(e) {
 		e.preventDefault();
 
@@ -26,7 +36,27 @@ function CheckoutPixContent({ qrCodeUrl, copyPixCode, pixCode, txid, token }) {
 					}
 				);
 
+				console.log(response.data.status);
+
 				if (response.data.status === "CONCLUIDA") {
+					const response = await api.post(
+						"/otakupay/finish-payment-pix-otakupay",
+						JSON.stringify({
+							txid,
+							products,
+							shippingCost,
+							coupons,
+						}),
+						{
+							headers: {
+								Authorization: `Bearer ${JSON.parse(token)}`,
+								"Content-Type": "application/json",
+							},
+						}
+					);
+
+					console.log(response.data);
+
 					Swal.fire({
 						title: "Pagamento confirmado!",
 						width: 700,
