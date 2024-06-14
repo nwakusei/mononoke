@@ -103,14 +103,6 @@ function DeliveryPage() {
 												<h2>{end.cep}</h2>
 											</div>
 										</div>
-
-										<div>
-											<div className="flex flex-col items-center justify-center border-[1px] border-purple-500 w-10 h-10 transition-all ease-in duration-200 hover:shadow-md hover:bg-purple-500 rounded cursor-pointer">
-												<MdOutlineDeleteOutline
-													size={25}
-												/>
-											</div>
-										</div>
 									</>
 								))
 							) : (

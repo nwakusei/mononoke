@@ -344,7 +344,7 @@ function ProductPage() {
 								<div className="flex flex-row items-center gap-1 font-semibold text-lg">
 									<h1>{partner.name}</h1>
 									<MdVerified
-										className="text-blue-700"
+										className="text-blue-500"
 										size={18}
 									/>
 								</div>
@@ -354,7 +354,9 @@ function ProductPage() {
 										size={14}
 									/>
 									<span className="ml-1 mr-2">5.0</span> |
-									<span className="ml-2">10 Seguidores</span>
+									<span className="ml-2">
+										{partner.followers} Seguidores
+									</span>
 								</div>
 								<div className="mt-1">
 									<button className="bg-green-600 transition-all ease-in duration-200 hover:bg-green-800 px-10 py-1 rounded">

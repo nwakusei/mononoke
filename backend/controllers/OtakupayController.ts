@@ -21,7 +21,7 @@ import { Payment, MercadoPagoConfig } from "mercadopago";
 
 const client = new MercadoPagoConfig({
 	accessToken:
-		"TEST-1850446270008997-060802-2a78620c7a7cd2e3e99fe6f5bcd6b4d3-1343096213",
+		"TEST-8600931546610321-061323-02f29ad24998f5ebfab710250fec1449-1343096213",
 	options: { timeout: 5000 },
 });
 
@@ -2575,8 +2575,6 @@ class OtakupayController {
 
 				const cobData = responseCob.data;
 
-				console.log(cobData);
-
 				// Pegar o status do Pix
 				const statusPix = cobData.status;
 
@@ -2596,18 +2594,20 @@ class OtakupayController {
 					return;
 				}
 
-				// Verificar se a transação existe e está no estado "ATIVA"
-				if (PaymentPixOtakuPayTransaction.status !== "CONCLUIDA") {
-					console.log(
-						"Pagamento não realizado, não é possível prosseguir!"
-					);
-					// Se não estiver no estado "ATIVA", enviar resposta com status 422
-					res.status(422).json({
-						message:
-							"Pagamento não realizado, não é possível prosseguir!",
-					});
-					return;
-				}
+				// console.log(statusPix);
+
+				// // Verificar se a transação existe e está no estado "ATIVA"
+				// if (statusPix !== "CONCLUIDA") {
+				// 	console.log(
+				// 		"Pagamento não realizado, não é possível prosseguir!"
+				// 	);
+				// 	// Se não estiver no estado "ATIVA", enviar resposta com status 422
+				// 	res.status(422).json({
+				// 		message:
+				// 			"Pagamento não realizado, não é possível prosseguir!",
+				// 	});
+				// 	return;
+				// }
 
 				// if (statusPix === "CONCLUIDA") {
 				// 	console.log("STATUS ALTERADO COM SUCESSO!");

@@ -52,6 +52,7 @@ function CashbackPage() {
 						return (
 							<CashbackCard
 								key={partner._id}
+								partnerName={partner.name}
 								partnerLogo={
 									partner.logoImage
 										? partner.logoImage

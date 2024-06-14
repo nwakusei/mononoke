@@ -6,7 +6,7 @@ import api from "@/utils/api";
 
 import { toast } from "react-toastify";
 
-initMercadoPago("TEST-afdc7490-d4d2-476a-9103-349a925521a9");
+initMercadoPago("TEST-b720dec1-61e8-4868-9406-d9b3646f4069");
 
 function CheckoutCreditCardParcelContent() {
 	const [paymentBrickController, setPaymentBrickController] = useState(null);
@@ -51,7 +51,7 @@ function CheckoutCreditCardParcelContent() {
 
 	useEffect(() => {
 		// Inicialize o Mercado Pago com sua chave pública
-		initMercadoPago("TEST-afdc7490-d4d2-476a-9103-349a925521a9");
+		initMercadoPago("TEST-b720dec1-61e8-4868-9406-d9b3646f4069");
 
 		// Renderize o Brick de pagamento
 		const renderPaymentBrick = async (bricksBuilder) => {

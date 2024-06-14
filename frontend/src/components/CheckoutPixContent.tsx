@@ -1,14 +1,18 @@
+import { useContext } from "react";
+
 import Image from "next/image";
 
 // Icons
 import { MdOutlinePix } from "react-icons/md";
 import { FaCheck } from "react-icons/fa";
 
+// Context
+import { CheckoutContext } from "@/context/CheckoutContext";
+
 import Swal from "sweetalert2";
 
 import api from "@/utils/api";
 import { toast } from "react-toastify";
-import { headers } from "next/headers";
 
 function CheckoutPixContent({
 	qrCodeUrl,
@@ -20,6 +24,8 @@ function CheckoutPixContent({
 	shippingCost,
 	coupons,
 }) {
+	const { setSubtotal, setCart } = useContext(CheckoutContext);
+
 	async function handlePaymentPix(e) {
 		e.preventDefault();
 
@@ -55,10 +61,18 @@ function CheckoutPixContent({
 						}
 					);
 
-					console.log(response.data);
+					console.log(response.data.message);
+
+					// Limpar o localStorage após o pagamento ser aprovado
+					localStorage.removeItem("productsInCart");
+					localStorage.removeItem("transportadoraInfo");
+					localStorage.removeItem("coupons");
+
+					setCart(0);
+					setSubtotal(0);
 
 					Swal.fire({
-						title: "Pagamento confirmado!",
+						title: response.data.message,
 						width: 700,
 						icon: "success",
 					});

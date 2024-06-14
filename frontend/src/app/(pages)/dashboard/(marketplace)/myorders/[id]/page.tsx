@@ -172,7 +172,7 @@ function MyOrderByIDPage() {
 						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
 							<h1 className="text-2xl font-semibold">
-								Lista de Produtos
+								Detalhes do Pedido
 							</h1>
 
 							{/* Lista de Produtos */}

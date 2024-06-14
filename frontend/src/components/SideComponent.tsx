@@ -422,7 +422,7 @@ function SideComponent() {
 							</Link>
 						</button>
 						{/* Componentes pequenos */}
-						<div className="flex flex-row justify-center items-center">
+						{/* <div className="flex flex-row justify-center items-center">
 							<div className="flex items-center text-sm hover:bg-slate-300 hover:opacity-20 px-2 py-1 gap-1 rounded cursor-pointer">
 								<GrChat size={10} />
 								<span>Chat</span>
@@ -437,7 +437,7 @@ function SideComponent() {
 								<GoShareAndroid size={13} />
 								<span>Share</span>
 							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 

@@ -10,7 +10,7 @@ import api from "@/utils/api";
 
 // Sweet Alert
 import Swal from "sweetalert2";
-import { toast, toat } from "react-toastify";
+import { toast } from "react-toastify";
 
 // imagens estáticas
 
@@ -46,7 +46,6 @@ function PaymentPage() {
 		useContext(CheckoutContext);
 	const [productsInCart, setProductsInCart] = useState([]);
 	const router = useRouter();
-	const [payLoading, setPayLoading] = useState(false);
 	const [visiblePaymentContent, setVisiblePaymentContent] = useState(null);
 	const [stripePromise, setStripePromise] = useState(null);
 	const [clientSecret, setClientSecret] = useState("");
@@ -194,75 +193,6 @@ function PaymentPage() {
 		setVisiblePaymentContent("creditCardContent");
 	};
 
-	async function handlePayment() {
-		try {
-			setPayLoading(true);
-
-			const productsList = productsInCart.map((product) => ({
-				productID: product.productID,
-				productName: product.productName,
-				productImage: product.imageProduct,
-				productPrice: product.productPrice,
-				productQuantity: product.quantityThisProduct,
-				partnerID: product.partnerID,
-			}));
-
-			console.log(transportadoraInfo);
-
-			const shippingCost = Object.values(transportadoraInfo).map(
-				(info) => ({
-					partnerID: info.partnerID,
-					vlrFrete: info.vlrFrete,
-					daysShipping: info.prazoEnt,
-				})
-			);
-
-			// Recupera os cupons do localStorage
-			const coupons = JSON.parse(localStorage.getItem("coupons") || "[]");
-
-			const response = await api.post(
-				"/otakupay/buy-otamart",
-				{
-					products: productsList,
-					shippingCost: shippingCost,
-					coupons: coupons,
-				},
-				{
-					headers: {
-						Authorization: `Bearer ${JSON.parse(token)}`,
-					},
-				}
-			);
-
-			// Limpar o localStorage após o pagamento ser aprovado
-			localStorage.removeItem("productsInCart");
-			localStorage.removeItem("transportadoraInfo");
-			localStorage.removeItem("coupons");
-
-			setCart(0);
-			setSubtotal(0);
-			setPayLoading(false);
-
-			Swal.fire({
-				title: "Pagamento Realizado com Sucesso!",
-				width: 700,
-				text: "Agora é só aguardar o envio o/",
-				icon: "success",
-			});
-
-			router.push("/otamart");
-		} catch (error: any) {
-			console.log(error);
-			setPayLoading(false);
-			Swal.fire({
-				title: error.response.data.message,
-				width: 900,
-				icon: "error",
-			});
-			return error.response.data;
-		}
-	}
-
 	async function handleQRCode(totalPedido) {
 		let originalValue = totalPedido;
 
@@ -398,7 +328,7 @@ function PaymentPage() {
 										"creditCardContent" && (
 										<CheckoutCreditCardInstallmentsContent
 											orderTotalCost={Number(
-												totalPedido2.toFixed(2)
+												totalPedido.toFixed(2)
 											)}
 											products={productsList}
 											shippingCost={shippingCost}
@@ -409,7 +339,12 @@ function PaymentPage() {
 
 							<div className="flex flex-col justify-center items-center gap-4 mb-8">
 								{visiblePaymentContent === "balanceContent" && (
-									<CheckoutBalanceContent />
+									<CheckoutBalanceContent
+										products={productsList}
+										shippingCost={shippingCost}
+										coupons={coupons}
+										token={token}
+									/>
 								)}
 								{visiblePaymentContent === "pixContent" && (
 									<CheckoutPixContent
@@ -433,22 +368,6 @@ function PaymentPage() {
 							shippingInfo={transportadoraInfo}
 						/>
 					</div>
-				</div>
-
-				<div className="flex flex-row justify-center items-center gap-4">
-					{payLoading ? (
-						<button className="btn btn-primary">
-							<span className="loading loading-spinner loading-sm"></span>
-							<span>Processando...</span>
-						</button>
-					) : (
-						<button
-							onClick={handlePayment}
-							className="flex flex-row justify-center items-center gap-2 bg-green-800 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
-							<FaCheck size={18} />
-							Finalizar Pedido
-						</button>
-					)}
 				</div>
 			</div>
 		</section>
