@@ -468,10 +468,15 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 							<div className="flex justify-between mb-1">
 								<h2>Desconto do cupom</h2>
 								<h2>
-									{couponApplied.toLocaleString("pt-BR", {
-										style: "currency",
-										currency: "BRL",
-									})}
+									{couponApplied
+										? `- ${couponApplied.toLocaleString(
+												"pt-BR",
+												{
+													style: "currency",
+													currency: "BRL",
+												}
+										  )}`
+										: `R$ 0,00`}
 								</h2>
 							</div>
 						</div>

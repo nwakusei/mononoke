@@ -47,9 +47,6 @@ function SideComponent() {
 	const partnerAddress = partner ? partner.address[0].uf : "";
 	const userAddress = user.address ? user.address[0].uf : "";
 
-	console.log(partnerAddress);
-	console.log(userAddress);
-
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
 			headers: {
@@ -335,9 +332,7 @@ function SideComponent() {
 
 		handleSimulateShipping(cepDestino);
 
-		setTimeout(() => {
-			setIsCalculating(false);
-		}, 1000);
+		setIsCalculating(false);
 	};
 
 	return (

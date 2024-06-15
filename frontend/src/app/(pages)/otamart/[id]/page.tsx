@@ -215,6 +215,42 @@ function ProductPage() {
 								/>
 							</div>
 						</div>
+						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
+							<div className="h-[74px] flex items-center justify-center">
+								<Image
+									className="object-contain  h-full"
+									src={Lycoris}
+									alt="Shoes"
+								/>
+							</div>
+						</div>
+						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
+							<div className="h-[74px] flex items-center justify-center">
+								<Image
+									className="object-contain  h-full"
+									src={Lycoris}
+									alt="Shoes"
+								/>
+							</div>
+						</div>
+						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
+							<div className="h-[74px] flex items-center justify-center">
+								<Image
+									className="object-contain  h-full"
+									src={Lycoris}
+									alt="Shoes"
+								/>
+							</div>
+						</div>
+						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
+							<div className="h-[74px] flex items-center justify-center">
+								<Image
+									className="object-contain  h-full"
+									src={Lycoris}
+									alt="Shoes"
+								/>
+							</div>
+						</div>
 					</div>
 				</div>
 

@@ -411,6 +411,10 @@ function MyOrderByIDPage() {
 									</tbody>
 								</table>
 							</div>
+							<div>
+								<h1 className="text-xl">Método de Pagamento</h1>
+								<div>{myorder.paymentMethod}</div>
+							</div>
 						</div>
 					</div>
 
