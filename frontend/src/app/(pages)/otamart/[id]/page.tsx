@@ -350,15 +350,13 @@ function ProductPage() {
 			</div>
 
 			{/* Descrição do produto*/}
-			<div className="bg-yellow-500 flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
-				<div className="w-full border-opacity-50">
-					{/* Descrição e Detalhes*/}
-					<div>
-						<h1 className="divider text-xl">
-							Descrição e Detalhes do Produto
-						</h1>
-						<p>{product.description}</p>
-					</div>
+			<div className="bg-yellow-500 gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+				{/* Descrição e Detalhes*/}
+				<div className="flex flex-col justify-center items-center">
+					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-md shadow-md select-none">
+						Descrição e Detalhes do Produto
+					</h1>
+					<p>{product.description}</p>
 				</div>
 			</div>
 
@@ -423,8 +421,10 @@ function ProductPage() {
 			<div className="bg-yellow-500 flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-4">
 				<div className="w-full border-opacity-50">
 					<div className="flex flex-col">
-						<div className="divider text-xl">
-							Avaliações do Produto
+						<div className="flex flex-col justify-center items-center mb-2">
+							<h1 className="w-full bg-primary text-center text-xl py-2 rounded-md shadow-md select-none">
+								Avaliações do Produto
+							</h1>
 						</div>
 						{/* Avaliação por Usuário*/}
 						{product.reviews && product.reviews.length > 0 ? (

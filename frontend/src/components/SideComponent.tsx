@@ -293,6 +293,8 @@ function SideComponent() {
 
 	// Função para Calcular o Frete
 	async function handleSimulateShipping(cep: number) {
+		setIsCalculating(true);
+
 		let productPrice;
 
 		if (product.promocionalPrice && Number(product.promocionalPrice) > 0) {
@@ -321,6 +323,7 @@ function SideComponent() {
 				quantityThisProduct: quantity, // Adicione a quantidade do produto
 			}); // Passar cep como parte do corpo da solicitação
 			setTransportadoras(response.data);
+			setIsCalculating(false);
 		} catch (error) {
 			console.error("Ocorreu um erro:", error);
 		}
@@ -328,11 +331,7 @@ function SideComponent() {
 
 	// Função para lidar com o clique no botão de Calculo de Frete
 	const handleButtonClick = () => {
-		setIsCalculating(true);
-
 		handleSimulateShipping(cepDestino);
-
-		setIsCalculating(false);
 	};
 
 	return (
