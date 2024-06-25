@@ -107,24 +107,52 @@ function MyProductsPage() {
 														</div>
 													</td>
 													<td>
-														{Number(
-															product.originalPrice
-														).toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-														)}
-														<br />
 														{product.promocionalPrice >
 														0 ? (
-															<span className="badge badge-accent badge-sm">
-																Em Promoção
-															</span>
+															<div className="flex flex-col">
+																<div className="flex flex-row items-center gap-2 mb-2">
+																	<span className="line-through">
+																		{Number(
+																			product.originalPrice
+																		).toLocaleString(
+																			"pt-BR",
+																			{
+																				style: "currency",
+																				currency:
+																					"BRL",
+																			}
+																		)}
+																	</span>
+																	<span>
+																		{Number(
+																			product.promocionalPrice
+																		).toLocaleString(
+																			"pt-BR",
+																			{
+																				style: "currency",
+																				currency:
+																					"BRL",
+																			}
+																		)}
+																	</span>
+																</div>
+																<span className="badge badge-accent badge-sm">
+																	Em Promoção
+																</span>
+															</div>
 														) : (
-															<></>
+															Number(
+																product.originalPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)
 														)}
+														<br />
 													</td>
 													<td>{product.stock} un</td>
 													<th>

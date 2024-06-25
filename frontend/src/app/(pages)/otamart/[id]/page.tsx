@@ -29,6 +29,7 @@ import { MdVerified } from "react-icons/md";
 function ProductPage() {
 	const { id } = useParams();
 	const [product, setProduct] = useState({});
+	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
 	const [maximizedImage, setMaximizedImage] = useState(null);
 
 	const { partners } = useContext(Context);
@@ -36,6 +37,14 @@ function ProductPage() {
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
 	);
+
+	const handleOpenImagesProduct = (image) => {
+		setMaximizedImageProduct(image);
+	};
+
+	const handleCloseImagesProduct = () => {
+		setMaximizedImageProduct(null);
+	};
 
 	const handleOpen = (image) => {
 		setMaximizedImage(image);
@@ -206,52 +215,47 @@ function ProductPage() {
 					</div>
 					{/* Pequenas imagens */}
 					<div className="flex flex-row gap-2">
-						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
-							<div className="h-[74px] flex items-center justify-center">
-								<Image
-									className="object-contain  h-full"
-									src={Lycoris}
-									alt="Shoes"
-								/>
-							</div>
-						</div>
-						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
-							<div className="h-[74px] flex items-center justify-center">
-								<Image
-									className="object-contain  h-full"
-									src={Lycoris}
-									alt="Shoes"
-								/>
-							</div>
-						</div>
-						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
-							<div className="h-[74px] flex items-center justify-center">
-								<Image
-									className="object-contain  h-full"
-									src={Lycoris}
-									alt="Shoes"
-								/>
-							</div>
-						</div>
-						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
-							<div className="h-[74px] flex items-center justify-center">
-								<Image
-									className="object-contain  h-full"
-									src={Lycoris}
-									alt="Shoes"
-								/>
-							</div>
-						</div>
-						<div className="bg-base-100 w-[74px] flex flex-col rounded relative shadow-lg">
-							<div className="h-[74px] flex items-center justify-center">
-								<Image
-									className="object-contain  h-full"
-									src={Lycoris}
-									alt="Shoes"
-								/>
-							</div>
-						</div>
+						{product.imagesProduct &&
+							product.imagesProduct.length > 0 &&
+							product.imagesProduct.map((image, id) => (
+								<div className="bg-base-100 w-[74px] rounded relative shadow-lg">
+									<div
+										key={id}
+										className="h-[74px] flex items-center justify-center">
+										<Image
+											className="object-contain h-full cursor-pointer"
+											src={`http://localhost:5000/images/products/${image}`}
+											alt="Shoes"
+											onClick={() =>
+												handleOpenImagesProduct(image)
+											}
+											width={50}
+											height={10}
+										/>
+									</div>
+								</div>
+							))}
 					</div>
+					{/* Renderizar imagem maximizada se existir */}
+					{maximizedImageProduct && (
+						<div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center">
+							<div className="relative max-w-full max-h-full">
+								<Image
+									className="object-contain max-w-full max-h-full rounded-md"
+									src={`http://localhost:5000/images/products/${maximizedImageProduct}`}
+									alt="Maximized Image"
+									width={400}
+									height={200}
+									unoptimized
+								/>
+								<button
+									className="absolute top-4 right-4 bg-error px-3 py-1 rounded shadow-md text-white"
+									onClick={handleCloseImagesProduct}>
+									✕
+								</button>
+							</div>
+						</div>
+					)}
 				</div>
 
 				{/* Componente intermediário */}
