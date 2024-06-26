@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { RaffleModel } from "../models/RaffleModel.js";
 
 // Middlewares
 import getToken from "../helpers/get-token.js";
@@ -6,30 +7,76 @@ import getUserByToken from "../helpers/get-user-by-token.js";
 
 class RaffleController {
 	static async createRaffle(req: Request, res: Response) {
-		const { raffleTittle, rafflePrice, raffleProduct } = req.body;
+		const { rafflePrize, raffleDate, raffleCost, raffleOrganizer } =
+			req.body;
 
-		if (!raffleTittle) {
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (partner?.accountType !== "partner") {
 			res.status(422).json({
-				message: "O título do sorteio é obrigatório!",
+				message: "Você não possui permissão para executar esta ação!",
 			});
 			return;
 		}
 
-		if (!rafflePrice) {
+		if (!rafflePrize) {
+			res.status(422).json({
+				message: "O prêmio do sorteio é obrigatório!",
+			});
+			return;
+		}
+
+		if (!raffleDate) {
+			res.status(422).json({
+				message: "A data de realização do sorteado é obrigatória!",
+			});
+			return;
+		}
+
+		if (!raffleCost) {
 			res.status(422).json({
 				message: "O custo do sorteio é obrigatório!",
 			});
 			return;
 		}
 
-		if (!raffleProduct) {
+		if (!raffleOrganizer) {
 			res.status(422).json({
-				message: "O produto a ser sorteado é obrigatório!",
+				message: "O organizador do sorteio é obrigatório!",
 			});
 			return;
 		}
 
-		res.status(201).json({ message: "Sorteio criado com sucesso!" });
+		try {
+			const raffle = new RaffleModel({
+				rafflePrize,
+				raffleDate,
+				raffleCost,
+				raffleOrganizer,
+				partnerID: partner.id,
+			});
+
+			const newRaffle = await raffle.save();
+
+			res.status(201).json({
+				message: "Sorteio criado com sucesso!",
+				newRaffle,
+			});
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
+	static async getAllRaffle(req: Request, res: Response) {
+		const raffles = await RaffleModel.find();
+
+		res.status(200).json({ raffles: raffles });
 	}
 }
 

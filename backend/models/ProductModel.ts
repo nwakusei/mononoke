@@ -1,15 +1,7 @@
 import mainDB from "../db/mainconn.js";
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 
 // Interface para a estrutura de um objeto de revisão
-interface IReview extends Document {
-	orderID: mongoose.Types.ObjectId;
-	customerName: string;
-	reviewRating: number;
-	imagesReview: string[];
-	reviewDescription: string;
-}
-
 interface IProduct {
 	productName: string;
 	imagesProduct: string[];
@@ -33,6 +25,7 @@ interface IProduct {
 	partnerID: Schema.Types.ObjectId;
 }
 
+// Schema que corresponda a Interface
 const productSchema = new Schema<IProduct>(
 	{
 		productName: {

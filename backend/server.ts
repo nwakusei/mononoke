@@ -57,7 +57,7 @@ app.use("/otakuprime", OtakuPrimeRoutes);
 app.use("/coupons", CouponRoutes);
 app.use("/reviews", ReviewRoutes);
 app.use("/tracking", TrackingRoutes);
-app.use("/raffle", RaffeRoutes);
+app.use("/raffles", RaffeRoutes);
 
 // Configuração do Listen
 app.listen(port, () => {
