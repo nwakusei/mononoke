@@ -7,8 +7,15 @@ import getUserByToken from "../helpers/get-user-by-token.js";
 
 class RaffleController {
 	static async createRaffle(req: Request, res: Response) {
-		const { rafflePrize, raffleDate, raffleCost, raffleOrganizer } =
-			req.body;
+		const {
+			rafflePrize,
+			raffleDate,
+			raffleCost,
+			raffleDescription,
+			raffleRules,
+			minNumberParticipants,
+			raffleOrganizer,
+		} = req.body;
 
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
@@ -46,6 +53,28 @@ class RaffleController {
 			return;
 		}
 
+		if (!minNumberParticipants) {
+			res.status(422).json({
+				message:
+					"A quantidade mínima de participantes do sorteio é obrigatória!",
+			});
+			return;
+		}
+
+		if (!raffleDescription) {
+			res.status(422).json({
+				message: "A descrição do Sorteio é obrigatória!",
+			});
+			return;
+		}
+
+		if (!raffleRules) {
+			res.status(422).json({
+				message: "Defina as regras do Sorteio!",
+			});
+			return;
+		}
+
 		if (!raffleOrganizer) {
 			res.status(422).json({
 				message: "O organizador do sorteio é obrigatório!",
@@ -58,6 +87,9 @@ class RaffleController {
 				rafflePrize,
 				raffleDate,
 				raffleCost,
+				raffleDescription,
+				raffleRules,
+				minNumberParticipants,
 				raffleOrganizer,
 				partnerID: partner.id,
 			});

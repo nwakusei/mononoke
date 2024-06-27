@@ -10,6 +10,8 @@ import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { RiCopperCoinLine } from "react-icons/ri";
 import { LuCalendarRange } from "react-icons/lu";
+import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
+import { CiMedal } from "react-icons/ci";
 
 function RaffleCard({ rafflePrize, raffleDate, raffleCost, raffleOrganizer }) {
 	return (
@@ -20,21 +22,27 @@ function RaffleCard({ rafflePrize, raffleDate, raffleCost, raffleOrganizer }) {
 			<div className="divider text-sm mx-2">Detalhes</div>
 			<div className="flex flex-col justify-center mx-4 -mt-2">
 				<div>
-					<h1 className="font-semibold text-base line-clamp-2 whitespace-normal min-h-[48px] mb-2">
-						{rafflePrize}
-					</h1>
+					<div className="flex flex-row gap-2">
+						<div className="font-semibold text-base line-clamp-2 whitespace-normal min-h-[48px] mb-2">
+							{rafflePrize}
+						</div>
+					</div>
 				</div>
 				<div>
-					<div className="flex flex-row items-center gap-1 text-base mb-2">
-						<LuCalendarRange size={18} />
+					<div className="flex flex-row items-center text-base gap-2 mb-1">
+						<LuCalendarRange size={17} />
 						<span>{raffleDate}</span>
 					</div>
-					<div className="flex flex-row items-center gap-1 text-center text-sm mb-2">
-						<RiCopperCoinLine size={18} />{" "}
-						<span>{raffleCost} OP</span>
+					<div className="flex flex-row items-center gap-2 mb-1">
+						<MdOutlineLocalActivity
+							className="mt-[1px]"
+							size={18}
+						/>
+						<div className="text-sm">{raffleCost} OP</div>
 					</div>
-					<h2 className="text-yellow-500 text-sm flex flex-row items-center gap-2 mb-2">
-						{raffleOrganizer}
+					<h2 className="flex flex-row items-center text-sm gap-2 mb-4">
+						<MdOutlineStore size={18} />
+						<div>{raffleOrganizer}</div>
 					</h2>
 				</div>
 				<button className="btn btn-primary w-full mb-2">
