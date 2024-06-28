@@ -18,6 +18,8 @@ const storageTypes: {
 				folder = "products";
 			} else if (req.baseUrl.includes("reviews")) {
 				folder = "reviews";
+			} else if (req.baseUrl.includes("raffles")) {
+				folder = "raffles";
 			}
 
 			cb(null, `public/images/${folder}`);

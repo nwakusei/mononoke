@@ -4,6 +4,8 @@ import { RaffleModel } from "../models/RaffleModel.js";
 // Middlewares
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
+import { imageUpload } from "../helpers/image-upload.js";
+import { isValidObjectId } from "mongoose";
 
 class RaffleController {
 	static async createRaffle(req: Request, res: Response) {
@@ -14,8 +16,9 @@ class RaffleController {
 			raffleDescription,
 			raffleRules,
 			minNumberParticipants,
-			raffleOrganizer,
 		} = req.body;
+
+		const imagesRaffle = req.files as Express.Multer.File[];
 
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
@@ -75,23 +78,45 @@ class RaffleController {
 			return;
 		}
 
-		if (!raffleOrganizer) {
-			res.status(422).json({
-				message: "O organizador do sorteio é obrigatório!",
-			});
+		if (!imagesRaffle || imagesRaffle.length === 0) {
+			res.status(422).json({ message: "A imagem é obrigatória!" });
 			return;
 		}
 
 		try {
 			const raffle = new RaffleModel({
-				rafflePrize,
-				raffleDate,
-				raffleCost,
-				raffleDescription,
-				raffleRules,
-				minNumberParticipants,
-				raffleOrganizer,
+				rafflePrize: rafflePrize,
+				imagesRaffle: [],
+				raffleDate: raffleDate,
+				raffleCost: raffleCost,
+				raffleDescription: raffleDescription,
+				raffleRules: raffleRules,
+				minNumberParticipants: minNumberParticipants,
+				raffleOrganizer: partner.name,
 				partnerID: partner.id,
+			});
+
+			// Percorrer o Array de imagens e adicionar cada uma a uma ao sorteio que será criado
+			imagesRaffle.forEach((imageRaffle: Express.Multer.File) => {
+				console.log(imageRaffle);
+				let image = "";
+
+				if (imageRaffle) {
+					if ("key" in imageRaffle) {
+						// Estamos usando o armazenamento na AWS S3
+						if (typeof imageRaffle.key === "string") {
+							image = imageRaffle.key;
+						}
+					} else {
+						// Estamos usando o armazenamento em ambiente local (Desenvolvimento)
+						if (typeof imageRaffle.filename === "string") {
+							image = imageRaffle.filename;
+						}
+					}
+				}
+
+				// Adicionar a imagem ao Sorteio
+				raffle.imagesRaffle.push(image);
 			});
 
 			const newRaffle = await raffle.save();
@@ -109,6 +134,24 @@ class RaffleController {
 		const raffles = await RaffleModel.find();
 
 		res.status(200).json({ raffles: raffles });
+	}
+
+	static async getRaffleByID(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!isValidObjectId(id)) {
+			res.status(422).json({ message: "O ID do sorteio é inválido" });
+			return;
+		}
+
+		const raffle = await RaffleModel.findById({ _id: id });
+
+		if (!raffle) {
+			res.status(404).json({ message: "Sorteio não encontrado" });
+			return;
+		}
+
+		res.status(200).json({ raffle: raffle });
 	}
 }
 

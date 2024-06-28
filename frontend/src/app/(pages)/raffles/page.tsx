@@ -1,36 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef, useContext } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import api from "@/utils/api";
-
-// Context
-import { Context } from "@/context/UserContext";
-
-// Icons
-import { Currency } from "@icon-park/react";
-import { Financing, Cd } from "@icon-park/react";
-import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
-import { GiEvilBook, GiArchitectMask, GiBattleMech } from "react-icons/gi";
-import { IoGameControllerOutline } from "react-icons/io5";
-import { LuDisc3 } from "react-icons/lu";
-import { PiTShirtLight, PiTShirt } from "react-icons/pi";
-import { BsSmartwatch } from "react-icons/bs";
-import { FaHatWizard } from "react-icons/fa";
-import { TbCards } from "react-icons/tb";
-import { LuPencilRuler } from "react-icons/lu";
-import { RiPencilRuler2Line } from "react-icons/ri";
-import { GiProtectionGlasses } from "react-icons/gi";
-import { GiSunglasses } from "react-icons/gi";
-import { LiaShippingFastSolid } from "react-icons/lia";
+import { format } from "date-fns";
 
 // Components
 import { RaffleCard } from "@/components/RaffleCard";
 
 function RafflesPage() {
 	const [raffles, setRaffles] = useState([]);
-
-	console.log(raffles);
 
 	useEffect(() => {
 		api.get("/raffles/").then((response) => {
@@ -52,9 +30,14 @@ function RafflesPage() {
 							<RaffleCard
 								key={index}
 								rafflePrize={raffle.rafflePrize}
-								raffleDate={raffle.raffleDate}
+								raffleImage={`http://localhost:5000/images/raffles/${raffle.imagesRaffle[0]}`}
+								raffleDate={`${format(
+									new Date(raffle.raffleDate),
+									"dd/MM"
+								)}`}
 								raffleCost={raffle.raffleCost}
 								raffleOrganizer={raffle.raffleOrganizer}
+								linkRafflePage={`/raffles/${raffle._id}`}
 							/>
 						))}
 				</div>

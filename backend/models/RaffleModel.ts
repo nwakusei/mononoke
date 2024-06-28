@@ -4,6 +4,7 @@ import { Schema, model } from "mongoose";
 // Interface para a estrutura de um objeto de revisão
 interface IRaffle {
 	rafflePrize: string;
+	imagesRaffle: string[];
 	raffleDate: Date;
 	raffleCost: number;
 	raffleDescription: string;
@@ -18,6 +19,10 @@ const raffleSchema = new Schema<IRaffle>(
 	{
 		rafflePrize: {
 			type: String,
+			required: true,
+		},
+		imagesRaffle: {
+			type: [String],
 			required: true,
 		},
 		raffleDate: {

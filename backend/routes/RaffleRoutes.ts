@@ -8,7 +8,13 @@ const router = Router();
 import verifyToken from "../helpers/verify-token.js";
 import { imageUpload } from "../helpers/image-upload.js";
 
-router.post("/create-raffle", verifyToken, RaffleController.createRaffle);
+router.post(
+	"/create-raffle",
+	verifyToken,
+	imageUpload.array("imagesRaffle"),
+	RaffleController.createRaffle
+);
 router.get("/", RaffleController.getAllRaffle);
+router.get("/:id", RaffleController.getRaffleByID);
 
 export default router;

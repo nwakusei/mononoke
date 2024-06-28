@@ -15,9 +15,6 @@ import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
 import { ShoppingCartOne, PaymentMethod } from "@icon-park/react";
-import { BsHeart } from "react-icons/bs";
-import { GoShareAndroid } from "react-icons/go";
-import { GrChat } from "react-icons/gr";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { GrLocation } from "react-icons/gr";
 import { FiInfo } from "react-icons/fi";

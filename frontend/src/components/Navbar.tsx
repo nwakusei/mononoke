@@ -219,7 +219,6 @@ function Navbar() {
 														/>
 														OtaClub
 													</span>
-
 													<span className="badge border border-white">
 														New
 													</span>
@@ -231,7 +230,6 @@ function Navbar() {
 														<Blockchain size={18} />
 														Blockchain
 													</span>
-
 													<span className="badge border border-white">
 														New
 													</span>
@@ -245,7 +243,6 @@ function Navbar() {
 														/>
 														OtaClub 2
 													</span>
-
 													<span className="badge border border-white">
 														New
 													</span>
@@ -259,25 +256,25 @@ function Navbar() {
 														/>
 														Gift Card
 													</span>
-
 													<span className="badge border border-white">
 														New
 													</span>
 												</a>
 											</li>
 											<li>
-												<a className="flex flex-row items-center justify-between text-white">
-													<span className="flex flex-row items-center gap-2">
+												<Link
+													href="/raffles"
+													className="flex flex-row justify-between items-center text-white">
+													<span className="flex items-center gap-2">
 														<MdOutlineLocalActivity
 															size={20}
 														/>
-														Sorteios
+														<span>Sorteio</span>
 													</span>
-
 													<span className="badge border border-white">
 														New
 													</span>
-												</a>
+												</Link>
 											</li>
 										</ul>
 									</div>

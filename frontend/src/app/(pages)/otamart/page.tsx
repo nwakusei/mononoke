@@ -1,34 +1,23 @@
 "use client";
 
-import { useState, useEffect, useRef, useContext } from "react";
-import Image from "next/image";
+import { useState, useEffect, useContext } from "react";
 import api from "@/utils/api";
 
 // Context
 import { Context } from "@/context/UserContext";
 
 // Icons
-import { Currency } from "@icon-park/react";
-import { Financing, Cd } from "@icon-park/react";
-import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
-import { GiEvilBook, GiArchitectMask, GiBattleMech } from "react-icons/gi";
+import { GiEvilBook, GiBattleMech } from "react-icons/gi";
 import { IoGameControllerOutline } from "react-icons/io5";
 import { LuDisc3 } from "react-icons/lu";
-import { PiTShirtLight, PiTShirt } from "react-icons/pi";
+import { PiTShirt } from "react-icons/pi";
 import { BsSmartwatch } from "react-icons/bs";
-import { FaHatWizard } from "react-icons/fa";
 import { TbCards } from "react-icons/tb";
-import { LuPencilRuler } from "react-icons/lu";
 import { RiPencilRuler2Line } from "react-icons/ri";
 import { GiProtectionGlasses } from "react-icons/gi";
-import { GiSunglasses } from "react-icons/gi";
-import { LiaShippingFastSolid } from "react-icons/lia";
 
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
-import { headers } from "next/headers";
-import { set } from "react-hook-form";
-import { error } from "console";
 
 function OtamartPage() {
 	const [products, setProducts] = useState([]);
