@@ -1,5 +1,11 @@
 import mainDB from "../db/mainconn.js";
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
+
+interface IActiveParticipant {
+	customerID: Schema.Types.ObjectId;
+	customerName: string;
+	ticket: string;
+}
 
 // Interface para a estrutura de um objeto de revisão
 interface IRaffle {
@@ -12,6 +18,7 @@ interface IRaffle {
 	minNumberParticipants: Number;
 	raffleOrganizer: string;
 	partnerID: Schema.Types.ObjectId;
+	activeParticipants: IActiveParticipant[];
 }
 
 // Schema que corresponda a Interface
@@ -53,6 +60,23 @@ const raffleSchema = new Schema<IRaffle>(
 			type: Schema.Types.ObjectId,
 			ref: "PartnerModel",
 		},
+		activeParticipants: [
+			{
+				customerID: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: "CustomerModel",
+					required: true,
+				},
+				customerName: {
+					type: String,
+					required: true,
+				},
+				ticket: {
+					type: String,
+					required: true,
+				},
+			},
+		],
 	},
 
 	{ timestamps: true }
