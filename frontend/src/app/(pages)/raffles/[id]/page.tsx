@@ -22,8 +22,10 @@ import imageProfile from "../../../../../public/Kon.jpg";
 
 // Icons
 import { Currency } from "@icon-park/react";
-import { BsStarFill } from "react-icons/bs";
 import { MdVerified } from "react-icons/md";
+import { LuCalendarRange } from "react-icons/lu";
+import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
+import { BsPersonFill, BsPeopleFill } from "react-icons/bs";
 
 function RafflePage() {
 	const { id } = useParams();
@@ -123,45 +125,75 @@ function RafflePage() {
 					</div>
 
 					{/* Componente intermediário */}
-					<div className="flex flex-col w-[350px]">
-						<div className="w-full bg-blue-500 text-center py-1 rounded-md">
+					<div className="flex flex-col w-[700px]">
+						<div className="w-full bg-primary text-center text-lg py-1 mb-4 rounded-md">
 							Detalhes do Sorteio
 						</div>
-
-						<h1 className="text-xl font-semibold mb-1">
+						<h1 className="text-xl font-semibold mb-4">
 							TItulo do Sorteio
 						</h1>
+						<div className="flex flex-row items-center gap-2">
+							<MdOutlineLocalActivity
+								className="mt-[1px]"
+								size={19}
+							/>
+							<span>Valor do Ticket: 1,00 OP</span>
+						</div>
+						<div className="flex flex-row items-center gap-2">
+							<BsPersonFill size={17} />
+							<span>Mínimo de Participantes: 5</span>
+						</div>
+						<div className="flex flex-row items-center gap-2">
+							<LuCalendarRange size={16} />
 
-						<div>
-							<h2 className="text-lg text-primary font-semibold">
-								Valor do Ticket: 1,00 OP
-							</h2>
+							<span>Data do Sorteio: 13/06</span>
 						</div>
 
-						<div>
-							<h2 className="text-lg text-primary font-semibold">
-								Mínimo de Participantes: 5
-							</h2>
+						<div className="flex flex-row items-center gap-2">
+							<BsPeopleFill size={17} />
+							<span>Participantes Registrados: 100</span>
 						</div>
 
+						<div className="flex flex-row items-center gap-2 mb-4">
+							<MdOutlineStore size={18} />
+							<div>
+								Organizado por{" "}
+								<span className="text-blue-300 transition-all ease-in hover:text-blue-100 cursor-pointer">
+									Amora Book Store
+								</span>
+							</div>
+						</div>
 						<div>
-							<h2 className="text-lg text-primary font-semibold">
-								Organizado por Amora Book Store
+							<h2 className="mb-2">
+								Descrição: Contrary to popular belief, Lorem
+								Ipsum is not simply random text. It has roots in
+								a piece of classical Latin literature from 45
+								BC, making it over 2000 years old. Richard
+								McClintock, a Latin professor at Hampden-Sydney
+								College in Virginia, looked up one of the more
+								obscure Latin words, consectetur, from a Lorem
+								Ipsum passage, and going through the cites of
+								the word in classical literature, discovered the
+								undoubtable source. Lorem Ipsum comes from
+								sections 1.10.32 and 1.10.33 of "de Finibus
+								Bonorum et Malorum" (The Extremes of Good and
+								Evil) by Cicero, written in 45 BC. This book is
+								a treatise on the theory of ethics, very popular
+								during the Renaissance. The first line of Lorem
+								Ipsum, "Lorem ipsum dolor sit amet..", comes
+								from a line in section 1.10.32.
+							</h2>
+						</div>
+						<div>
+							<h2 className="">
+								Regras: Contrary to popular belief, Lorem Ipsum
+								is not simply random text.
 							</h2>
 						</div>
 					</div>
 				</div>
 			</div>
-			{/* Descrição do produto*/}
-			<div className="bg-yellow-500 gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
-				{/* Descrição e Detalhes*/}
-				<div className="flex flex-col justify-center items-center">
-					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-md shadow-md select-none">
-						Descrição do Sorteio
-					</h1>
-					{/* <p>{product.description}</p> */}...
-				</div>
-			</div>
+
 			{/* Descrição do produto*/}
 			<div className="bg-yellow-500 gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
 				{/* Descrição e Detalhes*/}

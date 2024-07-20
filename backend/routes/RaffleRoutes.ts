@@ -17,4 +17,6 @@ router.post(
 router.get("/", RaffleController.getAllRaffle);
 router.get("/:id", RaffleController.getRaffleByID);
 
+router.post("/register/:id", verifyToken, RaffleController.registerInRaffle);
+
 export default router;

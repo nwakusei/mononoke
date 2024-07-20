@@ -2,7 +2,7 @@ import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
 
 interface IActiveParticipant {
-	customerID: Schema.Types.ObjectId;
+	customerID: string;
 	customerName: string;
 	ticket: string;
 }
@@ -63,7 +63,7 @@ const raffleSchema = new Schema<IRaffle>(
 		activeParticipants: [
 			{
 				customerID: {
-					type: mongoose.Schema.Types.ObjectId,
+					type: String,
 					ref: "CustomerModel",
 					required: true,
 				},
