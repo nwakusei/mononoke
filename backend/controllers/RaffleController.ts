@@ -204,7 +204,7 @@ class RaffleController {
 		res.status(200).json({ raffle: raffle });
 	}
 
-	static async registerInRaffle(req: Request, res: Response) {
+	static async subscriptionRaffle(req: Request, res: Response) {
 		const { id } = req.params;
 
 		if (!id) {
@@ -351,6 +351,51 @@ class RaffleController {
 			});
 		} catch (error) {
 			console.log(error);
+		}
+	}
+
+	static async drawRaffle(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(422).json({ message: "O ID do Sorteio é obrigatório!" });
+			return;
+		}
+
+		try {
+			const raffle = await RaffleModel.findById(id);
+
+			if (!raffle) {
+				res.status(404).json({ message: "Sorteio não encontrado!" });
+				return;
+			}
+
+			const participants = raffle.activeParticipants;
+
+			if (!participants || participants.length === 0) {
+				res.status(422).json({
+					message: "Nenhum participante encontrado!",
+				});
+				return;
+			}
+
+			// Função para realizar o sorteio de forma segura
+			const drawWinner = (participants: string | any[]) => {
+				const winnerIndex = Math.floor(
+					Math.random() * participants.length
+				);
+				return participants[winnerIndex];
+			};
+
+			const winner = drawWinner(participants);
+
+			res.status(200).json({
+				message: "Sorteio realizado com sucesso!",
+				winner,
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ message: "Erro ao realizar o sorteio!" });
 		}
 	}
 }

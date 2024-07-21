@@ -17,6 +17,12 @@ router.post(
 router.get("/", RaffleController.getAllRaffle);
 router.get("/:id", RaffleController.getRaffleByID);
 
-router.post("/register/:id", verifyToken, RaffleController.registerInRaffle);
+router.post(
+	"/subscription/:id",
+	verifyToken,
+	RaffleController.subscriptionRaffle
+);
+
+router.post("/sorteio/:id", RaffleController.drawRaffle);
 
 export default router;

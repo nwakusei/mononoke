@@ -56,6 +56,10 @@ function RafflePage() {
 		setMaximizedImageProduct(null);
 	};
 
+	if (!raffle || !raffle.raffleCost || !raffle.activeParticipants) {
+		return <div>Loading...</div>; // Ou qualquer outro componente de carregamento ou mensagem de erro
+	}
+
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">
 			<div className="flex flex-col bg-yellow-500 gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
@@ -130,18 +134,24 @@ function RafflePage() {
 							Detalhes do Sorteio
 						</div>
 						<h1 className="text-xl font-semibold mb-4">
-							TItulo do Sorteio
+							{raffle.rafflePrize}
 						</h1>
 						<div className="flex flex-row items-center gap-2">
 							<MdOutlineLocalActivity
 								className="mt-[1px]"
 								size={19}
 							/>
-							<span>Valor do Ticket: 1,00 OP</span>
+							<span>
+								Valor do Ticket:{" "}
+								{raffle.raffleCost.toLocaleString("pt-BR")} OP
+							</span>
 						</div>
 						<div className="flex flex-row items-center gap-2">
 							<BsPersonFill size={17} />
-							<span>Mínimo de Participantes: 5</span>
+							<span>
+								Mínimo de Participantes:{" "}
+								{raffle.minNumberParticipants}
+							</span>
 						</div>
 						<div className="flex flex-row items-center gap-2">
 							<LuCalendarRange size={16} />
@@ -151,7 +161,10 @@ function RafflePage() {
 
 						<div className="flex flex-row items-center gap-2">
 							<BsPeopleFill size={17} />
-							<span>Participantes Registrados: 100</span>
+							<span>
+								Participantes Registrados:{" "}
+								{raffle.activeParticipants.length}
+							</span>
 						</div>
 
 						<div className="flex flex-row items-center gap-2 mb-4">
@@ -159,35 +172,22 @@ function RafflePage() {
 							<div>
 								Organizado por{" "}
 								<span className="text-blue-300 transition-all ease-in hover:text-blue-100 cursor-pointer">
-									Amora Book Store
+									{raffle.raffleOrganizer}
 								</span>
 							</div>
 						</div>
 						<div>
 							<h2 className="mb-2">
-								Descrição: Contrary to popular belief, Lorem
-								Ipsum is not simply random text. It has roots in
-								a piece of classical Latin literature from 45
-								BC, making it over 2000 years old. Richard
-								McClintock, a Latin professor at Hampden-Sydney
-								College in Virginia, looked up one of the more
-								obscure Latin words, consectetur, from a Lorem
-								Ipsum passage, and going through the cites of
-								the word in classical literature, discovered the
-								undoubtable source. Lorem Ipsum comes from
-								sections 1.10.32 and 1.10.33 of "de Finibus
-								Bonorum et Malorum" (The Extremes of Good and
-								Evil) by Cicero, written in 45 BC. This book is
-								a treatise on the theory of ethics, very popular
-								during the Renaissance. The first line of Lorem
-								Ipsum, "Lorem ipsum dolor sit amet..", comes
-								from a line in section 1.10.32.
+								<span className="font-semibold">
+									Descrição:
+								</span>{" "}
+								{raffle.raffleDescription}
 							</h2>
 						</div>
 						<div>
 							<h2 className="">
-								Regras: Contrary to popular belief, Lorem Ipsum
-								is not simply random text.
+								<span className="font-semibold">Regras:</span>{" "}
+								{raffle.raffleRules}
 							</h2>
 						</div>
 					</div>
@@ -199,9 +199,10 @@ function RafflePage() {
 				{/* Descrição e Detalhes*/}
 				<div className="flex flex-col justify-center items-center">
 					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-md shadow-md select-none">
-						Regras do Sorteio
+						Vencedor do Sorteio
 					</h1>
-					{/* <p>{product.description}</p> */}...
+					{/* <p>{product.description}</p> */}Este sorteio ainda não
+					foi realizado!
 				</div>
 			</div>
 		</section>
