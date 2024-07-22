@@ -22,7 +22,7 @@ import {
 	RiAuctionLine,
 	RiCopperCoinLine,
 } from "react-icons/ri";
-import { MdOutlineWarehouse } from "react-icons/md";
+import { MdOutlineLocalActivity, MdOutlineWarehouse } from "react-icons/md";
 import { BsShopWindow, BsChatSquareText } from "react-icons/bs";
 import { GoArrowUpRight } from "react-icons/go";
 import { PiHandHeartDuotone, PiChatCenteredText } from "react-icons/pi";
@@ -30,16 +30,12 @@ import { TbDiscount2 } from "react-icons/tb";
 import { CgEditUnmask } from "react-icons/cg";
 import { GiPulse } from "react-icons/gi";
 import { ImMakeGroup } from "react-icons/im";
-import { headers } from "next/headers";
 
 function Sidebar() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 
-	console.log(user);
-
 	const userType = user.accountType;
-	console.log(userType);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -152,21 +148,6 @@ function Sidebar() {
 						</div>
 					</div>
 
-					<div className="flex flex-col ml-8 mb-4">
-						<h2 className="flex flex-row items-center gap-2 mb-2">
-							<BsChatSquareText size={18} /> Chats
-						</h2>
-
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/chat"}>
-							<span className="text-xs">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Ver Chats
-							</span>
-						</Link>
-					</div>
-
 					{/* <div className="flex flex-col ml-8 mb-4">
 				<h2 className="flex flex-row items-center gap-2 mb-2">
 					<Coupon size={20} />
@@ -218,22 +199,6 @@ function Sidebar() {
 
 					<div className="flex flex-col ml-8 mb-4">
 						<h1 className="flex flex-row items-center gap-2 mb-2">
-							<PaymentMethod size={18} />
-							OtakuPay
-						</h1>
-
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/wallet"}>
-							<span className="text-xs">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Wallet
-							</span>
-						</Link>
-					</div>
-
-					<div className="flex flex-col ml-8 mb-4">
-						<h1 className="flex flex-row items-center gap-2 mb-2">
 							<TbDiscount2 size={20} />
 							Marketing
 						</h1>
@@ -253,6 +218,62 @@ function Sidebar() {
 							<span className="text-xs">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Criar Cupom
+							</span>
+						</Link>
+					</div>
+
+					<div className="flex flex-col ml-8 mb-4">
+						<h1 className="flex flex-row items-center gap-2 mb-2">
+							<MdOutlineLocalActivity size={20} />
+							Sorteios
+						</h1>
+
+						<Link
+							className="flex flex-row items-center ml-7 gap-2"
+							href={"/dashboard/myraffles"}>
+							<span className="text-xs">○</span>
+							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								Meus Sorteios
+							</span>
+						</Link>
+
+						<Link
+							className="flex flex-row items-center ml-7 gap-2"
+							href={"/dashboard/create-raffle"}>
+							<span className="text-xs">○</span>
+							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								Criar Sorteio
+							</span>
+						</Link>
+					</div>
+
+					<div className="flex flex-col ml-8 mb-4">
+						<h2 className="flex flex-row items-center gap-2 mb-2">
+							<BsChatSquareText size={18} /> Chats
+						</h2>
+
+						<Link
+							className="flex flex-row items-center ml-7 gap-2"
+							href={"/dashboard/chat"}>
+							<span className="text-xs">○</span>
+							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								Ver Chats
+							</span>
+						</Link>
+					</div>
+
+					<div className="flex flex-col ml-8 mb-4">
+						<h1 className="flex flex-row items-center gap-2 mb-2">
+							<PaymentMethod size={18} />
+							OtakuPay
+						</h1>
+
+						<Link
+							className="flex flex-row items-center ml-7 gap-2"
+							href={"/dashboard/wallet"}>
+							<span className="text-xs">○</span>
+							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								Wallet
 							</span>
 						</Link>
 					</div>

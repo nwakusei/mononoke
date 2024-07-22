@@ -12,7 +12,7 @@ import {
 	BiBuildingHouse,
 } from "react-icons/Bi";
 import { MdOutlineStore } from "react-icons/md";
-import { Currency, Dashboard, Blockchain } from "@icon-park/react";
+import { Currency, Dashboard, Blockchain, PokeballOne } from "@icon-park/react";
 import {
 	LuTags,
 	LuLayoutDashboard,
@@ -33,6 +33,7 @@ import { FiUserPlus } from "react-icons/fi";
 import { ImMakeGroup } from "react-icons/im";
 import { HiOutlineGiftTop } from "react-icons/hi2";
 import { MdOutlineLocalActivity, MdOutlineDeleteOutline } from "react-icons/md";
+import { TbPokeball } from "react-icons/tb";
 
 // Imagens
 import Logo from "../../public/logo.png";
@@ -275,6 +276,19 @@ function Navbar() {
 														New
 													</span>
 												</Link>
+											</li>
+											<li>
+												<a className="flex flex-row items-center justify-between text-white">
+													<span className="flex flex-row items-center gap-2">
+														<PokeballOne
+															size={20}
+														/>
+														Gashapon
+													</span>
+													<span className="badge border border-white">
+														New
+													</span>
+												</a>
 											</li>
 										</ul>
 									</div>

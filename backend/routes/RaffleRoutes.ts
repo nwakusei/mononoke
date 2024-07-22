@@ -23,6 +23,6 @@ router.post(
 	RaffleController.subscriptionRaffle
 );
 
-router.post("/sorteio/:id", RaffleController.drawRaffle);
+router.post("/sorteio/:id", verifyToken, RaffleController.drawRaffle);
 
 export default router;

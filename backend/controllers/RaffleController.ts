@@ -222,6 +222,13 @@ class RaffleController {
 			return;
 		}
 
+		if (customer.accountType !== "customer") {
+			res.status(422).json({
+				message: "Usuário sem permissão para participar de Sorteios!",
+			});
+			return;
+		}
+
 		const otakuPayID = customer?.otakupayID;
 
 		const customerOtakuPay = await OtakupayModel.findById({

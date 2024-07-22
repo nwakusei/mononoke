@@ -5,33 +5,24 @@ import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 // Axios
 import api from "@/utils/api";
 
-// Contexts
-import { Context } from "@/context/UserContext";
-
-// Components
-import { ProductVariation } from "@/components/ProductVariation";
-import { SideComponent } from "@/components/SideComponent";
-
-// Importe suas imagens e ícones aqui
-import Amora from "../../../../../public/amora.jpg";
-import imageProfile from "../../../../../public/Kon.jpg";
-
 // Icons
-import { Currency } from "@icon-park/react";
-import { MdVerified } from "react-icons/md";
 import { LuCalendarRange } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
 import { BsPersonFill, BsPeopleFill } from "react-icons/bs";
 
 function RafflePage() {
+	const [token] = useState(localStorage.getItem("token") || "");
 	const { id } = useParams();
 	const [raffle, setRaffle] = useState({});
 	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
 	const [maximizedImage, setMaximizedImage] = useState(null);
+	const [loadingBtn, setLoadingBtn] = useState(false);
 
 	console.log(raffle);
 
@@ -55,6 +46,33 @@ function RafflePage() {
 	const handleCloseImagesProduct = () => {
 		setMaximizedImageProduct(null);
 	};
+
+	async function handleSubmit() {
+		setLoadingBtn(true);
+		try {
+			await api
+				.post(`/raffles/subscription/${id}`, {
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
+					},
+				})
+				.then((responser) => {
+					Swal.fire({
+						title: responser.data.message,
+						width: 800,
+						icon: "success",
+					});
+				});
+		} catch (error: any) {
+			console.log(error);
+			Swal.fire({
+				title: error.response.data.message,
+				width: 800,
+				icon: "error",
+			});
+		}
+		setLoadingBtn(false);
+	}
 
 	if (!raffle || !raffle.raffleCost || !raffle.activeParticipants) {
 		return <div>Loading...</div>; // Ou qualquer outro componente de carregamento ou mensagem de erro
@@ -118,6 +136,7 @@ function RafflePage() {
 										height={200}
 										unoptimized
 									/>
+
 									<button
 										className="absolute top-4 right-4 bg-error px-3 py-1 rounded shadow-md text-white"
 										onClick={handleCloseImagesProduct}>
@@ -192,17 +211,32 @@ function RafflePage() {
 						</div>
 					</div>
 				</div>
+				<div className="flex flex-row justify-center">
+					{loadingBtn ? (
+						<button className="flex flex-row justify-center items-center w-[250px] btn btn-primary shadow-md">
+							<span>Loading</span>
+							<span className="loading loading-dots loading-md"></span>
+						</button>
+					) : (
+						<button
+							onClick={handleSubmit}
+							className="w-[250px] btn btn-primary shadow-md">
+							Inscrever-se
+						</button>
+					)}
+				</div>
 			</div>
 
 			{/* Descrição do produto*/}
-			<div className="bg-yellow-500 gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+			<div className="bg-yellow-500 gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 				{/* Descrição e Detalhes*/}
 				<div className="flex flex-col justify-center items-center">
-					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-md shadow-md select-none">
+					<div className="w-full bg-primary text-center text-xl py-2 rounded-md shadow-md select-none">
 						Vencedor do Sorteio
-					</h1>
-					{/* <p>{product.description}</p> */}Este sorteio ainda não
-					foi realizado!
+					</div>
+					<p className="my-2">
+						Este sorteio ainda não foi realizado!
+					</p>
 				</div>
 			</div>
 		</section>
