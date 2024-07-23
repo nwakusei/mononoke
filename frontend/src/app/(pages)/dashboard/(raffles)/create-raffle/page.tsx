@@ -28,6 +28,8 @@ import { Coupon } from "@icon-park/react";
 import { GoLinkExternal } from "react-icons/go";
 import { CiWarning } from "react-icons/ci";
 import { FaPercent } from "react-icons/fa";
+import { LuCalendarRange } from "react-icons/lu";
+import { BsPersonFill } from "react-icons/bs";
 
 const createCouponFormSchema = z.object({
 	discountPercentage: z
@@ -57,7 +59,7 @@ function CreateRafflePage() {
 		});
 	}, [token]);
 
-	async function handleCreateCoupon(CouponData) {
+	async function handleCreateRaffle(CouponData) {
 		try {
 			const response = await api.post("/coupons/create", CouponData, {
 				headers: {
@@ -80,10 +82,10 @@ function CreateRafflePage() {
 			<Sidebar />
 			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
-					<form onSubmit={handleSubmit(handleCreateCoupon)}>
+					<form onSubmit={handleSubmit(handleCreateRaffle)}>
 						{/* Gadget 1 */}
 						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mt-4 mb-4">
-							{/* Adicionar Porduto */}
+							{/* Criar Sorteio */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold">
 									Criar Sorteio
@@ -91,7 +93,7 @@ function CreateRafflePage() {
 
 								<div className="flex flex-row gap-10">
 									{/* Nome e Descrição */}
-									<label className="form-control w-[991px]">
+									<label className="form-control w-[966px]">
 										<div className="label">
 											<span className="label-text">
 												Prêmio do Sorteio
@@ -118,6 +120,7 @@ function CreateRafflePage() {
 												<div>
 													<div>
 														<input
+															type="date"
 															className="input input-bordered input-success join-item w-[250px]"
 															placeholder={`dd/MM`}
 														/>
@@ -127,7 +130,9 @@ function CreateRafflePage() {
 													<button
 														type="button"
 														className="btn join-item flex flex-row items-center">
-														<FaPercent size={14} />
+														<LuCalendarRange
+															size={18}
+														/>
 													</button>
 												</div>
 											</div>
@@ -213,7 +218,9 @@ function CreateRafflePage() {
 													<button
 														type="button"
 														className="btn join-item flex flex-row items-center">
-														nº
+														<BsPersonFill
+															size={18}
+														/>
 													</button>
 												</div>
 											</div>
@@ -236,53 +243,62 @@ function CreateRafflePage() {
 										</label>
 									</div>
 
-									{/* Cupom de Desconto a ser criado */}
-									<label className="form-control">
-										<div className="label">
-											<span className="label-text">
-												Descrição
-											</span>
-										</div>
-										<textarea
-											className="textarea textarea-bordered w-[700px] h-[150px]"
-											placeholder="Bio"></textarea>
+									<div className="flex flex-row items-center gap-8">
+										{/* Cupom de Desconto a ser criado */}
+										<label className="form-control">
+											<div className="label">
+												<span className="label-text">
+													Descrição
+												</span>
+											</div>
+											<textarea
+												className="textarea textarea-bordered w-[500px] h-[150px]"
+												placeholder="Bio"></textarea>
 
-										<div className="label">
-											{errors.couponCode ? (
-												<span className="text-red-500 label-text-alt">
-													{errors.couponCode.message}
-												</span>
-											) : (
-												<span className="label-text-alt">
-													Descreva as informações
-												</span>
-											)}
-										</div>
-									</label>
+											<div className="label">
+												{errors.couponCode ? (
+													<span className="text-red-500 label-text-alt">
+														{
+															errors.couponCode
+																.message
+														}
+													</span>
+												) : (
+													<span className="label-text-alt">
+														Descreva as informações
+													</span>
+												)}
+											</div>
+										</label>
 
-									{/* Cupom de Desconto a ser criado */}
-									<label className="form-control">
-										<div className="label">
-											<span className="label-text">
-												Regras
-											</span>
-										</div>
-										<textarea
-											className="textarea textarea-bordered w-[700px] h-[150px]"
-											placeholder="Bio"></textarea>
+										{/* Cupom de Desconto a ser criado */}
+										<label className="form-control">
+											<div className="label">
+												<span className="label-text">
+													Regras
+												</span>
+											</div>
+											<textarea
+												className="textarea textarea-bordered w-[500px] h-[150px]"
+												placeholder="Bio"></textarea>
 
-										<div className="label">
-											{errors.couponCode ? (
-												<span className="text-red-500 label-text-alt">
-													{errors.couponCode.message}
-												</span>
-											) : (
-												<span className="label-text-alt">
-													Informe as regras do Sorteio
-												</span>
-											)}
-										</div>
-									</label>
+											<div className="label">
+												{errors.couponCode ? (
+													<span className="text-red-500 label-text-alt">
+														{
+															errors.couponCode
+																.message
+														}
+													</span>
+												) : (
+													<span className="label-text-alt">
+														Informe as regras do
+														Sorteio
+													</span>
+												)}
+											</div>
+										</label>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -336,7 +352,7 @@ function CreateRafflePage() {
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold mb-4">
-									Criar Cupom?
+									Criar Sorteio?
 								</h1>
 								{/* Nome e Descrição */}
 
