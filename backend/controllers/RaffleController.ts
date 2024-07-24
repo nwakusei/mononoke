@@ -180,7 +180,7 @@ class RaffleController {
 		}
 	}
 
-	static async getAllRaffle(req: Request, res: Response) {
+	static async getAllRaffles(req: Request, res: Response) {
 		const raffles = await RaffleModel.find();
 
 		res.status(200).json({ raffles: raffles });
@@ -403,6 +403,36 @@ class RaffleController {
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: "Erro ao realizar o sorteio!" });
+		}
+	}
+
+	static async getAllRafflesByPartner(req: Request, res: Response) {
+		// Verificar o Administrador que cadastrou os Sorteios
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message:
+					"Você não possui autorização para visualizar essa página!",
+			});
+			return;
+		}
+
+		try {
+			const raffles = await RaffleModel.find({
+				partnerID: partner._id,
+			}).sort("-createdAt");
+
+			res.status(200).json({ raffles: raffles });
+		} catch (error) {
+			res.status(500).json({ error: "Erro ao carregar os Cupons" });
+			return;
 		}
 	}
 }

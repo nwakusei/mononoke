@@ -12,7 +12,7 @@ router.get("/allcoupons", CouponController.getAllCoupons);
 router.get(
 	"/partner-coupons",
 	verifyToken,
-	CouponController.getAllCouponsPartner
+	CouponController.getAllCouponsByPartner
 );
 router.delete("/remove", verifyToken, CouponController.removeCouponById);
 

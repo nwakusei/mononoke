@@ -29,7 +29,7 @@ function RafflePage() {
 	useEffect(() => {
 		const fetchRaffle = async () => {
 			try {
-				const response = await api.get(`/raffles/${id}`);
+				const response = await api.get(`/raffles/get-raffle/${id}`);
 				setRaffle(response.data.raffle);
 			} catch (error) {
 				console.error("Error fetching product:", error);

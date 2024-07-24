@@ -14,8 +14,8 @@ router.post(
 	imageUpload.array("imagesRaffle"),
 	RaffleController.createRaffle
 );
-router.get("/", RaffleController.getAllRaffle);
-router.get("/:id", RaffleController.getRaffleByID);
+router.get("/get-raffles", RaffleController.getAllRaffles);
+router.get("/get-raffle/:id", RaffleController.getRaffleByID);
 
 router.post(
 	"/subscription/:id",
@@ -24,5 +24,11 @@ router.post(
 );
 
 router.post("/sorteio/:id", verifyToken, RaffleController.drawRaffle);
+
+router.get(
+	"/partner-raffles",
+	verifyToken,
+	RaffleController.getAllRafflesByPartner
+);
 
 export default router;

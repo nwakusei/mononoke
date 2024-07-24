@@ -133,7 +133,7 @@ class CouponController {
 		}
 	}
 
-	static async getAllCouponsPartner(req: Request, res: Response) {
+	static async getAllCouponsByPartner(req: Request, res: Response) {
 		// Verificar o Administrador que cadastrou os Cupons
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);

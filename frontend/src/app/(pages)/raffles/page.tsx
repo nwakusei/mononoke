@@ -11,7 +11,7 @@ function RafflesPage() {
 	const [raffles, setRaffles] = useState([]);
 
 	useEffect(() => {
-		api.get("/raffles/").then((response) => {
+		api.get("/raffles/get-raffles").then((response) => {
 			console.log(response.data);
 			setRaffles(response.data.raffles);
 		});

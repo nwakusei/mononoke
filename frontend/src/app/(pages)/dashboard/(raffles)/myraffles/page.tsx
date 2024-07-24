@@ -1,10 +1,8 @@
 "use client";
+"use client";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import api from "@/utils/api";
-
-import { toast } from "react-toastify";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
@@ -13,160 +11,145 @@ import { Sidebar } from "@/components/Sidebar";
 
 // Icons
 
+// Axios
+import api from "@/utils/api";
+
 function MyRafflesPage() {
+	const [myraffles, setMyraffles] = useState([]);
 	const [token] = useState(localStorage.getItem("token") || "");
-	const [coupons, setCoupons] = useState([]);
 	const [deleteLoading, setDeletLoading] = useState(null);
 
 	useEffect(() => {
-		api.get("/coupons/partner-coupons", {
+		api.get("/raffles/partner-raffles", {
 			headers: {
 				Authorization: `Bearer ${JSON.parse(token)}`,
 			},
 		}).then((response) => {
-			setCoupons(response.data.coupons);
+			setMyraffles(response.data.raffles);
 		});
 	}, [token]);
 
-	// Função para verificar se o cupom está expirado
-	const isCouponExpired = (expirationDate) => {
-		// Divide a string da data em dia, mês e ano
-		const [day, month, year] = expirationDate.split("/");
-
-		// Obtém a data atual ajustada para o fuso horário de Brasília (UTC-3)
-		const currentDate = new Date(new Date().getTime() - 3 * 60 * 60 * 1000); // Subtrai 3 horas em milissegundos // Data atual
-
-		// Cria um novo objeto de data com a data de expiração do cupom, ajustado para o fuso horário de Brasília (UTC-3)
-		const couponExpirationDate = new Date(
-			Date.UTC(year, month - 1, day, 23, 59, 59)
-		);
-
-		console.log(currentDate);
-		console.log(couponExpirationDate);
-
-		return couponExpirationDate <= currentDate;
-	};
-
-	async function handleRemove(id) {
-		try {
-			setDeletLoading(id);
-			const response = await api.delete("/coupons/remove", {
-				data: { id },
-			});
-			// Atualiza os cupons após a remoção
-			const updatedCoupons = coupons.filter(
-				(coupon) => coupon._id !== id
-			);
-			setCoupons(updatedCoupons);
-			toast.success(response.data.message); // Exibe a mensagem retornada pela API após a exclusão bem-sucedida
-			return response.data;
-		} catch (error) {
-			toast.error(error.response.data.message);
-			console.error("Erro ao remover cupom:", error);
-			return error.response.data;
-		} finally {
-			setDeletLoading(null);
-		}
+	if (!myraffles) {
+		return <div>Loading...</div>; // Ou qualquer outro componente de carregamento ou mensagem de erro
 	}
 
 	return (
 		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="h-screen bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mt-4">
-						{/* Adicionar Produto */}
+					<div className="bg-purple-400 w-[1200px] h-full p-6 rounded-md mt-4 mr-4">
+						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<h1 className="text-2xl font-semibold mb-4">
-								Meus Cupons
+							<h1 className="text-2xl font-semibold">
+								Meus Sorteios
 							</h1>
 
-							{/* Produtos em Catálogo */}
+							{/* Lista de Pedidos */}
 							<div className="overflow-x-auto">
 								<table className="table">
 									{/* head */}
 									<thead>
 										<tr>
-											<th>
-												<label>
-													<input
-														type="checkbox"
-														className="checkbox"
-													/>
-												</label>
+											<th className="text-base">
+												Prêmio
 											</th>
-											<th className="text-sm">Código</th>
-											<th className="text-sm">
-												Desconto
+											<th className="text-base">
+												Custo para se inscrever
 											</th>
-											<th className="text-sm">
-												Válido até
+											<th className="text-base">
+												Data de realização
 											</th>
-											<th className="text-sm">Status</th>
+											<th className="text-base">
+												ID do Sorteio
+											</th>
 											<th></th>
 										</tr>
 									</thead>
 									<tbody>
-										{/* rows */}
-										{coupons.map((coupon) => (
-											<tr key={coupon._id}>
-												<td>
-													<input
-														type="checkbox"
-														className="checkbox"
-													/>
-												</td>
-												<td>
-													<div className="font-bold">
-														{coupon.couponCode}
-													</div>
-												</td>
-												<td>
-													{coupon.discountPercentage}%
-												</td>
-												<td>{coupon.expirationDate}</td>
-												<td>
-													<span
-														className={`badge bg-${
-															isCouponExpired(
-																coupon.expirationDate
-															)
-																? "yellow-500"
-																: "sky-500"
-														} badge-sm`}>
-														{isCouponExpired(
-															coupon.expirationDate
-														)
-															? "Expirado"
-															: "Ativo"}
-													</span>
-												</td>
-												<td>
-													<button
-														type="button"
-														onClick={() =>
-															handleRemove(
-																coupon._id
-															)
-														}
-														className="btn btn-error btn-xs w-[80px]"
-														disabled={
-															deleteLoading ===
-															coupon._id
-														}>
-														{deleteLoading ===
-														coupon._id ? (
-															<div className="btn btn-error btn-xs w-[80px]">
-																<span className="loading loading-dots loading-xs"></span>
+										{/* row 1 */}
+										{myraffles &&
+											myraffles.map((myraffle) => (
+												<tr key={myraffle._id}>
+													<td>
+														<div className="flex items-center gap-3 mb-2">
+															{Array.isArray(
+																myraffle.imagesRaffle
+															) &&
+																myraffle
+																	.imagesRaffle
+																	.length >
+																	0 &&
+																myraffle.imagesRaffle.map(
+																	(
+																		item,
+																		index
+																	) => (
+																		<div
+																			key={
+																				index
+																			}
+																			className="avatar">
+																			<div className="mask mask-squircle w-12 h-12">
+																				<Image
+																					src={`http://localhost:5000/images/raffles/${item}`}
+																					alt={
+																						item
+																					}
+																					width={
+																						280
+																					}
+																					height={
+																						280
+																					} // Altere a altura conforme necessário
+																					unoptimized
+																				/>
+																			</div>
+																		</div>
+																	)
+																)}
+
+															<div>
+																<div className="font-bold">
+																	<h2 className="w-[230px] overflow-x-hidden mb-2">
+																		<span>
+																			{
+																				myraffle.rafflePrize
+																			}
+																		</span>
+																	</h2>
+																</div>
 															</div>
-														) : (
-															"Excluir"
-														)}
-													</button>
-												</td>
-											</tr>
-										))}
+														</div>
+													</td>
+													<td>
+														{`${myraffle.raffleCost.toLocaleString(
+															"pt-BR"
+														)} OP`}
+
+														<br />
+														<span className="badge badge-success badge-sm">
+															Otaku Point
+														</span>
+													</td>
+													<td>
+														<div>
+															{
+																myraffle.raffleDate
+															}
+														</div>
+													</td>
+													<td className="text-xs">
+														{myraffle._id}
+													</td>
+													<th>
+														<button className="flex flex-row items-center btn btn-info btn-xs w-[80px]">
+															Editar
+														</button>
+													</th>
+												</tr>
+											))}
 									</tbody>
 
 									{/* foot */}
