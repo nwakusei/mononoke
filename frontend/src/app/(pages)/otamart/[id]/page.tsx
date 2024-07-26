@@ -194,11 +194,11 @@ function ProductPage() {
 	};
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">
-			<div className="bg-yellow-500 flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
+			<div className="flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
 				{/* Componente de Imagem Principal */}
 				<div className="flex flex-col">
-					<div className="bg-base-100 w-[402px] rounded-md relative shadow-lg mb-2">
+					<div className="bg-white w-[402px] rounded-md relative shadow-lg mb-2">
 						<div className="h-[402px] flex items-center justify-center mx-3 my-2">
 							{product.imagesProduct &&
 								product.imagesProduct.length > 0 && (
@@ -218,7 +218,7 @@ function ProductPage() {
 						{product.imagesProduct &&
 							product.imagesProduct.length > 0 &&
 							product.imagesProduct.map((image, id) => (
-								<div className="bg-base-100 w-[74px] rounded relative shadow-lg">
+								<div className="bg-white w-[74px] rounded relative shadow-md">
 									<div
 										key={id}
 										className="h-[74px] flex items-center justify-center">
@@ -261,12 +261,12 @@ function ProductPage() {
 				{/* Componente intermediário */}
 				<div className="flex flex-col w-[350px]">
 					{/* Título */}
-					<h1 className="text-xl font-semibold mb-1">
+					<h1 className="text-xl font-semibold text-black mb-1">
 						{product.productName}
 					</h1>
 					{/* Avaliações e Vendidos */}
-					<div className="flex flex-row text-sm mb-4 gap-1">
-						<div className="flex items-center gap-1">
+					<div className="flex flex-row text-sm text-black mb-4 gap-1">
+						<div className="flex items-center gap-1 text-yellow-500">
 							{/* Contêiner flexível para os ícones */}
 							{renderRatingIcons()}
 						</div>
@@ -307,7 +307,7 @@ function ProductPage() {
 							</h2>
 							{/* Preço antes do desconto */}
 							<div className="flex flex-row items-center mb-2">
-								<span className="text-base line-through mr-2">
+								<span className="text-base text-black line-through mr-2">
 									{Number(
 										product.originalPrice
 									).toLocaleString("pt-BR", {
@@ -315,8 +315,8 @@ function ProductPage() {
 										currency: "BRL",
 									})}
 								</span>
-								<span className="bg-primary text-xs px-1 rounded-sm">
-									{discountPercentage}% Off
+								<span className="bg-primary text-xs px-1 rounded-sm select-none shadow-md">
+									{`${discountPercentage}% Off`}
 								</span>
 							</div>
 						</div>
@@ -338,7 +338,8 @@ function ProductPage() {
 						<div className="flex flex-row items-center mb-4">
 							<span>
 								<p className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
-									<Currency size={18} /> {partner.cashback}%
+									<Currency size={18} />{" "}
+									{`${partner.cashback}%`}
 									de Cashback
 								</p>
 							</span>
@@ -354,23 +355,23 @@ function ProductPage() {
 			</div>
 
 			{/* Descrição do produto*/}
-			<div className="bg-yellow-500 gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+			<div className="bg-white gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md">
 				{/* Descrição e Detalhes*/}
 				<div className="flex flex-col justify-center items-center">
-					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-md shadow-md select-none">
+					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-t-md select-none">
 						Descrição e Detalhes do Produto
 					</h1>
-					<p>{product.description}</p>
+					<p className="text-black mb-2">{product.description}</p>
 				</div>
 			</div>
 
 			{/* Informações da Loja */}
-			<div className="bg-yellow-500 flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
-				<div className="border border-white w-full rounded p-2">
+			<div className="bg-white flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md">
+				<div className="w-full p-2">
 					{/* Logo da Loja */}
 					{partner && (
 						<div className="flex flex-row gap-4">
-							<div className="w-[230px] h-24 bg-pink-900 px-1 rounded-md">
+							<div className="w-[230px] h-24 bg-pink-200 px-1 rounded-md">
 								<Image
 									className="object-contain w-full h-full"
 									src={Amora}
@@ -380,7 +381,9 @@ function ProductPage() {
 							</div>
 							<div className="flex flex-col">
 								<div className="flex flex-row items-center gap-1 font-semibold text-lg">
-									<h1>{partner.name}</h1>
+									<h1 className="text-black">
+										{partner.name}
+									</h1>
 									<MdVerified
 										className="text-blue-500"
 										size={18}
@@ -388,12 +391,15 @@ function ProductPage() {
 								</div>
 								<div className="flex flex-row items-center">
 									<BsStarFill
-										className="text-blue-500"
+										className="text-yellow-400"
 										size={14}
 									/>
-									<span className="ml-1 mr-2">5.0</span> |
-									<span className="ml-2">
-										{partner.followers} Seguidores
+									<span className="text-black ml-1 mr-2">
+										5.0
+									</span>{" "}
+									<span className="text-black mb-1">|</span>
+									<span className="text-black ml-2">
+										{`${partner.followers} Seguidores`}
 									</span>
 								</div>
 								<div className="mt-1">
@@ -402,16 +408,20 @@ function ProductPage() {
 									</button>
 								</div>
 							</div>
-							<div className="divider divider-horizontal"></div>
+							<div className="border border-y-[1px] border-black"></div>
 							<div className="flex flex-col justify-center">
 								<div>
-									<h1>Avaliações: 5.1mil</h1>
+									<span className="text-black">
+										Avaliações: 5.1mil
+									</span>
 								</div>
 								<div>
-									<span>Produtos: 2.3mil</span>
+									<span className="text-black">
+										Produtos: 2.3mil
+									</span>
 								</div>
 								<div className="mt-1">
-									<button className="border border-solid border-purple-800  transition-all ease-in duration-200 hover:bg-purple-500 px-10 py-1 rounded">
+									<button className="text-black border border-solid border-purple-800 transition-all ease-in duration-200 hover:bg-purple-500 px-10 py-1 rounded">
 										Ver Loja
 									</button>
 								</div>
@@ -422,11 +432,11 @@ function ProductPage() {
 			</div>
 
 			{/* Avaliações*/}
-			<div className="bg-yellow-500 flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-4">
+			<div className="bg-white flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8">
 				<div className="w-full border-opacity-50">
 					<div className="flex flex-col">
 						<div className="flex flex-col justify-center items-center mb-2">
-							<h1 className="w-full bg-primary text-center text-xl py-2 rounded-md shadow-md select-none">
+							<h1 className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
 								Avaliações do Produto
 							</h1>
 						</div>
@@ -540,7 +550,7 @@ function ProductPage() {
 							))
 						) : (
 							<div>
-								<div className="text-center mb-2">
+								<div className="text-center text-black mb-2">
 									Esse produto ainda não possui avaliações!
 								</div>
 							</div>

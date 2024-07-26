@@ -82,13 +82,14 @@ function ProductAdCard({
 	};
 
 	return (
-		<div className="bg-base-100 w-[254px] flex flex-col rounded-md relative pb-2 shadow-lg">
+		<div className="bg-white w-[254px] flex flex-col rounded-md relative pb-2 shadow-md">
 			<div className="flex flex-col items-center justify-center h-[220px] mx-3 mt-2 -mb-3">
 				{discountPercentage === 0 ? (
 					<></>
 				) : (
-					<span className="flex justify-center items-center bg-primary text-center rounded-tr-md rounded-bl-md absolute -right-0 w-[80px] h-[30px] ml-[144px] md:ml-[174px] -mt-[206px] ">
-						{discountPercentage}% Off
+					// <span className="flex justify-center items-center bg-primary text-center rounded-tr-md rounded-bl-md absolute -right-0 w-[80px] h-[30px] ml-[144px] md:ml-[174px] -mt-[206px] "></span>
+					<span className="flex justify-center items-center bg-primary text-center rounded-tr-md rounded-bl-md absolute -right-0 w-[80px] h-[30px] ml-[144px] md:ml-[174px] -mt-[206px] select-none">
+						{`${discountPercentage}% Off`}
 					</span>
 				)}
 				{freeShipping === true ? (
@@ -119,15 +120,15 @@ function ProductAdCard({
 					</div>
 				)}
 			</div>
-			<div className="divider text-sm mx-2">Detalhes</div>
+			<div className="divider text-sm mx-2 text-black">Detalhes</div>
 			<div className="flex flex-col justify-center mx-4 -mt-2">
 				<div>
-					<h1 className="font-semibold text-base line-clamp-2 whitespace-normal min-h-[48px] mb-2">
+					<h1 className="font-semibold text-base text-black line-clamp-2 whitespace-normal min-h-[48px] mb-2">
 						{title}
 					</h1>
 				</div>
 				<div>
-					<h1 className="text-base">
+					<h1 className="text-base text-black">
 						{promocionalPrice === 0 ? (
 							<span className="text-purple-400">
 								{price.toLocaleString("pt-BR", {
@@ -153,12 +154,12 @@ function ProductAdCard({
 						)}
 					</h1>
 					<h2 className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
-						<Currency size={18} /> {cashback}% de Cashback
+						<Currency size={18} /> {`${cashback}% de Cashback`}
 					</h2>
 					<h2 className="text-yellow-500 text-sm flex flex-row items-center gap-2">
 						{renderRatingIcons()}
 					</h2>
-					<h3 className="text-sm mb-3">{quantitySold}</h3>
+					<h3 className="text-sm text-black mb-3">{quantitySold}</h3>
 				</div>
 				<button className="btn btn-primary w-full mb-2">
 					<Link href={linkProductPage}>+ Detalhes</Link>

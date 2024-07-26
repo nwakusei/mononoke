@@ -42,12 +42,12 @@ function DashboardPage() {
 	}, [token]);
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="h-screen bg-yellow-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10">
-				<div className="flex flex-row gap-4">
+			<div className="h-screen col-start-3 col-span-4 md:col-start-3 md:col-span-10">
+				<div className="flex flex-row gap-4 mt-4">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[700px] p-6 rounded-md ">
+					<div className="bg-white w-[700px] p-6 rounded-md shadow-md">
 						{/* Avatar e Boas vindas */}
 						<div className="flex flex-row items-center gap-4 text-lg font-semibold mb-6">
 							<div className="avatar">
@@ -61,31 +61,37 @@ function DashboardPage() {
 									/>
 								</div>
 							</div>
-							<h1>Bem vindo(a) {user.name}!</h1>
+							<h1 className="text-black">
+								Bem vindo(a) {user.name}!
+							</h1>
 						</div>
 
 						<div className="flex flex-row">
 							{/* Total de Vendas e Performance Hoje */}
-							<div className="border-r-[1px] border-yellow-500 pr-6">
-								<h1 className="flex flex-row items-center text-3xl font-semibold gap-2">
+							<div className="border-r-[1px] border-black pr-6">
+								<h1 className="flex flex-row items-center text-3xl font-semibold text-black gap-2">
 									R$ 999,90{" "}
 									<GoArrowUpRight
-										className="text-green-500"
+										className="text-green-700"
 										size={18}
 									/>
 								</h1>
-								<h2 className="text-sm">Vendas Hoje</h2>
+								<h2 className="text-sm text-black">
+									Vendas Hoje
+								</h2>
 							</div>
 
 							<div className="ml-6">
-								<h1 className="flex flex-row items-center text-3xl font-semibold gap-2">
+								<h1 className="flex flex-row items-center text-3xl font-semibold text-black gap-2">
 									85%{" "}
 									<GoArrowUpRight
 										className="text-green-500"
 										size={18}
 									/>
 								</h1>
-								<h2 className="text-sm">Performance</h2>
+								<h2 className="text-sm text-black">
+									Performance
+								</h2>
 							</div>
 						</div>
 					</div>

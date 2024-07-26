@@ -41,9 +41,6 @@ function MyCouponsPage() {
 			Date.UTC(year, month - 1, day, 23, 59, 59)
 		);
 
-		console.log(currentDate);
-		console.log(couponExpirationDate);
-
 		return couponExpirationDate <= currentDate;
 	};
 
@@ -70,15 +67,15 @@ function MyCouponsPage() {
 	}
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mt-4">
+					<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mt-4">
 						{/* Adicionar Produto */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<h1 className="text-2xl font-semibold mb-4">
+							<h1 className="text-2xl font-semibold text-black mb-4">
 								Meus Cupons
 							</h1>
 
@@ -96,14 +93,18 @@ function MyCouponsPage() {
 													/>
 												</label>
 											</th>
-											<th className="text-sm">Código</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
+												Código
+											</th>
+											<th className="text-sm text-black">
 												Desconto
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Válido até
 											</th>
-											<th className="text-sm">Status</th>
+											<th className="text-sm text-black">
+												Status
+											</th>
 											<th></th>
 										</tr>
 									</thead>
@@ -118,23 +119,29 @@ function MyCouponsPage() {
 													/>
 												</td>
 												<td>
-													<div className="font-bold">
+													<div className="font-bold text-black">
 														{coupon.couponCode}
 													</div>
 												</td>
 												<td>
-													{coupon.discountPercentage}%
+													<div className="text-black">
+														{`${coupon.discountPercentage}%`}
+													</div>
 												</td>
-												<td>{coupon.expirationDate}</td>
+												<td>
+													<div className="text-black">
+														{coupon.expirationDate}
+													</div>
+												</td>
 												<td>
 													<span
 														className={`badge bg-${
 															isCouponExpired(
 																coupon.expirationDate
 															)
-																? "yellow-500"
-																: "sky-500"
-														} badge-sm`}>
+																? "yellow-500 text-black"
+																: "sky-500 text-black"
+														} badge-sm shadow-md`}>
 														{isCouponExpired(
 															coupon.expirationDate
 														)
@@ -150,7 +157,7 @@ function MyCouponsPage() {
 																coupon._id
 															)
 														}
-														className="btn btn-error btn-xs w-[80px]"
+														className="btn btn-error btn-xs shadow-md w-[80px]"
 														disabled={
 															deleteLoading ===
 															coupon._id

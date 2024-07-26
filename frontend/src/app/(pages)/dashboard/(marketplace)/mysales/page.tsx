@@ -38,15 +38,15 @@ function MySalesPage() {
 	}, [token]);
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+					<div className="bg-white w-[1200px] p-6 rounded-md mt-4 mr-4">
 						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<h1 className="text-2xl font-semibold">
+							<h1 className="text-2xl font-semibold text-black">
 								Minhas Vendas
 							</h1>
 
@@ -56,17 +56,19 @@ function MySalesPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Produtos
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Total do Pedido
 											</th>
-											<th className="text-sm">Status</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
+												Status
+											</th>
+											<th className="text-sm text-black">
 												Comprador
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												ID do Pedido
 											</th>
 											<th></th>
@@ -104,7 +106,7 @@ function MySalesPage() {
 																	<div>
 																		<div className="font-bold">
 																			<h2 className="w-[230px] overflow-x-hidden mb-2">
-																				<span>
+																				<span className="text-black">
 																					{
 																						item.productName
 																					}
@@ -121,7 +123,7 @@ function MySalesPage() {
 															)
 														)}
 													</td>
-													<td>
+													<td className="text-black">
 														{mysale.customerOrderCostTotal.toLocaleString(
 															"pt-BR",
 															{
@@ -130,13 +132,13 @@ function MySalesPage() {
 															}
 														)}
 														<br />
-														<span className="badge badge-success badge-sm">
+														<span className="badge badge-success badge-sm shadow-md">
 															{
 																mysale.paymentMethod
 															}
 														</span>
 													</td>
-													<td>
+													<td className="text-black">
 														<div>
 															{mysale.statusOrder}
 														</div>
@@ -147,13 +149,13 @@ function MySalesPage() {
 															dias
 														</div> */}
 													</td>
-													<td className="w-[200px] overflow-x-auto">
+													<td className="text-black w-[200px] overflow-x-auto">
 														{mysale.customerName}
 													</td>
-													<td className="text-xs">
+													<td className="text-xs text-black">
 														{mysale.orderID}
 													</td>
-													<th>
+													<th className="text-black">
 														<button className="flex items-center btn btn-ghost btn-xs">
 															<Link
 																href={`/dashboard/mysales/${mysale._id}`}>

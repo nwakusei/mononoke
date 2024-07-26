@@ -55,11 +55,11 @@ function Sidebar() {
 	}, [token]);
 
 	return (
-		<div className=" bg-purple-900 col-start-1 col-span-2 md:col-start-1 md:col-span-2 border-r-2 border-gray-800">
+		<div className="bg-white col-start-1 col-span-2 md:col-start-1 md:col-span-2 border-r-2 border-gray-800">
 			{userType === "partner" ? (
 				<div>
 					<div className="ml-8 mt-8 mb-4">
-						<h2 className="flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
 							<ShoppingBag size={20} />
 							Marketplace
 						</h2>
@@ -68,7 +68,7 @@ function Sidebar() {
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/mysales"}>
-								<span className="text-xs">○</span>
+								<span className="text-xs text-black">○</span>
 								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 									Vendas
 								</span>
@@ -77,7 +77,7 @@ function Sidebar() {
 							<Link
 								className="flex flex-row items-center ml-7 gap-2 "
 								href={"/dashboard/myproducts"}>
-								<span className="text-xs">○</span>
+								<span className="text-xs text-black">○</span>
 								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 									Meus Produtos
 								</span>
@@ -86,7 +86,7 @@ function Sidebar() {
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/create-product"}>
-								<span className="text-xs">○</span>
+								<span className="text-xs text-black">○</span>
 								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 									Criar Produto
 								</span>
@@ -104,7 +104,7 @@ function Sidebar() {
 					</div>
 
 					<div className="ml-8 mb-4">
-						<h2 className="flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
 							{/* <CgEditUnmask size={20} /> */}
 							<ImMakeGroup size={18} />
 							OtaClub
@@ -114,7 +114,7 @@ function Sidebar() {
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/mysales"}>
-								<span className="text-xs">○</span>
+								<span className="text-xs text-black">○</span>
 								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 									Vendas
 								</span>
@@ -123,7 +123,7 @@ function Sidebar() {
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/myproducts"}>
-								<span className="text-xs">○</span>
+								<span className="text-xs text-black">○</span>
 								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 									Meus Produtos
 								</span>
@@ -131,7 +131,7 @@ function Sidebar() {
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/create-product"}>
-								<span className="text-xs">○</span>
+								<span className="text-xs text-black">○</span>
 								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 									Criar Produto
 								</span>
@@ -198,7 +198,7 @@ function Sidebar() {
 			</div> */}
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h1 className="flex flex-row items-center gap-2 mb-2">
+						<h1 className="text-black flex flex-row items-center gap-2 mb-2">
 							<TbDiscount2 size={20} />
 							Marketing
 						</h1>
@@ -206,7 +206,7 @@ function Sidebar() {
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/mycoupons"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Meus Cupons
 							</span>
@@ -215,7 +215,7 @@ function Sidebar() {
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/create-coupon"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Criar Cupom
 							</span>
@@ -223,15 +223,15 @@ function Sidebar() {
 					</div>
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h1 className="flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
 							<MdOutlineLocalActivity size={20} />
 							Sorteios
-						</h1>
+						</h2>
 
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/myraffles"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Meus Sorteios
 							</span>
@@ -240,7 +240,7 @@ function Sidebar() {
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/create-raffle"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Criar Sorteio
 							</span>
@@ -248,14 +248,14 @@ function Sidebar() {
 					</div>
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h2 className="flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
 							<BsChatSquareText size={18} /> Chats
 						</h2>
 
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/chat"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Ver Chats
 							</span>
@@ -263,15 +263,15 @@ function Sidebar() {
 					</div>
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h1 className="flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
 							<PaymentMethod size={18} />
 							OtakuPay
-						</h1>
+						</h2>
 
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/wallet"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Wallet
 							</span>
@@ -295,15 +295,15 @@ function Sidebar() {
 			</div> */}
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h1 className="flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
 							<LuSettings size={18} />
 							Configurações
-						</h1>
+						</h2>
 
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/myprofile"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Gerais
 							</span>
@@ -341,7 +341,7 @@ function Sidebar() {
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/myorders"}>
-								<span className="text-xs">○</span>
+								<span className="text-xs text-black">○</span>
 								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 									Compras
 								</span>
@@ -350,7 +350,7 @@ function Sidebar() {
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/reviews"}>
-								<span className="text-xs">○</span>
+								<span className="text-xs text-black">○</span>
 								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 									Avaliações
 								</span>
@@ -378,7 +378,7 @@ function Sidebar() {
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/myorders"}>
-								<span className="text-xs">○</span>
+								<span className="text-xs text-black">○</span>
 								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 									Compras
 								</span>
@@ -403,7 +403,7 @@ function Sidebar() {
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/chat"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Ver Chats
 							</span>
@@ -468,7 +468,7 @@ function Sidebar() {
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/wallet"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Wallet
 							</span>
@@ -500,7 +500,7 @@ function Sidebar() {
 						<Link
 							className="flex flex-row items-center ml-7 gap-2"
 							href={"/dashboard/myprofile"}>
-							<span className="text-xs">○</span>
+							<span className="text-xs text-black">○</span>
 							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
 								Gerais
 							</span>

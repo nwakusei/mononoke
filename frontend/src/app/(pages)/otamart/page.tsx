@@ -34,8 +34,8 @@ function OtamartPage() {
 	}, []);
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen mx-4">
-			<div className="flex flex-col items-center justify-center bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
+			<div className="flex flex-col items-center justify-center col-start-2 col-span-4 md:col-start-2 md:col-span-6">
 				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mt-8 mb-2 rounded-md shadow-md select-none">
 					Categorias
 				</div>
@@ -125,7 +125,7 @@ function OtamartPage() {
 				</div>
 			</div>
 
-			<div className="flex flex-col justify-center items-center bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
+			<div className="flex flex-col justify-center items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mt-8 mb-8 rounded-md shadow-md select-none">
 					Produtos em Destaque
 				</div>

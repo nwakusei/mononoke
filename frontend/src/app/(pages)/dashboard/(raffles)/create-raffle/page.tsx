@@ -78,16 +78,16 @@ function CreateRafflePage() {
 	}
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					<form onSubmit={handleSubmit(handleCreateRaffle)}>
 						{/* Gadget 1 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mt-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mt-4 mb-4">
 							{/* Criar Sorteio */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Criar Sorteio
 								</h1>
 
@@ -95,7 +95,7 @@ function CreateRafflePage() {
 									{/* Nome e Descrição */}
 									<label className="form-control w-[966px]">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Prêmio do Sorteio
 											</span>
 										</div>
@@ -112,7 +112,7 @@ function CreateRafflePage() {
 										{/* Cashback Atual */}
 										<label className="form-control">
 											<div className="label">
-												<span className="label-text">
+												<span className="label-text text-black">
 													Data de Realização
 												</span>
 											</div>
@@ -137,7 +137,7 @@ function CreateRafflePage() {
 												</div>
 											</div>
 											<div className="label">
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Não possível alterar por
 													aqui
 												</span>
@@ -147,7 +147,7 @@ function CreateRafflePage() {
 										{/* Desconto a ser oferecido */}
 										<label className="form-control">
 											<div className="label">
-												<span className="label-text">
+												<span className="label-text text-black">
 													Custo para se inscrever
 												</span>
 											</div>
@@ -184,7 +184,7 @@ function CreateRafflePage() {
 														}
 													</span>
 												) : (
-													<span className="label-text-alt">
+													<span className="label-text-alt text-black">
 														Ex: 10 Otaku Points
 													</span>
 												)}
@@ -194,7 +194,7 @@ function CreateRafflePage() {
 										{/* Desconto a ser oferecido */}
 										<label className="form-control">
 											<div className="label">
-												<span className="label-text">
+												<span className="label-text text-black">
 													Quantidade mínima de
 													participantes
 												</span>
@@ -234,7 +234,7 @@ function CreateRafflePage() {
 														}
 													</span>
 												) : (
-													<span className="label-text-alt">
+													<span className="label-text-alt text-black">
 														Ex: Informe o nº mínimo
 														de participantes
 													</span>
@@ -247,7 +247,7 @@ function CreateRafflePage() {
 										{/* Cupom de Desconto a ser criado */}
 										<label className="form-control">
 											<div className="label">
-												<span className="label-text">
+												<span className="label-text text-black">
 													Descrição
 												</span>
 											</div>
@@ -264,7 +264,7 @@ function CreateRafflePage() {
 														}
 													</span>
 												) : (
-													<span className="label-text-alt">
+													<span className="label-text-alt text-black">
 														Descreva as informações
 													</span>
 												)}
@@ -274,7 +274,7 @@ function CreateRafflePage() {
 										{/* Cupom de Desconto a ser criado */}
 										<label className="form-control">
 											<div className="label">
-												<span className="label-text">
+												<span className="label-text text-black">
 													Regras
 												</span>
 											</div>
@@ -291,7 +291,7 @@ function CreateRafflePage() {
 														}
 													</span>
 												) : (
-													<span className="label-text-alt">
+													<span className="label-text-alt text-black">
 														Informe as regras do
 														Sorteio
 													</span>
@@ -304,9 +304,9 @@ function CreateRafflePage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Importante!
 								</h1>
 
@@ -317,7 +317,7 @@ function CreateRafflePage() {
 											size={80}
 										/>
 									</span>
-									<p>
+									<p className="text-black">
 										Atenção: Criar cupons de desconto é uma
 										função PAGA. Esse é um serviço de
 										marketing que permite criar cupons para
@@ -347,11 +347,11 @@ function CreateRafflePage() {
 							</div>
 						</div>
 
-						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4">
+						{/* Gadget 3 */}
+						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold mb-4">
+								<h1 className="text-2xl font-semibold text-black mb-4">
 									Criar Sorteio?
 								</h1>
 								{/* Nome e Descrição */}
@@ -359,12 +359,12 @@ function CreateRafflePage() {
 								<div className="flex flex-row gap-4">
 									<button
 										type="button"
-										className="btn btn-outline btn-error">
+										className="btn btn-outline btn-error text-black hover:shadow-md">
 										Cancelar
 									</button>
 									<button
 										type="submit"
-										className="btn btn-success">
+										className="btn btn-success text-black shadow-md">
 										Criar e Publicar
 									</button>
 								</div>

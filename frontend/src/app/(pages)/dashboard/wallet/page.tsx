@@ -42,30 +42,32 @@ function WalletPage() {
 	}, [token]);
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
+			<div className=" col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
 				{/* Gadget 1 */}
 				<div className="flex flex-row gap-4 mb-4">
-					<div className="bg-purple-400 w-[1200px] p-6 rounded-md">
+					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md">
 						{/* Avatar e Boas vindas */}
 						<div className="flex flex-row items-center gap-4 text-lg font-semibold ml-6 mb-6">
-							<h1 className="text-2xl">OtakuPay Wallet</h1>
+							<h1 className="text-2xl text-black">
+								OtakuPay Wallet
+							</h1>
 						</div>
 					</div>
 				</div>
 
 				{/* Gadget 2 */}
 				<div className="flex flex-row gap-4 mb-4">
-					<div className="bg-purple-400 w-[460px] p-6 rounded-md">
+					<div className="bg-white w-[460px] p-6 rounded-md shadow-md">
 						{/* Saldo Disponivel */}
 						<div className="flex flex-col -mb-4">
 							<div className="flex flex-row items-center ml-6 gap-2">
 								<div>
-									<h2 className="text-sm">
+									<h2 className="text-sm text-black">
 										Saldo Disponível
 									</h2>
-									<h1 className="flex flex-row items-center text-3xl font-semibold">
+									<h1 className="flex flex-row items-center text-3xl font-semibold text-black">
 										{parseFloat(
 											userOtakupay.balanceAvailable || ""
 										).toLocaleString("pt-BR", {
@@ -76,7 +78,7 @@ function WalletPage() {
 								</div>
 								<div className="flex flex-col mx-6 gap-4">
 									<Link href="/dashboard/wallet/add-balance">
-										<button className="flex flex-row btn btn-outline btn-success w-[200px]">
+										<button className="flex flex-row btn btn-outline btn-primary text-black w-[200px]">
 											<Deposit size={18} />
 											Adicionar Crédito
 										</button>
@@ -102,13 +104,15 @@ function WalletPage() {
 					</div>
 
 					{/* Outro Saldos */}
-					<div className="bg-purple-400 w-[240px] p-6 rounded-md">
+					<div className="bg-white w-[240px] p-6 rounded-md shadow-md">
 						{/* Saldo Disponivel */}
 						<div className="flex flex-col">
 							<div className="flex flex-row pb-2 mb-2">
 								<div>
-									<h2 className="text-sm">Saldo Pendente</h2>
-									<h1 className="flex flex-row items-center text-xl font-semibold gap-2">
+									<h2 className="text-sm text-black">
+										Saldo Pendente
+									</h2>
+									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
 										{parseFloat(
 											userOtakupay.balancePending || ""
 										).toLocaleString("pt-BR", {
@@ -121,15 +125,15 @@ function WalletPage() {
 						</div>
 					</div>
 
-					<div className="bg-purple-400 w-[240px] p-6 rounded-md">
+					<div className="bg-white w-[240px] p-6 rounded-md shadow-md">
 						{/* Saldo Disponivel */}
 						<div className="flex flex-col">
 							<div className="flex flex-row pb-2 mb-2">
 								<div>
-									<h2 className="text-sm">
+									<h2 className="text-sm text-black">
 										Otaku Point Disponível
 									</h2>
-									<h1 className="flex flex-row items-center text-xl font-semibold gap-2">
+									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
 										{parseFloat(
 											userOtakupay.otakuPointsAvailable
 										) === 0
@@ -143,15 +147,15 @@ function WalletPage() {
 						</div>
 					</div>
 
-					<div className="bg-purple-400 w-[240px] p-6 rounded-md mr-4">
+					<div className="bg-white w-[212px] p-6 rounded-md shadow-md mr-4">
 						{/* Saldo Disponivel */}
 						<div className="flex flex-col">
 							<div className="flex flex-row">
 								<div>
-									<h2 className="text-sm">
+									<h2 className="text-sm text-black">
 										Otaku Point Pendente
 									</h2>
-									<h1 className="flex flex-row items-center text-xl font-semibold gap-2">
+									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
 										{userOtakupay.otakuPointsPending !==
 										undefined
 											? parseFloat(
@@ -168,21 +172,27 @@ function WalletPage() {
 				</div>
 
 				{/* Gadget 2 */}
-				<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+				<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 					{/* Tabela de Transações */}
-					<div className="divider mb-2">Últimas atividades</div>
+					<div className="divider mb-2 text-black">
+						Últimas atividades
+					</div>
 					<table className="table">
 						{/* head */}
 						<thead>
 							<tr>
-								<th className="text-base">
+								<th className="text-base text-black">
 									{user.accountType === "partner"
 										? `Cliente`
 										: `Loja`}
 								</th>
-								<th className="text-base">Transação</th>
-								<th className="text-base">Valor Total</th>
-								<th className="text-base">Data</th>
+								<th className="text-base text-black">
+									Transação
+								</th>
+								<th className="text-base text-black">
+									Valor Total
+								</th>
+								<th className="text-base text-black">Data</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -200,18 +210,19 @@ function WalletPage() {
 											</div>
 										</div>
 										<div>
-											<div className="font-bold">
+											<div className="font-bold text-black">
 												Otakuya-san
 											</div>
-											<div className="text-sm opacity-50">
+											<div className="text-sm text-black opacity-50">
 												Otamart
 											</div>
 										</div>
 									</div>
 								</td>
 								<td>
-									One Piece Vol.1
-									<br />
+									<div className="text-black">
+										One Piece Vol.1
+									</div>
 									<span className="badge badge-accent badge-sm">
 										Compra Online
 									</span>
@@ -222,10 +233,12 @@ function WalletPage() {
 									</div>
 								</td>
 								<td>
-									<div>07 de Março</div>
+									<div className="text-black">
+										07 de Março
+									</div>
 								</td>
 								<th>
-									<button className="btn btn-ghost btn-xs">
+									<button className="btn btn-ghost btn-xs text-black">
 										+ detalhes
 									</button>
 								</th>

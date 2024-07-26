@@ -335,14 +335,14 @@ function SideComponent() {
 		<div>
 			{/* Componente Lateral D. */}
 			<div className="flex flex-col w-[300px]">
-				<div className="border rounded-lg mb-2">
+				<div className="bg-white border rounded-lg shadow-md mb-2">
 					<div className="px-4 mb-2">
-						<h1 className="mb-1">Quantidade</h1>
+						<h1 className="text-black mb-1">Quantidade</h1>
 						<div className="flex flex-row justify-between items-center mb-2">
-							<div className="border container w-[120px] rounded-md">
+							<div className="border border-black container w-[120px] rounded-md">
 								<div className="flex flex-row justify-between items-center h-[30px]">
 									<button
-										className={`ml-1 px-2 hover:bg-slate-300 hover:opacity-20 hover:text-black rounded-md ${
+										className={`ml-1 px-2 bg-black hover:bg-slate-300 hover:opacity-20 hover:text-black rounded-md ${
 											isQuantityOneOrLess
 												? "cursor-not-allowed"
 												: "cursor-pointer"
@@ -352,13 +352,13 @@ function SideComponent() {
 										-
 									</button>
 									<input
-										className="w-12 text-center bg-yellow-500 appearance-none"
+										className="w-12 text-center text-black bg-gray-300 appearance-none"
 										type="number"
 										value={quantity}
 										readOnly
 									/>
 									<button
-										className={`mr-1 px-2 hover:bg-slate-300 hover:opacity-20 hover:text-black rounded-md ${
+										className={`mr-1 px-2 bg-black hover:bg-slate-300 hover:opacity-20 hover:text-black rounded-md ${
 											isQuantityAtLimit
 												? "cursor-not-allowed"
 												: "cursor-pointer"
@@ -368,13 +368,15 @@ function SideComponent() {
 									</button>
 								</div>
 							</div>
-							<div className="text-sm">
-								{stock} un disponíveis
+							<div className="text-sm text-black">
+								{`${stock}un disponíveis`}
 							</div>
 						</div>
 
 						<div className="flex flex-row justify-between mb-2">
-							<div className="font-semibold">Subtotal</div>
+							<div className="font-semibold text-black">
+								Subtotal
+							</div>
 							<div className="font-semibold">
 								{quantity === 1
 									? renderPrice()
@@ -435,7 +437,7 @@ function SideComponent() {
 				<div>
 					{/* Etiqueta de Encomenda */}
 					{product.preOrder === true ? (
-						<div className="flex flex-row justify-center items-center bg-sky-500 p-2 gap-3 rounded shadow-md mb-2">
+						<div className="flex flex-row justify-center items-center bg-sky-500 p-2 gap-3 rounded-md shadow-md mb-2">
 							<LuCalendarClock size={20} />
 							<h1>
 								Encomenda (envio em {product.daysShipping} dias)
@@ -447,9 +449,9 @@ function SideComponent() {
 				</div>
 
 				{/* Meios de envio/Frete */}
-				<div className="flex flex-col border border-solid p-2 rounded">
+				<div className="bg-white flex flex-col border border-solid p-2 rounded-md shadow-md">
 					<div>
-						<div className="flex flex-row items-center gap-2 mb-2">
+						<div className="text-black flex flex-row items-center gap-2 mb-2">
 							<GrLocation size={18} />
 							<span className="text-sm">
 								{partner &&
@@ -462,7 +464,9 @@ function SideComponent() {
 									))
 								) : (
 									<div>
-										<h1>Cidade de origem Indefinida...</h1>
+										<span className="text-black">
+											Cidade de origem Indefinida...
+										</span>
 									</div>
 								)}
 							</span>
@@ -471,12 +475,12 @@ function SideComponent() {
 						{product.freeShipping === true &&
 						partnerAddress === userAddress ? (
 							<div className="flex flex-row justify-between items-center gap-2 mb-1">
-								<div className="flex flex-row items-center gap-2">
+								<div className="flex flex-row items-center text-black gap-2">
 									<LiaShippingFastSolid size={24} />
 									<span>Frete Grátis</span>
 								</div>
 								<div
-									className="tooltip cursor-pointer"
+									className="tooltip cursor-pointer text-black"
 									data-tip="A transportadora será escolhida pela loja, de acordo com o melhor custo benefício!">
 									<FiInfo
 										className="animate-pulse"
@@ -486,7 +490,7 @@ function SideComponent() {
 							</div>
 						) : (
 							<div>
-								<h2 className="flex flex-row items-center gap-2 mb-1">
+								<h2 className="flex flex-row items-center text-black gap-2 mb-1">
 									<LiaShippingFastSolid size={24} />
 									<span>Meios de Envio</span>
 								</h2>

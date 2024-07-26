@@ -201,22 +201,22 @@ function CreateProductPage() {
 	}
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					<form onSubmit={handleSubmit(handleCreateProduct)}>
 						{/* Gadget 1 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mt-4 mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Nome e Descrição
 								</h1>
 								{/* Nome e Descrição */}
 								<label className="form-control w-full max-w-3xl">
 									<div className="label">
-										<span className="label-text">
+										<span className="label-text text-black">
 											Título do Produto
 										</span>
 									</div>
@@ -239,7 +239,7 @@ function CreateProductPage() {
 
 								<label className="form-control w-full max-w-3xl">
 									<div className="label">
-										<span className="label-text">
+										<span className="label-text text-black">
 											Descrição do Produto
 										</span>
 									</div>
@@ -261,7 +261,7 @@ function CreateProductPage() {
 
 								<label className="form-control w-full max-w-3xl">
 									<div className="label">
-										<span className="label-text">
+										<span className="label-text text-black">
 											Categoria do Produto
 										</span>
 									</div>
@@ -293,16 +293,16 @@ function CreateProductPage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Imagens do Produto
 								</h1>
 								{/* Add Imagens */}
 								<label className="form-control w-full max-w-3xl">
 									<div className="label">
-										<span className="label-text">
+										<span className="label-text text-black">
 											Imagem Principal
 										</span>
 									</div>
@@ -310,7 +310,7 @@ function CreateProductPage() {
 										className={`${
 											errors.imagesProduct &&
 											`border-error`
-										} flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-sky-500 hover:bg-sky-800 transition-all ease-in duration-150 rounded-sm ml-1 cursor-pointer relative`}>
+										} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 										{imagemSelecionada ? (
 											<img
 												src={imagemSelecionada}
@@ -319,7 +319,7 @@ function CreateProductPage() {
 											/>
 										) : (
 											<div
-												className="flex flex-col justify-center items-center"
+												className="flex flex-col justify-center items-center "
 												onChange={
 													handleImagemSelecionada
 												}>
@@ -351,16 +351,16 @@ function CreateProductPage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold mb-3">
+								<h1 className="text-2xl font-semibold text-black mb-3">
 									Variações
 								</h1>
 								{variations.map((variation) => (
 									<div key={variation.id}>
 										<label className="form-control w-full max-w-3xl">
 											<div className="label">
-												<span className="label-text">
+												<span className="label-text text-black">
 													Título da Variação
 												</span>
 											</div>
@@ -376,7 +376,7 @@ function CreateProductPage() {
 												}
 											/>
 											<div className="label">
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Ex: Cor, Tamanho, etc.
 												</span>
 											</div>
@@ -389,7 +389,7 @@ function CreateProductPage() {
 															key={index}
 															className="form-control w-full max-w-3xl mb-4">
 															<div className="label">
-																<span className="label-text">
+																<span className="label-text text-black">
 																	Opção
 																</span>
 															</div>
@@ -408,7 +408,7 @@ function CreateProductPage() {
 																}
 															/>
 															<div className="label">
-																<span className="label-text-alt">
+																<span className="label-text-alt text-black">
 																	Ex: Azul,
 																	Grande, etc.
 																</span>
@@ -419,7 +419,7 @@ function CreateProductPage() {
 										</div>
 
 										<div
-											className="flex flex-row justify-center items-center w-60 h-14 border-[1px] border-dashed border-sky-500 hover:bg-sky-800 transition-all ease-in duration-150 rounded ml-1 gap-2 mb-4 cursor-pointer"
+											className="text-black hover:text-white flex flex-row justify-center items-center w-60 h-14 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 gap-2 mb-4 cursor-pointer"
 											onClick={() =>
 												handleAddType(variation.id)
 											}>
@@ -431,7 +431,7 @@ function CreateProductPage() {
 									</div>
 								))}
 								<div
-									className="flex flex-row justify-center items-center w-60 h-14 border-[1px] border-dashed border-sky-500 hover:bg-sky-800 transition-all ease-in duration-150 rounded ml-1 gap-2 cursor-pointer"
+									className="text-black hover:text-white flex flex-row justify-center items-center w-60 h-14 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 gap-2 cursor-pointer"
 									onClick={handleAddVariation}>
 									<FaPlus size={16} />
 									<h2 className="text-base">
@@ -442,16 +442,16 @@ function CreateProductPage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Preço e Quantidade
 								</h1>
 								<div className="flex flex-row items-center">
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Preço original
 											</span>
 										</div>
@@ -487,7 +487,7 @@ function CreateProductPage() {
 													}
 												</span>
 											) : (
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Ex.: R$ 2,00
 												</span>
 											)}
@@ -497,7 +497,7 @@ function CreateProductPage() {
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Preço promocional
 											</span>
 										</div>
@@ -522,7 +522,7 @@ function CreateProductPage() {
 											</div>
 										</div>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Ex.: R$ 1,00
 											</span>
 										</div>
@@ -531,7 +531,7 @@ function CreateProductPage() {
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Estoque
 											</span>
 										</div>
@@ -562,7 +562,7 @@ function CreateProductPage() {
 													{errors.stock.message}
 												</span>
 											) : (
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Ex.: 10 un
 												</span>
 											)}
@@ -573,17 +573,17 @@ function CreateProductPage() {
 						</div>
 
 						{/* Gadget 3 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Informações Técnicas
 								</h1>
 								<div className="flex flex-row">
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Qual a condição do Produto?
 											</span>
 										</div>
@@ -609,7 +609,7 @@ function CreateProductPage() {
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												O item é uma encomenda?
 											</span>
 										</div>
@@ -635,7 +635,7 @@ function CreateProductPage() {
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Você precisa de quantos dias
 												para postar o produto?
 											</span>
@@ -658,7 +658,7 @@ function CreateProductPage() {
 											<div className="indicator">
 												<button
 													type="button"
-													className="btn join-item flex flex-row items-center">
+													className="btn join-item flex flex-row items-center text-black">
 													Dias
 												</button>
 											</div>
@@ -678,16 +678,16 @@ function CreateProductPage() {
 							</div>
 						</div>
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Envio, Peso e dimensões
 								</h1>
 								<div className="flex flex-row items-center">
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Peso
 											</span>
 										</div>
@@ -718,7 +718,7 @@ function CreateProductPage() {
 													{errors.weight.message}
 												</span>
 											) : (
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Ex.: 0,250 kg
 												</span>
 											)}
@@ -728,7 +728,7 @@ function CreateProductPage() {
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Comprimento
 											</span>
 										</div>
@@ -748,7 +748,7 @@ function CreateProductPage() {
 											<div className="indicator">
 												<button
 													type="button"
-													className="btn join-item">
+													className="btn join-item text-black">
 													cm
 												</button>
 											</div>
@@ -759,7 +759,7 @@ function CreateProductPage() {
 													{errors.length.message}
 												</span>
 											) : (
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Ex.: 21 cm
 												</span>
 											)}
@@ -771,7 +771,7 @@ function CreateProductPage() {
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl ml-16">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Largura
 											</span>
 										</div>
@@ -791,7 +791,7 @@ function CreateProductPage() {
 											<div className="indicator">
 												<button
 													type="button"
-													className="btn join-item">
+													className="btn join-item text-black">
 													cm
 												</button>
 											</div>
@@ -802,7 +802,7 @@ function CreateProductPage() {
 													{errors.width.message}
 												</span>
 											) : (
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Ex.: 13 cm
 												</span>
 											)}
@@ -814,7 +814,7 @@ function CreateProductPage() {
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl ml-16">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Altura
 											</span>
 										</div>
@@ -834,7 +834,7 @@ function CreateProductPage() {
 											<div className="indicator">
 												<button
 													type="button"
-													className="btn join-item">
+													className="btn join-item text-black">
 													cm
 												</button>
 											</div>
@@ -845,7 +845,7 @@ function CreateProductPage() {
 													{errors.height.message}
 												</span>
 											) : (
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Ex.: 3 cm
 												</span>
 											)}
@@ -855,7 +855,7 @@ function CreateProductPage() {
 								<div className="flex flex-row items-center mb-6">
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Oferecer frete grátis?
 											</span>
 										</div>
@@ -886,7 +886,7 @@ function CreateProductPage() {
 									</label>
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Para qual localidade?
 											</span>
 										</div>
@@ -958,7 +958,7 @@ function CreateProductPage() {
 											size={50}
 										/>
 									</span>
-									<p>
+									<p className="text-black">
 										Atenção: O pacote deverá ser postado em
 										um ponto de coleta da Kangu mesmo quando
 										a etiqueta for dos Correios. Verifique
@@ -980,10 +980,10 @@ function CreateProductPage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold mb-4">
+								<h1 className="text-2xl font-semibold text-black mb-4">
 									Deseja publicar o Produto?
 								</h1>
 								{/* Nome e Descrição */}
@@ -992,12 +992,12 @@ function CreateProductPage() {
 									<button
 										type="button"
 										onClick={handleCancelar}
-										className="btn btn-outline btn-error">
+										className="btn btn-outline btn-error hover:shadow-md">
 										Cancelar
 									</button>
 									<button
 										type="submit"
-										className="btn btn-success">
+										className="btn btn-success shadow-md">
 										Publicar Produto
 									</button>
 								</div>

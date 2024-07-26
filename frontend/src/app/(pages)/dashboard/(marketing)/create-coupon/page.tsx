@@ -72,16 +72,16 @@ function CreateCouponPage() {
 	}
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					<form onSubmit={handleSubmit(handleCreateCoupon)}>
 						{/* Gadget 1 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mt-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mt-4 mb-4 shadow-md">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Criar Cupom de Desconto
 								</h1>
 
@@ -89,7 +89,7 @@ function CreateCouponPage() {
 									{/* Nome e Descrição */}
 									<label className="form-control w-[991px]">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Site da Loja
 											</span>
 										</div>
@@ -106,7 +106,7 @@ function CreateCouponPage() {
 									{/* Cashback Atual */}
 									<label className="form-control">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Cashback oferecido atualmente
 											</span>
 										</div>
@@ -129,7 +129,7 @@ function CreateCouponPage() {
 											</div>
 										</div>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Não possível alterar por aqui
 											</span>
 										</div>
@@ -138,7 +138,7 @@ function CreateCouponPage() {
 									{/* Desconto a ser oferecido */}
 									<label className="form-control">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Você quer oferecer quantos % de
 												desconto?
 											</span>
@@ -176,7 +176,7 @@ function CreateCouponPage() {
 													}
 												</span>
 											) : (
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Ex: 10%
 												</span>
 											)}
@@ -186,7 +186,7 @@ function CreateCouponPage() {
 									{/* Cupom de Desconto a ser criado */}
 									<label className="form-control">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Código do Cupom
 											</span>
 										</div>
@@ -219,7 +219,7 @@ function CreateCouponPage() {
 													{errors.couponCode.message}
 												</span>
 											) : (
-												<span className="label-text-alt">
+												<span className="label-text-alt text-black">
 													Ex: OTK5OFF
 												</span>
 											)}
@@ -230,9 +230,9 @@ function CreateCouponPage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4 shadow-md">
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Importante!
 								</h1>
 
@@ -243,7 +243,7 @@ function CreateCouponPage() {
 											size={80}
 										/>
 									</span>
-									<p>
+									<p className="text-black">
 										Atenção: Criar cupons de desconto é uma
 										função PAGA. Esse é um serviço de
 										marketing que permite criar cupons para
@@ -273,11 +273,11 @@ function CreateCouponPage() {
 							</div>
 						</div>
 
-						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4">
+						{/* Gadget 3 */}
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 shadow-md">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold mb-4">
+								<h1 className="text-2xl font-semibold text-black mb-4">
 									Criar Cupom?
 								</h1>
 								{/* Nome e Descrição */}
@@ -285,12 +285,12 @@ function CreateCouponPage() {
 								<div className="flex flex-row gap-4">
 									<button
 										type="button"
-										className="btn btn-outline btn-error">
+										className="btn btn-outline btn-error hover:shadow-md">
 										Cancelar
 									</button>
 									<button
 										type="submit"
-										className="btn btn-success">
+										className="btn btn-success shadow-md">
 										Criar e Publicar
 									</button>
 								</div>

@@ -92,11 +92,11 @@ function Navbar() {
 		<header className="w-full">
 			{userAuthenticated ? (
 				<nav>
-					<div className="navbar bg-base-200">
+					<div className="navbar bg-[#3e1d88]">
 						<div className="flex-1 ml-10">
 							<Image
 								src={Logo}
-								width={50}
+								width={200}
 								alt=""
 								unoptimized
 								priority

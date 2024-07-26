@@ -27,15 +27,15 @@ function MyProductsPage() {
 	}, [token]);
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className=" col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+					<div className="bg-white w-[1200px] p-6 rounded-md mt-4 mr-4">
 						{/* Adicionar Porduto */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<h1 className="text-2xl font-semibold">
+							<h1 className="text-2xl font-semibold text-black">
 								Produtos em Catálogo
 							</h1>
 
@@ -54,11 +54,15 @@ function MyProductsPage() {
 												</label>
 											</th>
 
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Nome do Produto
 											</th>
-											<th className="text-sm">Preço</th>
-											<th className="text-sm">Estoque</th>
+											<th className="text-sm text-black">
+												Preço
+											</th>
+											<th className="text-sm text-black">
+												Estoque
+											</th>
 											<th></th>
 										</tr>
 									</thead>
@@ -93,12 +97,12 @@ function MyProductsPage() {
 																</div>
 															</div>
 															<div>
-																<div className="font-bold">
+																<div className="font-bold text-black">
 																	{
 																		product.productName
 																	}
 																</div>
-																<div className="text-sm opacity-50">
+																<div className="text-sm text-black opacity-50">
 																	{
 																		product.category
 																	}
@@ -106,7 +110,7 @@ function MyProductsPage() {
 															</div>
 														</div>
 													</td>
-													<td>
+													<td className="text-black">
 														{product.promocionalPrice >
 														0 ? (
 															<div className="flex flex-col">
@@ -136,7 +140,7 @@ function MyProductsPage() {
 																		)}
 																	</span>
 																</div>
-																<span className="badge badge-accent badge-sm">
+																<span className="badge badge-accent badge-sm shadow-md">
 																	Em Promoção
 																</span>
 															</div>
@@ -154,9 +158,11 @@ function MyProductsPage() {
 														)}
 														<br />
 													</td>
-													<td>{product.stock} un</td>
+													<td className="text-black">
+														{product.stock} un
+													</td>
 													<th>
-														<button className="flex items-center btn btn-ghost btn-xs">
+														<button className="flex items-center btn btn-ghost btn-xs text-black">
 															+ Detalhes
 														</button>
 													</th>

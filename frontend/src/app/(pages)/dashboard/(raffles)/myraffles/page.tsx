@@ -34,12 +34,12 @@ function MyRafflesPage() {
 	}
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="h-screen bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="h-screen col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[1200px] h-full p-6 rounded-md mt-4 mr-4">
+					<div className="bg-white w-[1200px] h-full p-6 rounded-md shadow-md mt-4 mr-4">
 						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
 							<h1 className="text-2xl font-semibold">
@@ -52,16 +52,16 @@ function MyRafflesPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-base">
+											<th className="text-base text-black">
 												Prêmio
 											</th>
-											<th className="text-base">
+											<th className="text-base text-black">
 												Custo para se inscrever
 											</th>
-											<th className="text-base">
+											<th className="text-base text-black">
 												Data de realização
 											</th>
-											<th className="text-base">
+											<th className="text-base text-black">
 												ID do Sorteio
 											</th>
 											<th></th>
@@ -111,7 +111,7 @@ function MyRafflesPage() {
 																)}
 
 															<div>
-																<div className="font-bold">
+																<div className="font-bold text-black">
 																	<h2 className="w-[230px] overflow-x-hidden mb-2">
 																		<span>
 																			{
@@ -123,28 +123,30 @@ function MyRafflesPage() {
 															</div>
 														</div>
 													</td>
-													<td>
-														{`${myraffle.raffleCost.toLocaleString(
-															"pt-BR"
-														)} OP`}
-
-														<br />
-														<span className="badge badge-success badge-sm">
+													<td className="text-black">
+														<div>
+															{`${myraffle.raffleCost.toLocaleString(
+																"pt-BR"
+															)} OP`}
+														</div>
+														<span className="badge badge-success badge-sm shadow-md">
 															Otaku Point
 														</span>
 													</td>
 													<td>
-														<div>
+														<div className="text-black">
 															{
 																myraffle.raffleDate
 															}
 														</div>
 													</td>
 													<td className="text-xs">
-														{myraffle._id}
+														<div className="text-black">
+															{myraffle._id}
+														</div>
 													</td>
 													<th>
-														<button className="flex flex-row items-center btn btn-info btn-xs w-[80px]">
+														<button className="flex flex-row items-center btn btn-info btn-xs w-[80px] shadow-md">
 															Editar
 														</button>
 													</th>
