@@ -396,7 +396,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 		<>
 			{productsInfo.length > 0 && (
 				<div>
-					<div className="flex flex-col w-[400px] min-h-[250px] bg-gray-500 p-4 rounded-md mb-2">
+					<div className="text-black flex flex-col w-[400px] min-h-[250px] border-[1px] border-black border-opacity-20 bg-white p-4 rounded-md shadow-md my-6">
 						<div>
 							<h1 className="text-lg font-semibold mb-4">
 								Seu Pedido
@@ -512,7 +512,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 									/>
 								</div>
 								<button
-									className="btn btn-primary w-[130px]"
+									className="btn btn-primary w-[130px] shadow-md"
 									onClick={aplicarCupom}>
 									Aplicar <Coupon size={20} />
 								</button>

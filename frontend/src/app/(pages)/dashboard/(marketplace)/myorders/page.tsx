@@ -43,10 +43,10 @@ function MyOrdersPage() {
 			<div className="h-screen col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[1200px] h-full p-6 rounded-md mt-4 mr-4">
+					<div className="bg-white w-[1200px] h-full p-6 rounded-md shadow-md mt-4 mr-4">
 						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<h1 className="text-2xl font-semibold">
+							<h1 className="text-2xl text-black font-semibold">
 								Meus Pedidos
 							</h1>
 
@@ -56,16 +56,16 @@ function MyOrdersPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-base">
+											<th className="text-base text-black">
 												Produtos
 											</th>
-											<th className="text-base">
+											<th className="text-base text-black">
 												Total do Pedido
 											</th>
-											<th className="text-base">
+											<th className="text-base text-black">
 												Status
 											</th>
-											<th className="text-base">
+											<th className="text-base text-black">
 												ID do Pedido
 											</th>
 											<th></th>
@@ -101,7 +101,7 @@ function MyOrdersPage() {
 																	</div>
 
 																	<div>
-																		<div className="font-bold">
+																		<div className="font-bold text-black">
 																			<h2 className="w-[230px] overflow-x-hidden mb-2">
 																				<span>
 																					{
@@ -121,22 +121,24 @@ function MyOrdersPage() {
 														)}
 													</td>
 													<td>
-														{myorder.customerOrderCostTotal.toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-														)}
-														<br />
-														<span className="badge badge-success badge-sm">
+														<div className="text-black">
+															{myorder.customerOrderCostTotal.toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}
+														</div>
+														<span className="badge badge-success badge-sm text-black">
 															{
 																myorder.paymentMethod
 															}
 														</span>
 													</td>
 													<td>
-														<div>
+														<div className="text-black">
 															{
 																myorder.statusOrder
 															}
@@ -149,10 +151,12 @@ function MyOrdersPage() {
 														</div> */}
 													</td>
 													<td className="text-xs">
-														{myorder.orderID}
+														<div className="text-black">
+															{myorder.orderID}
+														</div>
 													</td>
 													<th>
-														<button className="flex flex-row items-center btn btn-info btn-xs w-[80px]">
+														<button className="flex flex-row items-center btn btn-info btn-xs w-[80px] shadow-md">
 															<Link
 																href={`/dashboard/myorders/${myorder._id}`}>
 																+ Detalhes

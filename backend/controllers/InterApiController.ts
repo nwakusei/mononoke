@@ -97,8 +97,15 @@ class InterApiController {
 		const tokenCustomer: any = getToken(req);
 		const customer = await getUserByToken(tokenCustomer);
 
-		if (!customer) {
-			res.status(422).json({ message: "Customer não encontrado!" });
+		if (
+			!tokenCustomer ||
+			!customer ||
+			customer.accountType !== "customer"
+		) {
+			res.status(422).json({
+				message:
+					"Usuário sem permissão para realizar este tipo de transação!",
+			});
 			return;
 		}
 
@@ -126,6 +133,13 @@ class InterApiController {
 		const { access_token } = responseToken.data;
 
 		const customerCPF = customer.cpf.toString().replace(/\D/g, "");
+
+		if (!customerCPF) {
+			res.status(422).json({
+				message: "CPF do Customer não encontrado!",
+			});
+			return;
+		}
 
 		try {
 			const { originalValue } = req.body;

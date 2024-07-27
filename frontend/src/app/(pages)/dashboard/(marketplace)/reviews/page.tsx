@@ -16,8 +16,6 @@ function ReviewsPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [mysales, setMysales] = useState([]);
 
-	console.log(mysales);
-
 	useEffect(() => {
 		const fethData = async () => {
 			try {
@@ -41,15 +39,15 @@ function ReviewsPage() {
 	}, [token]);
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="h-screen bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="h-screen col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[1215px] p-6 rounded-md mt-4">
+					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mt-4">
 						{/* Adicionar Porduto */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<h1 className="text-2xl font-semibold">
+							<h1 className="text-2xl font-semibold text-black">
 								Pedidos com avaliação pendente
 							</h1>
 
@@ -68,11 +66,13 @@ function ReviewsPage() {
 												</label>
 											</th>
 
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Nome do Produto
 											</th>
-											<th className="text-sm">Status</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
+												Status
+											</th>
+											<th className="text-sm text-black">
 												ID do Pedido
 											</th>
 											<th></th>
@@ -121,13 +121,13 @@ function ReviewsPage() {
 
 																	<div>
 																		<div className="font-bold">
-																			<h2 className="w-[250px] overflow-x-auto mb-2">
+																			<h2 className="w-[250px] overflow-x-auto mb-2 text-black">
 																				{
 																					item.productName
 																				}
 																			</h2>
 																		</div>
-																		<div className="text-sm opacity-50">
+																		<div className="text-sm text-black opacity-50">
 																			{
 																				item.category
 																			}
@@ -139,12 +139,20 @@ function ReviewsPage() {
 													</td>
 
 													<td>
-														{mysale.statusShipping}
+														<div className="text-black">
+															{
+																mysale.statusShipping
+															}
+														</div>
 													</td>
 
-													<td>{mysale.orderID}</td>
+													<td>
+														<div className="text-black">
+															{mysale.orderID}
+														</div>
+													</td>
 													<th>
-														<button className="flex items-center btn btn-warning btn-xs">
+														<button className="flex items-center btn btn-warning btn-xs shadow-md">
 															<Link
 																href={`/dashboard/reviews/${mysale._id}`}>
 																Avaliar

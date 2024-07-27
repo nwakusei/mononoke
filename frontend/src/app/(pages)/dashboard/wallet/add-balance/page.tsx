@@ -27,8 +27,6 @@ function AddBalance() {
 	// Estado para armazenar o código do Pix copia e cola
 	const [pixCode, setPixCode] = useState("");
 
-	console.log(pix);
-
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
 			headers: {
@@ -94,10 +92,14 @@ function AddBalance() {
 				);
 				setBtnLoading(false);
 			}
-		} catch (error) {
+		} catch (error: any) {
 			setBtnLoading(false);
-			toast.error(error.response.data.message);
-			console.log(error.response.data);
+			if (error.response && error.response.data) {
+				toast.error(error.response.data.message);
+			} else {
+				toast.error("Ocorreu um erro. Por favor, tente novamente.");
+			}
+			console.error(error);
 		}
 	}
 
@@ -108,15 +110,15 @@ function AddBalance() {
 	};
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="h-screen bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
+			<div className="h-screen col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
 				{/* Gadget 1 */}
 				<div className="flex flex-row gap-4 mb-4">
-					<div className="bg-purple-400 w-[1200px] p-6 rounded-md">
+					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md">
 						{/* Avatar e Boas vindas */}
 						<div className="flex flex-row items-center gap-4 text-lg font-semibold ml-6 mb-6">
-							<div className="flex flex-row items-center gap-2">
+							<div className="flex flex-row items-center gap-2 text-black">
 								<h1 className="text-2xl">
 									Adicionar Saldo via PIX
 								</h1>
@@ -127,20 +129,18 @@ function AddBalance() {
 				</div>
 
 				{/* Gadget 2 */}
-				<div className="flex flex-row justify-center items-center bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4 gap-10">
+				<div className="flex flex-row justify-center items-center bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4 gap-10">
 					{/* Tabela de Transações */}
 					<div className="flex flex-col w-[250px] gap-2">
 						<label className="form-control w-full max-w-xs">
 							<div className="label">
-								<span className="label-text">
+								<span className="label-text text-black">
 									Digite o valor
 								</span>
 							</div>
 							<div className="join">
 								<div className="indicator">
-									<span className="btn btn-disabled join-item">
-										R$
-									</span>
+									<span className="btn join-item">R$</span>
 								</div>
 								<input
 									type="text"
@@ -162,7 +162,7 @@ function AddBalance() {
 								</button>
 							) : (
 								<button
-									className="btn btn-primary"
+									className="btn btn-primary shadow-md"
 									onClick={() => handleQRCode(inputValue)}>
 									<LuQrCode size={18} /> Gerar QR Code
 								</button>
@@ -173,10 +173,12 @@ function AddBalance() {
 					{qrCodeUrl ? (
 						<div className="flex flex-row justify-center items-center gap-8">
 							<div>
-								<h2 className="mb-2">Escaneie o QR Code</h2>
+								<h2 className="mb-2 text-black">
+									Escaneie o QR Code
+								</h2>
 								<div className="flex flex-col justify-center items-center bg-blue-500 w-[210px] h-[210px] rounded shadow-md">
 									<Image
-										className="p-2"
+										className="p-2 pointer-events-none"
 										src={qrCodeUrl}
 										alt="QR Code"
 										width={200}
@@ -185,11 +187,13 @@ function AddBalance() {
 									/>
 								</div>
 							</div>
-							<div className="divider divider-horizontal divider-success">
+							<div className="divider divider-horizontal divider-success text-black">
 								OU
 							</div>
 							<div className="relative">
-								<h1 className="mb-2">Pix Copia e Cola</h1>
+								<h1 className="mb-2 text-black">
+									Pix Copia e Cola
+								</h1>
 								<div
 									onClick={copyPixCode}
 									className="bg-blue-500 w-[480px] h-[120px] overflow-hidden break-words select-none p-2 rounded-md shadow-md cursor-pointer transition-all ease-in duration-200 active:scale-[.97]">
@@ -200,18 +204,24 @@ function AddBalance() {
 					) : (
 						<div className="flex flex-row justify-center items-center gap-8">
 							<div>
-								<h2 className="mb-2">Escaneie o QR Code</h2>
+								<h2 className="mb-2 text-black">
+									Escaneie o QR Code
+								</h2>
 								<div className="flex justify-center items-center border border-1 border-dashed border-green-500 w-[210px] h-[210px] rounded">
-									<h2 className="mb-2">
+									<h2 className="mb-2 text-black">
 										Nenhum QR Code gerado
 									</h2>
 								</div>
 							</div>
-							<div className="divider divider-horizontal">OU</div>
+							<div className="divider divider-horizontal text-black">
+								OU
+							</div>
 							<div className="relative">
-								<h1 className="mb-2">Pix Copia e Cola</h1>
+								<h1 className="mb-2 text-black">
+									Pix Copia e Cola
+								</h1>
 								<div className="flex justify-center items-center border border-1 border-dashed border-green-500 w-[480px] h-[120px] overflow-hidden break-words p-2 rounded">
-									<h2 className="mb-2">
+									<h2 className="mb-2 text-black">
 										Nenhum código Pix gerado
 									</h2>
 								</div>

@@ -172,7 +172,7 @@ function WalletPage() {
 				</div>
 
 				{/* Gadget 2 */}
-				<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
+				<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-8">
 					{/* Tabela de Transações */}
 					<div className="divider mb-2 text-black">
 						Últimas atividades
@@ -228,7 +228,7 @@ function WalletPage() {
 									</span>
 								</td>
 								<td>
-									<div className="font-normal text-red-500">
+									<div className="font-normal text-red-700">
 										- R$ 49,90
 									</div>
 								</td>
@@ -250,38 +250,41 @@ function WalletPage() {
 										<div className="avatar">
 											<div className="mask mask-squircle w-12 h-12">
 												<img
-													src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+													src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
 													alt="Avatar Tailwind CSS Component"
 												/>
 											</div>
 										</div>
 										<div>
-											<div className="font-bold">
+											<div className="font-bold text-black">
 												Marina Penharver
 											</div>
-											<div className="text-sm opacity-50">
+											<div className="text-sm text-black opacity-50">
 												Site da Loja
 											</div>
 										</div>
 									</div>
 								</td>
 								<td>
-									Pulseira Elfa
-									<br />
+									<div className="text-black">
+										Pulseira Elfa
+									</div>
 									<span className="badge badge-success badge-sm">
 										Venda Online
 									</span>
 								</td>
 								<td>
-									<div className="font-normal text-green-500">
+									<div className="font-normal text-green-600">
 										+ 29,90
 									</div>
 								</td>
 								<td>
-									<div>07 de Março</div>
+									<div className="text-black">
+										07 de Março
+									</div>
 								</td>
 								<th>
-									<button className="btn btn-ghost btn-xs">
+									<button className="btn btn-ghost btn-xs text-black">
 										+ detalhes
 									</button>
 								</th>

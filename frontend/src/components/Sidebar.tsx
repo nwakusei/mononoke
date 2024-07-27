@@ -59,17 +59,17 @@ function Sidebar() {
 			{userType === "partner" ? (
 				<div>
 					<div className="ml-8 mt-8 mb-4">
-						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-3">
 							<ShoppingBag size={20} />
 							Marketplace
 						</h2>
 
-						<div className="flex flex-col mb-2">
+						<div className="flex flex-col">
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/mysales"}>
 								<span className="text-xs text-black">○</span>
-								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
 									Vendas
 								</span>
 							</Link>
@@ -78,7 +78,7 @@ function Sidebar() {
 								className="flex flex-row items-center ml-7 gap-2 "
 								href={"/dashboard/myproducts"}>
 								<span className="text-xs text-black">○</span>
-								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
 									Meus Produtos
 								</span>
 							</Link>
@@ -87,7 +87,7 @@ function Sidebar() {
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/create-product"}>
 								<span className="text-xs text-black">○</span>
-								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
 									Criar Produto
 								</span>
 							</Link>
@@ -96,7 +96,7 @@ function Sidebar() {
 						className="flex flex-row items-center ml-7 gap-2"
 						href={""}>
 						<span className="text-xs">○</span>
-						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+						<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 							Categorias
 						</span>
 					</Link> */}
@@ -104,18 +104,18 @@ function Sidebar() {
 					</div>
 
 					<div className="ml-8 mb-4">
-						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-3">
 							{/* <CgEditUnmask size={20} /> */}
 							<ImMakeGroup size={18} />
 							OtaClub
 						</h2>
 
-						<div className="flex flex-col mb-2">
+						<div className="flex flex-col">
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/mysales"}>
 								<span className="text-xs text-black">○</span>
-								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
 									Vendas
 								</span>
 							</Link>
@@ -124,7 +124,7 @@ function Sidebar() {
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/myproducts"}>
 								<span className="text-xs text-black">○</span>
-								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
 									Meus Produtos
 								</span>
 							</Link>
@@ -132,7 +132,7 @@ function Sidebar() {
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/create-product"}>
 								<span className="text-xs text-black">○</span>
-								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
 									Criar Produto
 								</span>
 							</Link>
@@ -141,7 +141,7 @@ function Sidebar() {
 						className="flex flex-row items-center ml-7 gap-2"
 						href={""}>
 						<span className="text-xs">○</span>
-						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+						<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 							Categorias
 						</span>
 					</Link> */}
@@ -158,7 +158,7 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={""}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						Criar Ingresso
 					</span>
 				</Link>
@@ -167,7 +167,7 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={""}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						Meus Ingressos
 					</span>
 				</Link>
@@ -183,7 +183,7 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={""}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						Criar Projeto
 					</span>
 				</Link>
@@ -191,91 +191,98 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={""}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						Projetos Ativos
 					</span>
 				</Link>
 			</div> */}
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h1 className="text-black flex flex-row items-center gap-2 mb-2">
+						<h1 className="text-black flex flex-row items-center gap-2 mb-3">
 							<TbDiscount2 size={20} />
 							Marketing
 						</h1>
 
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/mycoupons"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Meus Cupons
-							</span>
-						</Link>
+						<div className="flex flex-col">
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/mycoupons"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+									Meus Cupons
+								</span>
+							</Link>
 
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/create-coupon"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Criar Cupom
-							</span>
-						</Link>
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/create-coupon"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+									Criar Cupom
+								</span>
+							</Link>
+						</div>
 					</div>
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-3">
 							<MdOutlineLocalActivity size={20} />
 							Sorteios
 						</h2>
 
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/myraffles"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Meus Sorteios
-							</span>
-						</Link>
+						<div className="flex flex-col">
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/myraffles"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+									Meus Sorteios
+								</span>
+							</Link>
 
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/create-raffle"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Criar Sorteio
-							</span>
-						</Link>
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/create-raffle"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+									Criar Sorteio
+								</span>
+							</Link>
+						</div>
 					</div>
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-3">
 							<BsChatSquareText size={18} /> Chats
 						</h2>
 
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/chat"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Ver Chats
-							</span>
-						</Link>
+						<div className="flex flex-col">
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/chat"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+									Ver Chats
+								</span>
+							</Link>
+						</div>
 					</div>
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-3">
 							<PaymentMethod size={18} />
 							OtakuPay
 						</h2>
-
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/wallet"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Wallet
-							</span>
-						</Link>
+						<div className="flex flex-col">
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/wallet"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+									Wallet
+								</span>
+							</Link>
+						</div>
 					</div>
 
 					{/* <div className="flex flex-col ml-8 mb-4">
@@ -288,26 +295,28 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={"/dashboard/myprofile"}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						My Profile
 					</span>
 				</Link>
 			</div> */}
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h2 className="text-black flex flex-row items-center gap-2 mb-2">
+						<h2 className="text-black flex flex-row items-center gap-2 mb-3">
 							<LuSettings size={18} />
 							Configurações
 						</h2>
 
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/myprofile"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Gerais
-							</span>
-						</Link>
+						<div className="flex flex-col">
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/myprofile"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+									Gerais
+								</span>
+							</Link>
+						</div>
 					</div>
 
 					{/* <div className="ml-8 mb-4">
@@ -332,17 +341,17 @@ function Sidebar() {
 			) : (
 				<div>
 					<div className="ml-8 mt-8 mb-4">
-						<h2 className="flex flex-row items-center gap-2 mb-2">
+						<h2 className="flex flex-row items-center gap-2 text-black mb-3">
 							<ShoppingBag size={20} />
 							Marketplace
 						</h2>
 
-						<div className="flex flex-col mb-2">
+						<div className="flex flex-col">
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/myorders"}>
 								<span className="text-xs text-black">○</span>
-								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
 									Compras
 								</span>
 							</Link>
@@ -351,7 +360,7 @@ function Sidebar() {
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/reviews"}>
 								<span className="text-xs text-black">○</span>
-								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150">
 									Avaliações
 								</span>
 							</Link>
@@ -360,7 +369,7 @@ function Sidebar() {
 						className="flex flex-row items-center ml-7 gap-2"
 						href={""}>
 						<span className="text-xs">○</span>
-						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+						<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 							Categorias
 						</span>
 					</Link> */}
@@ -368,18 +377,17 @@ function Sidebar() {
 					</div>
 
 					<div className="ml-8 mb-4">
-						<h2 className="flex flex-row items-center gap-2 mb-2">
-							{/* <CgEditUnmask size={20} /> */}
+						<h2 className="flex flex-row items-center gap-2 mb-3 text-black">
 							<ImMakeGroup size={18} />
 							OtaClub
 						</h2>
 
-						<div className="flex flex-col mb-2">
+						<div className="flex flex-col">
 							<Link
 								className="flex flex-row items-center ml-7 gap-2"
 								href={"/dashboard/myorders"}>
 								<span className="text-xs text-black">○</span>
-								<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150">
 									Compras
 								</span>
 							</Link>
@@ -388,7 +396,7 @@ function Sidebar() {
 						className="flex flex-row items-center ml-7 gap-2"
 						href={""}>
 						<span className="text-xs">○</span>
-						<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+						<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 							Categorias
 						</span>
 					</Link> */}
@@ -396,18 +404,20 @@ function Sidebar() {
 					</div>
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h2 className="flex flex-row items-center gap-2 mb-2">
+						<h2 className="flex flex-row items-center gap-2 mb-3 text-black">
 							<BsChatSquareText size={18} /> Chats
 						</h2>
 
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/chat"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Ver Chats
-							</span>
-						</Link>
+						<div className="flex flex-col">
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/chat"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150">
+									Ver Chats
+								</span>
+							</Link>
+						</div>
 					</div>
 
 					{/* <div className="flex flex-col ml-8 mb-4">
@@ -420,7 +430,7 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={""}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						Criar Ingresso
 					</span>
 				</Link>
@@ -429,7 +439,7 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={""}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						Meus Ingressos
 					</span>
 				</Link>
@@ -445,7 +455,7 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={""}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						Criar Projeto
 					</span>
 				</Link>
@@ -453,26 +463,28 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={""}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						Projetos Ativos
 					</span>
 				</Link>
 			</div> */}
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h1 className="flex flex-row items-center gap-2 mb-2">
+						<h1 className="flex flex-row items-center gap-2 mb-3 text-black">
 							<PaymentMethod size={18} />
 							OtakuPay
 						</h1>
 
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/wallet"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Wallet
-							</span>
-						</Link>
+						<div className="flex flex-col">
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/wallet"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150">
+									Wallet
+								</span>
+							</Link>
+						</div>
 					</div>
 
 					{/* <div className="flex flex-col ml-8 mb-4">
@@ -485,26 +497,28 @@ function Sidebar() {
 					className="flex flex-row items-center ml-7 gap-2"
 					href={"/dashboard/myprofile"}>
 					<span className="text-xs">○</span>
-					<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
+					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
 						My Profile
 					</span>
 				</Link>
 			</div> */}
 
 					<div className="flex flex-col ml-8 mb-4">
-						<h1 className="flex flex-row items-center gap-2 mb-2">
+						<h1 className="flex flex-row items-center gap-2 mb-3 text-black">
 							<LuSettings size={18} />
 							Configurações
 						</h1>
 
-						<Link
-							className="flex flex-row items-center ml-7 gap-2"
-							href={"/dashboard/myprofile"}>
-							<span className="text-xs text-black">○</span>
-							<span className="text-black hover:text-sky-500 transition-all ease-in duration-150">
-								Gerais
-							</span>
-						</Link>
+						<div className="flex flex-col">
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/myprofile"}>
+								<span className="text-xs text-black">○</span>
+								<span className="text-black hover:text-white hover:bg-secondary px-2 py-1 rounded transition-all ease-in duration-150">
+									Gerais
+								</span>
+							</Link>
+						</div>
 					</div>
 				</div>
 			)}

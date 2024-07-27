@@ -50,37 +50,38 @@ function DeliveryPage() {
 	}, []);
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen mx-4">
-			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4">
-				<div className="flex flex-col justify-center mb-8">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
+			<div className="col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4 mb-8">
+				<div className="flex flex-col justify-center mb-4">
 					<ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
 						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded shadow-md">
 								<p>Carrinho</p> <ShoppingCartOne size={18} />
 							</span>
 						</li>
 						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded shadow-md">
 								<p>Entrega</p>
 								<LiaShippingFastSolid size={18} />
 							</span>
 						</li>
 						<li className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded shadow-md">
 								<p>Revisão</p> <BiIdCard size={20} />
 							</span>
 						</li>
 						<li className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded shadow-md">
 								<p>Pagamento</p>
 								<PiCreditCardBold size={20} />
 							</span>
 						</li>
 					</ul>
 				</div>
-				<div className="flex flex-row justify-center gap-6 bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
-					<div className="flex flex-col items-center">
-						<div className="flex flex-row justify-between gap-4 bg-gray-500 w-[650px] min-h-[100px] p-4 rounded-md mb-4">
+
+				<div className="flex flex-row justify-center bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 gap-6 mb-8 rounded-md shadow-md">
+					<div>
+						<div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-[650px] min-h-[100px] p-4 my-6 rounded-md shadow-md">
 							{user.address && user.address.length > 0 ? (
 								user.address.map((end) => (
 									<>
@@ -117,7 +118,7 @@ function DeliveryPage() {
 							([key, info]) => (
 								<div
 									key={key}
-									className="flex flex-row justify-between gap-4 bg-gray-500 w-[650px] min-h-[80px] p-4 rounded-md mb-4">
+									className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-[650px] min-h-[100px] p-4 my-6 rounded-md shadow-md">
 									<div className="flex flex-row gap-4">
 										<LiaShippingFastSolid size={25} />
 										<div>
@@ -154,7 +155,7 @@ function DeliveryPage() {
 					</div>
 				</div>
 				<div className="flex flex-row justify-center items-center gap-4">
-					<button className="btn">
+					<button className="btn btn-primary shadow-md">
 						<Link
 							className="flex flex-row justify-center items-center gap-2"
 							href="/checkout/cart">
@@ -163,7 +164,7 @@ function DeliveryPage() {
 						</Link>
 					</button>
 
-					<button className="btn">
+					<button className="btn btn-primary shadow-md">
 						<Link
 							className="flex flex-row justify-center items-center gap-2"
 							href="/checkout/review">

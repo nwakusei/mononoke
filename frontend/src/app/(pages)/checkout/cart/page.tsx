@@ -624,35 +624,36 @@ function CartPage() {
 	};
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 min-h-screen">
-			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4 mb-8">
-				<div className="flex flex-col justify-center mb-8">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
+			<div className="col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4 mb-8">
+				<div className="flex flex-col justify-center mb-4">
 					<ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
 						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded shadow-md">
 								<p>Carrinho</p> <ShoppingCartOne size={18} />
 							</span>
 						</li>
 						<li className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded shadow-md">
 								<p>Entrega</p>
 								<LiaShippingFastSolid size={18} />
 							</span>
 						</li>
 						<li className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded shadow-md">
 								<p>Revisão</p> <BiIdCard size={20} />
 							</span>
 						</li>
 						<li className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded shadow-md">
 								<p>Pagamento</p>
 								<PiCreditCardBold size={20} />
 							</span>
 						</li>
 					</ul>
 				</div>
-				<div className="flex flex-row justify-center gap-6 bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
+
+				<div className="flex flex-row justify-center bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 gap-6 mb-8 rounded-md shadow-md">
 					<div className="flex flex-col items-center">
 						{transportadoraInfo && productsInCart.length > 0 ? (
 							Object.values(
@@ -667,12 +668,12 @@ function CartPage() {
 							).map((partnerProducts) => (
 								<div
 									key={partnerProducts[0].partnerID}
-									className="flex flex-col border-[2px] border-gray-500 rounded-md gap-2 p-2 mb-4">
+									className="flex flex-col border-[1px] border-black border-opacity-20 bg-white rounded-md shadow-md gap-2 p-2 my-6">
 									{partnerProducts.map(
 										(productInCart, index) => (
 											<div
 												key={productInCart.productID}
-												className={`flex flex-col gap-4 bg-gray-500 w-[650px] min-h-[100px] p-4 rounded-md ${
+												className={`flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[650px] min-h-[100px] p-4 rounded-md shadow-md ${
 													index <
 													partnerProducts.length - 1
 														? "mb-2"
@@ -680,7 +681,7 @@ function CartPage() {
 												}`}>
 												{/* Renderizar informações do produto */}
 												<div className="flex flex-row justify-between items-center gap-4">
-													<div className="flex justify-center bg-red-500 w-28 h-28 rounded">
+													<div className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
 														<Image
 															className="object-contain h-full"
 															src={`http://localhost:5000/images/products/${productInCart.imageProduct}`}
@@ -693,15 +694,15 @@ function CartPage() {
 														/>
 													</div>
 													<div>
-														<h1 className="text-lg">
+														<h1 className="text-lg text-black">
 															{
 																productInCart.productName
 															}
 														</h1>
-														<h2 className="mb-2">
+														<h2 className="mb-2 text-black">
 															Variação: Preto
 														</h2>
-														<div className="flex flex-row items-center gap-2">
+														<div className="flex flex-row items-center text-black gap-2">
 															<button
 																onClick={() =>
 																	decreaseQuantity(
@@ -722,7 +723,7 @@ function CartPage() {
 																}
 															</span> */}
 															<input
-																className="text-lg text-center
+																className="text-lg text-center bg-gray-300
 																w-[60px] h-[32px]
 																rounded"
 																type="text"
@@ -744,7 +745,7 @@ function CartPage() {
 														</div>
 													</div>
 													<div>
-														<h1>
+														<h1 className="text-black">
 															{productInCart.productPrice.toLocaleString(
 																"pt-BR",
 																{
@@ -766,7 +767,7 @@ function CartPage() {
 																	productInCart.productID
 																)
 															}
-															className="flex flex-col items-center justify-center border-[1px] border-purple-500 w-10 h-10 transition-all ease-in duration-200 hover:shadow-md hover:bg-purple-500 active:scale-[.97] rounded cursor-pointer">
+															className="text-black hover:text-white flex flex-col items-center justify-center border-dashed hover:border-solid border-[1px] border-primary hover:bg-secondary w-10 h-10 transition-all ease-in duration-200 hover:shadow-md active:scale-[.97] rounded cursor-pointer">
 															<MdOutlineDeleteOutline
 																size={25}
 															/>
@@ -825,7 +826,7 @@ function CartPage() {
 												return (
 													<div
 														key={partnerID}
-														className="bg-gray-500 p-4 rounded-md">
+														className="text-black border-[1px] border-black border-opacity-20 bg-white p-4 rounded-md shadow-md">
 														<div>
 															Transportadora:{" "}
 															{info.transpNome}
@@ -868,7 +869,7 @@ function CartPage() {
 				</div>
 
 				<div className="flex flex-row justify-center items-center gap-4">
-					<button className="btn">
+					<button className="btn btn-primary shadow-md">
 						<Link
 							className="flex flex-row justify-center items-center gap-2"
 							href="/checkout/delivery">

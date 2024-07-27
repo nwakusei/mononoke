@@ -92,8 +92,8 @@ function Navbar() {
 		<header className="w-full">
 			{userAuthenticated ? (
 				<nav>
-					<div className="navbar bg-[#3e1d88]">
-						<div className="flex-1 ml-10">
+					<div className="navbar bg-primary shadow-md">
+						<div className="flex-1 ml-10 select-none pointer-events-none">
 							<Image
 								src={Logo}
 								width={200}

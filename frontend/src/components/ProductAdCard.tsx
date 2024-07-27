@@ -82,7 +82,7 @@ function ProductAdCard({
 	};
 
 	return (
-		<div className="bg-white w-[254px] flex flex-col rounded-md relative pb-2 shadow-md">
+		<div className="bg-white w-[254px] flex flex-col rounded-md relative pb-2 shadow-md select-none">
 			<div className="flex flex-col items-center justify-center h-[220px] mx-3 mt-2 -mb-3">
 				{discountPercentage === 0 ? (
 					<></>
@@ -93,7 +93,7 @@ function ProductAdCard({
 					</span>
 				)}
 				{freeShipping === true ? (
-					<div className="flex flex-col object-contain w-full h-full ">
+					<div className="flex flex-col object-contain w-full h-full select-none pointer-events-none">
 						<Image
 							className="object-contain w-full h-full"
 							src={productImage}
@@ -108,7 +108,7 @@ function ProductAdCard({
 						</span>
 					</div>
 				) : (
-					<div className="flex flex-col object-contain w-full h-full">
+					<div className="flex flex-col object-contain w-full h-full select-none pointer-events-none">
 						<Image
 							className="object-contain w-full h-full"
 							src={productImage}
@@ -130,7 +130,7 @@ function ProductAdCard({
 				<div>
 					<h1 className="text-base text-black">
 						{promocionalPrice === 0 ? (
-							<span className="text-purple-400">
+							<span className="text-secondary">
 								{price.toLocaleString("pt-BR", {
 									style: "currency",
 									currency: "BRL",
@@ -144,7 +144,7 @@ function ProductAdCard({
 										currency: "BRL",
 									})}
 								</span>
-								<span className="text-purple-400">
+								<span className="text-secondary">
 									{promoPrice.toLocaleString("pt-BR", {
 										style: "currency",
 										currency: "BRL",

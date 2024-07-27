@@ -71,22 +71,22 @@ function MyProfilePage() {
 	};
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mt-4 mb-8">
 					<form>
 						{/* Gadget 1 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Dados da Loja
 								</h1>
 								{/* Nome Fantasia */}
 								<label className="form-control w-full max-w-3xl">
 									<div className="label">
-										<span className="label-text">
+										<span className="label-text text-black">
 											Nome Fantasia
 										</span>
 									</div>
@@ -110,7 +110,7 @@ function MyProfilePage() {
 									{/* CNPJ/CPF */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												CNPJ/CPF
 											</span>
 										</div>
@@ -135,7 +135,7 @@ function MyProfilePage() {
 									{/* Email */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Email
 											</span>
 										</div>
@@ -162,7 +162,7 @@ function MyProfilePage() {
 									{/* Descrição da Loja */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Descrição da Loja
 											</span>
 										</div>
@@ -187,7 +187,7 @@ function MyProfilePage() {
 									{/* Site */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Site Oficial da Loja
 											</span>
 										</div>
@@ -213,17 +213,17 @@ function MyProfilePage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Imagens
 								</h1>
 								<div className="flex flex-row justify-center items-center">
 									{/* Add Imagens */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Imagem de Perfil
 											</span>
 										</div>
@@ -231,14 +231,14 @@ function MyProfilePage() {
 											className={`${
 												errors.imagesProduct &&
 												`border-error`
-											} flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-sky-500 hover:bg-sky-800 transition-all ease-in duration-150 rounded-sm ml-1 cursor-pointer relative`}>
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 											{imagemSelecionadaProfile ? (
 												<img
 													src={
 														imagemSelecionadaProfile
 													}
 													alt="Imagem selecionada"
-													className="object-contain w-full h-full rounded-sm"
+													className="object-contain w-full h-full rounded"
 												/>
 											) : (
 												<div
@@ -280,7 +280,7 @@ function MyProfilePage() {
 									{/* Add Imagens */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Logo da Loja
 											</span>
 										</div>
@@ -288,7 +288,7 @@ function MyProfilePage() {
 											className={`${
 												errors.imagesProduct &&
 												`border-error`
-											} flex flex-col justify-center items-center w-[200px] h-[80px] border-[1px] border-dashed border-sky-500 hover:bg-sky-800 transition-all ease-in duration-150 rounded-sm ml-1 cursor-pointer relative`}>
+											} text-black hover:text-white flex flex-col justify-center items-center w-[200px] h-[80px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 											{imagemSelecionadaLogo ? (
 												<img
 													src={imagemSelecionadaLogo}
@@ -336,10 +336,10 @@ function MyProfilePage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Configurações de Envio
 								</h1>
 								{/* Row 1 */}
@@ -347,7 +347,7 @@ function MyProfilePage() {
 									{/* Logradouro */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Logradouro (Rua/Avenida)
 											</span>
 										</div>
@@ -361,7 +361,7 @@ function MyProfilePage() {
 											{...register("productName")}
 										/>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Ex.: Rua X, 128
 											</span>
 										</div>
@@ -370,7 +370,7 @@ function MyProfilePage() {
 									{/* Complemento */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Complemento
 											</span>
 										</div>
@@ -384,7 +384,7 @@ function MyProfilePage() {
 											{...register("productName")}
 										/>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Ex.: Apto. 240
 											</span>
 										</div>
@@ -393,7 +393,7 @@ function MyProfilePage() {
 									{/* Bairro */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Bairro
 											</span>
 										</div>
@@ -407,7 +407,7 @@ function MyProfilePage() {
 											{...register("productName")}
 										/>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Ex.: Centro
 											</span>
 										</div>
@@ -418,7 +418,7 @@ function MyProfilePage() {
 									{/* Cidade */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Cidade
 											</span>
 										</div>
@@ -432,7 +432,7 @@ function MyProfilePage() {
 											{...register("productName")}
 										/>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Ex.: São Paulo
 											</span>
 										</div>
@@ -441,7 +441,7 @@ function MyProfilePage() {
 									{/* Estado */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Estado
 											</span>
 										</div>
@@ -455,7 +455,7 @@ function MyProfilePage() {
 											{...register("productName")}
 										/>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Ex.: SP
 											</span>
 										</div>
@@ -464,7 +464,7 @@ function MyProfilePage() {
 									{/* CEP */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												CEP
 											</span>
 										</div>
@@ -478,7 +478,7 @@ function MyProfilePage() {
 											{...register("productName")}
 										/>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Ex.: 04850213
 											</span>
 										</div>
@@ -487,7 +487,7 @@ function MyProfilePage() {
 								{/* Credential */}
 								<label className="form-control w-full max-w-3xl">
 									<div className="label">
-										<span className="label-text">
+										<span className="label-text text-black">
 											Credencial Kangu
 										</span>
 									</div>
@@ -504,7 +504,7 @@ function MyProfilePage() {
 										{...register("productName")}
 									/>
 									<div className="label">
-										<span className="label-text-alt">
+										<span className="label-text-alt text-black">
 											Obs.: A credencial da Kangu é
 											obrigatória para que seja possível
 											calcular o frete dos pedidos.
@@ -517,17 +517,17 @@ function MyProfilePage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Configurações de venda
 								</h1>
 
 								{/* Cashback */}
 								<label className="form-control w-full max-w-3xl">
 									<div className="label">
-										<span className="label-text">
+										<span className="label-text text-black">
 											Cashback oferecido
 										</span>
 									</div>
@@ -544,7 +544,7 @@ function MyProfilePage() {
 										{...register("productName")}
 									/>
 									<div className="label">
-										<span className="label-text-alt">
+										<span className="label-text-alt text-black">
 											Obs.: Ao fazer uma venda você paga
 											sempre o dobro de Cashback, sendo
 											valor divivido para o cliente e a
@@ -556,10 +556,10 @@ function MyProfilePage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4 mb-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold">
+								<h1 className="text-2xl font-semibold text-black">
 									Alterar Senha
 								</h1>
 
@@ -567,7 +567,7 @@ function MyProfilePage() {
 									{/* Credential */}
 									<label className="form-control max-w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Nova Senha
 											</span>
 										</div>
@@ -581,7 +581,7 @@ function MyProfilePage() {
 											{...register("productName")}
 										/>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Obs.:
 											</span>
 										</div>
@@ -590,7 +590,7 @@ function MyProfilePage() {
 									{/* Credential */}
 									<label className="form-control w-3xl">
 										<div className="label">
-											<span className="label-text">
+											<span className="label-text text-black">
 												Confirme a Senha
 											</span>
 										</div>
@@ -604,7 +604,7 @@ function MyProfilePage() {
 											{...register("productName")}
 										/>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-black">
 												Obs.:
 											</span>
 										</div>
@@ -614,10 +614,10 @@ function MyProfilePage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-purple-400 w-[1200px] p-6 rounded-md mr-4">
+						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold mb-4">
+								<h1 className="text-2xl font-semibold mb-4 text-black">
 									Deseja publicar o Produto?
 								</h1>
 								{/* Nome e Descrição */}
@@ -626,12 +626,12 @@ function MyProfilePage() {
 									<button
 										type="button"
 										onClick={handleCancelar}
-										className="btn btn-outline btn-error">
+										className="btn btn-outline btn-error hover:shadow-md">
 										Cancelar
 									</button>
 									<button
 										type="submit"
-										className="btn btn-success">
+										className="btn btn-success shadow-md">
 										Atualizar Perfil
 									</button>
 								</div>

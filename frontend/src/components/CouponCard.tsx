@@ -26,10 +26,10 @@ function CouponCard({ partnerLogo, siteLink, discount, cashback, coupon }) {
 			: `https://${siteLink}`;
 
 	return (
-		<div className="bg-base-100 w-[260px] flex flex-col rounded-md relative shadow-lg">
+		<div className="bg-white w-[260px] flex flex-col rounded-md relative shadow-md select-none">
 			<div className="h-[150px] mx-3 mt-2 -mb-3 flex items-center justify-center">
 				<Image
-					className="object-contain w-full h-full"
+					className="object-contain w-full h-full pointer-events-none"
 					src={partnerLogo}
 					alt="Logo Partner"
 					width={150}
@@ -47,12 +47,14 @@ function CouponCard({ partnerLogo, siteLink, discount, cashback, coupon }) {
 				</Link>
 			</div>
 			<div className="h-[150px] flex flex-col items-center justify-center mx-4 -mt-4">
-				<h2 className="text-center font-semibold text-xl">
-					{discount}% de desconto
+				<h2 className="text-center font-semibold text-xl text-black">
+					{`${discount}% de desconto`}
 				</h2>
-				<p className="text-center text-sm mb-1">em compras na loja +</p>
+				<p className="text-center text-sm text-black mb-1">
+					em compras na loja +
+				</p>
 				<p className="flex flex-row gap-2 text-center text-sm text-green-500 mb-2">
-					<Currency size={18} /> {cashback}% de Cashback
+					<Currency size={18} /> {`${cashback}% de Cashback`}
 				</p>
 
 				<div className="tooltip w-full" data-tip={tipText}>

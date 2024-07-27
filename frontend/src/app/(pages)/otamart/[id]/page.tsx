@@ -17,7 +17,6 @@ import { ProductVariation } from "@/components/ProductVariation";
 import { SideComponent } from "@/components/SideComponent";
 
 // Importe suas imagens e ícones aqui
-import Lycoris from "../../../../../public/lycoris.jpg";
 import Amora from "../../../../../public/amora.jpg";
 import imageProfile from "../../../../../public/Kon.jpg";
 
@@ -195,10 +194,10 @@ function ProductPage() {
 
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
-			<div className="flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
+			<div className="bg-white p-4 rounded-md shadow-md flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
 				{/* Componente de Imagem Principal */}
 				<div className="flex flex-col">
-					<div className="bg-white w-[402px] rounded-md relative shadow-lg mb-2">
+					<div className="bg-white w-[402px] border-black border-solid border-[1px] border-opacity-20 rounded-md relative shadow-lg mb-2">
 						<div className="h-[402px] flex items-center justify-center mx-3 my-2">
 							{product.imagesProduct &&
 								product.imagesProduct.length > 0 && (
@@ -218,7 +217,7 @@ function ProductPage() {
 						{product.imagesProduct &&
 							product.imagesProduct.length > 0 &&
 							product.imagesProduct.map((image, id) => (
-								<div className="bg-white w-[74px] rounded relative shadow-md">
+								<div className="bg-white border-black border-solid border-[1px] border-opacity-20 w-[74px] rounded relative shadow-md">
 									<div
 										key={id}
 										className="h-[74px] flex items-center justify-center">
@@ -266,7 +265,7 @@ function ProductPage() {
 					</h1>
 					{/* Avaliações e Vendidos */}
 					<div className="flex flex-row text-sm text-black mb-4 gap-1">
-						<div className="flex items-center gap-1 text-yellow-500">
+						<div className="flex items-center gap-1 text-yellow-400">
 							{/* Contêiner flexível para os ícones */}
 							{renderRatingIcons()}
 						</div>
@@ -371,7 +370,7 @@ function ProductPage() {
 					{/* Logo da Loja */}
 					{partner && (
 						<div className="flex flex-row gap-4">
-							<div className="w-[230px] h-24 bg-pink-200 px-1 rounded-md">
+							<div className="w-[230px] h-24 bg-pink-200 border-solid border-[1px] border-black border-opacity-20 px-1 rounded-md shadow-md">
 								<Image
 									className="object-contain w-full h-full"
 									src={Amora}

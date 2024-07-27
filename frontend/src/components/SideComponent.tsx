@@ -41,8 +41,9 @@ function SideComponent() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 
-	const partnerAddress = partner ? partner.address[0].uf : "";
-	const userAddress = user.address ? user.address[0].uf : "";
+	const partnerUFAddress = partner ? partner.address[0].uf : "";
+	const userUFAddress =
+		user.address && user.address.length > 0 ? user.address[0].uf : "";
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -335,21 +336,20 @@ function SideComponent() {
 		<div>
 			{/* Componente Lateral D. */}
 			<div className="flex flex-col w-[300px]">
-				<div className="bg-white border rounded-lg shadow-md mb-2">
+				<div className="bg-white border-black border-solid border-[1px] border-opacity-20 rounded-lg shadow-md mb-2 mr-2">
 					<div className="px-4 mb-2">
 						<h1 className="text-black mb-1">Quantidade</h1>
 						<div className="flex flex-row justify-between items-center mb-2">
 							<div className="border border-black container w-[120px] rounded-md">
-								<div className="flex flex-row justify-between items-center h-[30px]">
+								<div className="flex flex-row justify-between items-center h-[36px]">
 									<button
-										className={`ml-1 px-2 bg-black hover:bg-slate-300 hover:opacity-20 hover:text-black rounded-md ${
+										className={`flex flex-row items-center ml-1 px-[10px] bg-primary transition-all ease-in duration-100 text-white hover:opacity-70 hover:bg-secondary active:scale-[.97] rounded-md ${
 											isQuantityOneOrLess
 												? "cursor-not-allowed"
 												: "cursor-pointer"
 										}`}
-										onClick={decrementarQuantidade} // Etapa 3: Adicione o evento de clique
-									>
-										-
+										onClick={decrementarQuantidade}>
+										<span className="mb-1">-</span>
 									</button>
 									<input
 										className="w-12 text-center text-black bg-gray-300 appearance-none"
@@ -358,18 +358,18 @@ function SideComponent() {
 										readOnly
 									/>
 									<button
-										className={`mr-1 px-2 bg-black hover:bg-slate-300 hover:opacity-20 hover:text-black rounded-md ${
+										className={`flex flex-row items-center mr-1 px-[8px] bg-primary transition-all ease-in duration-100 text-white hover:opacity-70 hover:bg-secondary active:scale-[.97] rounded-md ${
 											isQuantityAtLimit
 												? "cursor-not-allowed"
 												: "cursor-pointer"
 										}`}
 										onClick={incrementarQuantidade}>
-										+
+										<span className="mb-1">+</span>
 									</button>
 								</div>
 							</div>
 							<div className="text-sm text-black">
-								{`${stock}un disponíveis`}
+								{`${stock} un disponíveis`}
 							</div>
 						</div>
 
@@ -377,7 +377,7 @@ function SideComponent() {
 							<div className="font-semibold text-black">
 								Subtotal
 							</div>
-							<div className="font-semibold">
+							<div className="font-semibold text-black">
 								{quantity === 1
 									? renderPrice()
 									: totalOrder.toLocaleString("pt-BR", {
@@ -434,7 +434,7 @@ function SideComponent() {
 					</div>
 				</div>
 
-				<div>
+				<div className="mr-2">
 					{/* Etiqueta de Encomenda */}
 					{product.preOrder === true ? (
 						<div className="flex flex-row justify-center items-center bg-sky-500 p-2 gap-3 rounded-md shadow-md mb-2">
@@ -449,7 +449,7 @@ function SideComponent() {
 				</div>
 
 				{/* Meios de envio/Frete */}
-				<div className="bg-white flex flex-col border border-solid p-2 rounded-md shadow-md">
+				<div className="bg-white flex flex-col border-black border-solid border-[1px] border-opacity-20 p-2 rounded-md shadow-md mr-2">
 					<div>
 						<div className="text-black flex flex-row items-center gap-2 mb-2">
 							<GrLocation size={18} />
@@ -473,7 +473,7 @@ function SideComponent() {
 						</div>
 
 						{product.freeShipping === true &&
-						partnerAddress === userAddress ? (
+						partnerUFAddress === userUFAddress ? (
 							<div className="flex flex-row justify-between items-center gap-2 mb-1">
 								<div className="flex flex-row items-center text-black gap-2">
 									<LiaShippingFastSolid size={24} />
@@ -544,9 +544,9 @@ function SideComponent() {
 										selectedTransportadora[
 											transportadora.idSimulacao
 										]
-											? `bg-sky-500`
-											: ""
-									} hover:bg-sky-500 transition-all ease-in duration-150 border border-solid p-2 rounded cursor-pointer mb-2`}>
+											? `bg-secondary border-solid text-white shadow-md`
+											: "border-dashed"
+									} hover:bg-secondary text-black hover:text-white transition-all ease-in duration-150 hover:border-solid border-[1px] border-primary rounded hover:shadow-md cursor-pointer p-2 mb-2`}>
 									<div className="flex flex-row justify-between items-center gap-2 mb-1">
 										<span>
 											{transportadora.transp_nome}
@@ -572,9 +572,10 @@ function SideComponent() {
 											Prazo de entrega
 										</span>
 										<h2 className="text-sm">
-											{product.daysShipping +
-												transportadora.prazoEnt}{" "}
-											dias
+											{`${
+												product.daysShipping +
+												transportadora.prazoEnt
+											} dias`}
 										</h2>
 									</div>
 								</div>

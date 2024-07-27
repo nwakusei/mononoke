@@ -139,12 +139,12 @@ function MyOrderByIDPage() {
 	}
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="flex flex-col bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="flex flex-col col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				{/* Gadget 1 */}
-				<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
-					<div className="flex flex-col">
+				<div className="flex flex-row justify-between items-center gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md mt-4 mr-4">
+					<div className="flex flex-col text-black">
 						<h1 className="text-lg">
 							ID do Pedido: {myorder.orderID}
 						</h1>
@@ -168,10 +168,10 @@ function MyOrderByIDPage() {
 
 				<div className="flex flex-row w-[1200px]">
 					{/* Gadget 2 */}
-					<div className="bg-purple-400 w-[900px] p-6 rounded-md mt-4 mr-4">
+					<div className="bg-white w-[900px] p-6 rounded-md shadow-md mt-4 mr-4">
 						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<h1 className="text-2xl font-semibold">
+							<h1 className="text-2xl font-semibold text-black">
 								Detalhes do Pedido
 							</h1>
 
@@ -181,13 +181,19 @@ function MyOrderByIDPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-sm">Produto</th>
+											<th className="text-sm text-black">
+												Produto
+											</th>
 
-											<th className="text-sm">Valor</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
+												Valor
+											</th>
+											<th className="text-sm text-black">
 												Quantidade
 											</th>
-											<th className="text-sm">Total</th>
+											<th className="text-sm text-black">
+												Total
+											</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -217,7 +223,7 @@ function MyOrderByIDPage() {
 																	</div>
 																</div>
 																<div>
-																	<div className="font-bold">
+																	<div className="font-bold text-black">
 																		<h2 className="w-[230px] overflow-x-hidden mb-2">
 																			{
 																				item.productName
@@ -229,7 +235,7 @@ function MyOrderByIDPage() {
 														</td>
 
 														<td>
-															<div>
+															<div className="text-black">
 																{item.productPrice.toLocaleString(
 																	"pt-BR",
 																	{
@@ -241,25 +247,24 @@ function MyOrderByIDPage() {
 															</div>
 														</td>
 														<td>
-															<div>
-																{
-																	item.productQuantity
-																}{" "}
-																un
+															<div className="text-black">
+																{`${item.productQuantity} un`}
 															</div>
 														</td>
 														<td className="w-[200px] overflow-x-auto">
-															{(
-																item.productQuantity *
-																item.productPrice
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}
+															<div className="text-black">
+																{(
+																	item.productQuantity *
+																	item.productPrice
+																).toLocaleString(
+																	"pt-BR",
+																	{
+																		style: "currency",
+																		currency:
+																			"BRL",
+																	}
+																)}
+															</div>
 														</td>
 													</tr>
 												)
@@ -272,19 +277,19 @@ function MyOrderByIDPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Subtotal
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Subtotal Frete
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Desconto
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Total do Pedido
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Otaku Points a receber
 											</th>
 										</tr>
@@ -299,7 +304,7 @@ function MyOrderByIDPage() {
 												) &&
 													myorder.itemsList.length >
 														0 && (
-														<div>
+														<div className="text-black">
 															{myorder.itemsList
 																.reduce(
 																	(
@@ -323,7 +328,7 @@ function MyOrderByIDPage() {
 													)}
 											</td>
 											<td>
-												<div>
+												<div className="text-black">
 													{myorder.shippingCostTotal >
 													0
 														? myorder.shippingCostTotal.toLocaleString(
@@ -339,54 +344,56 @@ function MyOrderByIDPage() {
 											</td>
 
 											<td>
-												{Array.isArray(
-													myorder.itemsList
-												) &&
-													myorder.itemsList.length >
-														0 && (
-														<div>
-															{(() => {
-																const productTotal =
-																	myorder.itemsList.reduce(
-																		(
-																			total,
-																			item
-																		) =>
-																			total +
-																			item.productPrice *
-																				item.productQuantity,
+												<div className="text-black">
+													{Array.isArray(
+														myorder.itemsList
+													) &&
+														myorder.itemsList
+															.length > 0 && (
+															<div>
+																{(() => {
+																	const productTotal =
+																		myorder.itemsList.reduce(
+																			(
+																				total,
+																				item
+																			) =>
+																				total +
+																				item.productPrice *
+																					item.productQuantity,
+																			0
+																		);
+																	const totalWithShipping =
+																		productTotal +
+																		myorder.shippingCostTotal;
+																	const discount =
+																		totalWithShipping -
+																		myorder.customerOrderCostTotal;
+
+																	// Formata o desconto para o formato de moeda brasileira (BRL)
+																	const formattedDiscount =
+																		discount.toLocaleString(
+																			"pt-BR",
+																			{
+																				style: "currency",
+																				currency:
+																					"BRL",
+																			}
+																		);
+
+																	// Adiciona o sinal de menos diretamente ao valor do desconto se necessário
+																	return discount >
 																		0
-																	);
-																const totalWithShipping =
-																	productTotal +
-																	myorder.shippingCostTotal;
-																const discount =
-																	totalWithShipping -
-																	myorder.customerOrderCostTotal;
-
-																// Formata o desconto para o formato de moeda brasileira (BRL)
-																const formattedDiscount =
-																	discount.toLocaleString(
-																		"pt-BR",
-																		{
-																			style: "currency",
-																			currency:
-																				"BRL",
-																		}
-																	);
-
-																// Adiciona o sinal de menos diretamente ao valor do desconto se necessário
-																return discount >
-																	0
-																	? `- ${formattedDiscount}`
-																	: formattedDiscount;
-															})()}
-														</div>
-													)}
+																		? `- ${formattedDiscount}`
+																		: formattedDiscount;
+																})()}
+															</div>
+														)}
+												</div>
 											</td>
 
 											<td>
-												<div>
+												<div className="text-black">
 													{myorder.customerOrderCostTotal >
 														0 &&
 														myorder.customerOrderCostTotal.toLocaleString(
@@ -400,11 +407,10 @@ function MyOrderByIDPage() {
 											</td>
 
 											<td>
-												<div>
-													{decrypt(
+												<div className="text-black">
+													{`${decrypt(
 														myorder.customerOtakuPointsEarned
-													)?.toLocaleString()}{" "}
-													OP
+													)?.toLocaleString()} OP`}
 												</div>
 											</td>
 										</tr>
@@ -412,15 +418,19 @@ function MyOrderByIDPage() {
 								</table>
 							</div>
 							<div>
-								<h1 className="text-xl">Método de Pagamento</h1>
-								<div>{myorder.paymentMethod}</div>
+								<h1 className="text-xl text-black">
+									Método de Pagamento
+								</h1>
+								<div className="text-black">
+									{myorder.paymentMethod}
+								</div>
 							</div>
 						</div>
 					</div>
 
 					<div className="flex flex-col">
 						{/* Gadget 3 */}
-						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
+						<div className="bg-white text-black w-[325px] p-6 rounded-md shadow-md mt-4">
 							<h1 className="text-lg">
 								Loja: {myorder.partnerName}
 							</h1>
@@ -438,8 +448,8 @@ function MyOrderByIDPage() {
 						</div>
 
 						{/* Gadget 4 */}
-						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
-							<div className="mb-4">
+						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4">
+							<div className="mb-4 text-black">
 								<h1>Tranportadora: {myorder.shippingMethod}</h1>
 								{myorder.shippingCostTotal ? (
 									<h2>
@@ -474,8 +484,8 @@ function MyOrderByIDPage() {
 				</div>
 
 				{/* Rastreio do Pedido */}
-				<div className="flex flex-col justify-center items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
-					<h1 className="text-xl font-semibold">
+				<div className="flex flex-col justify-center items-center gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md mt-4 mr-4">
+					<h1 className="text-xl font-semibold text-black">
 						Acompanhe seu pedido
 					</h1>
 					{/* <h2>
@@ -494,10 +504,10 @@ function MyOrderByIDPage() {
 										data-content="✓"
 										className="step step-primary h-[180px]">
 										<div className="flex flex-col gap-1">
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												Pedido Realizado
 											</span>
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												{format(
 													new Date(myorder.createdAt),
 													"dd/MM - HH:mm"
@@ -505,7 +515,7 @@ function MyOrderByIDPage() {
 												hs
 											</span>
 
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+											<span className="bg-primary py-1 px-2 rounded shadow-md">
 												Pagamento Pendente
 											</span>
 										</div>
@@ -523,10 +533,10 @@ function MyOrderByIDPage() {
 										data-content="✓"
 										className="step step-primary h-[180px]">
 										<div className="flex flex-col gap-1">
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												Pagamento Confirmado
 											</span>
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												{format(
 													new Date(myorder.createdAt),
 													"dd/MM - HH:mm"
@@ -534,7 +544,7 @@ function MyOrderByIDPage() {
 												hs
 											</span>
 
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+											<span className="bg-primary py-1 px-2 rounded shadow-md">
 												A loja começará a preparar seu
 												pedido
 											</span>
@@ -550,14 +560,14 @@ function MyOrderByIDPage() {
 										data-content="✓"
 										className="step step-primary h-[180px]">
 										<div className="flex flex-col gap-1">
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												Embalado
 											</span>
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												10/04 - 16:00 hs
 											</span>
 
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+											<span className="bg-primary py-1 px-2 rounded shadow-md">
 												Seu pedido será enviado em breve
 											</span>
 										</div>
@@ -585,10 +595,10 @@ function MyOrderByIDPage() {
 									data-content="✓"
 									className="step step-primary h-[180px]">
 									<div className="flex flex-col gap-1">
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											Pedido Realizado
 										</span>
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											{format(
 												new Date(myorder.createdAt),
 												"dd/MM - HH:mm"
@@ -596,7 +606,7 @@ function MyOrderByIDPage() {
 											hs
 										</span>
 
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										<span className="bg-primary py-1 px-2 rounded shadow-md">
 											Pagamento Pendente
 										</span>
 									</div>
@@ -614,10 +624,10 @@ function MyOrderByIDPage() {
 									data-content="✓"
 									className="step step-primary h-[180px]">
 									<div className="flex flex-col gap-1">
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											Pagamento Confirmado
 										</span>
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											{format(
 												new Date(myorder.createdAt),
 												"dd/MM - HH:mm"
@@ -625,7 +635,7 @@ function MyOrderByIDPage() {
 											hs
 										</span>
 
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										<span className="bg-primary py-1 px-2 rounded shadow-md">
 											A loja começará a preparar seu
 											pedido
 										</span>
@@ -641,14 +651,14 @@ function MyOrderByIDPage() {
 									data-content="✓"
 									className="step step-primary h-[180px]">
 									<div className="flex flex-col gap-1">
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											Embalado
 										</span>
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											10/04 - 16:00 hs
 										</span>
 
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										<span className="bg-primary py-1 px-2 rounded shadow-md">
 											Seu pedido será enviado em breve
 										</span>
 									</div>
@@ -682,17 +692,17 @@ function MyOrderByIDPage() {
 											data-content="✓"
 											className="step step-primary h-[180px]">
 											<div className="flex flex-col gap-1">
-												<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 													{item.ocorrencia}
 												</span>
-												<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 													{format(
 														new Date(item.dataHora),
 														"dd/MM - HH:mm"
 													)}{" "}
 													hs
 												</span>
-												<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+												<span className="bg-primary py-1 px-2 rounded shadow-md">
 													{item.observacao}
 												</span>
 											</div>
@@ -706,10 +716,10 @@ function MyOrderByIDPage() {
 											data-content="✓"
 											className="step step-primary">
 											<div className="flex flex-col gap-1">
-												<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 													Concluído
 												</span>
-												<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 													{format(
 														new Date(
 															myorder.updatedAt
@@ -718,7 +728,7 @@ function MyOrderByIDPage() {
 													)}{" "}
 													hs
 												</span>
-												<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+												<span className="bg-primary py-1 px-2 rounded shadow-md">
 													Pedido finalizado
 												</span>
 											</div>
@@ -749,10 +759,10 @@ function MyOrderByIDPage() {
 									data-content="✓"
 									className="step step-primary h-[180px]">
 									<div className="flex flex-col gap-1">
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											Pedido Realizado
 										</span>
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											{format(
 												new Date(myorder.createdAt),
 												"dd/MM - HH:mm"
@@ -760,7 +770,7 @@ function MyOrderByIDPage() {
 											hs
 										</span>
 
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										<span className="bg-primary py-1 px-2 rounded shadow-md">
 											Pagamento Pendente
 										</span>
 									</div>
@@ -778,10 +788,10 @@ function MyOrderByIDPage() {
 									data-content="✓"
 									className="step step-primary h-[180px]">
 									<div className="flex flex-col gap-1">
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											Pagamento Confirmado
 										</span>
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											{format(
 												new Date(myorder.createdAt),
 												"dd/MM - HH:mm"
@@ -789,7 +799,7 @@ function MyOrderByIDPage() {
 											hs
 										</span>
 
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										<span className="bg-primary py-1 px-2 rounded shadow-md">
 											A loja começará a preparar seu
 											pedido
 										</span>
@@ -805,14 +815,14 @@ function MyOrderByIDPage() {
 									data-content="✓"
 									className="step step-primary h-[180px]">
 									<div className="flex flex-col gap-1">
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											Embalado
 										</span>
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											10/04 - 16:00 hs
 										</span>
 
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										<span className="bg-primary py-1 px-2 rounded shadow-md">
 											Seu pedido será enviado em breve
 										</span>
 									</div>
@@ -830,10 +840,10 @@ function MyOrderByIDPage() {
 										data-content="✓"
 										className="step step-primary h-[180px]">
 										<div className="flex flex-col gap-1">
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												{item.status}
 											</span>
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												{`${format(
 													new Date(
 														convertDate(item.date)
@@ -842,7 +852,7 @@ function MyOrderByIDPage() {
 												)} - ${item.hour}`}{" "}
 												hs
 											</span>
-											<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+											<span className="bg-primary py-1 px-2 rounded shadow-md">
 												{item.local}
 											</span>
 										</div>
@@ -855,10 +865,10 @@ function MyOrderByIDPage() {
 									data-content="✓"
 									className="step step-primary">
 									<div className="flex flex-col gap-1">
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											Concluído
 										</span>
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md mb-2">
+										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											{myorder.updatedAt}
 											{/* {format(
 													new Date(myorder.updatedAt),
@@ -866,7 +876,7 @@ function MyOrderByIDPage() {
 												)}{" "}
 												hs */}
 										</span>
-										<span className="bg-purple-500 py-1 px-2 rounded shadow-md">
+										<span className="bg-primary py-1 px-2 rounded shadow-md">
 											Pedido finalizado
 										</span>
 									</div>
