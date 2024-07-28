@@ -211,7 +211,7 @@ function Navbar() {
 										</div>
 										<ul
 											tabIndex={0}
-											className="menu menu-sm dropdown-content mt-4 z-[99] p-2 shadow bg-base-100 rounded-box w-52">
+											className="menu menu-sm dropdown-content mt-[23px] z-[99] p-2 shadow-md bg-primary rounded-box w-52">
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
@@ -220,7 +220,7 @@ function Navbar() {
 														/>
 														OtaClub
 													</span>
-													<span className="badge border border-white">
+													<span className="badge badge-secondary border border-white">
 														New
 													</span>
 												</a>
@@ -231,7 +231,7 @@ function Navbar() {
 														<Blockchain size={18} />
 														Blockchain
 													</span>
-													<span className="badge border border-white">
+													<span className="badge badge-secondary border border-white">
 														New
 													</span>
 												</a>
@@ -244,7 +244,7 @@ function Navbar() {
 														/>
 														OtaClub 2
 													</span>
-													<span className="badge border border-white">
+													<span className="badge badge-secondary border border-white">
 														New
 													</span>
 												</a>
@@ -257,7 +257,7 @@ function Navbar() {
 														/>
 														Gift Card
 													</span>
-													<span className="badge border border-white">
+													<span className="badge badge-secondary border border-white">
 														New
 													</span>
 												</a>
@@ -272,7 +272,7 @@ function Navbar() {
 														/>
 														<span>Sorteio</span>
 													</span>
-													<span className="badge border border-white">
+													<span className="badge badge-secondary border border-white">
 														New
 													</span>
 												</Link>
@@ -285,7 +285,7 @@ function Navbar() {
 														/>
 														Gashapon
 													</span>
-													<span className="badge border border-white">
+													<span className="badge badge-secondary border border-white">
 														New
 													</span>
 												</a>
@@ -339,7 +339,7 @@ function Navbar() {
 								</div>
 								<div
 									tabIndex={0}
-									className="mt-[16px] z-[2] card card-compact dropdown-content w-52 bg-base-100 shadow">
+									className="mt-[21px] z-[2] card card-compact dropdown-content w-52 bg-primary shadow-md">
 									<div className="card-body">
 										<span className="font-bold text-lg">
 											{cart === 0
@@ -363,7 +363,7 @@ function Navbar() {
 											Excluir
 										</div>
 										<div className="card-actions">
-											<button className="btn btn-primary btn-block">
+											<button className="btn btn-secondary shadow-md btn-block">
 												<Link href="/checkout/cart">
 													Ver Carrinho
 												</Link>
@@ -382,7 +382,7 @@ function Navbar() {
 								</label>
 								<ul
 									tabIndex={0}
-									className="mt-[15px] z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+									className="mt-[20px] z-[1] p-2 shadow-md menu menu-sm dropdown-content bg-primary rounded-box w-52">
 									{/* <li>
 										<Link
 											className="flex flex-row items-center justify-between text-white"
@@ -443,7 +443,7 @@ function Navbar() {
 												d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
 											/>
 										</svg>
-										<span className="badge badge-xs badge-primary indicator-item"></span>
+										<span className="badge badge-xs badge-secondary indicator-item"></span>
 									</div>
 								</button>
 							</div>

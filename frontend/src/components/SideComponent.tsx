@@ -41,7 +41,8 @@ function SideComponent() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 
-	const partnerUFAddress = partner ? partner.address[0].uf : "";
+	const partnerUFAddress =
+		partner && partner.address.length > 0 ? partner.address[0].uf : "";
 	const userUFAddress =
 		user.address && user.address.length > 0 ? user.address[0].uf : "";
 

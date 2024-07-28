@@ -79,9 +79,9 @@ function DeliveryPage() {
 					</ul>
 				</div>
 
-				<div className="flex flex-row justify-center bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 gap-6 mb-8 rounded-md shadow-md">
-					<div>
-						<div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-[650px] min-h-[100px] p-4 my-6 rounded-md shadow-md">
+				<div className="flex flex-row justify-between bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8 p-4 gap-4">
+					<div className="w-full">
+						<div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 mb-4 rounded-md shadow-md">
 							{user.address && user.address.length > 0 ? (
 								user.address.map((end) => (
 									<>
@@ -114,37 +114,39 @@ function DeliveryPage() {
 								</div>
 							)}
 						</div>
-						{Object.entries(transportadoraInfo).map(
-							([key, info]) => (
-								<div
-									key={key}
-									className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-[650px] min-h-[100px] p-4 my-6 rounded-md shadow-md">
-									<div className="flex flex-row gap-4">
-										<LiaShippingFastSolid size={25} />
-										<div>
-											<h1>
-												Transportadora:{" "}
-												{info.transpNome}
-											</h1>
-											<h2>
-												Custo do Frete:{" "}
-												{info.vlrFrete.toLocaleString(
-													"pt-BR",
-													{
-														style: "currency",
-														currency: "BRL",
-													}
-												)}
-											</h2>
-											<h2>Prazo de Envio: 3 dias</h2>
-											<h2>
-												Previsão de Entrega: 10 dias
-											</h2>
+						<div className="flex flex-col gap-4">
+							{Object.entries(transportadoraInfo).map(
+								([key, info]) => (
+									<div
+										key={key}
+										className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
+										<div className="flex flex-row gap-4">
+											<LiaShippingFastSolid size={25} />
+											<div>
+												<h1>
+													Transportadora:{" "}
+													{info.transpNome}
+												</h1>
+												<h2>
+													Custo do Frete:{" "}
+													{info.vlrFrete.toLocaleString(
+														"pt-BR",
+														{
+															style: "currency",
+															currency: "BRL",
+														}
+													)}
+												</h2>
+												<h2>Prazo de Envio: 3 dias</h2>
+												<h2>
+													Previsão de Entrega: 10 dias
+												</h2>
+											</div>
 										</div>
 									</div>
-								</div>
-							)
-						)}
+								)
+							)}
+						</div>
 					</div>
 
 					<div className="flex flex-col">

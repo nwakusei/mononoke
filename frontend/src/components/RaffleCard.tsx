@@ -16,8 +16,8 @@ function RaffleCard({
 	linkRafflePage,
 }) {
 	return (
-		<div className="bg-base-100 w-[254px] flex flex-col rounded-md relative pb-2 shadow-lg">
-			<div className="flex flex-col items-center justify-center h-[220px] mx-3 mt-2 -mb-3">
+		<div className="bg-white w-[254px] flex flex-col rounded-md relative pb-2 shadow-md text-black">
+			<div className="flex flex-col items-center justify-center h-[220px] mx-3 mt-2 -mb-3 pointer-events-none">
 				<Image
 					className="object-contain w-full h-full"
 					src={raffleImage}
@@ -28,7 +28,7 @@ function RaffleCard({
 				/>
 			</div>
 			<div className="divider text-sm mx-2">Detalhes</div>
-			<div className="flex flex-col justify-center mx-4 -mt-2">
+			<div className="flex flex-col justify-center mx-4 -mt-2 select-none">
 				<div>
 					<div className="flex flex-row gap-2">
 						<div className="font-semibold text-base line-clamp-2 whitespace-normal min-h-[48px] mb-2">

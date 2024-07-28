@@ -35,9 +35,9 @@ function CheckoutCreditCardInstallmentsContent({
 	const customization = {
 		visual: {
 			style: {
-				theme: "dark", // | 'dark' | 'bootstrap' | 'flat'
+				theme: "flat", // | 'dark' | 'bootstrap' | 'flat'
 				customVariables: {
-					baseColor: "#3C1A7D",
+					baseColor: "#6633cc",
 					buttonTextColor: "#fff",
 					borderRadiusSmall: "4px", // Border Radius das Bandeiras
 					borderRadiusMedium: "8px", // Border Radius dos Inputs/Campos e do Button
@@ -46,7 +46,7 @@ function CheckoutCreditCardInstallmentsContent({
 			},
 			texts: {
 				formTitle: "Bandeiras aceitas",
-				emailSectionTitle: "",
+				emailSectionTitle: "Preencha seu e-mail",
 				installmentsSectionTitle: "",
 				cardholderName: {
 					label: "",
@@ -191,11 +191,11 @@ function CheckoutCreditCardInstallmentsContent({
 	}, []); // Certifique-se de executar este efeito apenas uma vez
 
 	return (
-		<div id="paymentBrick_container">
-			<div className="flex flex-row justify-center items-center w-[650px] bg-primary px-2 py-1 gap-1 rounded shadow-md mt-4 mb-8">
-				<h1 className="select-none">
-					Pague com Cartão de Crédito Parcelado
-				</h1>
+		<div
+			id="paymentBrick_container"
+			className="border-[1px] border-black border-opacity-20 bg-white rounded-md shadow-md p-4">
+			<div className="flex flex-row justify-center items-center w-[650px] bg-primary px-2 py-1 gap-2 rounded shadow-md mt-4 mb-4">
+				<h1 className="select-none">Pague com Cartão de Crédito</h1>
 				<PiCreditCardBold size={17} />
 			</div>
 			<CardPayment

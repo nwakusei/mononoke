@@ -653,8 +653,8 @@ function CartPage() {
 					</ul>
 				</div>
 
-				<div className="flex flex-row justify-center bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 gap-6 mb-8 rounded-md shadow-md">
-					<div className="flex flex-col items-center">
+				<div className="flex flex-row justify-between bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8 p-4 gap-4">
+					<div className="flex flex-col items-center gap-4">
 						{transportadoraInfo && productsInCart.length > 0 ? (
 							Object.values(
 								productsInCart.reduce((acc, product) => {
@@ -668,12 +668,12 @@ function CartPage() {
 							).map((partnerProducts) => (
 								<div
 									key={partnerProducts[0].partnerID}
-									className="flex flex-col border-[1px] border-black border-opacity-20 bg-white rounded-md shadow-md gap-2 p-2 my-6">
+									className="flex flex-col border-[1px] border-black border-opacity-20 bg-white rounded-md shadow-md p-2 gap-2 w-full">
 									{partnerProducts.map(
 										(productInCart, index) => (
 											<div
 												key={productInCart.productID}
-												className={`flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[650px] min-h-[100px] p-4 rounded-md shadow-md ${
+												className={`flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[672px] min-h-[100px] p-4 rounded-md shadow-md ${
 													index <
 													partnerProducts.length - 1
 														? "mb-2"

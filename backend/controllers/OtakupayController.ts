@@ -192,7 +192,8 @@ class OtakupayController {
 
 		if (!token || !customer || customer.accountType !== "customer") {
 			res.status(422).json({
-				message: "Usuário sem permissão para realizar pagamento!",
+				message:
+					"Usuário sem permissão para realizar este tipo de transação!",
 			});
 			return;
 		}
@@ -1343,7 +1344,8 @@ class OtakupayController {
 
 		if (!token || !customer || customer.accountType !== "customer") {
 			res.status(422).json({
-				message: "Usuário sem permissão para realizar pagamento!",
+				message:
+					"Usuário sem permissão para realizar este tipo de transação!",
 			});
 			return;
 		}
@@ -2382,7 +2384,22 @@ class OtakupayController {
 
 		const { access_token } = responseToken.data;
 
+		if (customer.accountType !== "customer") {
+			res.status(422).json({
+				message:
+					"Usuário sem autorização para realizar este tipo de transação!",
+			});
+			return;
+		}
+
 		const customerCPF = customer.cpf.toString().replace(/\D/g, "");
+
+		if (!customerCPF) {
+			res.status(422).json({
+				message: "O CPF não está no formato desejado!",
+			});
+			return;
+		}
 
 		try {
 			const { originalValue } = req.body;
@@ -2677,7 +2694,7 @@ class OtakupayController {
 								) {
 									res.status(422).json({
 										message:
-											"Usuário sem permissão para realizar pagamento!",
+											"Usuário sem permissão para realizar este tipo de transação!",
 									});
 									return;
 								}

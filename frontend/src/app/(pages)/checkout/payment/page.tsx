@@ -47,7 +47,7 @@ function PaymentPage() {
 	const [productsInCart, setProductsInCart] = useState([]);
 	const router = useRouter();
 	const [visiblePaymentContent, setVisiblePaymentContent] = useState(null);
-	const [stripePromise, setStripePromise] = useState(null);
+	// const [stripePromise, setStripePromise] = useState(null);
 	const [clientSecret, setClientSecret] = useState("");
 
 	const [totalPedido, setTotalPedido] = useState(0);
@@ -149,20 +149,20 @@ function PaymentPage() {
 		calcularTotalPedido();
 	}, [productsInCart, transportadoraInfo]);
 
-	useEffect(() => {
-		const fetchStripeConfig = async () => {
-			try {
-				const response = await api.get("/otakupay/send-public-key");
-				const publishableKeyStripe = await loadStripe(
-					response.data.publishableKey
-				);
-				setStripePromise(publishableKeyStripe);
-			} catch (error) {
-				console.log(error);
-			}
-		};
-		fetchStripeConfig();
-	}, []);
+	// useEffect(() => {
+	// 	const fetchStripeConfig = async () => {
+	// 		try {
+	// 			const response = await api.get("/otakupay/send-public-key");
+	// 			const publishableKeyStripe = await loadStripe(
+	// 				response.data.publishableKey
+	// 			);
+	// 			setStripePromise(publishableKeyStripe);
+	// 		} catch (error) {
+	// 			console.log(error);
+	// 		}
+	// 	};
+	// 	fetchStripeConfig();
+	// }, []);
 
 	useEffect(() => {
 		const fetchPaymentIntent = async () => {
@@ -252,37 +252,38 @@ function PaymentPage() {
 	};
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen mx-4">
-			<div className="bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4">
-				<div className="flex flex-col justify-center mb-8">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
+			<div className="col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4">
+				<div className="flex flex-col justify-center mb-4">
 					<ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
 						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
 								<p>Carrinho</p> <ShoppingCartOne size={18} />
 							</span>
 						</li>
 						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
 								<p>Entrega</p>
 								<LiaShippingFastSolid size={18} />
 							</span>
 						</li>
 						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
 								<p>Revisão</p> <BiIdCard size={20} />
 							</span>
 						</li>
 						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-purple-500 py-1 px-2 rounded">
+							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
 								<p>Pagamento</p>
 								<PiCreditCardBold size={20} />
 							</span>
 						</li>
 					</ul>
 				</div>
-				<div className="flex flex-row justify-center gap-6 bg-yellow-500 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
+
+				<div className="flex flex-row justify-between bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8 p-4">
 					<div className="flex flex-col items-center">
-						<div className="flex flex-row justify-between gap-4 bg-purple-500 w-[650px] min-h-[60px] p-4 rounded-md shadow mb-4">
+						<div className="flex flex-row justify-between gap-4 bg-primary w-full min-h-[60px] p-4 mb-4 rounded-md shadow-md select-none">
 							<div className="flex flex-row gap-4">
 								<IoWalletOutline size={25} />
 								<div>
@@ -291,8 +292,8 @@ function PaymentPage() {
 							</div>
 						</div>
 
-						<div className="flex flex-col justify-between gap-4 bg-gray-500 w-[650px] min-h-[100px] p-4 rounded-md mb-4">
-							<div className="flex flex-row gap-4">
+						<div className="flex flex-col justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-[690px] min-h-[100px] p-4 rounded-md shadow-md">
+							<div className="flex flex-row gap-4 text-black">
 								<div>
 									<h1 className="text-lg">
 										Escolha a forma de pagamento
@@ -302,19 +303,19 @@ function PaymentPage() {
 							<div className="flex flex-row items-center gap-4">
 								<button
 									onClick={showBalancePaymentContent}
-									className="flex flex-row justify-center items-center gap-2 bg-purple-500 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+									className="flex flex-row justify-center items-center gap-2 bg-secondary w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96] select-none">
 									<PaymentMethod size={20} />
 									Saldo em Conta
 								</button>
 								<button
 									onClick={showCreditCardContent}
-									className="flex flex-row justify-center items-center gap-2 bg-purple-500 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+									className="flex flex-row justify-center items-center gap-2 bg-secondary w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96] select-none">
 									<PiCreditCardBold size={20} />
 									Cartão de Crédito
 								</button>
 								<button
 									onClick={showPixPaymentContent}
-									className="flex flex-row justify-center items-center gap-2 bg-purple-500 w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96]">
+									className="flex flex-row justify-center items-center gap-2 bg-secondary w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96] select-none">
 									<MdOutlinePix size={20} />
 									Pix
 								</button>
@@ -322,8 +323,7 @@ function PaymentPage() {
 						</div>
 						<div className="flex flex-col justify-between gap-4 w-[650px] min-h-[100px] p-4 mb-4">
 							<div className="flex flex-col justify-center items-center gap-4 mb-8">
-								{stripePromise &&
-									clientSecret &&
+								{clientSecret &&
 									visiblePaymentContent ===
 										"creditCardContent" && (
 										<CheckoutCreditCardInstallmentsContent

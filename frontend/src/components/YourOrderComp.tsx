@@ -396,9 +396,9 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 		<>
 			{productsInfo.length > 0 && (
 				<div>
-					<div className="text-black flex flex-col w-[400px] min-h-[250px] border-[1px] border-black border-opacity-20 bg-white p-4 rounded-md shadow-md my-6">
+					<div className="text-black flex flex-col w-[400px] min-h-[250px] border-[1px] border-black border-opacity-20 bg-white p-4 rounded-md shadow-md">
 						<div>
-							<h1 className="text-lg font-semibold mb-4">
+							<h1 className="text-lg font-semibold mb-6">
 								Seu Pedido
 							</h1>
 							{productsInfo.map((productInCart) => (
@@ -480,6 +480,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 								</h2>
 							</div>
 						</div>
+
 						<div className="divider"></div>
 						<div className="">
 							<div className="flex justify-between mb-2">
@@ -499,12 +500,12 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 						{couponApplied ? (
 							<></>
 						) : (
-							<>
-								<div className="flex flex-col w-[260px]">
+							<div className="flex flex-row gap-2 mt-4">
+								<div className="w-[260px] ">
 									<input
 										type="text"
 										placeholder="Insira o código do Cupom"
-										className="input input-bordered w-full mb-2"
+										className="input input-bordered w-full"
 										value={couponCode}
 										onChange={(e) =>
 											setCouponCode(e.target.value)
@@ -516,7 +517,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 									onClick={aplicarCupom}>
 									Aplicar <Coupon size={20} />
 								</button>
-							</>
+							</div>
 						)}
 					</label>
 				</div>

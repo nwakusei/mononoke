@@ -79,12 +79,12 @@ function RafflePage() {
 	}
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 mx-4 mt-4">
-			<div className="flex flex-col bg-yellow-500 gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
+			<div className="bg-white rounded-md shadow-md p-4 flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
 				<div className="flex flex-row gap-8">
 					{/* Componente de Imagem Principal */}
 					<div className="flex flex-col">
-						<div className="bg-base-100 w-[402px] rounded-md relative shadow-lg mb-2">
+						<div className="border-[1px] border-black border-opacity-20 bg-white w-[402px] rounded-md relative shadow-lg mb-2">
 							<div className="h-[402px] flex items-center justify-center mx-3 my-2">
 								{raffle.imagesRaffle &&
 									raffle.imagesRaffle.length > 0 && (
@@ -104,7 +104,7 @@ function RafflePage() {
 							{raffle.imagesRaffle &&
 								raffle.imagesRaffle.length > 0 &&
 								raffle.imagesRaffle.map((image, id) => (
-									<div className="bg-base-100 w-[74px] rounded relative shadow-lg">
+									<div className="border-[1px] border-black border-opacity-20 bg-white w-[74px] rounded relative shadow-md">
 										<div
 											key={id}
 											className="h-[74px] flex items-center justify-center">
@@ -148,8 +148,8 @@ function RafflePage() {
 					</div>
 
 					{/* Componente intermediário */}
-					<div className="flex flex-col w-[700px]">
-						<div className="w-full bg-primary text-center text-lg py-1 mb-4 rounded-md">
+					<div className="flex flex-col w-[700px] text-black">
+						<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md">
 							Detalhes do Sorteio
 						</div>
 						<h1 className="text-xl font-semibold mb-4">
@@ -228,13 +228,13 @@ function RafflePage() {
 			</div>
 
 			{/* Descrição do produto*/}
-			<div className="bg-yellow-500 gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
+			<div className="bg-white rounded-b-md shadow-md gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 				{/* Descrição e Detalhes*/}
 				<div className="flex flex-col justify-center items-center">
-					<div className="w-full bg-primary text-center text-xl py-2 rounded-md shadow-md select-none">
+					<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
 						Vencedor do Sorteio
 					</div>
-					<p className="my-2">
+					<p className="my-2 text-black">
 						Este sorteio ainda não foi realizado!
 					</p>
 				</div>
