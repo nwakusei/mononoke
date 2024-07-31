@@ -48,9 +48,15 @@ function LoginPage() {
 	}
 
 	return (
-		<section className="flex min-h-screen flex-col items-center justify-center p-24">
-			<div className="flex flex-col items-center justify-center bg-gray-500 w-[500px] h-[550px] rounded-md m-4">
-				<Image src={Logo} width={60} alt="logo" unoptimized />
+		<section className="bg-gray-300 flex min-h-screen flex-col items-center justify-center p-24">
+			<div className="flex flex-col items-center justify-center bg-primary w-[500px] h-[550px] rounded-md shadow-md m-4">
+				<Image
+					className="pointer-events-none select-none"
+					src={Logo}
+					width={200}
+					alt="logo"
+					unoptimized
+				/>
 				<h1 className="text-center text-2xl mt-2 mb-4">Login</h1>
 				<form onSubmit={handleSubmit(signinUser)}>
 					<InputUserForm
@@ -72,7 +78,7 @@ function LoginPage() {
 
 					<button
 						type="submit"
-						className="btn btn-primary w-[320px] mt-4">
+						className="btn btn-secondary w-[320px] mt-4 select-none shadow-md">
 						Entrar
 					</button>
 				</form>

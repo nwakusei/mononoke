@@ -52,13 +52,15 @@ function CoupomPage() {
 								<CouponCard
 									key={coupon._id}
 									partnerLogo={
-										partner.logoImage
+										partner?.logoImage
 											? partner.logoImage
 											: Otakuyasan
 									}
-									siteLink={partner ? partner.site : null}
+									siteLink={partner ? partner?.site : null}
 									discount={coupon.discountPercentage}
-									cashback={partner ? partner.cashback : null}
+									cashback={
+										partner ? partner?.cashback : null
+									}
 									coupon={coupon.couponCode}
 								/>
 							);

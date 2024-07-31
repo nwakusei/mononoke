@@ -60,7 +60,7 @@ function CheckoutBalanceContent({ products, shippingCost, coupons, token }) {
 
 			Swal.fire({
 				title: "Pagamento Realizado com Sucesso!",
-				width: 700,
+				width: 800,
 				text: "Agora é só aguardar o envio o/",
 				icon: "success",
 			});

@@ -98,7 +98,7 @@ function CheckoutCreditCardInstallmentsContent({
 
 			if (response.status === 201) {
 				// Se o pagamento foi criado com sucesso, exibe a mensagem para o usuário
-				const webhookResponse = await api.post(
+				const response = await api.post(
 					"/otakupay/finish-payment-creditcard-MP",
 					JSON.stringify({ products, shippingCost, coupons }),
 					{
@@ -118,7 +118,7 @@ function CheckoutCreditCardInstallmentsContent({
 
 				Swal.fire({
 					title: "Pagamento Realizado com Sucesso!",
-					width: 700,
+					width: 900,
 					icon: "success",
 				});
 
@@ -134,14 +134,14 @@ function CheckoutCreditCardInstallmentsContent({
 
 				Swal.fire({
 					title: "Pagamento em processamento!",
-					width: 700,
+					width: 900,
 					icon: "info",
 				});
 			}
-		} catch (error) {
+		} catch (error: any) {
 			Swal.fire({
-				title: "Pagamento não aprovado!",
-				width: 700,
+				title: error.response.data.message,
+				width: 900,
 				icon: "error",
 			});
 		}

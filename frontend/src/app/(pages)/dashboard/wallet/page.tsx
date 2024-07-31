@@ -11,7 +11,8 @@ import { Sidebar } from "@/components/Sidebar";
 import Otakuyasan from "../../../../../public/otakuyasan.png";
 
 // Icons
-import { Deposit } from "@icon-park/react";
+import { Deposit, Wallet } from "@icon-park/react";
+import { AiOutlineMoneyCollect } from "react-icons/ai";
 
 function WalletPage() {
 	const [user, setUser] = useState({});
@@ -49,10 +50,9 @@ function WalletPage() {
 				<div className="flex flex-row gap-4 mb-4">
 					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md">
 						{/* Avatar e Boas vindas */}
-						<div className="flex flex-row items-center gap-4 text-lg font-semibold ml-6 mb-6">
-							<h1 className="text-2xl text-black">
-								OtakuPay Wallet
-							</h1>
+						<div className="flex flex-row items-center gap-4 text-lg text-black font-semibold ml-6 mb-6">
+							<h1 className="text-2xl">OtakuPay Wallet</h1>
+							<Wallet size={24} />
 						</div>
 					</div>
 				</div>
@@ -78,8 +78,9 @@ function WalletPage() {
 								</div>
 								<div className="flex flex-col mx-6 gap-4">
 									<Link href="/dashboard/wallet/add-balance">
-										<button className="flex flex-row btn btn-outline btn-primary text-black w-[200px]">
-											<Deposit size={18} />
+										<button className="flex flex-row items-center btn btn-outline btn-primary text-black w-[200px] hover:shadow-md">
+											<AiOutlineMoneyCollect size={22} />
+											{/* <Deposit size={18} /> */}
 											Adicionar Crédito
 										</button>
 									</Link>
@@ -238,7 +239,7 @@ function WalletPage() {
 									</div>
 								</td>
 								<th>
-									<button className="btn btn-ghost btn-xs text-black">
+									<button className="btn btn-primary hover:btn-secondary btn-xs text-white shadow-md">
 										+ detalhes
 									</button>
 								</th>
@@ -284,7 +285,7 @@ function WalletPage() {
 									</div>
 								</td>
 								<th>
-									<button className="btn btn-ghost btn-xs text-black">
+									<button className="btn btn-primary hover:btn-secondary btn-xs text-white shadow-md">
 										+ detalhes
 									</button>
 								</th>

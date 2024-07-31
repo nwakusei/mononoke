@@ -176,7 +176,7 @@ function AddBalance() {
 								<h2 className="mb-2 text-black">
 									Escaneie o QR Code
 								</h2>
-								<div className="flex flex-col justify-center items-center bg-blue-500 w-[210px] h-[210px] rounded shadow-md">
+								<div className="flex flex-col justify-center items-center bg-primary w-[210px] h-[210px] rounded shadow-md">
 									<Image
 										className="p-2 pointer-events-none"
 										src={qrCodeUrl}
@@ -187,7 +187,7 @@ function AddBalance() {
 									/>
 								</div>
 							</div>
-							<div className="divider divider-horizontal divider-success text-black">
+							<div className="divider divider-horizontal before:bg-gray-900 after:bg-gray-900 text-black">
 								OU
 							</div>
 							<div className="relative">
@@ -196,7 +196,7 @@ function AddBalance() {
 								</h1>
 								<div
 									onClick={copyPixCode}
-									className="bg-blue-500 w-[480px] h-[120px] overflow-hidden break-words select-none p-2 rounded-md shadow-md cursor-pointer transition-all ease-in duration-200 active:scale-[.97]">
+									className="bg-primary w-[480px] h-[120px] overflow-hidden break-words select-none p-2 rounded-md shadow-md cursor-pointer transition-all ease-in duration-200 active:scale-[.97]">
 									{pixCode}
 								</div>
 							</div>
@@ -207,20 +207,20 @@ function AddBalance() {
 								<h2 className="mb-2 text-black">
 									Escaneie o QR Code
 								</h2>
-								<div className="flex justify-center items-center border border-1 border-dashed border-green-500 w-[210px] h-[210px] rounded">
+								<div className="flex justify-center items-center border border-1 border-dashed border-primary w-[210px] h-[210px] rounded">
 									<h2 className="mb-2 text-black">
 										Nenhum QR Code gerado
 									</h2>
 								</div>
 							</div>
-							<div className="divider divider-horizontal text-black">
+							<div className="divider divider-horizontal before:bg-gray-900 after:bg-gray-900 text-black">
 								OU
 							</div>
 							<div className="relative">
 								<h1 className="mb-2 text-black">
 									Pix Copia e Cola
 								</h1>
-								<div className="flex justify-center items-center border border-1 border-dashed border-green-500 w-[480px] h-[120px] overflow-hidden break-words p-2 rounded">
+								<div className="flex justify-center items-center border border-1 border-dashed border-primary w-[480px] h-[120px] overflow-hidden break-words p-2 rounded">
 									<h2 className="mb-2 text-black">
 										Nenhum código Pix gerado
 									</h2>

@@ -109,7 +109,7 @@ function DeliveryPage() {
 							) : (
 								<div>
 									<h1 className="text-base font-semibold mb-2">
-										Nenhum endereço disponpivel
+										Nenhum endereço disponível
 									</h1>
 								</div>
 							)}

@@ -146,12 +146,12 @@ function MyOrderByIDPage() {
 				<div className="flex flex-row justify-between items-center gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md mt-4 mr-4">
 					<div className="flex flex-col text-black">
 						<h1 className="text-lg">
-							ID do Pedido: {myorder.orderID}
+							ID do Pedido: {myorder?.orderID}
 						</h1>
 						<h2>Data do Pagamento: {dateCreatedOrder}</h2>
 					</div>
 					<div className="flex flex-row gap-4">
-						{myorder.statusShipping === "Enviado" ? (
+						{myorder?.statusShipping === "Enviado" ? (
 							<></>
 						) : (
 							<>
@@ -198,9 +198,9 @@ function MyOrderByIDPage() {
 									</thead>
 									<tbody>
 										{/* row 1 */}
-										{Array.isArray(myorder.itemsList) &&
-											myorder.itemsList.length > 0 &&
-											myorder.itemsList.map(
+										{Array.isArray(myorder?.itemsList) &&
+											myorder?.itemsList.length > 0 &&
+											myorder?.itemsList.map(
 												(item, index) => (
 													<tr key={index}>
 														<td>
@@ -300,7 +300,7 @@ function MyOrderByIDPage() {
 										<tr>
 											<td>
 												{Array.isArray(
-													myorder.itemsList
+													myorder?.itemsList
 												) &&
 													myorder.itemsList.length >
 														0 && (
@@ -329,7 +329,7 @@ function MyOrderByIDPage() {
 											</td>
 											<td>
 												<div className="text-black">
-													{myorder.shippingCostTotal >
+													{myorder?.shippingCostTotal >
 													0
 														? myorder.shippingCostTotal.toLocaleString(
 																"pt-BR",
@@ -346,7 +346,7 @@ function MyOrderByIDPage() {
 											<td>
 												<div className="text-black">
 													{Array.isArray(
-														myorder.itemsList
+														myorder?.itemsList
 													) &&
 														myorder.itemsList
 															.length > 0 && (
@@ -365,10 +365,10 @@ function MyOrderByIDPage() {
 																		);
 																	const totalWithShipping =
 																		productTotal +
-																		myorder.shippingCostTotal;
+																		myorder?.shippingCostTotal;
 																	const discount =
 																		totalWithShipping -
-																		myorder.customerOrderCostTotal;
+																		myorder?.customerOrderCostTotal;
 
 																	// Formata o desconto para o formato de moeda brasileira (BRL)
 																	const formattedDiscount =
@@ -394,7 +394,7 @@ function MyOrderByIDPage() {
 
 											<td>
 												<div className="text-black">
-													{myorder.customerOrderCostTotal >
+													{myorder?.customerOrderCostTotal >
 														0 &&
 														myorder.customerOrderCostTotal.toLocaleString(
 															"pt-BR",
@@ -409,7 +409,7 @@ function MyOrderByIDPage() {
 											<td>
 												<div className="text-black">
 													{`${decrypt(
-														myorder.customerOtakuPointsEarned
+														myorder?.customerOtakuPointsEarned
 													)?.toLocaleString()} OP`}
 												</div>
 											</td>
@@ -422,7 +422,7 @@ function MyOrderByIDPage() {
 									Método de Pagamento
 								</h1>
 								<div className="text-black">
-									{myorder.paymentMethod}
+									{myorder?.paymentMethod}
 								</div>
 							</div>
 						</div>
@@ -432,7 +432,7 @@ function MyOrderByIDPage() {
 						{/* Gadget 3 */}
 						<div className="bg-white text-black w-[325px] p-6 rounded-md shadow-md mt-4">
 							<h1 className="text-lg">
-								Loja: {myorder.partnerName}
+								Loja: {myorder?.partnerName}
 							</h1>
 							<h2>CPF: 000.000.000-00</h2>
 
@@ -450,7 +450,9 @@ function MyOrderByIDPage() {
 						{/* Gadget 4 */}
 						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4">
 							<div className="mb-4 text-black">
-								<h1>Tranportadora: {myorder.shippingMethod}</h1>
+								<h1>
+									Tranportadora: {myorder?.shippingMethod}
+								</h1>
 								{myorder.shippingCostTotal ? (
 									<h2>
 										Valor:{" "}
@@ -466,11 +468,11 @@ function MyOrderByIDPage() {
 									`Valor: R$ 0,00`
 								)}
 								<div>
-									<h2>Status: {myorder.statusShipping}</h2>
+									<h2>Status: {myorder?.statusShipping}</h2>
 								</div>
 								<div className="flex flex-row gap-2">
 									<div>Cód. de Rastreio:</div>
-									{myorder.trackingCode ? (
+									{myorder?.trackingCode ? (
 										<span className="bg-blue-500 px-2 rounded-md">
 											{myorder.trackingCode}
 										</span>
@@ -499,7 +501,7 @@ function MyOrderByIDPage() {
 						Object.keys(tracking2).length <= 0 && (
 							<ul className="steps steps-vertical mb-8">
 								{/* Renderizar uma li vazia antes do histórico */}
-								{myorder.statusOrder === "Realizado" ? (
+								{myorder?.statusOrder === "Realizado" ? (
 									<li
 										data-content="✓"
 										className="step step-primary h-[180px]">
@@ -524,11 +526,11 @@ function MyOrderByIDPage() {
 									<></>
 								)}
 
-								{(myorder.statusOrder === "Confirmado" ||
-									myorder.statusShipping === "Embalado" ||
-									myorder.statusShipping === "Enviado" ||
-									myorder.statusOrder === "Entregue" ||
-									myorder.statusOrder === "Concluído") && (
+								{(myorder?.statusOrder === "Confirmado" ||
+									myorder?.statusShipping === "Embalado" ||
+									myorder?.statusShipping === "Enviado" ||
+									myorder?.statusOrder === "Entregue" ||
+									myorder?.statusOrder === "Concluído") && (
 									<li
 										data-content="✓"
 										className="step step-primary h-[180px]">
@@ -552,10 +554,10 @@ function MyOrderByIDPage() {
 									</li>
 								)}
 
-								{myorder.statusShipping === "Embalado" ||
-								myorder.statusShipping === "Enviado" ||
-								myorder.statusOrder === "Entregue" ||
-								myorder.statusOrder === "Concluído" ? (
+								{myorder?.statusShipping === "Embalado" ||
+								myorder?.statusShipping === "Enviado" ||
+								myorder?.statusOrder === "Entregue" ||
+								myorder?.statusOrder === "Concluído" ? (
 									<li
 										data-content="✓"
 										className="step step-primary h-[180px]">
@@ -577,7 +579,7 @@ function MyOrderByIDPage() {
 								)}
 
 								{/* Renderizar o X se não houver Código de Rastreio */}
-								{myorder.trackingCode === "" && (
+								{myorder?.trackingCode === "" && (
 									<li data-content="✕" className="step">
 										<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
 											—
@@ -590,7 +592,7 @@ function MyOrderByIDPage() {
 					{tracking && Object.keys(tracking).length > 0 && (
 						<ul className="steps steps-vertical mb-8">
 							{/* Renderizar uma li vazia antes do histórico */}
-							{myorder.statusOrder === "Realizado" ? (
+							{myorder?.statusOrder === "Realizado" ? (
 								<li
 									data-content="✓"
 									className="step step-primary h-[180px]">
@@ -615,11 +617,11 @@ function MyOrderByIDPage() {
 								<></>
 							)}
 
-							{(myorder.statusOrder === "Confirmado" ||
-								myorder.statusShipping === "Embalado" ||
-								myorder.statusShipping === "Enviado" ||
-								myorder.statusOrder === "Entregue" ||
-								myorder.statusOrder === "Concluído") && (
+							{(myorder?.statusOrder === "Confirmado" ||
+								myorder?.statusShipping === "Embalado" ||
+								myorder?.statusShipping === "Enviado" ||
+								myorder?.statusOrder === "Entregue" ||
+								myorder?.statusOrder === "Concluído") && (
 								<li
 									data-content="✓"
 									className="step step-primary h-[180px]">
@@ -643,10 +645,10 @@ function MyOrderByIDPage() {
 								</li>
 							)}
 
-							{myorder.statusShipping === "Embalado" ||
-							myorder.statusShipping === "Enviado" ||
-							myorder.statusOrder === "Entregue" ||
-							myorder.statusOrder === "Concluído" ? (
+							{myorder?.statusShipping === "Embalado" ||
+							myorder?.statusShipping === "Enviado" ||
+							myorder?.statusOrder === "Entregue" ||
+							myorder?.statusOrder === "Concluído" ? (
 								<li
 									data-content="✓"
 									className="step step-primary h-[180px]">
@@ -668,7 +670,7 @@ function MyOrderByIDPage() {
 							)}
 
 							{/* Renderizar o X se não houver Código de Rastreio */}
-							{myorder.trackingCode === "" && (
+							{myorder?.trackingCode === "" && (
 								<li data-content="✕" className="step">
 									<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
 										—
@@ -677,7 +679,7 @@ function MyOrderByIDPage() {
 							)}
 
 							{/* Renderizar o histórico Kangu */}
-							{tracking.historico &&
+							{tracking?.historico &&
 								Object.values(tracking.historico)
 									// Ordenar o histórico pela data e horário
 									.sort((a, b) => {
@@ -708,10 +710,11 @@ function MyOrderByIDPage() {
 											</div>
 										</li>
 									))}
-							{tracking.situacao && (
+							{tracking?.situacao && (
 								<>
 									{/* Renderizar somente se for entregue */}
-									{myorder.statusShipping === "Concluído" && (
+									{myorder?.statusShipping ===
+										"Concluído" && (
 										<li
 											data-content="✓"
 											className="step step-primary">
@@ -722,7 +725,7 @@ function MyOrderByIDPage() {
 												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 													{format(
 														new Date(
-															myorder.updatedAt
+															myorder?.updatedAt
 														),
 														"dd/MM - HH:mm"
 													)}{" "}
@@ -735,8 +738,8 @@ function MyOrderByIDPage() {
 										</li>
 									)}
 									{/* Renderizar o X se o pedido não estiver Concluído */}
-									{myorder.trackingCode !== "" &&
-										myorder.statusShipping !==
+									{myorder?.trackingCode !== "" &&
+										myorder?.statusShipping !==
 											"Concluído" && (
 											<li
 												data-content="✕"
@@ -754,7 +757,7 @@ function MyOrderByIDPage() {
 					{tracking2 && Object.keys(tracking2).length > 0 && (
 						<ul className="steps steps-vertical mb-8">
 							{/* Renderizar uma li vazia antes do histórico */}
-							{myorder.statusOrder === "Realizado" ? (
+							{myorder?.statusOrder === "Realizado" ? (
 								<li
 									data-content="✓"
 									className="step step-primary h-[180px]">
@@ -764,7 +767,7 @@ function MyOrderByIDPage() {
 										</span>
 										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											{format(
-												new Date(myorder.createdAt),
+												new Date(myorder?.createdAt),
 												"dd/MM - HH:mm"
 											)}{" "}
 											hs
@@ -779,11 +782,11 @@ function MyOrderByIDPage() {
 								<></>
 							)}
 
-							{(myorder.statusOrder === "Confirmado" ||
-								myorder.statusShipping === "Embalado" ||
-								myorder.statusShipping === "Enviado" ||
-								myorder.statusOrder === "Entregue" ||
-								myorder.statusOrder === "Concluído") && (
+							{(myorder?.statusOrder === "Confirmado" ||
+								myorder?.statusShipping === "Embalado" ||
+								myorder?.statusShipping === "Enviado" ||
+								myorder?.statusOrder === "Entregue" ||
+								myorder?.statusOrder === "Concluído") && (
 								<li
 									data-content="✓"
 									className="step step-primary h-[180px]">
@@ -793,7 +796,7 @@ function MyOrderByIDPage() {
 										</span>
 										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											{format(
-												new Date(myorder.createdAt),
+												new Date(myorder?.createdAt),
 												"dd/MM - HH:mm"
 											)}{" "}
 											hs
@@ -833,7 +836,7 @@ function MyOrderByIDPage() {
 
 							{/* Renderizar o histórico Correios */}
 							{tracking2 &&
-								tracking2.tracks &&
+								tracking2?.tracks &&
 								tracking2.tracks.map((item, index) => (
 									<li
 										key={index}
@@ -860,7 +863,7 @@ function MyOrderByIDPage() {
 								))}
 
 							{/* Renderizar somente se for entregue */}
-							{myorder.statusShipping === "Concluído" && (
+							{myorder?.statusShipping === "Concluído" && (
 								<li
 									data-content="✓"
 									className="step step-primary">
@@ -869,7 +872,7 @@ function MyOrderByIDPage() {
 											Concluído
 										</span>
 										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-											{myorder.updatedAt}
+											{myorder?.updatedAt}
 											{/* {format(
 													new Date(myorder.updatedAt),
 													"dd/MM - HH:mm"
@@ -883,8 +886,8 @@ function MyOrderByIDPage() {
 								</li>
 							)}
 							{/* Renderizar o histórico Kangu */}
-							{myorder.trackingCode !== "" &&
-								myorder.statusShipping !== "Concluído" && (
+							{myorder?.trackingCode !== "" &&
+								myorder?.statusShipping !== "Concluído" && (
 									<li data-content="✕" className="step">
 										<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
 											—

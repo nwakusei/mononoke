@@ -187,7 +187,7 @@ function SideComponent() {
 		};
 
 		if (!transportadoraSelecionada && !product.freeShipping === true) {
-			toast.warning("Selecione uma opção de frete!");
+			toast.info("Selecione uma opção de frete!");
 			return; // Retorna para evitar a adição do produto ao carrinho sem transportadora selecionada
 		}
 

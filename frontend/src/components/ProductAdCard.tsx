@@ -120,7 +120,9 @@ function ProductAdCard({
 					</div>
 				)}
 			</div>
-			<div className="divider text-sm mx-2 text-black">Detalhes</div>
+			<div className="divider before:border-t-[1px] after:border-t-[1px] before:bg-primary after:bg-primary text-sm text-black mx-2">
+				Detalhes
+			</div>
 			<div className="flex flex-col justify-center mx-4 -mt-2">
 				<div>
 					<h1 className="font-semibold text-base text-black line-clamp-2 whitespace-normal min-h-[48px] mb-2">
@@ -161,7 +163,7 @@ function ProductAdCard({
 					</h2>
 					<h3 className="text-sm text-black mb-3">{quantitySold}</h3>
 				</div>
-				<button className="btn btn-primary w-full mb-2">
+				<button className="btn btn-primary w-full mb-2 shadow-md">
 					<Link href={linkProductPage}>+ Detalhes</Link>
 				</button>
 			</div>

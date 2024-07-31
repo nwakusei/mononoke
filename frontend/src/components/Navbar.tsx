@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -349,11 +349,13 @@ function Navbar() {
 												: `${cart} itens`}
 										</span>
 										<span className="text-info">
-											Subtotal:{" "}
-											{subtotal.toLocaleString("pt-BR", {
-												style: "currency",
-												currency: "BRL",
-											})}
+											{`	Subtotal: ${subtotal.toLocaleString(
+												"pt-BR",
+												{
+													style: "currency",
+													currency: "BRL",
+												}
+											)}`}
 										</span>
 
 										<div
@@ -452,11 +454,11 @@ function Navbar() {
 				</nav>
 			) : (
 				<nav>
-					<div className="navbar bg-base-200">
+					<div className="navbar bg-primary shadow-md">
 						<div className="flex-1 ml-10">
 							<Image
 								src={Logo}
-								width={50}
+								width={200}
 								alt=""
 								unoptimized
 								priority
@@ -492,6 +494,15 @@ function Navbar() {
 									</Link>
 								</li>
 
+								<li>
+									<Link
+										href="/otaclub"
+										className="btn btn-ghost normal-case flex flex-row items-center justify-center text-white">
+										<ImMakeGroup size={15} />
+										OtaClub
+									</Link>
+								</li>
+
 								{/* <li>
 									<Link
 										href="/auction"
@@ -522,6 +533,15 @@ function Navbar() {
 									</Link>
 								</li>
 
+								{/* <li>
+									<Link
+										href="/cupons"
+										className="btn btn-ghost normal-case flex flex-row items-center text-white">
+										<BiBuildingHouse size={18} />
+										OtaHome
+									</Link>
+								</li> */}
+
 								<div className="mr-8">
 									<div className="dropdown">
 										<div
@@ -544,7 +564,7 @@ function Navbar() {
 										</div>
 										<ul
 											tabIndex={0}
-											className="menu menu-sm dropdown-content mt-4 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+											className="menu menu-sm dropdown-content mt-[23px] z-[99] p-2 shadow-md bg-primary rounded-box w-52">
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
@@ -553,8 +573,7 @@ function Navbar() {
 														/>
 														OtaClub
 													</span>
-
-													<span className="badge border border-white">
+													<span className="badge badge-secondary border border-white">
 														New
 													</span>
 												</a>
@@ -565,8 +584,7 @@ function Navbar() {
 														<Blockchain size={18} />
 														Blockchain
 													</span>
-
-													<span className="badge border border-white">
+													<span className="badge badge-secondary border border-white">
 														New
 													</span>
 												</a>

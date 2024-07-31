@@ -37,9 +37,10 @@ function CouponCard({ partnerLogo, siteLink, discount, cashback, coupon }) {
 					unoptimized
 				/>
 			</div>
-			<div className="divider mx-2">
+
+			<div className="divider before:bg-primary after:bg-primary mx-2">
 				<Link
-					className="flex flex-row items-center gap-2 text-purple-300 transition-all ease-in duration-200 hover:text-purple-500"
+					className="flex flex-row items-center gap-2 text-primary transition-all ease-in duration-200 hover:text-secondary"
 					href={formattedSiteLink} // Use a variável formatada
 					target="_blank">
 					<span>Acessar Site</span>
@@ -59,7 +60,7 @@ function CouponCard({ partnerLogo, siteLink, discount, cashback, coupon }) {
 
 				<div className="tooltip w-full" data-tip={tipText}>
 					<button
-						className="btn btn-primary text-xl w-[230px]"
+						className="btn btn-primary text-xl w-[230px] shadow-md"
 						onClick={() => handleCupom(`${coupon}`)}>
 						{coupon}
 					</button>

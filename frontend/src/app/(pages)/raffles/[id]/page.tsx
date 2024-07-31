@@ -149,7 +149,7 @@ function RafflePage() {
 
 					{/* Componente intermediário */}
 					<div className="flex flex-col w-[700px] text-black">
-						<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md">
+						<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md select-none">
 							Detalhes do Sorteio
 						</div>
 						<h1 className="text-xl font-semibold mb-4">
@@ -190,7 +190,7 @@ function RafflePage() {
 							<MdOutlineStore size={18} />
 							<div>
 								Organizado por{" "}
-								<span className="text-blue-300 transition-all ease-in hover:text-blue-100 cursor-pointer">
+								<span className="text-primary transition-all ease-in duration-200 hover:text-secondary cursor-pointer">
 									{raffle.raffleOrganizer}
 								</span>
 							</div>
@@ -228,7 +228,7 @@ function RafflePage() {
 			</div>
 
 			{/* Descrição do produto*/}
-			<div className="bg-white rounded-b-md shadow-md gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
+			<div className="bg-white rounded-md shadow-md gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 				{/* Descrição e Detalhes*/}
 				<div className="flex flex-col justify-center items-center">
 					<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">

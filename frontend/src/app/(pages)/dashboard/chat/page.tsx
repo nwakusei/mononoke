@@ -209,7 +209,7 @@ function ChatPage() {
 										12:45 hs
 									</time>
 								</div>
-								<div className="chat-bubble">
+								<div className="chat-bubble bg-primary text-white">
 									You were the Chosen One!
 								</div>
 								<div className="chat-footer opacity-50 text-xs text-black flex flex-row items-center gap-1">
@@ -231,7 +231,9 @@ function ChatPage() {
 										12:46 hs
 									</time>
 								</div>
-								<div className="chat-bubble">I hate you!</div>
+								<div className="chat-bubble bg-primary text-white">
+									I hate you!
+								</div>
 								<div className="chat-footer opacity-50 text-xs text-black flex flex-row items-center gap-1">
 									Visto às 12:46 hs <BsCheck2All size={16} />
 								</div>

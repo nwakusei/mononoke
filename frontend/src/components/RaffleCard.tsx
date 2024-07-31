@@ -27,7 +27,9 @@ function RaffleCard({
 					unoptimized
 				/>
 			</div>
-			<div className="divider text-sm mx-2">Detalhes</div>
+			<div className="divider before:border-t-[1px] after:border-t-[1px] before:bg-primary after:bg-primary text-sm mx-2">
+				Detalhes
+			</div>
 			<div className="flex flex-col justify-center mx-4 -mt-2 select-none">
 				<div>
 					<div className="flex flex-row gap-2">
@@ -53,7 +55,7 @@ function RaffleCard({
 						<div>{raffleOrganizer}</div>
 					</h2>
 				</div>
-				<button className="btn btn-primary w-full mb-2">
+				<button className="btn btn-primary w-full mb-2 shadow-md">
 					<Link href={linkRafflePage}>+ Detalhes</Link>
 				</button>
 			</div>

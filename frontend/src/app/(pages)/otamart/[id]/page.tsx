@@ -366,13 +366,13 @@ function ProductPage() {
 
 			{/* Informações da Loja */}
 			<div className="bg-white flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md">
-				<div className="w-full p-2">
+				<div className="w-full p-2 select-none">
 					{/* Logo da Loja */}
 					{partner && (
 						<div className="flex flex-row gap-4">
 							<div className="w-[230px] h-24 bg-pink-200 border-solid border-[1px] border-black border-opacity-20 px-1 rounded-md shadow-md">
 								<Image
-									className="object-contain w-full h-full"
+									className="object-contain w-full h-full pointer-events-none"
 									src={Amora}
 									alt="Logo Shop"
 									unoptimized
@@ -385,6 +385,59 @@ function ProductPage() {
 									</h1>
 									<MdVerified
 										className="text-blue-500"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#daa520]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#a07e28]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#d7b661]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#cc8105]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#c79d33]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#b58500]"
+										size={18}
+									/>
+
+									<MdVerified
+										className="text-[#8d6b1d]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#C0C0C0]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#9a9a9a]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#cd7f32]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#50C878]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#E0115F]"
+										size={18}
+									/>
+									<MdVerified
+										className="text-[#0F52BA]"
 										size={18}
 									/>
 								</div>
@@ -402,7 +455,7 @@ function ProductPage() {
 									</span>
 								</div>
 								<div className="mt-1">
-									<button className="bg-green-600 transition-all ease-in duration-200 hover:bg-green-800 px-10 py-1 rounded">
+									<button className="bg-green-600 hover:bg-green-800 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md">
 										Seguir
 									</button>
 								</div>
@@ -420,7 +473,7 @@ function ProductPage() {
 									</span>
 								</div>
 								<div className="mt-1">
-									<button className="text-black border border-solid border-purple-800 transition-all ease-in duration-200 hover:bg-purple-500 px-10 py-1 rounded">
+									<button className="text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md hover:shadow-md">
 										Ver Loja
 									</button>
 								</div>

@@ -126,7 +126,7 @@ function ReviewInfoPage() {
 							) : (
 								<div>
 									<h1 className="text-base font-semibold mb-2">
-										Nenhum endereço disponpivel
+										Nenhum endereço disponível
 									</h1>
 								</div>
 							)}
@@ -162,7 +162,7 @@ function ReviewInfoPage() {
 										<h1>Comentário adicional</h1>
 									</div>
 								</div>
-								<div className="flex flex-row gap-4 w-full">
+								<div className="flex flex-row gap-4 w-full text-white">
 									<textarea
 										className="textarea textarea-bordered w-full"
 										placeholder="Bio"></textarea>

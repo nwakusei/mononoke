@@ -18,6 +18,7 @@ import api from "@/utils/api";
 
 // icons
 import { GrMapLocation } from "react-icons/gr";
+import { PiNoteBold } from "react-icons/pi";
 
 function MySaleByIDPage() {
 	const { id } = useParams();
@@ -32,8 +33,6 @@ function MySaleByIDPage() {
 	const [mysale, setMysale] = useState([]);
 	const [trackingCode, setTrackingCode] = useState("");
 	const [trackingLoading, setTrackingLoading] = useState(false);
-
-	console.log(mysale);
 
 	const dateCreatedOrder = mysale.createdAt
 		? `${format(new Date(mysale.createdAt), "dd/MM - HH:mm")} hs`
@@ -107,22 +106,24 @@ function MySaleByIDPage() {
 	}
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="flex flex-col bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="flex flex-col col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				{/* Gadget 1 */}
-				<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
+				<div className="flex flex-row justify-between items-center gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md mt-4 mr-4">
 					<div className="flex flex-col">
-						<h1 className="text-lg">
+						<h1 className="text-lg text-black">
 							ID do Pedido: {mysale.orderID}
 						</h1>
-						<h2>Data do Pagamento: {dateCreatedOrder}</h2>
+						<h2 className="text-black">
+							Data do Pagamento: {dateCreatedOrder}
+						</h2>
 					</div>
 					<div>
 						{mysale.statusShipping === "Enviado" ? (
 							<></>
 						) : (
-							<button className="btn btn-error">
+							<button className="btn btn-error text-white shadow-md">
 								Cancelar Pedido
 							</button>
 						)}
@@ -131,9 +132,9 @@ function MySaleByIDPage() {
 
 				<div className="flex flex-row w-[1200px]">
 					{/* Gadget 2 */}
-					<div className="bg-purple-400 w-[900px] p-6 rounded-md mt-4 mr-4">
+					<div className="bg-white w-[900px] p-6 rounded-md shadow-md mt-4 mr-4">
 						{/* Adicionar Order */}
-						<div className="flex flex-col gap-2 ml-6 mb-6">
+						<div className="flex flex-col gap-2 ml-6 mb-6 text-black">
 							<h1 className="text-2xl font-semibold">
 								Lista de Produtos
 							</h1>
@@ -144,13 +145,19 @@ function MySaleByIDPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-sm">Produto</th>
-											<th className="text-sm">Valor</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
+												Produto
+											</th>
+											<th className="text-sm text-black">
+												Valor
+											</th>
+											<th className="text-sm text-black">
 												Quantidade
 											</th>
 
-											<th className="text-sm">Total</th>
+											<th className="text-sm text-black">
+												Total
+											</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -163,7 +170,7 @@ function MySaleByIDPage() {
 														<td>
 															<div className="flex items-center gap-3 mb-2">
 																<div className="avatar">
-																	<div className="mask mask-squircle w-12 h-12">
+																	<div className="mask mask-squircle w-12 h-12 pointer-events-none">
 																		<Image
 																			src={`http://localhost:5000/images/products/${item.productImage}`}
 																			alt={
@@ -235,16 +242,18 @@ function MySaleByIDPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Subtotal
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Subtotal Frete
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Desconto
 											</th>
-											<th className="text-sm">Total</th>
+											<th className="text-sm text-black">
+												Total
+											</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -363,10 +372,10 @@ function MySaleByIDPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												Comissão a ser Paga
 											</th>
-											<th className="text-sm">
+											<th className="text-sm text-black">
 												A receber pelo Pedido
 											</th>
 										</tr>
@@ -406,13 +415,13 @@ function MySaleByIDPage() {
 
 					{/* Gadget 3 */}
 					<div className="flex flex-col">
-						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
+						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4 text-black">
 							<h1 className="text-lg">
 								Nome: {mysale.customerName}
 							</h1>
 							<h2>CPF: {mysale.customerCPF}</h2>
 
-							<div className="divider"></div>
+							<div className="divider before:border-t-[1px] after:border-t-[1px] before:bg-black after:bg-black"></div>
 
 							{mysale.customerAddress &&
 								mysale.customerAddress.length > 0 &&
@@ -439,8 +448,8 @@ function MySaleByIDPage() {
 						</div>
 
 						{/* Gadget 4 */}
-						<div className="bg-purple-400 w-[325px] p-6 rounded-md mt-4">
-							<div className="mb-4">
+						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4">
+							<div className="mb-4 text-black">
 								<h1>Tranportadora: {mysale.shippingMethod}</h1>
 								<h2>
 									Valor:{" "}
@@ -470,7 +479,7 @@ function MySaleByIDPage() {
 											}
 										/>
 										<div className="label">
-											<span className="label-text-alt">
+											<span className="label-text-alt text-error">
 												Msg de erro a ser exibida
 											</span>
 										</div>
@@ -483,7 +492,7 @@ function MySaleByIDPage() {
 									) : (
 										<button
 											type="submit"
-											className="btn btn-primary w-full">
+											className="btn btn-primary w-full shadow-md">
 											Enviar <GrMapLocation size={20} />
 										</button>
 									)}
@@ -500,8 +509,9 @@ function MySaleByIDPage() {
 					</div>
 				</div>
 				{/* Gadget 4 */}
-				<div className="flex flex-col gap-4 bg-purple-400 w-[1200px] p-6 rounded-md mt-4 mr-4">
-					<div className="flex flex-col">
+				<div className="flex flex-col gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md mt-4 mr-4 text-black">
+					<div className="flex flex-row items-center gap-2">
+						<PiNoteBold size={25} />
 						<h1 className="text-lg">Nota do Cliente</h1>
 					</div>
 					<div>

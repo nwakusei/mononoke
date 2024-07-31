@@ -15,7 +15,9 @@ function CashbackCard({ partnerName, partnerLogo, cashback, couponInfo }) {
 					unoptimized
 				/>
 			</div>
-			<div className="divider mx-2 text-black">{partnerName}</div>
+			<div className="divider before:bg-primary after:bg-primary text-black mx-2">
+				{partnerName}
+			</div>
 			<div className="h-[140px] flex flex-col items-center justify-center mx-4 -mt-6">
 				<h2 className="text-center font-semibold text-xl text-black">
 					{`${cashback}% de Cashback`}
@@ -23,7 +25,9 @@ function CashbackCard({ partnerName, partnerLogo, cashback, couponInfo }) {
 				<p className="text-center text-sm text-black mb-3">
 					{couponInfo}
 				</p>
-				<button className="btn btn-primary w-full">Acessar</button>
+				<button className="btn btn-primary w-full shadow-md">
+					Acessar
+				</button>
 			</div>
 		</div>
 	);

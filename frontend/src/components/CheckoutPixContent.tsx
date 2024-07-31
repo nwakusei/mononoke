@@ -73,13 +73,13 @@ function CheckoutPixContent({
 
 					Swal.fire({
 						title: response.data.message,
-						width: 700,
+						width: 800,
 						icon: "success",
 					});
 				} else {
 					Swal.fire({
 						title: "Pagamento pendente!",
-						width: 700,
+						width: 800,
 						icon: "info",
 					});
 				}
@@ -89,7 +89,7 @@ function CheckoutPixContent({
 		} else {
 			Swal.fire({
 				title: "Erro ao finalizar pedido!",
-				width: 700,
+				width: 800,
 				icon: "error",
 			});
 		}
