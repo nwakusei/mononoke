@@ -235,6 +235,7 @@ function ProductPage() {
 								</div>
 							))}
 					</div>
+
 					{/* Renderizar imagem maximizada se existir */}
 					{maximizedImageProduct && (
 						<div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center">
@@ -383,61 +384,143 @@ function ProductPage() {
 									<h1 className="text-black">
 										{partner.name}
 									</h1>
+									{/* <div className="relative group inline-block">
+										<MdVerified
+											className="text-blue-500 cursor-pointer"
+											size={18}
+										/>
+										<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-primary text-white text-sm rounded shadow-lg">
+											<div className="flex items-center">
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													fill="none"
+													viewBox="0 0 24 24"
+													stroke="currentColor"
+													className="w-5 h-5 mr-2">
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth="2"
+														d="M5 13l4 4L19 7"
+													/>
+												</svg>
+												<span>Selo Azul:</span>
+											</div>
+											<p>
+												Conta verificada desde Janeiro
+												de 2024.
+											</p>
+										</div>
+									</div> */}
+
+									<div className="relative group inline-block">
+										<MdVerified
+											className="text-blue-500 cursor-pointer"
+											size={18}
+										/>
+										<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 bg-gray-900 text-white text-sm rounded shadow-lg">
+											<div className="flex flex-row items-center gap-2">
+												<MdVerified
+													className="text-blue-500 cursor-pointer"
+													size={18}
+												/>
+												{/* <svg
+													xmlns="http://www.w3.org/2000/svg"
+													fill="none"
+													viewBox="0 0 24 24"
+													stroke="currentColor"
+													className="w-5 h-5 mr-2">
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth="2"
+														d="M5 13l4 4L19 7"
+													/>
+												</svg> */}
+												<span>Selo Azul:</span>
+											</div>
+											<p>
+												Conta verificada desde Janeiro
+												de 2024.
+											</p>
+										</div>
+									</div>
+
+									<div className="relative group inline-block">
+										<MdVerified
+											className="text-blue-500 cursor-pointer"
+											size={18}
+										/>
+										<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 hidden group-hover:block bg-secondary text-white text-sm rounded shadow-lg">
+											<div className="flex flex-row gap-2 items-center">
+												<MdVerified
+													className="text-blue-500 cursor-pointer"
+													size={18}
+												/>
+												<span>Selo Azul:</span>
+											</div>
+											<p>
+												Conta verificada desde Janeiro
+												de 2024.
+											</p>
+										</div>
+									</div>
+
+									{/* Bronze */}
 									<MdVerified
-										className="text-blue-500"
-										size={18}
-									/>
-									<MdVerified
-										className="text-[#daa520]"
-										size={18}
-									/>
-									<MdVerified
-										className="text-[#a07e28]"
-										size={18}
-									/>
-									<MdVerified
-										className="text-[#d7b661]"
-										size={18}
-									/>
-									<MdVerified
-										className="text-[#cc8105]"
-										size={18}
-									/>
-									<MdVerified
-										className="text-[#c79d33]"
-										size={18}
-									/>
-									<MdVerified
-										className="text-[#b58500]"
+										className="text-[#CD7F32]"
 										size={18}
 									/>
 
-									<MdVerified
-										className="text-[#8d6b1d]"
-										size={18}
-									/>
+									{/* Prata 1 */}
 									<MdVerified
 										className="text-[#C0C0C0]"
 										size={18}
 									/>
+
+									{/* Prata 2 */}
 									<MdVerified
 										className="text-[#9a9a9a]"
 										size={18}
 									/>
+
+									{/* Dourado */}
 									<MdVerified
-										className="text-[#cd7f32]"
+										className="text-[#daa520]"
 										size={18}
 									/>
+
+									{/* Pérola */}
+									<MdVerified
+										className="text-[#EAE0C8]"
+										size={18}
+									/>
+
+									{/* Obsidiana */}
+									<MdVerified
+										className="text-[#0B0B0B]"
+										size={18}
+									/>
+
+									{/* Ametista */}
+									<MdVerified
+										className="text-[#9966CC]"
+										size={18}
+									/>
+
+									{/* Esmeralda */}
 									<MdVerified
 										className="text-[#50C878]"
 										size={18}
 									/>
-									<MdVerified
-										className="text-[#E0115F]"
-										size={18}
-									/>
+									{/* Safira */}
 									<MdVerified
 										className="text-[#0F52BA]"
+										size={18}
+									/>
+									{/* Rubi */}
+									<MdVerified
+										className="text-[#E0115F]"
 										size={18}
 									/>
 								</div>
@@ -455,7 +538,7 @@ function ProductPage() {
 									</span>
 								</div>
 								<div className="mt-1">
-									<button className="bg-green-600 hover:bg-green-800 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md">
+									<button className="bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md">
 										Seguir
 									</button>
 								</div>

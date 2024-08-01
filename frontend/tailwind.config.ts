@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+	// darkMode: "class", // ou 'media' dependendo da sua preferência
 	content: [
 		"./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
 		"./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,6 +9,9 @@ const config: Config = {
 	],
 	theme: {
 		extend: {
+			colors: {
+				ametista: "#E0115F", // Adiciona a cor Ametista aqui
+			},
 			backgroundImage: {
 				"gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
 				"gradient-conic":
@@ -17,9 +21,11 @@ const config: Config = {
 	},
 	daisyui: {
 		themes: [
+			// "light", // Tema claro padrão
+			// "dark", // Tema escuro padrão
 			{
 				mytheme: {
-					primary: "#3e1d88",
+					primary: "#6633cc",
 
 					secondary: "#8357e5",
 
