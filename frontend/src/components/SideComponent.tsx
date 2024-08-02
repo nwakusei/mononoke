@@ -308,8 +308,6 @@ function SideComponent() {
 			return;
 		}
 
-		console.log(product);
-
 		try {
 			const response = await api.post("/products/simulate-shipping", {
 				cepDestino: cep,
@@ -325,12 +323,35 @@ function SideComponent() {
 			setIsCalculating(false);
 		} catch (error) {
 			console.error("Ocorreu um erro:", error);
+			toast.error(
+				"Ocorreu um erro ao simular o frete. Verifique o CEP e tente novamente!"
+			); // Mostra uma mensagem de erro ao usuário
+		} finally {
+			setIsCalculating(false); // Certifica-se de que o loading seja removido independentemente do sucesso ou erro
 		}
 	}
 
 	// Função para lidar com o clique no botão de Calculo de Frete
 	const handleButtonClick = () => {
-		handleSimulateShipping(cepDestino);
+		if (!cepDestino) {
+			toast.error("O CEP é obrigatório!");
+			return;
+		} else if (cepDestino.length !== 8 || !/^\d{8}$/.test(cepDestino)) {
+			toast.info("O CEP precisa ter 8 números!");
+			return;
+		} else {
+			handleSimulateShipping(cepDestino);
+		}
+	};
+
+	const handleBuyNow = () => {
+		if (!selectedTransportadora && !product.freeShipping) {
+			toast.info("Selecione uma opção de frete antes de comprar!");
+			return;
+		}
+
+		// Redireciona para a página de checkout
+		router.push("/checkout/delivery");
 	};
 
 	return (
@@ -341,8 +362,8 @@ function SideComponent() {
 					<div className="px-4 mb-2">
 						<h1 className="text-black mb-1">Quantidade</h1>
 						<div className="flex flex-row justify-between items-center mb-2">
-							<div className="border border-black container w-[120px] rounded-md">
-								<div className="flex flex-row justify-between items-center h-[36px]">
+							<div className="border border-black container w-[131px] rounded-md">
+								<div className="flex flex-row justify-between items-center h-[36px] gap-1">
 									<button
 										className={`flex flex-row items-center ml-1 px-[10px] bg-primary transition-all ease-in duration-100 text-white hover:opacity-70 hover:bg-secondary active:scale-[.97] rounded-md ${
 											isQuantityOneOrLess
@@ -353,8 +374,8 @@ function SideComponent() {
 										<span className="mb-1">-</span>
 									</button>
 									<input
-										className="w-12 text-center text-black bg-gray-300 appearance-none"
-										type="number"
+										className="text-lg text-center text-black bg-gray-300 w-[60px] h-[28px] rounded"
+										type="text"
 										value={quantity}
 										readOnly
 									/>
@@ -411,7 +432,7 @@ function SideComponent() {
 							}>
 							<Link
 								className="flex flex-row items-center gap-2"
-								href="/checkout/delivery">
+								href="/checkout/-">
 								<PaymentMethod size={18} /> Comprar Agora
 							</Link>
 						</button>
@@ -496,7 +517,7 @@ function SideComponent() {
 									<span>Meios de Envio</span>
 								</h2>
 								<div className="flex flex-row gap-2 mb-2">
-									<input
+									{/* <input
 										type="text"
 										placeholder="Seu CEP"
 										className="input w-full max-w-[180px]"
@@ -504,7 +525,26 @@ function SideComponent() {
 										onChange={(e) =>
 											setCepDestino(e.target.value)
 										} // Atualizar o estado cepDestino quando o valor do input mudar
+									/> */}
+									<input
+										type="text"
+										placeholder="Seu CEP"
+										className="input w-full max-w-[180px]"
+										value={cepDestino} // Valor do input é controlado pelo estado cepDestino
+										onChange={(e) => {
+											// Filtrar para permitir apenas números e limitar a 8 dígitos
+											const value =
+												e.target.value.replace(
+													/\D/g,
+													""
+												); // Remove qualquer caractere que não seja dígito
+											if (value.length <= 8) {
+												setCepDestino(value); // Atualizar o estado cepDestino somente se for até 8 dígitos
+											}
+										}}
+										maxLength={8} // Limita o comprimento máximo do input para 8 caracteres
 									/>
+
 									<button
 										type="button"
 										className="btn btn-primary w-[120px]"

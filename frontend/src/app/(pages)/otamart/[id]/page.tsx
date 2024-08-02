@@ -192,6 +192,15 @@ function ProductPage() {
 		}
 	};
 
+	if (!partner) {
+		return (
+			<section className="min-h-screen bg-white flex flex-row items-center justify-center">
+				{/* <span className="loading loading-spinner loading-lg text-primary"></span> */}
+				<span className="loading loading-ring loading-lg text-primary"></span>
+			</section>
+		);
+	}
+
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<div className="bg-white p-4 rounded-md shadow-md flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
@@ -413,56 +422,27 @@ function ProductPage() {
 										</div>
 									</div> */}
 
-									<div className="relative group inline-block">
-										<MdVerified
-											className="text-blue-500 cursor-pointer"
-											size={18}
-										/>
-										<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 bg-gray-900 text-white text-sm rounded shadow-lg">
-											<div className="flex flex-row items-center gap-2">
-												<MdVerified
-													className="text-blue-500 cursor-pointer"
-													size={18}
-												/>
-												{/* <svg
-													xmlns="http://www.w3.org/2000/svg"
-													fill="none"
-													viewBox="0 0 24 24"
-													stroke="currentColor"
-													className="w-5 h-5 mr-2">
-													<path
-														strokeLinecap="round"
-														strokeLinejoin="round"
-														strokeWidth="2"
-														d="M5 13l4 4L19 7"
+									<div className="relative inline-block">
+										<div className="group">
+											{/* Icone Visível no Client Side  */}
+											<MdVerified
+												className="text-blue-500 cursor-pointer"
+												size={18}
+											/>
+											{/* Tooltip */}
+											<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-64 p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 border-[1px] border-black bg-white text-black text-sm rounded shadow-lg pointer-events-none">
+												<div className="flex flex-row items-center gap-2">
+													<MdVerified
+														className="text-blue-500"
+														size={18}
 													/>
-												</svg> */}
-												<span>Selo Azul:</span>
+													<span>Selo Azul:</span>
+												</div>
+												<p>
+													Conta verificada desde
+													Janeiro de 2024.
+												</p>
 											</div>
-											<p>
-												Conta verificada desde Janeiro
-												de 2024.
-											</p>
-										</div>
-									</div>
-
-									<div className="relative group inline-block">
-										<MdVerified
-											className="text-blue-500 cursor-pointer"
-											size={18}
-										/>
-										<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 hidden group-hover:block bg-secondary text-white text-sm rounded shadow-lg">
-											<div className="flex flex-row gap-2 items-center">
-												<MdVerified
-													className="text-blue-500 cursor-pointer"
-													size={18}
-												/>
-												<span>Selo Azul:</span>
-											</div>
-											<p>
-												Conta verificada desde Janeiro
-												de 2024.
-											</p>
 										</div>
 									</div>
 

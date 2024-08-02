@@ -83,30 +83,31 @@ function MyProfilePage() {
 								<h1 className="text-2xl font-semibold text-black">
 									Dados da Loja
 								</h1>
-								{/* Nome Fantasia */}
-								<label className="form-control w-full max-w-3xl">
-									<div className="label">
-										<span className="label-text text-black">
-											Nome Fantasia
-										</span>
-									</div>
-									<input
-										type="text"
-										placeholder={`${user.name}`}
-										className={`${
-											errors.productName && `input-error`
-										} input input-bordered input-success w-full max-w-3xl`}
-										{...register("productName")}
-									/>
-									<div className="label">
-										{errors.productName && (
-											<span className="label-text-alt text-red-500">
-												{errors.productName.message}
-											</span>
-										)}
-									</div>
-								</label>
 								<div className="flex flex-row gap-4">
+									{/* Nome Fantasia */}
+									<label className="form-control w-full max-w-3xl">
+										<div className="label">
+											<span className="label-text text-black">
+												Nome Fantasia
+											</span>
+										</div>
+										<input
+											type="text"
+											placeholder={`${user.name}`}
+											className={`${
+												errors.productName &&
+												`input-error`
+											} input input-bordered input-success w-full max-w-3xl`}
+											{...register("productName")}
+										/>
+										<div className="label">
+											{errors.productName && (
+												<span className="label-text-alt text-red-500">
+													{errors.productName.message}
+												</span>
+											)}
+										</div>
+									</label>
 									{/* CNPJ/CPF */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
@@ -131,7 +132,8 @@ function MyProfilePage() {
 											)}
 										</div>
 									</label>
-
+								</div>
+								<div className="flex flex-row gap-4">
 									{/* Email */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
@@ -146,6 +148,31 @@ function MyProfilePage() {
 												errors.productName &&
 												`input-error`
 											} input input-bordered input-success w-full max-w-3xl`}
+											{...register("productName")}
+										/>
+										<div className="label">
+											{errors.productName && (
+												<span className="label-text-alt text-red-500">
+													{errors.productName.message}
+												</span>
+											)}
+										</div>
+									</label>
+
+									{/* Site */}
+									<label className="form-control w-full max-w-3xl">
+										<div className="label">
+											<span className="label-text text-black">
+												Site Oficial da Loja
+											</span>
+										</div>
+										<input
+											type="text"
+											placeholder={`${user.site}`}
+											className={`${
+												errors.productName &&
+												`input-error`
+											} input input-bordered input-success w-fullmax-w-3xl`}
 											{...register("productName")}
 										/>
 										<div className="label">
@@ -179,31 +206,6 @@ function MyProfilePage() {
 											{errors.description && (
 												<span className="label-text-alt text-red-500">
 													{errors.description.message}
-												</span>
-											)}
-										</div>
-									</label>
-
-									{/* Site */}
-									<label className="form-control w-full max-w-3xl">
-										<div className="label">
-											<span className="label-text text-black">
-												Site Oficial da Loja
-											</span>
-										</div>
-										<input
-											type="text"
-											placeholder={`${user.site}`}
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("productName")}
-										/>
-										<div className="label">
-											{errors.productName && (
-												<span className="label-text-alt text-red-500">
-													{errors.productName.message}
 												</span>
 											)}
 										</div>
