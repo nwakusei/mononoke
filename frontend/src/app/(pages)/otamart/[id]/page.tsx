@@ -15,6 +15,7 @@ import { Context } from "@/context/UserContext";
 // Components
 import { ProductVariation } from "@/components/ProductVariation";
 import { SideComponent } from "@/components/SideComponent";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Importe suas imagens e ícones aqui
 import Amora from "../../../../../public/amora.jpg";
@@ -30,6 +31,7 @@ function ProductPage() {
 	const [product, setProduct] = useState({});
 	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
 	const [maximizedImage, setMaximizedImage] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const { partners } = useContext(Context);
 
@@ -74,6 +76,8 @@ function ProductPage() {
 				setProduct(response.data.product);
 			} catch (error) {
 				console.error("Error fetching product:", error);
+			} finally {
+				setIsLoading(false);
 			}
 		};
 
@@ -192,17 +196,12 @@ function ProductPage() {
 		}
 	};
 
-	if (!partner) {
-		return (
-			<section className="min-h-screen bg-white flex flex-row items-center justify-center">
-				{/* <span className="loading loading-spinner loading-lg text-primary"></span> */}
-				<span className="loading loading-ring loading-lg text-primary"></span>
-			</section>
-		);
+	if (isLoading) {
+		return <LoadingPage />;
 	}
 
 	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
+		<section className="bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<div className="bg-white p-4 rounded-md shadow-md flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
 				{/* Componente de Imagem Principal */}
 				<div className="flex flex-col">

@@ -10,6 +10,7 @@ import imageProfile from "../../../../public/Kon.jpg";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Icons
 import {
@@ -29,20 +30,31 @@ import { PiHandHeartDuotone, PiChatCenteredText } from "react-icons/pi";
 
 function DashboardPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
-	const [user, setUser] = useState({});
+	const [user, setUser] = useState(null); // Inicializa como null para identificar se já foi carregado
+	const [isLoading, setIsLoading] = useState(true); // Estado de loading
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
 			headers: {
 				Authorization: `Bearer ${JSON.parse(token)}`,
 			},
-		}).then((responser) => {
-			setUser(responser.data);
-		});
+		})
+			.then((response) => {
+				setUser(response.data);
+				setIsLoading(false); // Termina o loading após os dados serem carregados
+			})
+			.catch((error) => {
+				console.error("Erro ao buscar usuário:", error);
+				setIsLoading(false); // Mesmo se der erro, encerra o loading
+			});
 	}, [token]);
 
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-100 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="h-screen col-start-3 col-span-4 md:col-start-3 md:col-span-10">
 				<div className="flex flex-row gap-4 mt-4">
@@ -62,7 +74,7 @@ function DashboardPage() {
 								</div>
 							</div>
 							<h1 className="text-black">
-								Bem vindo(a) {user.name}!
+								Bem vindo(a) {user?.name}!
 							</h1>
 						</div>
 

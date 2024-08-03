@@ -11,6 +11,9 @@ import Swal from "sweetalert2";
 // Axios
 import api from "@/utils/api";
 
+// Components
+import { LoadingPage } from "@/components/LoadingPageComponent";
+
 // Icons
 import { LuCalendarRange } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
@@ -23,6 +26,7 @@ function RafflePage() {
 	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
 	const [maximizedImage, setMaximizedImage] = useState(null);
 	const [loadingBtn, setLoadingBtn] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 
 	console.log(raffle);
 
@@ -31,6 +35,7 @@ function RafflePage() {
 			try {
 				const response = await api.get(`/raffles/get-raffle/${id}`);
 				setRaffle(response.data.raffle);
+				setIsLoading(false);
 			} catch (error) {
 				console.error("Error fetching product:", error);
 			}
@@ -74,12 +79,12 @@ function RafflePage() {
 		setLoadingBtn(false);
 	}
 
-	if (!raffle || !raffle.raffleCost || !raffle.activeParticipants) {
-		return <div>Loading...</div>; // Ou qualquer outro componente de carregamento ou mensagem de erro
+	if (isLoading) {
+		return <LoadingPage />;
 	}
 
 	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
+		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<div className="bg-white rounded-md shadow-md p-4 flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
 				<div className="flex flex-row gap-8">
 					{/* Componente de Imagem Principal */}
@@ -181,7 +186,7 @@ function RafflePage() {
 						<div className="flex flex-row items-center gap-2">
 							<BsPeopleFill size={17} />
 							<span>
-								Participantes Registrados:{" "}
+								Tickets Registrados: Participantes Registrados:{" "}
 								{raffle.activeParticipants.length}
 							</span>
 						</div>

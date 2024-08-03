@@ -13,20 +13,27 @@ import Otakuyasan from "../../../../public/otakuyasan.png";
 
 // Components
 import { CashbackCard } from "@/components/CashbackCard";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function CashbackPage() {
 	const { partners } = useContext(Context);
 	const [coupons, setCoupons] = useState([]);
 	const couponExist = "+ Cupom de Desconto";
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		api.get("/coupons/allcoupons").then((response) => {
 			setCoupons(response.data.coupons);
+			setIsLoading(false); // Termina o loading após os dados serem carregados
 		});
 	}, []);
 
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
+		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<div className="flex flex-col items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6">
 				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mt-8 mb-2 rounded-md shadow-md select-none">
 					Lojas em Destaque

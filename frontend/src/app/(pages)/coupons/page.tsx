@@ -10,17 +10,21 @@ import { Context } from "@/context/UserContext";
 // Importe suas imagens e ícones aqui
 import Otakuyasan from "../../../../public/otakuyasan.png";
 
+// Components
 import { CouponCard } from "@/components/CouponCard";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function CoupomPage() {
 	const { partners } = useContext(Context);
 	const [coupons, setCoupons] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		const fetchCoupons = async () => {
 			try {
 				const response = await api.get("/coupons/allcoupons");
 				setCoupons(response.data.coupons); // Atualize o estado com os cupons recebidos da API
+				setIsLoading(false);
 			} catch (error) {
 				console.error("Erro ao buscar cupons:", error);
 			}
@@ -28,8 +32,12 @@ function CoupomPage() {
 		fetchCoupons(); // Chame a função fetchCoupons aqui dentro do useEffect
 	}, []);
 
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
+		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<div className="flex flex-col items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6">
 				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mt-8 mb-2 rounded-md shadow-md select-none">
 					Cupons em Destaque
@@ -66,7 +74,9 @@ function CoupomPage() {
 							);
 						})
 					) : (
-						<p>Nenhum Cupom Disponível no momento!</p>
+						<div className="text-black text-center bg-white p-2 min-w-[400px] rounded-md shadow-md">
+							Nenhum Cupom Disponível no momento!
+						</div>
 					)}
 				</div>
 			</div>
