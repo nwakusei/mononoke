@@ -76,8 +76,6 @@ function PaymentPage() {
 	const [pixCode, setPixCode] = useState(""); // Estado para armazenar o código do Pix copia e cola
 	const [txid, setTxid] = useState("");
 
-	console.log(pixCode);
-
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
 		if (savedProductsInCart) {
@@ -303,19 +301,19 @@ function PaymentPage() {
 							<div className="flex flex-row items-center gap-4">
 								<button
 									onClick={showBalancePaymentContent}
-									className="flex flex-row justify-center items-center gap-2 bg-secondary w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96] select-none">
+									className="flex flex-row justify-center items-center gap-2 bg-primary hover:bg-secondary w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96] select-none">
 									<PaymentMethod size={20} />
 									Saldo em Conta
 								</button>
 								<button
 									onClick={showCreditCardContent}
-									className="flex flex-row justify-center items-center gap-2 bg-secondary w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96] select-none">
+									className="flex flex-row justify-center items-center gap-2 bg-primary hover:bg-secondary w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96] select-none">
 									<PiCreditCardBold size={20} />
 									Cartão de Crédito
 								</button>
 								<button
 									onClick={showPixPaymentContent}
-									className="flex flex-row justify-center items-center gap-2 bg-secondary w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96] select-none">
+									className="flex flex-row justify-center items-center gap-2 bg-primary hover:bg-secondary w-[200px] p-3 rounded-lg shadow-md cursor-pointer transition-all ease-linear active:scale-[.96] select-none">
 									<MdOutlinePix size={20} />
 									Pix
 								</button>

@@ -411,7 +411,7 @@ function Navbar() {
 												Configurações
 											</span>
 
-											<span className="badge border border-white">
+											<span className="badge badge-secondary border-[1px] border-white">
 												New
 											</span>
 										</Link>

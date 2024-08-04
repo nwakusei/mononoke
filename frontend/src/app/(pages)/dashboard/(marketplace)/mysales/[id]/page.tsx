@@ -19,6 +19,8 @@ import api from "@/utils/api";
 // icons
 import { GrMapLocation } from "react-icons/gr";
 import { PiNoteBold } from "react-icons/pi";
+import { BsBoxSeam } from "react-icons/bs";
+import { LuPackageCheck } from "react-icons/lu";
 
 function MySaleByIDPage() {
 	const { id } = useParams();
@@ -435,7 +437,7 @@ function MySaleByIDPage() {
 											{end.complemento ? (
 												`Complemento: ${end.complemento}`
 											) : (
-												<></>
+												<>—</>
 											)}
 										</div>
 										<div>Bairro: {end.bairro}</div>
@@ -484,23 +486,35 @@ function MySaleByIDPage() {
 											</span>
 										</div>
 									</label>
-									{trackingLoading ? (
+									<div className="mb-2">
 										<button className="btn btn-primary w-full">
-											<span className="loading loading-spinner loading-sm"></span>
-											<span>Processando...</span>
+											<span>Marcar como embalado</span>
+											{/* <LuPackageCheck size={20} /> */}
+											<BsBoxSeam size={20} />
 										</button>
-									) : (
-										<button
-											type="submit"
-											className="btn btn-primary w-full shadow-md">
-											Enviar <GrMapLocation size={20} />
-										</button>
-									)}
+									</div>
+									<div>
+										{trackingLoading ? (
+											<button className="btn btn-primary w-full">
+												<span className="loading loading-spinner loading-sm"></span>
+												<span>Processando...</span>
+											</button>
+										) : (
+											<button
+												type="submit"
+												className="btn btn-primary w-full shadow-md">
+												Enviar Código de Rastreio
+												<GrMapLocation size={20} />
+											</button>
+										)}
+									</div>
 								</form>
 							) : (
 								<div className="flex flex-row gap-2">
-									<div>Cod. de Rastreio:</div>
-									<div className="bg-blue-500 rounded px-2">
+									<div className="text-black">
+										Cod. de Rastreio:
+									</div>
+									<div className="bg-primary rounded shadow-md px-2">
 										{mysale.trackingCode}
 									</div>
 								</div>

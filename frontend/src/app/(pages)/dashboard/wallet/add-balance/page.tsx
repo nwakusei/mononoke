@@ -129,7 +129,7 @@ function AddBalance() {
 				</div>
 
 				{/* Gadget 2 */}
-				<div className="flex flex-row justify-center items-center bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4 gap-10">
+				<div className="flex flex-row justify-center items-center bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-8 gap-10">
 					{/* Tabela de Transações */}
 					<div className="flex flex-col w-[250px] gap-2">
 						<label className="form-control w-full max-w-xs">
@@ -176,7 +176,7 @@ function AddBalance() {
 								<h2 className="mb-2 text-black">
 									Escaneie o QR Code
 								</h2>
-								<div className="flex flex-col justify-center items-center bg-primary w-[210px] h-[210px] rounded shadow-md">
+								<div className="flex flex-col justify-center items-center bg-primary w-[210px] h-[210px] rounded-md shadow-md">
 									<Image
 										className="p-2 pointer-events-none"
 										src={qrCodeUrl}
@@ -207,7 +207,7 @@ function AddBalance() {
 								<h2 className="mb-2 text-black">
 									Escaneie o QR Code
 								</h2>
-								<div className="flex justify-center items-center border border-1 border-dashed border-primary w-[210px] h-[210px] rounded">
+								<div className="flex justify-center items-center border border-1 border-dashed border-primary w-[210px] h-[210px] rounded-md">
 									<h2 className="mb-2 text-black">
 										Nenhum QR Code gerado
 									</h2>
@@ -220,7 +220,7 @@ function AddBalance() {
 								<h1 className="mb-2 text-black">
 									Pix Copia e Cola
 								</h1>
-								<div className="flex justify-center items-center border border-1 border-dashed border-primary w-[480px] h-[120px] overflow-hidden break-words p-2 rounded">
+								<div className="flex justify-center items-center border border-1 border-dashed border-primary w-[480px] h-[120px] overflow-hidden break-words p-2 rounded-md">
 									<h2 className="mb-2 text-black">
 										Nenhum código Pix gerado
 									</h2>

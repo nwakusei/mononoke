@@ -165,6 +165,8 @@ class OtakupayController {
 	static async buyOtamart(req: Request, res: Response) {
 		const { products, shippingCost, coupons } = req.body;
 
+		console.log(shippingCost);
+
 		// Verificar se o array de produtos é válido
 		if (!products || products.length === 0) {
 			res.status(404).json({
@@ -1004,7 +1006,7 @@ class OtakupayController {
 						const order = new OrderModel({
 							orderID: new ObjectId().toHexString().toUpperCase(),
 							statusOrder: "Confirmado",
-							paymentMethod: "OtakuPay",
+							paymentMethod: "OtakuPay: Saldo em conta",
 							shippingCostTotal: vlrFrete,
 							customerOrderCostTotal: partnerOrderCostTotal,
 							partnerCommissionOtamart:
@@ -1034,8 +1036,8 @@ class OtakupayController {
 								},
 							],
 							shippingMethod: transportadora,
-							trackingCode: "",
 							statusShipping: "Envio Pendente",
+							trackingCode: "",
 							discountsApplied: 0,
 							orderNote: "",
 						});

@@ -422,7 +422,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 							))}
 						</div>
 
-						<div className="divider"></div>
+						<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
 						<div className="">
 							<div className="flex justify-between mb-1">
 								<h2 className="flex items-center justify-center gap-1">
@@ -466,7 +466,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 								</div>
 							</div>{" "}
 							<div className="flex justify-between mb-1">
-								<h2>Desconto do cupom</h2>
+								<h2>Desconto aplicado</h2>
 								<h2>
 									{couponApplied
 										? `- ${couponApplied.toLocaleString(
@@ -481,7 +481,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 							</div>
 						</div>
 
-						<div className="divider"></div>
+						<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
 						<div className="">
 							<div className="flex justify-between mb-2">
 								<h2 className="font-semibold">

@@ -156,7 +156,7 @@ function MySalesPage() {
 														{mysale.orderID}
 													</td>
 													<th className="text-black">
-														<button className="flex items-center btn btn-ghost btn-xs">
+														<button className="flex items-center btn btn-primary btn-xs">
 															<Link
 																href={`/dashboard/mysales/${mysale._id}`}>
 																+ Detalhes

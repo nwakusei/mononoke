@@ -208,9 +208,9 @@ function MyOrderByIDPage() {
 																<div className="avatar">
 																	<div className="mask mask-squircle w-12 h-12">
 																		<Image
-																			src={`http://localhost:5000/images/products/${item.productImage}`}
+																			src={`http://localhost:5000/images/products/${item?.productImage}`}
 																			alt={
-																				item.productName
+																				item?.productName
 																			}
 																			width={
 																				280
@@ -226,7 +226,7 @@ function MyOrderByIDPage() {
 																	<div className="font-bold text-black">
 																		<h2 className="w-[230px] overflow-x-hidden mb-2">
 																			{
-																				item.productName
+																				item?.productName
 																			}
 																		</h2>
 																	</div>
@@ -236,7 +236,7 @@ function MyOrderByIDPage() {
 
 														<td>
 															<div className="text-black">
-																{item.productPrice.toLocaleString(
+																{item?.productPrice.toLocaleString(
 																	"pt-BR",
 																	{
 																		style: "currency",
@@ -248,14 +248,14 @@ function MyOrderByIDPage() {
 														</td>
 														<td>
 															<div className="text-black">
-																{`${item.productQuantity} un`}
+																{`${item?.productQuantity} un`}
 															</div>
 														</td>
 														<td className="w-[200px] overflow-x-auto">
 															<div className="text-black">
 																{(
-																	item.productQuantity *
-																	item.productPrice
+																	item?.productQuantity *
+																	item?.productPrice
 																).toLocaleString(
 																	"pt-BR",
 																	{
@@ -290,7 +290,7 @@ function MyOrderByIDPage() {
 												Total do Pedido
 											</th>
 											<th className="text-sm text-black">
-												Otaku Points a receber
+												Otaku Point a receber
 											</th>
 										</tr>
 									</thead>
@@ -302,7 +302,7 @@ function MyOrderByIDPage() {
 												{Array.isArray(
 													myorder?.itemsList
 												) &&
-													myorder.itemsList.length >
+													myorder?.itemsList.length >
 														0 && (
 														<div className="text-black">
 															{myorder.itemsList
@@ -312,8 +312,8 @@ function MyOrderByIDPage() {
 																		item
 																	) =>
 																		total +
-																		item.productPrice *
-																			item.productQuantity,
+																		item?.productPrice *
+																			item?.productQuantity,
 																	0
 																)
 																.toLocaleString(
@@ -331,7 +331,7 @@ function MyOrderByIDPage() {
 												<div className="text-black">
 													{myorder?.shippingCostTotal >
 													0
-														? myorder.shippingCostTotal.toLocaleString(
+														? myorder?.shippingCostTotal.toLocaleString(
 																"pt-BR",
 																{
 																	style: "currency",
@@ -348,12 +348,12 @@ function MyOrderByIDPage() {
 													{Array.isArray(
 														myorder?.itemsList
 													) &&
-														myorder.itemsList
+														myorder?.itemsList
 															.length > 0 && (
 															<div>
 																{(() => {
 																	const productTotal =
-																		myorder.itemsList.reduce(
+																		myorder?.itemsList.reduce(
 																			(
 																				total,
 																				item
@@ -396,7 +396,7 @@ function MyOrderByIDPage() {
 												<div className="text-black">
 													{myorder?.customerOrderCostTotal >
 														0 &&
-														myorder.customerOrderCostTotal.toLocaleString(
+														myorder?.customerOrderCostTotal.toLocaleString(
 															"pt-BR",
 															{
 																style: "currency",
@@ -436,7 +436,7 @@ function MyOrderByIDPage() {
 							</h1>
 							<h2>CPF: 000.000.000-00</h2>
 
-							<div className="divider"></div>
+							<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
 
 							<h1 className="text-lg mb-3">
 								Endereço de entrega e cobrança
@@ -451,34 +451,34 @@ function MyOrderByIDPage() {
 						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4">
 							<div className="mb-4 text-black">
 								<h1>
-									Tranportadora: {myorder?.shippingMethod}
+									{`Transportadora: ${myorder?.shippingMethod}`}
 								</h1>
-								{myorder.shippingCostTotal ? (
+								{myorder?.shippingCostTotal ? (
 									<h2>
-										Valor:{" "}
-										{myorder.shippingCostTotal.toLocaleString(
+										{`Custo do Frete: ${myorder?.shippingCostTotal.toLocaleString(
 											"pt-BR",
 											{
 												style: "currency",
 												currency: "BRL",
 											}
-										)}
+										)}`}
 									</h2>
 								) : (
-									`Valor: R$ 0,00`
+									`Custo do Frete: R$ 0,00`
 								)}
 								<div>
-									<h2>Status: {myorder?.statusShipping}</h2>
+									{`Status: ${myorder?.statusShipping}`}
 								</div>
 								<div className="flex flex-row gap-2">
-									<div>Cód. de Rastreio:</div>
-									{myorder?.trackingCode ? (
-										<span className="bg-blue-500 px-2 rounded-md">
-											{myorder.trackingCode}
-										</span>
-									) : (
-										`—`
-									)}
+									{`Cód. de Rastreio: ${
+										myorder?.trackingCode ? (
+											<span className="bg-primary text-white px-2 rounded-md shadow-md">
+												{myorder?.trackingCode}
+											</span>
+										) : (
+											`—`
+										)
+									}`}
 								</div>
 							</div>
 						</div>
@@ -511,7 +511,9 @@ function MyOrderByIDPage() {
 											</span>
 											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												{format(
-													new Date(myorder.createdAt),
+													new Date(
+														myorder?.createdAt
+													),
 													"dd/MM - HH:mm"
 												)}{" "}
 												hs
@@ -540,7 +542,9 @@ function MyOrderByIDPage() {
 											</span>
 											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												{format(
-													new Date(myorder.createdAt),
+													new Date(
+														myorder?.createdAt
+													),
 													"dd/MM - HH:mm"
 												)}{" "}
 												hs
@@ -602,7 +606,7 @@ function MyOrderByIDPage() {
 										</span>
 										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											{format(
-												new Date(myorder.createdAt),
+												new Date(myorder?.createdAt),
 												"dd/MM - HH:mm"
 											)}{" "}
 											hs
@@ -631,7 +635,7 @@ function MyOrderByIDPage() {
 										</span>
 										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 											{format(
-												new Date(myorder.createdAt),
+												new Date(myorder?.createdAt),
 												"dd/MM - HH:mm"
 											)}{" "}
 											hs
@@ -680,7 +684,7 @@ function MyOrderByIDPage() {
 
 							{/* Renderizar o histórico Kangu */}
 							{tracking?.historico &&
-								Object.values(tracking.historico)
+								Object.values(tracking?.historico)
 									// Ordenar o histórico pela data e horário
 									.sort((a, b) => {
 										const dateA = new Date(a.dataHora);
@@ -695,17 +699,19 @@ function MyOrderByIDPage() {
 											className="step step-primary h-[180px]">
 											<div className="flex flex-col gap-1">
 												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-													{item.ocorrencia}
+													{item?.ocorrencia}
 												</span>
 												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 													{format(
-														new Date(item.dataHora),
+														new Date(
+															item?.dataHora
+														),
 														"dd/MM - HH:mm"
 													)}{" "}
 													hs
 												</span>
 												<span className="bg-primary py-1 px-2 rounded shadow-md">
-													{item.observacao}
+													{item?.observacao}
 												</span>
 											</div>
 										</li>
@@ -810,10 +816,10 @@ function MyOrderByIDPage() {
 								</li>
 							)}
 
-							{myorder.statusShipping === "Embalado" ||
-							myorder.statusShipping === "Enviado" ||
-							myorder.statusOrder === "Entregue" ||
-							myorder.statusOrder === "Concluído" ? (
+							{myorder?.statusShipping === "Embalado" ||
+							myorder?.statusShipping === "Enviado" ||
+							myorder?.statusOrder === "Entregue" ||
+							myorder?.statusOrder === "Concluído" ? (
 								<li
 									data-content="✓"
 									className="step step-primary h-[180px]">
@@ -844,19 +850,19 @@ function MyOrderByIDPage() {
 										className="step step-primary h-[180px]">
 										<div className="flex flex-col gap-1">
 											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-												{item.status}
+												{item?.status}
 											</span>
 											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
 												{`${format(
 													new Date(
-														convertDate(item.date)
+														convertDate(item?.date)
 													),
 													"dd/MM"
-												)} - ${item.hour}`}{" "}
+												)} - ${item?.hour}`}{" "}
 												hs
 											</span>
 											<span className="bg-primary py-1 px-2 rounded shadow-md">
-												{item.local}
+												{item?.local}
 											</span>
 										</div>
 									</li>

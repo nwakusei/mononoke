@@ -56,16 +56,16 @@ function MyOrdersPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-base text-black">
+											<th className="text-sm text-black">
 												Produtos
 											</th>
-											<th className="text-base text-black">
+											<th className="text-sm text-black">
 												Total do Pedido
 											</th>
-											<th className="text-base text-black">
+											<th className="text-sm text-black">
 												Status
 											</th>
-											<th className="text-base text-black">
+											<th className="text-sm text-black">
 												ID do Pedido
 											</th>
 											<th></th>
@@ -131,7 +131,7 @@ function MyOrdersPage() {
 																}
 															)}
 														</div>
-														<span className="badge badge-success badge-sm text-black">
+														<span className="badge badge-info badge-sm text-white py-2">
 															{
 																myorder.paymentMethod
 															}

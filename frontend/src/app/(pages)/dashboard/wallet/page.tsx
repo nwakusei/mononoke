@@ -59,17 +59,17 @@ function WalletPage() {
 
 				{/* Gadget 2 */}
 				<div className="flex flex-row gap-4 mb-4">
-					<div className="bg-white w-[460px] p-6 rounded-md shadow-md">
+					<div className="bg-white w-[520px] p-6 rounded-md shadow-md">
 						{/* Saldo Disponivel */}
 						<div className="flex flex-col -mb-4">
-							<div className="flex flex-row items-center ml-6 gap-2">
+							<div className="flex flex-row items-center ml-6 gap-5">
 								<div>
 									<h2 className="text-sm text-black">
 										Saldo Disponível
 									</h2>
 									<h1 className="flex flex-row items-center text-3xl font-semibold text-black">
 										{parseFloat(
-											userOtakupay.balanceAvailable || ""
+											userOtakupay?.balanceAvailable || ""
 										).toLocaleString("pt-BR", {
 											style: "currency",
 											currency: "BRL",
@@ -80,7 +80,6 @@ function WalletPage() {
 									<Link href="/dashboard/wallet/add-balance">
 										<button className="flex flex-row items-center btn btn-outline btn-primary text-black w-[200px] hover:shadow-md">
 											<AiOutlineMoneyCollect size={22} />
-											{/* <Deposit size={18} /> */}
 											Adicionar Crédito
 										</button>
 									</Link>
@@ -105,7 +104,7 @@ function WalletPage() {
 					</div>
 
 					{/* Outro Saldos */}
-					<div className="bg-white w-[240px] p-6 rounded-md shadow-md">
+					<div className="bg-white w-[210px] p-6 rounded-md shadow-md">
 						{/* Saldo Disponivel */}
 						<div className="flex flex-col">
 							<div className="flex flex-row pb-2 mb-2">
@@ -115,7 +114,7 @@ function WalletPage() {
 									</h2>
 									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
 										{parseFloat(
-											userOtakupay.balancePending || ""
+											userOtakupay?.balancePending || ""
 										).toLocaleString("pt-BR", {
 											style: "currency",
 											currency: "BRL",
@@ -126,7 +125,7 @@ function WalletPage() {
 						</div>
 					</div>
 
-					<div className="bg-white w-[240px] p-6 rounded-md shadow-md">
+					<div className="bg-white w-[210px] p-6 rounded-md shadow-md">
 						{/* Saldo Disponivel */}
 						<div className="flex flex-col">
 							<div className="flex flex-row pb-2 mb-2">
@@ -136,11 +135,11 @@ function WalletPage() {
 									</h2>
 									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
 										{parseFloat(
-											userOtakupay.otakuPointsAvailable
+											userOtakupay?.otakuPointsAvailable
 										) === 0
 											? `0,00 OP`
 											: `${parseFloat(
-													userOtakupay.otakuPointsAvailable
+													userOtakupay?.otakuPointsAvailable
 											  ).toLocaleString("pt-BR")} OP`}
 									</h1>
 								</div>
@@ -157,10 +156,10 @@ function WalletPage() {
 										Otaku Point Pendente
 									</h2>
 									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
-										{userOtakupay.otakuPointsPending !==
+										{userOtakupay?.otakuPointsPending !==
 										undefined
 											? parseFloat(
-													userOtakupay.otakuPointsPending
+													userOtakupay?.otakuPointsPending
 											  )
 													.toFixed(2)
 													.replace(".", ",") + " OP"
@@ -175,25 +174,25 @@ function WalletPage() {
 				{/* Gadget 2 */}
 				<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-8">
 					{/* Tabela de Transações */}
-					<div className="divider mb-2 text-black">
+					<div className="divider mb-2 text-lg text-black before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]">
 						Últimas atividades
 					</div>
 					<table className="table">
 						{/* head */}
 						<thead>
 							<tr>
-								<th className="text-base text-black">
-									{user.accountType === "partner"
+								<th className="text-sm text-black">
+									{user?.accountType === "partner"
 										? `Cliente`
 										: `Loja`}
 								</th>
-								<th className="text-base text-black">
+								<th className="text-sm text-black">
 									Transação
 								</th>
-								<th className="text-base text-black">
+								<th className="text-sm text-black">
 									Valor Total
 								</th>
-								<th className="text-base text-black">Data</th>
+								<th className="text-sm text-black">Data</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -224,7 +223,7 @@ function WalletPage() {
 									<div className="text-black">
 										One Piece Vol.1
 									</div>
-									<span className="badge badge-accent badge-sm">
+									<span className="badge badge-accent badge-sm text-white py-2">
 										Compra Online
 									</span>
 								</td>
@@ -239,9 +238,35 @@ function WalletPage() {
 									</div>
 								</td>
 								<th>
-									<button className="btn btn-primary hover:btn-secondary btn-xs text-white shadow-md">
+									{/* Modal de Detalhes da Transação */}
+									<button
+										className="btn btn-primary hover:btn-secondary btn-xs text-white shadow-md"
+										onClick={() =>
+											document
+												.getElementById("my_modal_1")
+												.showModal()
+										}>
 										+ detalhes
 									</button>
+									<dialog id="my_modal_1" className="modal">
+										<div className="modal-box bg-primary">
+											<h3 className="font-bold text-lg">
+												Hello!
+											</h3>
+											<p className="py-4">
+												Press ESC key or click the
+												button below to close
+											</p>
+											<div className="modal-action">
+												<form method="dialog">
+													{/* if there is a button in form, it will close the modal */}
+													<button className="btn btn-error">
+														Fechar
+													</button>
+												</form>
+											</div>
+										</div>
+									</dialog>
 								</th>
 							</tr>
 							{/* row 2 */}
@@ -270,7 +295,7 @@ function WalletPage() {
 									<div className="text-black">
 										Pulseira Elfa
 									</div>
-									<span className="badge badge-success badge-sm">
+									<span className="badge badge-success badge-sm text-white py-2">
 										Venda Online
 									</span>
 								</td>

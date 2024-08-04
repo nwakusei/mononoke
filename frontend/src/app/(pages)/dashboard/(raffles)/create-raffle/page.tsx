@@ -86,14 +86,14 @@ function CreateRafflePage() {
 						{/* Gadget 1 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mt-4 mb-4">
 							{/* Criar Sorteio */}
-							<div className="flex flex-col gap-2 ml-6 mb-6">
+							<div className="flex flex-col gap-2 mx-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
 									Criar Sorteio
 								</h1>
 
 								<div className="flex flex-row gap-10">
 									{/* Nome e Descrição */}
-									<label className="form-control w-[966px]">
+									<label className="form-control w-full">
 										<div className="label">
 											<span className="label-text text-black">
 												Prêmio do Sorteio
@@ -108,7 +108,7 @@ function CreateRafflePage() {
 								</div>
 
 								<div className="flex flex-col gap-10">
-									<div className="flex flex-row gap-8">
+									<div className="flex flex-row gap-8 w-full">
 										{/* Cashback Atual */}
 										<label className="form-control">
 											<div className="label">
@@ -121,7 +121,7 @@ function CreateRafflePage() {
 													<div>
 														<input
 															type="date"
-															className="input input-bordered input-success join-item w-[250px]"
+															className="input input-bordered input-success join-item w-[296px]"
 															placeholder={`dd/MM`}
 														/>
 													</div>
@@ -158,7 +158,7 @@ function CreateRafflePage() {
 															className={`${
 																errors.discountPercentage &&
 																`input-error`
-															} input input-bordered input-success join-item w-[250px]`}
+															} input input-bordered input-success join-item w-[296px]`}
 															placeholder="0"
 															{...register(
 																"discountPercentage"
@@ -206,7 +206,7 @@ function CreateRafflePage() {
 															className={`${
 																errors.discountPercentage &&
 																`input-error`
-															} input input-bordered input-success join-item w-[250px]`}
+															} input input-bordered input-success join-item w-[295px]`}
 															placeholder="0"
 															{...register(
 																"discountPercentage"
@@ -252,7 +252,7 @@ function CreateRafflePage() {
 												</span>
 											</div>
 											<textarea
-												className="textarea textarea-bordered w-[500px] h-[150px]"
+												className="textarea textarea-bordered w-[535px] h-[150px]"
 												placeholder="Bio"></textarea>
 
 											<div className="label">
@@ -279,7 +279,7 @@ function CreateRafflePage() {
 												</span>
 											</div>
 											<textarea
-												className="textarea textarea-bordered w-[500px] h-[150px]"
+												className="textarea textarea-bordered w-[536px] h-[150px]"
 												placeholder="Bio"></textarea>
 
 											<div className="label">
@@ -310,7 +310,7 @@ function CreateRafflePage() {
 									Importante!
 								</h1>
 
-								<div className="flex flex-row border-[1px] border-dashed border-sky-700 rounded p-4 gap-2">
+								<div className="flex flex-row border-[1px] border-dashed border-primary rounded-md p-4 gap-2">
 									<span className="flex items-center w-[650px] h-auto justify-center bg-yellow-500 rounded mr-4">
 										<CiWarning
 											className="text-black"
@@ -333,7 +333,7 @@ function CreateRafflePage() {
 										só receberá os cashbacks caso faça o
 										pagamento usando OtakuPay.
 										<Link
-											className="flex flex-row items-center gap-2 text-purple-300 transition-all ease-in duration-200 hover:text-purple-500"
+											className="flex flex-row items-center gap-2 text-primary transition-all ease-in duration-200 hover:text-secondary"
 											href="https://www.kangu.com.br/ponto-kangu/"
 											target="_blank">
 											<span>
@@ -364,7 +364,7 @@ function CreateRafflePage() {
 									</button>
 									<button
 										type="submit"
-										className="btn btn-success text-black shadow-md">
+										className="btn btn-success text-white shadow-md">
 										Criar e Publicar
 									</button>
 								</div>

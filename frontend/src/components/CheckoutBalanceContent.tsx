@@ -24,11 +24,14 @@ function CheckoutBalanceContent({ products, shippingCost, coupons, token }) {
 		try {
 			setPayLoading(true);
 
+			console.log(transportadoraInfo);
+
 			const shippingCost = Object.values(transportadoraInfo).map(
 				(info) => ({
-					partnerID: info.partnerID,
-					vlrFrete: info.vlrFrete,
-					daysShipping: info.prazoEnt,
+					partnerID: info?.partnerID,
+					transportadora: info?.transpNome, // Esse dado pode ser excluído aqui, e também no Backend (atualizando ambos ao mesmo tempo)
+					vlrFrete: info?.vlrFrete,
+					daysShipping: info?.prazoEnt,
 				})
 			);
 
@@ -60,8 +63,7 @@ function CheckoutBalanceContent({ products, shippingCost, coupons, token }) {
 
 			Swal.fire({
 				title: "Pagamento Realizado com Sucesso!",
-				width: 800,
-				text: "Agora é só aguardar o envio o/",
+				width: 900,
 				icon: "success",
 			});
 
@@ -86,7 +88,7 @@ function CheckoutBalanceContent({ products, shippingCost, coupons, token }) {
 			</div>
 			<div className="flex flex-row justify-center items-center gap-4">
 				{payLoading ? (
-					<button className="btn btn-primary">
+					<button className="flex flex-row justify-center items-center gap-2 bg-green-800 w-[200px] p-3 rounded-lg shadow-md">
 						<span className="loading loading-spinner loading-sm"></span>
 						<span>Processando...</span>
 					</button>
