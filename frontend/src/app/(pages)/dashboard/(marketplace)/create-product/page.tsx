@@ -209,86 +209,93 @@ function CreateProductPage() {
 						{/* Gadget 1 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mt-4 mr-4 mb-4">
 							{/* Adicionar Porduto */}
-							<div className="flex flex-col gap-2 ml-6 mb-6">
+							<div className="flex flex-col gap-2 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
 									Nome e Descrição
 								</h1>
 								{/* Nome e Descrição */}
-								<label className="form-control w-full max-w-3xl">
-									<div className="label">
-										<span className="label-text text-black">
-											Título do Produto
-										</span>
-									</div>
-									<input
-										type="text"
-										placeholder="Ex: One Piece Vol.1"
-										className={`${
-											errors.productName && `input-error`
-										} input input-bordered input-success w-fullmax-w-3xl`}
-										{...register("productName")}
-									/>
-									<div className="label">
-										{errors.productName && (
-											<span className="label-text-alt text-red-500">
-												{errors.productName.message}
+								<div>
+									<label className="form-control">
+										<div className="label">
+											<span className="label-text text-black">
+												Título do Produto
 											</span>
-										)}
-									</div>
-								</label>
+										</div>
+										<input
+											type="text"
+											placeholder="Ex: One Piece Vol.1"
+											className={`${
+												errors.productName &&
+												`input-error`
+											} input input-bordered input-success w-full`}
+											{...register("productName")}
+										/>
+										<div className="label">
+											{errors.productName && (
+												<span className="label-text-alt text-red-500">
+													{errors.productName.message}
+												</span>
+											)}
+										</div>
+									</label>
+								</div>
 
-								<label className="form-control w-full max-w-3xl">
-									<div className="label">
-										<span className="label-text text-black">
-											Descrição do Produto
-										</span>
-									</div>
-									<textarea
-										className={`${
-											errors.description &&
-											`textarea-error`
-										} textarea textarea-success`}
-										placeholder="Descreva todos os detalhes do produto..."
-										{...register("description")}></textarea>
-									<div className="label">
-										{errors.description && (
-											<span className="label-text-alt text-red-500">
-												{errors.description.message}
+								<div className="flex flex-row gap-4">
+									<label className="form-control">
+										<div className="label">
+											<span className="label-text text-black">
+												Descrição do Produto
 											</span>
-										)}
-									</div>
-								</label>
+										</div>
+										<textarea
+											className={`${
+												errors.description &&
+												`textarea-error`
+											} textarea textarea-success w-[900px] h-[200px]`}
+											placeholder="Descreva todos os detalhes do produto..."
+											{...register(
+												"description"
+											)}></textarea>
+										<div className="label">
+											{errors.description && (
+												<span className="label-text-alt text-red-500">
+													{errors.description.message}
+												</span>
+											)}
+										</div>
+									</label>
 
-								<label className="form-control w-full max-w-3xl">
-									<div className="label">
-										<span className="label-text text-black">
-											Categoria do Produto
-										</span>
-									</div>
-									<select
-										className={`select select-success w-full max-w-3xl`}
-										{...register("category")}>
-										<option disabled selected value="">
-											Escolha a categoria do Produto
-										</option>
-										<option>Impresso</option>
-										<option>Figure</option>
-										<option>Game</option>
-										<option>CD/DVD</option>
-										<option>Vestuário</option>
-										<option>Acessório</option>
-										<option>TGC (Card Game)</option>
-										<option>Papelaria</option>
-										<option>Óculos</option>
-									</select>
-									<div className="label -mt-1">
-										{errors.category && (
-											<span className="label-text-alt text-red-500">
-												{errors.category.message}
+									<label className="form-control">
+										<div className="label">
+											<span className="label-text text-black">
+												Categoria do Produto
 											</span>
-										)}
-									</div>
-								</label>
+										</div>
+										<select
+											className={`select select-success w-full`}
+											{...register("category")}>
+											<option disabled selected value="">
+												Escolha a categoria do Produto
+											</option>
+											<option>Impresso</option>
+											<option>Figure</option>
+											<option>Game</option>
+											<option>CD/DVD</option>
+											<option>Vestuário</option>
+											<option>Acessório</option>
+											<option>TGC (Card Game)</option>
+											<option>Papelaria</option>
+											<option>Óculos</option>
+										</select>
+										<div className="label -mt-1">
+											{errors.category && (
+												<span className="label-text-alt text-red-500">
+													{errors.category.message}
+												</span>
+											)}
+										</div>
+									</label>
+								</div>
 							</div>
 						</div>
 
@@ -766,7 +773,17 @@ function CreateProductPage() {
 										</div>
 									</label>
 
-									<div>✖</div>
+									<div>
+										<span
+											style={{
+												color: "black",
+												fontSize: 25,
+												fontFamily:
+													"Roboto, sans-serif",
+											}}>
+											✖
+										</span>
+									</div>
 
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl ml-16">
@@ -809,7 +826,17 @@ function CreateProductPage() {
 										</div>
 									</label>
 
-									<div>✖</div>
+									<div>
+										<span
+											style={{
+												color: "black",
+												fontSize: 25,
+												fontFamily:
+													"Roboto, sans-serif",
+											}}>
+											✖
+										</span>
+									</div>
 
 									{/* Nome e Descrição */}
 									<label className="form-control w-full max-w-2xl ml-16">

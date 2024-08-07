@@ -254,7 +254,7 @@ function MySaleByIDPage() {
 												Desconto
 											</th>
 											<th className="text-sm text-black">
-												Total
+												Total do Pedido
 											</th>
 										</tr>
 									</thead>

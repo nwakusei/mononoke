@@ -207,12 +207,12 @@ function ProductPage() {
 				<div className="flex flex-col">
 					<div className="bg-white w-[402px] border-black border-solid border-[1px] border-opacity-20 rounded-md relative shadow-lg mb-2">
 						<div className="h-[402px] flex items-center justify-center mx-3 my-2">
-							{product.imagesProduct &&
-								product.imagesProduct.length > 0 && (
+							{product?.imagesProduct &&
+								product?.imagesProduct.length > 0 && (
 									<Image
 										className="object-contain h-full"
-										src={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
-										alt={product.productName}
+										src={`http://localhost:5000/images/products/${product?.imagesProduct[0]}`}
+										alt={product?.productName}
 										width={280}
 										height={10}
 										unoptimized
@@ -222,9 +222,9 @@ function ProductPage() {
 					</div>
 					{/* Pequenas imagens */}
 					<div className="flex flex-row gap-2">
-						{product.imagesProduct &&
-							product.imagesProduct.length > 0 &&
-							product.imagesProduct.map((image, id) => (
+						{product?.imagesProduct &&
+							product?.imagesProduct.length > 0 &&
+							product?.imagesProduct.map((image, id) => (
 								<div className="bg-white border-black border-solid border-[1px] border-opacity-20 w-[74px] rounded relative shadow-md">
 									<div
 										key={id}
@@ -270,7 +270,7 @@ function ProductPage() {
 				<div className="flex flex-col w-[350px]">
 					{/* Título */}
 					<h1 className="text-xl font-semibold text-black mb-1">
-						{product.productName}
+						{product?.productName}
 					</h1>
 					{/* Avaliações e Vendidos */}
 					<div className="flex flex-row text-sm text-black mb-4 gap-1">
@@ -280,34 +280,34 @@ function ProductPage() {
 						</div>
 						<span>|</span>
 						<div>
-							{product.reviews &&
-							Array.isArray(product.reviews) &&
-							product.reviews.length === 0
+							{product?.reviews &&
+							Array.isArray(product?.reviews) &&
+							product?.reviews.length === 0
 								? "Nenhuma Avaliação"
-								: product.reviews &&
-								  Array.isArray(product.reviews) &&
-								  product.reviews.length === 1
+								: product?.reviews &&
+								  Array.isArray(product?.reviews) &&
+								  product?.reviews.length === 1
 								? "1 Avaliação"
-								: product.reviews &&
-								  Array.isArray(product.reviews)
-								? `${product.reviews.length} Avaliações`
+								: product?.reviews &&
+								  Array.isArray(product?.reviews)
+								? `${product?.reviews.length} Avaliações`
 								: "0 Avaliações"}
 						</div>
 						<span>|</span>
 						<div>
-							{product.productsSold > 1
-								? `${product.productsSold} Vendidos`
-								: `${product.productsSold} Vendido`}
+							{product?.productsSold > 1
+								? `${product?.productsSold} Vendidos`
+								: `${product?.productsSold} Vendido`}
 						</div>
 					</div>
 
 					{/* Preço */}
-					{product.promocionalPrice > 0 ? (
+					{product?.promocionalPrice > 0 ? (
 						<div>
 							{/* Preço promocional */}
 							<h2 className="text-2xl text-primary font-semibold">
 								{Number(
-									product.promocionalPrice
+									product?.promocionalPrice
 								).toLocaleString("pt-BR", {
 									style: "currency",
 									currency: "BRL",
@@ -317,7 +317,7 @@ function ProductPage() {
 							<div className="flex flex-row items-center mb-2">
 								<span className="text-base text-black line-through mr-2">
 									{Number(
-										product.originalPrice
+										product?.originalPrice
 									).toLocaleString("pt-BR", {
 										style: "currency",
 										currency: "BRL",
@@ -331,7 +331,7 @@ function ProductPage() {
 					) : (
 						<div>
 							<h2 className="text-2xl text-primary font-semibold">
-								{Number(product.originalPrice).toLocaleString(
+								{Number(product?.originalPrice).toLocaleString(
 									"pt-BR",
 									{
 										style: "currency",
@@ -347,8 +347,7 @@ function ProductPage() {
 							<span>
 								<p className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
 									<Currency size={18} />{" "}
-									{`${partner.cashback}%`}
-									de Cashback
+									{`${partner?.cashback}% de Cashback`}
 								</p>
 							</span>
 						</div>
@@ -369,7 +368,7 @@ function ProductPage() {
 					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-t-md select-none">
 						Descrição e Detalhes do Produto
 					</h1>
-					<p className="text-black mb-2">{product.description}</p>
+					<p className="text-black mb-2">{product?.description}</p>
 				</div>
 			</div>
 
@@ -390,7 +389,7 @@ function ProductPage() {
 							<div className="flex flex-col">
 								<div className="flex flex-row items-center gap-1 font-semibold text-lg">
 									<h1 className="text-black">
-										{partner.name}
+										{partner?.name}
 									</h1>
 									{/* <div className="relative group inline-block">
 										<MdVerified
@@ -513,7 +512,7 @@ function ProductPage() {
 									</span>{" "}
 									<span className="text-black mb-1">|</span>
 									<span className="text-black ml-2">
-										{`${partner.followers} Seguidores`}
+										{`${partner?.followers} Seguidores`}
 									</span>
 								</div>
 								<div className="mt-1">
@@ -555,8 +554,8 @@ function ProductPage() {
 							</h1>
 						</div>
 						{/* Avaliação por Usuário*/}
-						{product.reviews && product.reviews.length > 0 ? (
-							product.reviews.map((item, index) => (
+						{product?.reviews && product?.reviews.length > 0 ? (
+							product?.reviews.map((item, index) => (
 								<div key={index} className="-mt-2">
 									<div className="flex flex-row gap-2 mb-1">
 										<div className="avatar">
@@ -572,29 +571,29 @@ function ProductPage() {
 											<div>
 												{/* Avaliações e Vendidos */}
 												<h1 className="text-sm">
-													{item.customerName}
+													{item?.customerName}
 												</h1>
 												<div className="flex flex-row items-center text-sm">
 													<span className="flex flex-row items-center gap-1">
 														<p className="flex flex-row items-center gap-1 mr-1 text-sm">
 															{renderReviewRatingIcons(
-																item.reviewRating
+																item?.reviewRating
 															)}
 														</p>
 													</span>
 												</div>
 												<h3 className="text-xs mb-2">
-													{item.date
+													{item?.date
 														? format(
 																new Date(
-																	item.date
+																	item?.date
 																),
 																"dd/MM/yyyy - HH:mm"
 														  ) + " hs"
 														: ""}
 												</h3>
 												<p className="text-base mb-2">
-													{item.reviewDescription}
+													{item?.reviewDescription}
 												</p>
 											</div>
 
@@ -603,8 +602,8 @@ function ProductPage() {
 												<div>
 													{/* Renderizar imagens em miniatura */}
 													<div className="flex flex-row gap-2 mb-2">
-														{item.imagesReview &&
-															item.imagesReview.map(
+														{item?.imagesReview &&
+															item?.imagesReview.map(
 																(image, id) => (
 																	<div
 																		key={id}

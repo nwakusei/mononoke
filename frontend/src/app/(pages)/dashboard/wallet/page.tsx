@@ -249,7 +249,7 @@ function WalletPage() {
 										+ detalhes
 									</button>
 									<dialog id="my_modal_1" className="modal">
-										<div className="modal-box bg-primary">
+										<div className="modal-box bg-secondary">
 											<h3 className="font-bold text-lg">
 												Hello!
 											</h3>
@@ -260,7 +260,7 @@ function WalletPage() {
 											<div className="modal-action">
 												<form method="dialog">
 													{/* if there is a button in form, it will close the modal */}
-													<button className="btn btn-error">
+													<button className="btn btn-primary">
 														Fechar
 													</button>
 												</form>
