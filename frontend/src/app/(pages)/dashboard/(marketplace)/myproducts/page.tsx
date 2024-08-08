@@ -162,7 +162,7 @@ function MyProductsPage() {
 														{product.stock} un
 													</td>
 													<th>
-														<button className="flex items-center btn btn-ghost btn-xs text-black">
+														<button className="flex items-center btn btn-primary btn-xs shadow-md">
 															+ Detalhes
 														</button>
 													</th>

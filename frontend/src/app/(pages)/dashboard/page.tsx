@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import api from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 // Imagens
 import imageProfile from "../../../../public/Kon.jpg";
@@ -32,6 +33,8 @@ function DashboardPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState(null); // Inicializa como null para identificar se já foi carregado
 	const [isLoading, setIsLoading] = useState(true); // Estado de loading
+
+	const router = useRouter();
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {

@@ -15,11 +15,13 @@ import api from "@/utils/api";
 import { Sidebar } from "@/components/Sidebar";
 
 // Icons
-import { AddPicture } from "@icon-park/react";
+import { AddPicture, Weight } from "@icon-park/react";
 import { GoArrowUpRight, GoLinkExternal } from "react-icons/go";
-import { TbCurrencyReal } from "react-icons/tb";
+import { TbCurrencyReal, TbRulerMeasure } from "react-icons/tb";
 import { CiWarning } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa6";
+import { IoCalendarNumberOutline } from "react-icons/io5";
+import { GiWeight } from "react-icons/gi";
 
 const createProductFormSchema = z.object({
 	imagesProduct: z.instanceof(FileList).transform((list) => {
@@ -251,7 +253,7 @@ function CreateProductPage() {
 											className={`${
 												errors.description &&
 												`textarea-error`
-											} textarea textarea-success w-[900px] h-[200px]`}
+											} textarea textarea-success w-[885px] h-[200px]`}
 											placeholder="Descreva todos os detalhes do produto..."
 											{...register(
 												"description"
@@ -665,8 +667,10 @@ function CreateProductPage() {
 											<div className="indicator">
 												<button
 													type="button"
-													className="btn join-item flex flex-row items-center text-black">
-													Dias
+													className="btn join-item flex flex-row items-center">
+													<IoCalendarNumberOutline
+														size={25}
+													/>
 												</button>
 											</div>
 										</div>
@@ -715,7 +719,7 @@ function CreateProductPage() {
 												<button
 													type="button"
 													className="btn join-item">
-													kg
+													<GiWeight size={30} />
 												</button>
 											</div>
 										</div>
@@ -755,8 +759,8 @@ function CreateProductPage() {
 											<div className="indicator">
 												<button
 													type="button"
-													className="btn join-item text-black">
-													cm
+													className="btn join-item">
+													<TbRulerMeasure size={25} />
 												</button>
 											</div>
 										</div>
@@ -808,8 +812,8 @@ function CreateProductPage() {
 											<div className="indicator">
 												<button
 													type="button"
-													className="btn join-item text-black">
-													cm
+													className="btn join-item">
+													<TbRulerMeasure size={25} />
 												</button>
 											</div>
 										</div>
@@ -861,8 +865,8 @@ function CreateProductPage() {
 											<div className="indicator">
 												<button
 													type="button"
-													className="btn join-item text-black">
-													cm
+													className="btn join-item">
+													<TbRulerMeasure size={25} />
 												</button>
 											</div>
 										</div>

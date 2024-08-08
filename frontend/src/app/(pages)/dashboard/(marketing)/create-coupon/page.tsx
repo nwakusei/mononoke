@@ -139,8 +139,8 @@ function CreateCouponPage() {
 									<label className="form-control">
 										<div className="label">
 											<span className="label-text text-black">
-												Você quer oferecer quantos % de
-												desconto?
+												Você deseja oferecer quantos %
+												de desconto?
 											</span>
 										</div>
 										<div className="join">

@@ -180,7 +180,16 @@ function RafflePage() {
 						<div className="flex flex-row items-center gap-2">
 							<LuCalendarRange size={16} />
 
-							<span>Data do Sorteio: 13/06</span>
+							<span>
+								{`Data do Sorteio: ${
+									raffle?.raffleDate
+										? format(
+												new Date(raffle?.raffleDate),
+												"dd/MM/yyy"
+										  )
+										: ""
+								}`}
+							</span>
 						</div>
 
 						<div className="flex flex-row items-center gap-2">

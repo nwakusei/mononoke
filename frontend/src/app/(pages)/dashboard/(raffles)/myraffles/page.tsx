@@ -1,8 +1,8 @@
 "use client";
-"use client";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { format } from "date-fns";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
@@ -71,17 +71,17 @@ function MyRafflesPage() {
 										{/* row 1 */}
 										{myraffles &&
 											myraffles.map((myraffle) => (
-												<tr key={myraffle._id}>
+												<tr key={myraffle?._id}>
 													<td>
 														<div className="flex items-center gap-3 mb-2">
 															{Array.isArray(
-																myraffle.imagesRaffle
+																myraffle?.imagesRaffle
 															) &&
 																myraffle
-																	.imagesRaffle
+																	?.imagesRaffle
 																	.length >
 																	0 &&
-																myraffle.imagesRaffle.map(
+																myraffle?.imagesRaffle.map(
 																	(
 																		item,
 																		index
@@ -115,7 +115,7 @@ function MyRafflesPage() {
 																	<h2 className="w-[230px] overflow-x-hidden mb-2">
 																		<span>
 																			{
-																				myraffle.rafflePrize
+																				myraffle?.rafflePrize
 																			}
 																		</span>
 																	</h2>
@@ -125,28 +125,33 @@ function MyRafflesPage() {
 													</td>
 													<td className="text-black">
 														<div>
-															{`${myraffle.raffleCost.toLocaleString(
+															{`${myraffle?.raffleCost.toLocaleString(
 																"pt-BR"
 															)} OP`}
 														</div>
-														<span className="badge badge-success badge-sm shadow-md">
+														<span className="badge badge-success badge-sm">
 															Otaku Point
 														</span>
 													</td>
 													<td>
 														<div className="text-black">
-															{
-																myraffle.raffleDate
-															}
+															{myraffle?.raffleDate
+																? format(
+																		new Date(
+																			myraffle?.raffleDate
+																		),
+																		"dd/MM/yyyy"
+																  )
+																: ""}
 														</div>
 													</td>
 													<td className="text-xs">
 														<div className="text-black">
-															{myraffle._id}
+															{myraffle?._id.toUpperCase()}
 														</div>
 													</td>
 													<th>
-														<button className="flex flex-row items-center btn btn-info btn-xs w-[80px] shadow-md">
+														<button className="flex flex-row items-center btn btn-info btn-xs text-white w-[80px] shadow-md">
 															Editar
 														</button>
 													</th>

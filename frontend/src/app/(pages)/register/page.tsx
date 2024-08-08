@@ -86,7 +86,6 @@ const createUserFormSchema = z
 type TCreateUserFormData = z.infer<typeof createUserFormSchema>;
 
 function RegisterPage() {
-	const [output, setOutput] = useState("");
 	const {
 		register,
 		handleSubmit,
@@ -102,7 +101,6 @@ function RegisterPage() {
 		} else {
 			registerPartner(data);
 		}
-		setOutput(JSON.stringify(data, null, 2));
 	}
 
 	return (
@@ -151,7 +149,7 @@ function RegisterPage() {
 					/>
 					<InputUserForm
 						htmlFor="cpf"
-						labelTitle="CPF"
+						labelTitle="CPF ou CNPJ"
 						type="text"
 						inputName="cpf"
 						register={register}
@@ -188,8 +186,6 @@ function RegisterPage() {
 						Cadastrar
 					</button>
 				</form>
-				<br />
-				<pre>{output}</pre>
 			</div>
 		</section>
 	);

@@ -132,7 +132,7 @@ function MySalesPage() {
 															}
 														)}
 														<br />
-														<span className="badge badge-success badge-sm shadow-md">
+														<span className="badge badge-success badge-sm">
 															{
 																mysale.paymentMethod
 															}
@@ -156,7 +156,7 @@ function MySalesPage() {
 														{mysale.orderID}
 													</td>
 													<th className="text-black">
-														<button className="flex items-center btn btn-primary btn-xs">
+														<button className="flex items-center btn btn-primary btn-xs shadow-md">
 															<Link
 																href={`/dashboard/mysales/${mysale._id}`}>
 																+ Detalhes

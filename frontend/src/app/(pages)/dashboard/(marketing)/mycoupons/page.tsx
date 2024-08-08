@@ -110,8 +110,8 @@ function MyCouponsPage() {
 									</thead>
 									<tbody>
 										{/* rows */}
-										{coupons.map((coupon) => (
-											<tr key={coupon._id}>
+										{coupons?.map((coupon) => (
+											<tr key={coupon?._id}>
 												<td>
 													<input
 														type="checkbox"
@@ -120,30 +120,30 @@ function MyCouponsPage() {
 												</td>
 												<td>
 													<div className="font-bold text-black">
-														{coupon.couponCode}
+														{coupon?.couponCode}
 													</div>
 												</td>
 												<td>
 													<div className="text-black">
-														{`${coupon.discountPercentage}%`}
+														{`${coupon?.discountPercentage}%`}
 													</div>
 												</td>
 												<td>
 													<div className="text-black">
-														{coupon.expirationDate}
+														{coupon?.expirationDate}
 													</div>
 												</td>
 												<td>
 													<span
-														className={`badge bg-${
+														className={`badge badge-${
 															isCouponExpired(
-																coupon.expirationDate
+																coupon?.expirationDate
 															)
-																? "yellow-500 text-black"
-																: "sky-500 text-black"
-														} badge-sm shadow-md`}>
+																? "error text-black"
+																: "success text-black"
+														} badge-sm py-2`}>
 														{isCouponExpired(
-															coupon.expirationDate
+															coupon?.expirationDate
 														)
 															? "Expirado"
 															: "Ativo"}
@@ -154,16 +154,16 @@ function MyCouponsPage() {
 														type="button"
 														onClick={() =>
 															handleRemove(
-																coupon._id
+																coupon?._id
 															)
 														}
 														className="btn btn-error btn-xs shadow-md w-[80px]"
 														disabled={
 															deleteLoading ===
-															coupon._id
+															coupon?._id
 														}>
 														{deleteLoading ===
-														coupon._id ? (
+														coupon?._id ? (
 															<div className="btn btn-error btn-xs w-[80px]">
 																<span className="loading loading-dots loading-xs"></span>
 															</div>

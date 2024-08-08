@@ -31,7 +31,6 @@ const createUserFormSchema = z.object({
 type TCreateUserFormData = z.infer<typeof createUserFormSchema>;
 
 function LoginPage() {
-	const [output, setOutput] = useState("");
 	const {
 		register,
 		handleSubmit,
@@ -42,13 +41,21 @@ function LoginPage() {
 
 	const { loginUser } = useContext(Context);
 
-	function signinUser(data: TCreateUserFormData) {
-		loginUser(data);
-		setOutput(JSON.stringify(data, null, 2));
-	}
+	const [btnLoading, setBtnLoading] = useState(false);
+
+	const signinUser = async (data: TCreateUserFormData) => {
+		setBtnLoading(true); // Define o estado como true quando o login é iniciado
+		try {
+			await loginUser(data); // Chama o método de login
+		} catch (error) {
+			console.error("Erro no login:", error);
+		} finally {
+			setBtnLoading(false); // Define o estado como false após o login, independentemente do sucesso ou falha
+		}
+	};
 
 	return (
-		<section className="bg-gray-300 flex min-h-screen flex-col items-center justify-center p-24">
+		<section className="bg-gray-100 flex min-h-screen flex-col items-center justify-center p-24">
 			<div className="flex flex-col items-center justify-center bg-primary w-[500px] h-[550px] rounded-md shadow-md m-4">
 				<Image
 					className="pointer-events-none select-none"
@@ -76,14 +83,19 @@ function LoginPage() {
 						errors={errors}
 					/>
 
-					<button
-						type="submit"
-						className="btn btn-secondary w-[320px] mt-4 select-none shadow-md">
-						Entrar
-					</button>
+					{btnLoading ? (
+						<button className="flex flex-row justify-center items-center btn btn-secondary w-[320px] mt-4 select-none shadow-md">
+							{/* <span className="loading loading-dots loading-md"></span> */}
+							<span className="loading loading-spinner loading-md"></span>
+						</button>
+					) : (
+						<button
+							type="submit"
+							className="btn btn-secondary w-[320px] mt-4 select-none shadow-md">
+							Entrar
+						</button>
+					)}
 				</form>
-				<br />
-				<pre>{output}</pre>
 			</div>
 		</section>
 	);
