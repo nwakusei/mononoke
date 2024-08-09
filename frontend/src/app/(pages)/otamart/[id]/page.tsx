@@ -457,10 +457,10 @@ function ProductPage() {
 									/>
 
 									{/* Prata 2 */}
-									<MdVerified
+									{/* <MdVerified
 										className="text-[#9a9a9a]"
 										size={18}
-									/>
+									/> */}
 
 									{/* Dourado */}
 									<MdVerified
@@ -545,7 +545,7 @@ function ProductPage() {
 			</div>
 
 			{/* Avaliações*/}
-			<div className="bg-white flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8">
+			<div className="bg-white flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md">
 				<div className="w-full border-opacity-50">
 					<div className="flex flex-col">
 						<div className="flex flex-col justify-center items-center mb-2">
@@ -669,6 +669,16 @@ function ProductPage() {
 							</div>
 						)}
 					</div>
+				</div>
+			</div>
+			{/* Produtos Recomendados */}
+			<div className="bg-white gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8">
+				{/* Descrição e Detalhes*/}
+				<div className="flex flex-col justify-center items-center">
+					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-t-md select-none">
+						Produtos Recomendados
+					</h1>
+					<p className="text-black mb-2">{product?.description}</p>
 				</div>
 			</div>
 		</section>

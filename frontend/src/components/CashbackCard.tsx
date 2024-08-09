@@ -15,7 +15,7 @@ function CashbackCard({ partnerName, partnerLogo, cashback, couponInfo }) {
 					unoptimized
 				/>
 			</div>
-			<div className="divider before:bg-primary after:bg-primary text-black mx-2">
+			<div className="divider before:bg-black after:bg-black text-black mx-2">
 				{partnerName}
 			</div>
 			<div className="h-[140px] flex flex-col items-center justify-center mx-4 -mt-6">

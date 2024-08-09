@@ -80,14 +80,14 @@ function CreateCouponPage() {
 						{/* Gadget 1 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mt-4 mb-4 shadow-md">
 							{/* Adicionar Porduto */}
-							<div className="flex flex-col gap-2 ml-6 mb-6">
+							<div className="flex flex-col gap-2 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
 									Criar Cupom de Desconto
 								</h1>
 
 								<div className="flex flex-row gap-10">
 									{/* Nome e Descrição */}
-									<label className="form-control w-[991px]">
+									<label className="form-control w-full">
 										<div className="label">
 											<span className="label-text text-black">
 												Site da Loja
@@ -102,7 +102,7 @@ function CreateCouponPage() {
 									</label>
 								</div>
 
-								<div className="flex flex-row items-center gap-10">
+								<div className="flex flex-row items-center gap-4">
 									{/* Cashback Atual */}
 									<label className="form-control">
 										<div className="label">
@@ -114,7 +114,7 @@ function CreateCouponPage() {
 											<div>
 												<div>
 													<input
-														className="input input-bordered input-success join-item w-[250px]"
+														className="input input-bordered input-success join-item w-[325px]"
 														placeholder={`${partner.cashback}`}
 														disabled
 													/>
@@ -150,7 +150,7 @@ function CreateCouponPage() {
 														className={`${
 															errors.discountPercentage &&
 															`input-error`
-														} input input-bordered input-success join-item w-[250px]`}
+														} input input-bordered input-success join-item w-[325px]`}
 														placeholder="0"
 														{...register(
 															"discountPercentage"
@@ -197,7 +197,7 @@ function CreateCouponPage() {
 														className={`${
 															errors.couponCode &&
 															`input-error`
-														} input input-bordered input-success join-item w-[250px]`}
+														} input input-bordered input-success join-item w-[325px]`}
 														placeholder="..."
 														{...register(
 															"couponCode"
@@ -290,7 +290,7 @@ function CreateCouponPage() {
 									</button>
 									<button
 										type="submit"
-										className="btn btn-success shadow-md">
+										className="btn btn-primary shadow-md">
 										Criar e Publicar
 									</button>
 								</div>

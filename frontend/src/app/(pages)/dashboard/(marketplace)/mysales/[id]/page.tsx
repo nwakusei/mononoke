@@ -115,7 +115,7 @@ function MySaleByIDPage() {
 				<div className="flex flex-row justify-between items-center gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md mt-4 mr-4">
 					<div className="flex flex-col">
 						<h1 className="text-lg text-black">
-							ID do Pedido: {mysale.orderID}
+							{`ID do Pedido: ${mysale.orderID}`}
 						</h1>
 						<h2 className="text-black">
 							Data do Pagamento: {dateCreatedOrder}
@@ -418,9 +418,7 @@ function MySaleByIDPage() {
 					{/* Gadget 3 */}
 					<div className="flex flex-col">
 						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4 text-black">
-							<h1 className="text-lg">
-								Nome: {mysale.customerName}
-							</h1>
+							<h1 className="text-lg">{mysale.customerName}</h1>
 							<h2>CPF: {mysale.customerCPF}</h2>
 
 							<div className="divider before:border-t-[1px] after:border-t-[1px] before:bg-black after:bg-black"></div>

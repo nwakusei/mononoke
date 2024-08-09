@@ -16,6 +16,7 @@ import { Sidebar } from "@/components/Sidebar";
 
 // Icons
 import { AddPicture } from "@icon-park/react";
+import { FiInfo } from "react-icons/fi";
 
 const createProductFormSchema = z.object({
 	imagesProduct: z.instanceof(FileList).transform((list) => {
@@ -81,19 +82,28 @@ function MyProfilePage() {
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
-									Dados da Loja
+									{`${
+										user?.accountType === "customer"
+											? "Dados de Usuário"
+											: "Dados da Loja"
+									}`}
 								</h1>
 								<div className="flex flex-row gap-4">
 									{/* Nome Fantasia */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
 											<span className="label-text text-black">
-												Nome Fantasia
+												{`${
+													user?.accountType ===
+													"customer"
+														? "Nome"
+														: "Nome Fantasia"
+												}`}
 											</span>
 										</div>
 										<input
 											type="text"
-											placeholder={`${user.name}`}
+											placeholder={`${user?.name}`}
 											className={`${
 												errors.productName &&
 												`input-error`
@@ -117,7 +127,7 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											placeholder={`${user.cpf}`}
+											placeholder={`${user?.cpf}`}
 											className={`${
 												errors.productName &&
 												`input-error`
@@ -143,7 +153,7 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="email"
-											placeholder={`${user.email}`}
+											placeholder={`${user?.email}`}
 											className={`${
 												errors.productName &&
 												`input-error`
@@ -158,59 +168,75 @@ function MyProfilePage() {
 											)}
 										</div>
 									</label>
-
-									{/* Site */}
-									<label className="form-control w-full max-w-3xl">
-										<div className="label">
-											<span className="label-text text-black">
-												Site Oficial da Loja
-											</span>
-										</div>
-										<input
-											type="text"
-											placeholder={`${user.site}`}
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("productName")}
-										/>
-										<div className="label">
-											{errors.productName && (
-												<span className="label-text-alt text-red-500">
-													{errors.productName.message}
-												</span>
-											)}
-										</div>
-									</label>
 								</div>
 
-								<div className="flex flex-row gap-4">
-									{/* Descrição da Loja */}
-									<label className="form-control w-full max-w-3xl">
-										<div className="label">
-											<span className="label-text text-black">
-												Descrição da Loja
-											</span>
+								{user && user?.accountType === "customer" ? (
+									<></>
+								) : (
+									<>
+										<div className="flex flex-row gap-4">
+											{/* Site */}
+											<label className="form-control w-full max-w-3xl">
+												<div className="label">
+													<span className="label-text text-black">
+														Site Oficial da Loja
+													</span>
+												</div>
+												<input
+													type="text"
+													placeholder={`${user?.site}`}
+													className={`${
+														errors.productName &&
+														`input-error`
+													} input input-bordered input-success w-fullmax-w-3xl`}
+													{...register("productName")}
+												/>
+												<div className="label">
+													{errors.productName && (
+														<span className="label-text-alt text-red-500">
+															{
+																errors
+																	.productName
+																	.message
+															}
+														</span>
+													)}
+												</div>
+											</label>
 										</div>
-										<textarea
-											className={`${
-												errors.description &&
-												`textarea-error`
-											} textarea textarea-success`}
-											placeholder={`${user.description}`}
-											{...register(
-												"description"
-											)}></textarea>
-										<div className="label">
-											{errors.description && (
-												<span className="label-text-alt text-red-500">
-													{errors.description.message}
-												</span>
-											)}
+
+										<div className="flex flex-row gap-4">
+											{/* Descrição da Loja */}
+											<label className="form-control w-full max-w-3xl">
+												<div className="label">
+													<span className="label-text text-black">
+														Descrição da Loja
+													</span>
+												</div>
+												<textarea
+													className={`${
+														errors.description &&
+														`textarea-error`
+													} textarea textarea-success`}
+													placeholder={`${user?.description}`}
+													{...register(
+														"description"
+													)}></textarea>
+												<div className="label">
+													{errors.description && (
+														<span className="label-text-alt text-red-500">
+															{
+																errors
+																	.description
+																	.message
+															}
+														</span>
+													)}
+												</div>
+											</label>
 										</div>
-									</label>
-								</div>
+									</>
+								)}
 							</div>
 						</div>
 
@@ -279,70 +305,86 @@ function MyProfilePage() {
 										</div>
 									</label>
 
-									{/* Add Imagens */}
-									<label className="form-control w-full max-w-3xl">
-										<div className="label">
-											<span className="label-text text-black">
-												Logo da Loja
-											</span>
-										</div>
-										<div
-											className={`${
-												errors.imagesProduct &&
-												`border-error`
-											} text-black hover:text-white flex flex-col justify-center items-center w-[200px] h-[80px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-											{imagemSelecionadaLogo ? (
-												<img
-													src={imagemSelecionadaLogo}
-													alt="Imagem selecionada"
-													className="object-contain w-full h-full rounded-sm"
-												/>
-											) : (
-												<div
-													className="flex flex-col justify-center items-center"
-													onChange={(event) =>
-														handleImagemSelecionada(
-															event,
-															setImagemSelecionadaLogo
-														)
-													}>
-													<h2 className="text-xs mb-2">
-														Add Imagem
-													</h2>
-													<AddPicture size={20} />
-													<input
-														className="hidden"
-														type="file"
-														accept="image/*"
-														multiple
-														{...register(
-															"imageLogo"
-														)}
-													/>
+									{user &&
+									user?.accountType === "customer" ? (
+										<></>
+									) : (
+										<>
+											{/* Add Imagens */}
+											<label className="form-control w-full max-w-3xl">
+												<div className="label">
+													<span className="label-text text-black">
+														Logo da Loja
+													</span>
 												</div>
-											)}
-										</div>
-										<div className="label">
-											{errors.imagesProduct && (
-												<span className="label-text-alt text-red-500">
-													{
-														errors.imagesProduct
-															.message
-													}
-												</span>
-											)}
-										</div>
-									</label>
+												<div
+													className={`${
+														errors.imagesProduct &&
+														`border-error`
+													} text-black hover:text-white flex flex-col justify-center items-center w-[200px] h-[80px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+													{imagemSelecionadaLogo ? (
+														<img
+															src={
+																imagemSelecionadaLogo
+															}
+															alt="Imagem selecionada"
+															className="object-contain w-full h-full rounded-sm"
+														/>
+													) : (
+														<div
+															className="flex flex-col justify-center items-center"
+															onChange={(event) =>
+																handleImagemSelecionada(
+																	event,
+																	setImagemSelecionadaLogo
+																)
+															}>
+															<h2 className="text-xs mb-2">
+																Add Imagem
+															</h2>
+															<AddPicture
+																size={20}
+															/>
+															<input
+																className="hidden"
+																type="file"
+																accept="image/*"
+																multiple
+																{...register(
+																	"imageLogo"
+																)}
+															/>
+														</div>
+													)}
+												</div>
+												<div className="label">
+													{errors.imagesProduct && (
+														<span className="label-text-alt text-red-500">
+															{
+																errors
+																	.imagesProduct
+																	.message
+															}
+														</span>
+													)}
+												</div>
+											</label>
+										</>
+									)}
 								</div>
 							</div>
 						</div>
 
-						{/* Gadget 2 */}
+						{/* Gadget 3 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
-									Configurações de Envio
+									{`${
+										user?.accountType === "customer"
+											? "Endereço de Entrega"
+											: "Configurações de Envio"
+									}`}
 								</h1>
 								{/* Row 1 */}
 								<div className="flex flex-row gap-4">
@@ -486,78 +528,138 @@ function MyProfilePage() {
 										</div>
 									</label>
 								</div>
-								{/* Credential */}
-								<label className="form-control w-full max-w-3xl">
-									<div className="label">
-										<span className="label-text text-black">
-											Credencial Kangu
-										</span>
-									</div>
-									<input
-										type="text"
-										placeholder={`${
-											user.kanguCredential === ""
-												? "Digite a credencial a Kangu"
-												: user.kanguCredential
-										}`}
-										className={`${
-											errors.productName && `input-error`
-										} input input-bordered input-success w-full max-w-3xl`}
-										{...register("productName")}
-									/>
-									<div className="label">
-										<span className="label-text-alt text-black">
-											Obs.: A credencial da Kangu é
-											obrigatória para que seja possível
-											calcular o frete dos pedidos.
-											Indicado para envio dentro do
-											Brasil!
-										</span>
-									</div>
-								</label>
+								{`${
+									user?.accountType === "customer" ? (
+										<></>
+									) : (
+										<>
+											{/* Credential */}
+											<label className="form-control w-full max-w-3xl">
+												<div className="label">
+													<span className="label-text text-black">
+														Credencial Kangu
+													</span>
+												</div>
+												<input
+													type="text"
+													placeholder={`${
+														user?.kanguCredential ===
+														""
+															? "Digite a credencial a Kangu"
+															: user?.kanguCredential
+													}`}
+													className={`${
+														errors.productName &&
+														`input-error`
+													} input input-bordered input-success w-full max-w-3xl`}
+													{...register("productName")}
+												/>
+												<div className="label">
+													<span className="label-text-alt text-black">
+														Obs.: A credencial da
+														Kangu é obrigatória para
+														que seja possível
+														calcular o frete dos
+														pedidos. Indicado para
+														envio dentro do Brasil!
+													</span>
+												</div>
+											</label>
+										</>
+									)
+								}`}
 							</div>
 						</div>
 
-						{/* Gadget 2 */}
-						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
-							{/* Adicionar Porduto */}
-							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold text-black">
-									Configurações de venda
-								</h1>
+						{user && user?.accountType === "customer" ? (
+							<></>
+						) : (
+							<>
+								{/* Gadget 4 */}
+								<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
+									{`${
+										user?.accountType === "customer"
+											? "Endereço de Entrega"
+											: "Configurações de Envio"
+									}`}
+									{/* Adicionar Porduto */}
+									<div className="flex flex-col gap-2 ml-6 mb-6">
+										<h1 className="text-2xl font-semibold text-black">
+											Configurações de venda
+										</h1>
 
-								{/* Cashback */}
-								<label className="form-control w-full max-w-3xl">
-									<div className="label">
-										<span className="label-text text-black">
-											Cashback oferecido
-										</span>
-									</div>
-									<input
-										type="text"
-										placeholder={`${
-											user.cashback === ""
-												? "Digite a credencial a Kangu"
-												: user.cashback
-										}`}
-										className={`${
-											errors.productName && `input-error`
-										} input input-bordered input-success w-full max-w-3xl`}
-										{...register("productName")}
-									/>
-									<div className="label">
-										<span className="label-text-alt text-black">
-											Obs.: Ao fazer uma venda você paga
-											sempre o dobro de Cashback, sendo
-											valor divivido para o cliente e a
-											nossa plataforma!
-										</span>
-									</div>
-								</label>
-							</div>
-						</div>
+										{/* Cashback */}
+										<label className="form-control w-[250px]">
+											<div className="label">
+												<div className="flex flex-row items-center gap-2 label-text text-black">
+													<span>
+														Cashback oferecido
+													</span>
+													<div className="relative inline-block">
+														<div className="group">
+															{/* Icone Visível no Client Side  */}
+															<FiInfo
+																className="animate-pulse text-info cursor-pointer"
+																size={18}
+															/>
 
-						{/* Gadget 2 */}
+															{/* Tooltip */}
+															<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-[880px] p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 border-[1px] border-black bg-white text-black text-sm rounded shadow-lg pointer-events-none">
+																<p className="ml-2">
+																	Ao realizar
+																	uma venda
+																	você pagará
+																	1,5x o
+																	Cashback
+																	oferecido,
+																	sendo valor
+																	dividido
+																	entre o
+																	cliente (x1)
+																	e a nossa
+																	plataforma
+																	(x0,5).
+																	Exemplo:
+																	Você oferece
+																	2% de
+																	Cashback,
+																	portanto
+																	pagará 3%
+																	(2% para o
+																	cliente e 1%
+																	para nossa
+																	plataforma).
+																</p>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<input
+												type="text"
+												placeholder={`${
+													user.cashback === ""
+														? "Digite a credencial a Kangu"
+														: user.cashback
+												}`}
+												className={`${
+													errors.productName &&
+													`input-error`
+												} input input-bordered input-success w-full max-w-3xl`}
+												{...register("productName")}
+											/>
+											<div className="label">
+												<span className="label-text-alt text-black">
+													Ex.: 5%
+												</span>
+											</div>
+										</label>
+									</div>
+								</div>
+							</>
+						)}
+
+						{/* Gadget 5 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
@@ -615,7 +717,7 @@ function MyProfilePage() {
 							</div>
 						</div>
 
-						{/* Gadget 2 */}
+						{/* Gadget 6 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
@@ -633,7 +735,7 @@ function MyProfilePage() {
 									</button>
 									<button
 										type="submit"
-										className="btn btn-success shadow-md">
+										className="btn btn-primary shadow-md">
 										Atualizar Perfil
 									</button>
 								</div>

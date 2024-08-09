@@ -19,6 +19,8 @@ function CoupomPage() {
 	const [coupons, setCoupons] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 
+	console.log(coupons);
+
 	useEffect(() => {
 		const fetchCoupons = async () => {
 			try {

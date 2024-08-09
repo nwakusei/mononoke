@@ -94,7 +94,7 @@ function MyCouponsPage() {
 												</label>
 											</th>
 											<th className="text-sm text-black">
-												Código
+												Código do Cupom
 											</th>
 											<th className="text-sm text-black">
 												Desconto
@@ -139,9 +139,9 @@ function MyCouponsPage() {
 															isCouponExpired(
 																coupon?.expirationDate
 															)
-																? "error text-black"
-																: "success text-black"
-														} badge-sm py-2`}>
+																? "error"
+																: "info"
+														} badge-sm text-white py-2`}>
 														{isCouponExpired(
 															coupon?.expirationDate
 														)

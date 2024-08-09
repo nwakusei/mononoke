@@ -89,7 +89,7 @@ function ChatPage() {
 							<div className="relative mb-4">
 								<input
 									type="text"
-									placeholder="Type here"
+									placeholder="Pesquisar"
 									className="input input-bordered input-success w-full max-w-xs"
 								/>
 								<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">

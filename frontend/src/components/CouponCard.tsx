@@ -21,7 +21,7 @@ function CouponCard({ partnerLogo, siteLink, discount, cashback, coupon }) {
 
 	// Verificar se o siteLink já tem protocolo, se não, adicionar 'https://'
 	const formattedSiteLink =
-		siteLink.startsWith("http://") || siteLink.startsWith("https://")
+		siteLink?.startsWith("http://") || siteLink?.startsWith("https://")
 			? siteLink
 			: `https://${siteLink}`;
 
@@ -38,14 +38,8 @@ function CouponCard({ partnerLogo, siteLink, discount, cashback, coupon }) {
 				/>
 			</div>
 
-			<div className="divider before:bg-primary after:bg-primary mx-2">
-				<Link
-					className="flex flex-row items-center gap-2 text-primary transition-all ease-in duration-200 hover:text-secondary"
-					href={formattedSiteLink} // Use a variável formatada
-					target="_blank">
-					<span>Acessar Site</span>
-					<GoLinkExternal size={18} />
-				</Link>
+			<div className="divider before:bg-black after:bg-black text-black mx-2">
+				Detalhes
 			</div>
 			<div className="h-[150px] flex flex-col items-center justify-center mx-4 -mt-4">
 				<h2 className="text-center font-semibold text-xl text-black">

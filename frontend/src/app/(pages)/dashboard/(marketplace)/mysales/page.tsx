@@ -132,7 +132,7 @@ function MySalesPage() {
 															}
 														)}
 														<br />
-														<span className="badge badge-success badge-sm">
+														<span className="badge badge-info badge-sm text-white py-2">
 															{
 																mysale.paymentMethod
 															}

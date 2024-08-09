@@ -27,7 +27,7 @@ function RaffleCard({
 					unoptimized
 				/>
 			</div>
-			<div className="divider before:border-t-[1px] after:border-t-[1px] before:bg-primary after:bg-primary text-sm mx-2">
+			<div className="divider before:border-t-[1px] after:border-t-[1px] before:bg-black after:bg-black text-sm mx-2">
 				Detalhes
 			</div>
 			<div className="flex flex-col justify-center mx-4 -mt-2 select-none">

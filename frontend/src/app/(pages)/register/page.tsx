@@ -95,13 +95,30 @@ function RegisterPage() {
 	});
 	const { registerCustomer, registerPartner } = useContext(Context);
 
-	function createUser(data: TCreateUserFormData) {
-		if (data.accountType === "customer") {
-			registerCustomer(data);
-		} else {
-			registerPartner(data);
+	const [btnLoading, setBtnLoading] = useState(false);
+
+	const createUser = async (data: TCreateUserFormData) => {
+		setBtnLoading(true); // Define o estado como true quando o login é iniciado
+		try {
+			if (data.accountType === "customer") {
+				await registerCustomer(data);
+			} else {
+				await registerPartner(data);
+			}
+		} catch (error) {
+			console.error("Erro no login:", error);
+		} finally {
+			setBtnLoading(false); // Define o estado como false após o login, independentemente do sucesso ou falha
 		}
-	}
+	};
+
+	// function createUser(data: TCreateUserFormData) {
+	// 	if (data.accountType === "customer") {
+	// 		registerCustomer(data);
+	// 	} else {
+	// 		registerPartner(data);
+	// 	}
+	// }
 
 	return (
 		<section className="bg-gray-300 flex min-h-screen flex-col items-center justify-center p-24">
@@ -180,11 +197,18 @@ function RegisterPage() {
 						register={register}
 						errors={errors}
 					/>
-					<button
-						type="submit"
-						className="btn btn-secondary w-[320px] mt-4 shadow-md">
-						Cadastrar
-					</button>
+					{btnLoading ? (
+						<button className="flex flex-row justify-center items-center btn btn-secondary w-[320px] mt-4 select-none shadow-md">
+							{/* <span className="loading loading-dots loading-md"></span> */}
+							<span className="loading loading-spinner loading-md"></span>
+						</button>
+					) : (
+						<button
+							type="submit"
+							className="btn btn-secondary w-[320px] mt-4 shadow-md">
+							Cadastrar
+						</button>
+					)}
 				</form>
 			</div>
 		</section>
