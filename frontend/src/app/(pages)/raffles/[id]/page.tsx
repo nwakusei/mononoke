@@ -244,11 +244,22 @@ function RafflePage() {
 			{/* Descrição do produto*/}
 			<div className="bg-white rounded-md shadow-md gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 				{/* Descrição e Detalhes*/}
-				<div className="flex flex-col justify-center items-center">
+				<div className="flex flex-col">
 					<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
 						Vencedor do Sorteio
 					</div>
-					<p className="my-2 text-black">
+					<div className="flex flex-row my-4 mx-4 gap-2">
+						<div className="bg-ametista w-[100px] h-[100px] rounded-md">
+							Foto
+						</div>
+						<div className="flex flex-col">
+							<h1 className="text-black font-semibold">
+								Nome Sobrenome
+							</h1>
+							<h2 className="text-black">Ticket Sorteado</h2>
+						</div>
+					</div>
+					<p className="my-2 text-black text-center">
 						Este sorteio ainda não foi realizado!
 					</p>
 				</div>

@@ -56,28 +56,29 @@ function CoupomPage() {
 					{coupons.length > 0 ? (
 						coupons.map((coupon) => {
 							const partner = partners.find(
-								(p) => p._id === coupon.partnerID
+								(p) => p._id === coupon?.partnerID
 							);
 							return (
 								<CouponCard
-									key={coupon._id}
+									key={coupon?._id}
 									partnerLogo={
 										partner?.logoImage
-											? partner.logoImage
+											? partner?.logoImage
 											: Otakuyasan
 									}
+									partnerName={coupon?.partnerName}
 									siteLink={partner ? partner?.site : null}
-									discount={coupon.discountPercentage}
+									discount={coupon?.discountPercentage}
 									cashback={
 										partner ? partner?.cashback : null
 									}
-									coupon={coupon.couponCode}
+									coupon={coupon?.couponCode}
 								/>
 							);
 						})
 					) : (
 						<div className="text-black text-center bg-white p-2 min-w-[400px] rounded-md shadow-md">
-							Nenhum Cupom Disponível no momento!
+							Nenhum Cupom disponível no momento!
 						</div>
 					)}
 				</div>

@@ -71,6 +71,7 @@ class CouponController {
 			couponCode: couponCode,
 			expirationDate: formattedCurrentDate,
 			partnerID: partner._id,
+			partnerName: partner.name,
 		});
 
 		try {

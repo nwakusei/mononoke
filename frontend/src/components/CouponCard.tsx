@@ -8,7 +8,14 @@ import Link from "next/link";
 import { Currency } from "@icon-park/react";
 import { GoLinkExternal } from "react-icons/go";
 
-function CouponCard({ partnerLogo, siteLink, discount, cashback, coupon }) {
+function CouponCard({
+	partnerLogo,
+	partnerName,
+	siteLink,
+	discount,
+	cashback,
+	coupon,
+}) {
 	const [copied, setCopied] = useState(false);
 
 	const handleCupom = (cupomCode: string) => {
@@ -39,7 +46,7 @@ function CouponCard({ partnerLogo, siteLink, discount, cashback, coupon }) {
 			</div>
 
 			<div className="divider before:bg-black after:bg-black text-black mx-2">
-				Detalhes
+				{partnerName}
 			</div>
 			<div className="h-[150px] flex flex-col items-center justify-center mx-4 -mt-4">
 				<h2 className="text-center font-semibold text-xl text-black">

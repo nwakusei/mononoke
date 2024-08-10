@@ -6,6 +6,7 @@ interface ICoupon {
 	couponCode: string;
 	expirationDate: string;
 	partnerID: object;
+	partnerName: string;
 }
 
 const couponSchema = new Schema<ICoupon>(
@@ -20,6 +21,10 @@ const couponSchema = new Schema<ICoupon>(
 			type: String,
 		},
 		partnerID: Object,
+		partnerName: {
+			type: String,
+			required: true,
+		},
 	},
 	{ timestamps: true }
 );

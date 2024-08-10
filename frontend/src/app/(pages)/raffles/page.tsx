@@ -27,12 +27,12 @@ function RafflesPage() {
 	return (
 		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<div className="flex flex-col col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8 mb-8">
-				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mb-8 rounded-md shadow-md select-none">
+				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mb-6 rounded-md shadow-md select-none">
 					Sorteios em Destaque
 				</div>
 
 				<div className="flex flex-row flex-wrap gap-4 justify-center">
-					{raffles.length > 0 &&
+					{raffles.length > 0 ? (
 						raffles.map((raffle, index) => (
 							<RaffleCard
 								key={index}
@@ -46,7 +46,12 @@ function RafflesPage() {
 								raffleOrganizer={raffle.raffleOrganizer}
 								linkRafflePage={`/raffles/${raffle._id}`}
 							/>
-						))}
+						))
+					) : (
+						<div className="text-black text-center bg-white p-2 min-w-[400px] rounded-md shadow-md">
+							Nenhum Sorteio disponível no momento!
+						</div>
+					)}
 				</div>
 			</div>
 		</section>

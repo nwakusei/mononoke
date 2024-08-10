@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { RaffleModel } from "../models/RaffleModel.js";
 import crypto from "crypto";
+import { isValidObjectId } from "mongoose";
 
 // Model
 import { OtakupayModel } from "../models/OtakupayModel.js";
@@ -8,8 +9,6 @@ import { OtakupayModel } from "../models/OtakupayModel.js";
 // Middlewares
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
-import { imageUpload } from "../helpers/image-upload.js";
-import { isValidObjectId } from "mongoose";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -134,10 +133,19 @@ class RaffleController {
 		}
 
 		try {
+			// Função para converter a string "dd/MM/yyyy" para um objeto Date
+			const parseDate = (dateString: string) => {
+				const [day, month, year] = dateString.split("/");
+				return new Date(`${year}-${month}-${day}`);
+			};
+
+			// Converte a data recebida para um objeto Date
+			const formattedRaffleDate = parseDate(raffleDate);
+
 			const raffle = new RaffleModel({
 				rafflePrize: rafflePrize,
 				imagesRaffle: [],
-				raffleDate: raffleDate,
+				raffleDate: formattedRaffleDate,
 				raffleCost: raffleCost,
 				raffleDescription: raffleDescription,
 				raffleRules: raffleRules,

@@ -129,7 +129,7 @@ function MyRafflesPage() {
 																"pt-BR"
 															)} OP`}
 														</div>
-														<span className="badge badge-success badge-sm">
+														<span className="badge badge-info badge-sm text-white py-2">
 															Otaku Point
 														</span>
 													</td>
@@ -151,7 +151,7 @@ function MyRafflesPage() {
 														</div>
 													</td>
 													<th>
-														<button className="flex flex-row items-center btn btn-info btn-xs text-white w-[80px] shadow-md">
+														<button className="flex flex-row items-center btn btn-primary btn-xs text-white w-[80px] shadow-md">
 															Editar
 														</button>
 													</th>

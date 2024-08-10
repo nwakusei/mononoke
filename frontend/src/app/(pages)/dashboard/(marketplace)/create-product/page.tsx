@@ -1028,7 +1028,7 @@ function CreateProductPage() {
 									</button>
 									<button
 										type="submit"
-										className="btn btn-success shadow-md">
+										className="btn btn-primary shadow-md">
 										Publicar Produto
 									</button>
 								</div>
