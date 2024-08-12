@@ -1,10 +1,17 @@
 import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
 
-interface IActiveParticipant {
+interface IRegisteredTickets {
 	customerID: string;
 	customerName: string;
-	ticket: string;
+	ticketNumber: string;
+}
+
+// Interface para a estrutura de um vencedor
+interface IWinner {
+	customerID: string;
+	customerName: string;
+	ticketNumber: string;
 }
 
 // Interface para a estrutura de um objeto de revisão
@@ -18,7 +25,8 @@ interface IRaffle {
 	minNumberParticipants: Number;
 	raffleOrganizer: string;
 	partnerID: Schema.Types.ObjectId;
-	activeParticipants: IActiveParticipant[];
+	registeredTickets: IRegisteredTickets[];
+	winner: IWinner;
 }
 
 // Schema que corresponda a Interface
@@ -59,8 +67,9 @@ const raffleSchema = new Schema<IRaffle>(
 		partnerID: {
 			type: Schema.Types.ObjectId,
 			ref: "PartnerModel",
+			required: true,
 		},
-		activeParticipants: [
+		registeredTickets: [
 			{
 				customerID: {
 					type: String,
@@ -71,14 +80,25 @@ const raffleSchema = new Schema<IRaffle>(
 					type: String,
 					required: true,
 				},
-				ticket: {
+				ticketNumber: {
 					type: String,
 					required: true,
 				},
 			},
 		],
+		winner: {
+			customerID: {
+				type: String,
+				ref: "CustomerModel",
+			},
+			customerName: {
+				type: String,
+			},
+			ticketNumber: {
+				type: String, // Deve corresponder ao campo ticketNumber da interface IWinner
+			},
+		},
 	},
-
 	{ timestamps: true }
 );
 

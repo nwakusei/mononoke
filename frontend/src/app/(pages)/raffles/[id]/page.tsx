@@ -18,6 +18,7 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 import { LuCalendarRange } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
 import { BsPersonFill, BsPeopleFill } from "react-icons/bs";
+import { Coupon } from "@icon-park/react";
 
 function RafflePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
@@ -27,8 +28,6 @@ function RafflePage() {
 	const [maximizedImage, setMaximizedImage] = useState(null);
 	const [loadingBtn, setLoadingBtn] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
-
-	console.log(raffle);
 
 	useEffect(() => {
 		const fetchRaffle = async () => {
@@ -91,12 +90,12 @@ function RafflePage() {
 					<div className="flex flex-col">
 						<div className="border-[1px] border-black border-opacity-20 bg-white w-[402px] rounded-md relative shadow-lg mb-2">
 							<div className="h-[402px] flex items-center justify-center mx-3 my-2">
-								{raffle.imagesRaffle &&
-									raffle.imagesRaffle.length > 0 && (
+								{raffle?.imagesRaffle &&
+									raffle?.imagesRaffle.length > 0 && (
 										<Image
 											className="object-contain h-full"
-											src={`http://localhost:5000/images/raffles/${raffle.imagesRaffle[0]}`}
-											alt={raffle.productName}
+											src={`http://localhost:5000/images/raffles/${raffle?.imagesRaffle[0]}`}
+											alt={raffle?.productName}
 											width={280}
 											height={10}
 											unoptimized
@@ -106,9 +105,9 @@ function RafflePage() {
 						</div>
 						{/* Pequenas imagens */}
 						<div className="flex flex-row gap-2">
-							{raffle.imagesRaffle &&
-								raffle.imagesRaffle.length > 0 &&
-								raffle.imagesRaffle.map((image, id) => (
+							{raffle?.imagesRaffle &&
+								raffle?.imagesRaffle.length > 0 &&
+								raffle?.imagesRaffle.map((image, id) => (
 									<div className="border-[1px] border-black border-opacity-20 bg-white w-[74px] rounded relative shadow-md">
 										<div
 											key={id}
@@ -158,23 +157,24 @@ function RafflePage() {
 							Detalhes do Sorteio
 						</div>
 						<h1 className="text-xl font-semibold mb-4">
-							{raffle.rafflePrize}
+							{raffle?.rafflePrize}
 						</h1>
 						<div className="flex flex-row items-center gap-2">
-							<MdOutlineLocalActivity
+							{/* <MdOutlineLocalActivity
 								className="mt-[1px]"
 								size={19}
-							/>
+							/> */}
+							<Coupon size={17} />
 							<span>
 								Valor do Ticket:{" "}
-								{raffle.raffleCost.toLocaleString("pt-BR")} OP
+								{raffle?.raffleCost.toLocaleString("pt-BR")} OP
 							</span>
 						</div>
 						<div className="flex flex-row items-center gap-2">
 							<BsPersonFill size={17} />
 							<span>
 								Mínimo de Participantes:{" "}
-								{raffle.minNumberParticipants}
+								{raffle?.minNumberParticipants}
 							</span>
 						</div>
 						<div className="flex flex-row items-center gap-2">
@@ -193,10 +193,11 @@ function RafflePage() {
 						</div>
 
 						<div className="flex flex-row items-center gap-2">
-							<BsPeopleFill size={17} />
+							{/* <BsPeopleFill size={17} /> */}
+							<MdOutlineLocalActivity size={19} />
 							<span>
-								Tickets Registrados: Participantes Registrados:{" "}
-								{raffle.activeParticipants.length}
+								Tickets Registrados:{" "}
+								{raffle?.registeredTickets.length}
 							</span>
 						</div>
 
@@ -205,7 +206,7 @@ function RafflePage() {
 							<div>
 								Organizado por{" "}
 								<span className="text-primary transition-all ease-in duration-200 hover:text-secondary cursor-pointer">
-									{raffle.raffleOrganizer}
+									{raffle?.raffleOrganizer}
 								</span>
 							</div>
 						</div>
@@ -214,13 +215,13 @@ function RafflePage() {
 								<span className="font-semibold">
 									Descrição:
 								</span>{" "}
-								{raffle.raffleDescription}
+								{raffle?.raffleDescription}
 							</h2>
 						</div>
 						<div>
 							<h2 className="">
 								<span className="font-semibold">Regras:</span>{" "}
-								{raffle.raffleRules}
+								{raffle?.raffleRules}
 							</h2>
 						</div>
 					</div>
@@ -228,8 +229,7 @@ function RafflePage() {
 				<div className="flex flex-row justify-center">
 					{loadingBtn ? (
 						<button className="flex flex-row justify-center items-center w-[250px] btn btn-primary shadow-md">
-							<span>Loading</span>
-							<span className="loading loading-dots loading-md"></span>
+							<span className="loading loading-spinner loading-md"></span>
 						</button>
 					) : (
 						<button
@@ -248,20 +248,29 @@ function RafflePage() {
 					<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
 						Vencedor do Sorteio
 					</div>
-					<div className="flex flex-row my-4 mx-4 gap-2">
-						<div className="bg-ametista w-[100px] h-[100px] rounded-md">
-							Foto
-						</div>
-						<div className="flex flex-col">
-							<h1 className="text-black font-semibold">
-								Nome Sobrenome
-							</h1>
-							<h2 className="text-black">Ticket Sorteado</h2>
-						</div>
-					</div>
-					<p className="my-2 text-black text-center">
-						Este sorteio ainda não foi realizado!
-					</p>
+					{raffle?.winner ? (
+						<>
+							<div className="flex flex-row my-4 mx-4 gap-2">
+								<div className="bg-ametista w-[100px] h-[100px] rounded-md">
+									Foto
+								</div>
+								<div className="flex flex-col">
+									<h1 className="text-black font-semibold">
+										{raffle?.winner.customerName}
+									</h1>
+									<h2 className="text-black">
+										{`Ticket Sorteado: ${raffle?.winner.ticketNumber}`}
+									</h2>
+								</div>
+							</div>
+						</>
+					) : (
+						<>
+							<p className="my-2 text-black text-center">
+								Este sorteio ainda não foi realizado!
+							</p>
+						</>
+					)}
 				</div>
 			</div>
 		</section>

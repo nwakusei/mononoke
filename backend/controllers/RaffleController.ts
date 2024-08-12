@@ -152,6 +152,7 @@ class RaffleController {
 				minNumberParticipants: minNumberParticipants,
 				raffleOrganizer: partner.name,
 				partnerID: partner.id,
+				// winner: {},
 			});
 
 			// Percorrer o Array de imagens e adicionar cada uma a uma ao sorteio que será criado
@@ -220,7 +221,12 @@ class RaffleController {
 			return;
 		}
 
-		const raffleID = await RaffleModel.findById({ _id: id });
+		const raffleID = await RaffleModel.findById(id);
+
+		if (!raffleID) {
+			res.status(404).json({ message: "Sorteio não encontrado!" });
+			return;
+		}
 
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
@@ -238,10 +244,7 @@ class RaffleController {
 		}
 
 		const otakuPayID = customer?.otakupayID;
-
-		const customerOtakuPay = await OtakupayModel.findById({
-			_id: otakuPayID,
-		});
+		const customerOtakuPay = await OtakupayModel.findById(otakuPayID);
 
 		if (!customerOtakuPay) {
 			res.status(422).json({
@@ -265,107 +268,105 @@ class RaffleController {
 
 		const raffleCost = raffleID?.raffleCost;
 
-		if (!raffleCost) {
+		if (raffleCost === undefined || raffleCost === null) {
 			res.status(422).json({
 				message: "Custo do Sorteio não encontrado!",
 			});
 			return;
 		}
 
-		try {
-			if (Number(otakuPointsAvailableDecrypted) < Number(raffleCost)) {
-				res.status(422).json({
-					message: "Otaku Points insuficiente!",
-				});
-				return;
-			}
+		if (typeof raffleCost !== "number") {
+			res.status(422).json({
+				message: "Custo do Sorteio é inválido!",
+			});
+			return;
+		}
 
-			//////////////////////////////////////////////////////////////////////////////
+		try {
+			// Verifica se o sorteio é gratuito e se o usuário já possui um ticket
+			if (raffleCost === 0) {
+				const existingTicket = raffleID.registeredTickets.find(
+					(ticket) => ticket.customerID === customer._id.toString()
+				);
+
+				if (existingTicket) {
+					res.status(422).json({
+						message: "Você já está participando deste sorteio!",
+					});
+					return;
+				}
+			} else {
+				// Verifica se o usuário tem Otaku Points suficientes para o sorteio pago
+				if (
+					Number(otakuPointsAvailableDecrypted) < Number(raffleCost)
+				) {
+					res.status(422).json({
+						message: "Otaku Points insuficiente!",
+					});
+					return;
+				}
+
+				// Atualiza os pontos disponíveis do usuário
+				const newOtakuPointsAvailableDecrypted =
+					Number(otakuPointsAvailableDecrypted) - Number(raffleCost);
+				const newOtakuPointsAvailableCrypted = encrypt(
+					newOtakuPointsAvailableDecrypted.toString()
+				);
+				customerOtakuPay.otakuPointsAvailable =
+					newOtakuPointsAvailableCrypted;
+				await customerOtakuPay.save();
+			}
 
 			// Função para gerar um número de ticket único
 			const generateSequentialTicket = async (): Promise<string> => {
-				// Busca o maior número de ticket existente
-				const lastParticipant = await RaffleModel.aggregate([
-					{ $unwind: "$activeParticipants" },
-					{ $sort: { "activeParticipants.ticket": -1 } },
-					{ $limit: 1 },
-				]);
+				try {
+					// Busca o maior número de ticket existente
+					const lastTicket = await RaffleModel.aggregate([
+						{ $unwind: "$registeredTickets" },
+						{ $sort: { "registeredTickets.ticketNumber": -1 } },
+						{ $limit: 1 },
+					]);
 
-				let ticketNumber = 100000; // Número inicial
+					let ticketNumber = 100000; // Número inicial
 
-				if (lastParticipant.length > 0) {
-					ticketNumber =
-						parseInt(lastParticipant[0].activeParticipants.ticket) +
-						1;
+					if (lastTicket.length > 0) {
+						const lastTicketNumber = parseInt(
+							lastTicket[0].registeredTickets.ticketNumber,
+							10
+						);
+
+						if (!isNaN(lastTicketNumber)) {
+							ticketNumber = lastTicketNumber + 1;
+						}
+					}
+
+					return ticketNumber.toString();
+				} catch (error) {
+					console.error("Erro ao gerar número de ticket:", error);
+					throw error;
 				}
-
-				return ticketNumber.toString();
 			};
 
-			// const generateUniqueTicket = async (): Promise<string> => {
-			// 	let ticketNumber = Math.floor(
-			// 		100000 + Math.random() * 900000
-			// 	).toString(); // Gera um número de 6 dígitos
-			// 	let ticketExists = true;
-
-			// 	while (ticketExists) {
-			// 		// Verifique se o ticket já existe no banco de dados
-			// 		ticketExists = !!(await RaffleModel.exists({
-			// 			"activeParticipants.ticket": ticketNumber,
-			// 		}));
-			// 		if (ticketExists) {
-			// 			ticketNumber = Math.floor(
-			// 				100000 + Math.random() * 900000
-			// 			).toString(); // Gera outro número se o atual já estiver em uso
-			// 		}
-			// 	}
-
-			// 	return ticketNumber;
-			// };
-
 			// Crie um novo participante ativo
-			const newParticipant = {
+			const newTicket = {
 				customerID: customer._id.toString(),
 				customerName: customer.name,
-				ticket: await generateSequentialTicket(), // Você pode gerar ou definir o número do ticket conforme necessário
+				ticketNumber: await generateSequentialTicket(),
 			};
 
 			// Adicione o novo participante ao sorteio
-			raffleID.activeParticipants.push(newParticipant);
+			raffleID.registeredTickets.push(newTicket);
 
 			// Salve as alterações no sorteio
 			await raffleID.save();
 
-			/////////////////////////////////////////////////////////////////////////////
-
-			const newOtakuPointsAvailableDecrypted =
-				Number(otakuPointsAvailableDecrypted) - Number(raffleCost);
-
-			console.log(
-				"NOVO OTAKU POINTS AVAILABLE DESCRIPTOGRAFADO:",
-				newOtakuPointsAvailableDecrypted
-			);
-
-			const newOtakuPointsAvailableCrypted = encrypt(
-				newOtakuPointsAvailableDecrypted.toString()
-			);
-
-			console.log(
-				"NOVO OTAKU POINTS AVAILABLE CRIPTOGRAFADO:",
-				newOtakuPointsAvailableCrypted
-			);
-
-			customerOtakuPay.otakuPointsAvailable =
-				newOtakuPointsAvailableCrypted;
-
-			await customerOtakuPay.save();
-
 			res.status(201).json({
-				message: "Participação registrada com sucesso!",
-				newParticipant,
+				message: "Ticket registrado com sucesso!",
+				newTicket,
 			});
 		} catch (error) {
 			console.log(error);
+			res.status(500).json({ message: "Erro ao registrar o ticket!" });
 		}
 	}
 
@@ -385,7 +386,15 @@ class RaffleController {
 				return;
 			}
 
-			const participants = raffle.activeParticipants;
+			// Verifica se já existe um vencedor
+			if (raffle.winner && raffle.winner.customerID) {
+				res.status(422).json({
+					message: "O sorteio já foi realizado!",
+				});
+				return;
+			}
+
+			const participants = raffle.registeredTickets;
 
 			if (!participants || participants.length === 0) {
 				res.status(422).json({
@@ -395,7 +404,7 @@ class RaffleController {
 			}
 
 			// Função para realizar o sorteio de forma segura
-			const drawWinner = (participants: string | any[]) => {
+			const drawWinner = (participants: any[]) => {
 				const winnerIndex = Math.floor(
 					Math.random() * participants.length
 				);
@@ -403,6 +412,15 @@ class RaffleController {
 			};
 
 			const winner = drawWinner(participants);
+
+			// Atualizar o documento do sorteio com o vencedor
+			raffle.winner = {
+				customerID: winner.customerID,
+				customerName: winner.customerName,
+				ticketNumber: winner.ticketNumber, // Adapte se necessário
+			};
+
+			await raffle.save();
 
 			res.status(200).json({
 				message: "Sorteio realizado com sucesso!",
