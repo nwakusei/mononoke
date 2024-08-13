@@ -56,7 +56,7 @@ function MyRafflesPage() {
 												Prêmio
 											</th>
 											<th className="text-base text-black">
-												Custo para se inscrever
+												Custo da inscrição
 											</th>
 											<th className="text-base text-black">
 												Data de realização
@@ -151,8 +151,11 @@ function MyRafflesPage() {
 														</div>
 													</td>
 													<th>
-														<button className="flex flex-row items-center btn btn-primary btn-xs text-white w-[80px] shadow-md">
-															Editar
+														<button className="flex flex-row items-center btn btn-primary btn-xs text-white w-[90px] shadow-md">
+															<Link
+																href={`/dashboard/myraffles/${myraffle?._id}`}>
+																+ Detalhes
+															</Link>
 														</button>
 													</th>
 												</tr>

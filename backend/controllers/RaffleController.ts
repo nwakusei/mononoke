@@ -228,6 +228,24 @@ class RaffleController {
 			return;
 		}
 
+		// Verifica se o sorteio já tem um vencedor
+		if (raffleID.winner && raffleID.winner.ticketNumber) {
+			res.status(422).json({
+				message: "Este sorteio já tem um vencedor!",
+			});
+			return;
+		}
+
+		// Verifica se a data do sorteio já passou para sorteios pagos
+		const currentDate = new Date();
+		if (
+			raffleID.raffleCost > 0 &&
+			new Date(raffleID.raffleDate) < currentDate
+		) {
+			res.status(422).json({ message: "A data do sorteio já passou!" });
+			return;
+		}
+
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
 
@@ -378,11 +396,28 @@ class RaffleController {
 			return;
 		}
 
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
 		try {
 			const raffle = await RaffleModel.findById(id);
 
 			if (!raffle) {
-				res.status(404).json({ message: "Sorteio não encontrado!" });
+				res.status(404).json({
+					message: "Sorteio não encontrado!",
+				});
+				return;
+			}
+
+			if (raffle.partnerID.toString() !== partner._id.toString()) {
+				res.status(403).json({
+					message: "Acesso negado ao sorteio!",
+				});
 				return;
 			}
 
@@ -428,7 +463,9 @@ class RaffleController {
 			});
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({ message: "Erro ao realizar o sorteio!" });
+			res.status(500).json({
+				message: "Erro ao realizar o sorteio!",
+			});
 		}
 	}
 
@@ -451,14 +488,62 @@ class RaffleController {
 		}
 
 		try {
+			// Encontra todos os sorteios associados ao parceiro
 			const raffles = await RaffleModel.find({
 				partnerID: partner._id,
 			}).sort("-createdAt");
 
+			// Verifica se algum sorteio não está associado ao parceiro logado
+			if (
+				raffles.some(
+					(raffle) =>
+						raffle.partnerID.toString() !== partner._id.toString()
+				)
+			) {
+				res.status(403).json({
+					message: "Acesso negado ao sorteio!",
+				});
+				return;
+			}
+
 			res.status(200).json({ raffles: raffles });
 		} catch (error) {
-			res.status(500).json({ error: "Erro ao carregar os Cupons" });
+			res.status(500).json({ error: "Erro ao carregar os Sorteios" });
+		}
+	}
+
+	static async getRafflePartnerByID(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(422).json({ message: "O ID do Sorteio é obrigatório!" });
 			return;
+		}
+
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		try {
+			const raffle = await RaffleModel.findById(id);
+
+			if (!raffle) {
+				res.status(404).json({ message: "Sorteio não encontrado!" });
+				return;
+			}
+
+			if (raffle.partnerID.toString() !== partner._id.toString()) {
+				res.status(403).json({ message: "Acesso negado ao sorteio!" });
+				return;
+			}
+
+			res.status(200).json({ raffle: raffle });
+		} catch (error) {
+			res.status(500).json({ message: "Erro ao buscar o sorteio!" });
 		}
 	}
 }

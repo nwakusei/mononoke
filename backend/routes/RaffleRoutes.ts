@@ -14,7 +14,7 @@ router.post(
 	imageUpload.array("imagesRaffle"),
 	RaffleController.createRaffle
 );
-router.get("/get-raffles", RaffleController.getAllRaffles);
+router.get("/getall-raffles", RaffleController.getAllRaffles);
 router.get("/get-raffle/:id", RaffleController.getRaffleByID);
 
 router.post(
@@ -29,6 +29,12 @@ router.get(
 	"/partner-raffles",
 	verifyToken,
 	RaffleController.getAllRafflesByPartner
+);
+
+router.get(
+	"/partner-raffle/:id",
+	verifyToken,
+	RaffleController.getRafflePartnerByID
 );
 
 export default router;

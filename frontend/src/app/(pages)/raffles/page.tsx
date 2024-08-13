@@ -13,7 +13,7 @@ function RafflesPage() {
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		api.get("/raffles/get-raffles").then((response) => {
+		api.get("/raffles/getall-raffles").then((response) => {
 			console.log(response.data);
 			setRaffles(response.data.raffles);
 			setIsLoading(false);
