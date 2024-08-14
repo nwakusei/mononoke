@@ -546,6 +546,37 @@ class RaffleController {
 			res.status(500).json({ message: "Erro ao buscar o sorteio!" });
 		}
 	}
+
+	static async getAllRafflesByCustomer(req: Request, res: Response) {
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
+			res.status(422).json({
+				message:
+					"Você não possui autorização para visualizar essa página!",
+			});
+			return;
+		}
+
+		try {
+			// Encontra todos os sorteios associados ao customer
+			const raffles = await RaffleModel.find({
+				registeredTickets: {
+					$elemMatch: { customerID: customer._id },
+				},
+			}).sort("-createdAt");
+
+			res.status(200).json({ raffles: raffles });
+		} catch (error) {
+			res.status(500).json({ error: "Erro ao carregar os Sorteios" });
+		}
+	}
 }
 
 export default RaffleController;

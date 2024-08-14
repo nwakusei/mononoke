@@ -448,6 +448,37 @@ function Sidebar() {
 						</div>
 
 						<div className="flex flex-col ml-8 mb-4">
+							<h2 className="text-black flex flex-row items-center gap-2 mb-3">
+								<MdOutlineLocalActivity size={20} />
+								Sorteios
+							</h2>
+
+							<div className="flex flex-col">
+								<Link
+									className="flex flex-row items-center ml-7 gap-2"
+									href={"/dashboard/myrafflestickets"}>
+									<span className="text-xs text-black">
+										○
+									</span>
+									<span className="text-black hover:text-white hover:bg-secondary active:scale-[.95] px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+										Meus Tickets
+									</span>
+								</Link>
+
+								{/* <Link
+									className="flex flex-row items-center ml-7 gap-2"
+									href={"/dashboard/create-raffle"}>
+									<span className="text-xs text-black">
+										○
+									</span>
+									<span className="text-black hover:text-white hover:bg-secondary active:scale-[.95] px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+										Criar Sorteio
+									</span>
+								</Link> */}
+							</div>
+						</div>
+
+						<div className="flex flex-col ml-8 mb-4">
 							<h2 className="flex flex-row items-center gap-2 mb-3 text-black">
 								<BsChatSquareText size={18} /> Chats
 							</h2>

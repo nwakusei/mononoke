@@ -37,4 +37,10 @@ router.get(
 	RaffleController.getRafflePartnerByID
 );
 
+router.get(
+	"/customer-raffles",
+	verifyToken,
+	RaffleController.getAllRafflesByCustomer
+);
+
 export default router;
