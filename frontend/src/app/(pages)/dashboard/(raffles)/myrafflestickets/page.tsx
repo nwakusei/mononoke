@@ -159,7 +159,7 @@ function MyRafflesTicketsPage() {
 													<th>
 														<button className="flex flex-row items-center btn btn-primary btn-xs text-white w-[90px] shadow-md">
 															<Link
-																href={`/dashboard/myrafflestickets/${myTickets._id}`}>
+																href={`/dashboard/myrafflestickets/${myTicket._id}`}>
 																+ Detalhes
 															</Link>
 														</button>

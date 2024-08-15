@@ -19,20 +19,24 @@ import { LuCalendarRange } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
 
 function MyRafflesTicketsByID() {
-	const [myTicket, setMyTicket] = useState([]);
+	const [myTickets, setMyTickets] = useState([]);
 	const [token] = useState(localStorage.getItem("token") || "");
 	const { id } = useParams();
 	const [loadingBtn, setLoadingBtn] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 
+	console.log(id);
+
+	console.log(myTickets);
+
 	useEffect(() => {
-		api.get(`/raffles/customer-raffle/${id}`, {
+		api.get(`/raffles/customer-tickets/${id}`, {
 			headers: {
 				Authorization: `Bearer ${JSON.parse(token)}`,
 			},
 		}).then((response) => {
-			console.log("API Response:", response.data.raffle); // Verifique o conteúdo da resposta
-			setMyTicket(response.data.raffle);
+			console.log("API Response:", response.data.tickets); // Verifique o conteúdo da resposta
+			setMyTickets(response.data.tickets);
 			setIsLoading(false);
 		});
 	}, [id, token]);
@@ -72,35 +76,30 @@ function MyRafflesTicketsByID() {
 		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4 mb-4">
-				<div className="flex flex-row gap-8 bg-white ml-4 mr-8 rounded-md shadow-md">
-					{/* Componente de Imagem Principal */}
-					<div className="flex flex-col py-4 pl-4">
-						<div className="border-[1px] border-black border-opacity-20 bg-white w-[402px] rounded-md relative shadow-lg">
-							<div className="h-[402px] flex items-center justify-center mx-3 my-2">
-								{myTicket?.imagesRaffle &&
-									myTicket?.imagesRaffle.length > 0 && (
-										<Image
-											className="object-contain h-full"
-											src={`http://localhost:5000/images/raffles/${myTicket?.imagesRaffle[0]}`}
-											alt={myTicket?.productName}
-											width={280}
-											height={10}
-											unoptimized
-										/>
-									)}
-							</div>
-						</div>
+				<div className="flex flex-col  bg-white ml-4 mr-8 rounded-md shadow-md">
+					<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md select-none">
+						Meus tickets deste Sorteio
 					</div>
 
-					{/* Componente intermediário */}
-					<div className="flex flex-col w-[700px] text-black py-4 pr-4">
-						<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md select-none">
-							Detalhes do Sorteio
-						</div>
+					{/* Card Ticket */}
+					{myTickets &&
+						myTickets.length > 0 &&
+						myTickets.map((myTicket) => (
+							<div
+								key={myTicket?._id}
+								className="flex flex-col w-[250px] bg-yellow-500 text-black mb-2">
+								<div className="flex flex-row items-center">
+									<MdOutlineLocalActivity size={19} />
+									{myTicket?.ticketNumber}
+								</div>
+							</div>
+						))}
+
+					<div className="flex flex-col w-[700px] bg-blue-800 text-black mt-8">
 						<h1 className="text-xl font-semibold mb-4">
-							{myTicket?.rafflePrize}
+							{myTickets?.rafflePrize}
 						</h1>
-						<div className="flex flex-row items-center gap-2">
+						<div className="flex flex-row items-center">
 							{/* <MdOutlineLocalActivity
 								className="mt-[1px]"
 								size={19}
@@ -108,25 +107,25 @@ function MyRafflesTicketsByID() {
 							<Coupon size={17} />
 							<span>
 								Valor do Ticket:{" "}
-								{myTicket?.raffleCost?.toLocaleString("pt-BR")}{" "}
+								{myTickets?.raffleCost?.toLocaleString("pt-BR")}{" "}
 								OP
 							</span>
 						</div>
-						<div className="flex flex-row items-center gap-2">
+						<div className="flex flex-row items-center">
 							<BsPersonFill size={17} />
 							<span>
 								Mínimo de Participantes:{" "}
-								{myTicket?.minNumberParticipants}
+								{myTickets?.minNumberParticipants}
 							</span>
 						</div>
-						<div className="flex flex-row items-center gap-2">
+						<div className="flex flex-row items-center">
 							<LuCalendarRange size={16} />
 
 							<span>
 								{`Data do Sorteio: ${
-									myTicket?.raffleDate
+									myTickets?.raffleDate
 										? format(
-												new Date(myTicket?.raffleDate),
+												new Date(myTickets?.raffleDate),
 												"dd/MM/yyy"
 										  )
 										: ""
@@ -134,73 +133,49 @@ function MyRafflesTicketsByID() {
 							</span>
 						</div>
 
-						<div className="flex flex-row items-center gap-2 mb-2">
+						<div className="flex flex-row items-center mb-2">
 							{/* <BsPeopleFill size={17} /> */}
 							<MdOutlineLocalActivity size={19} />
 							<span>
 								Tickets Registrados:{" "}
-								{myTicket?.registeredTickets?.length}
+								{myTickets?.registeredTickets?.length}
 							</span>
 						</div>
-						<div>
-							<h2 className="mb-2">
-								<span className="font-semibold">
-									Descrição:
+					</div>
+
+					<div className="flex flex-col w-[250px] bg-yellow-500 text-black mb-2 rounded-lg shadow-lg overflow-hidden">
+						{/* Cabeçalho do Ticket */}
+						<div className="flex flex-row items-center p-4 bg-yellow-600 text-white">
+							<MdOutlineLocalActivity
+								size={19}
+								className="mr-2"
+							/>
+							<span className="font-semibold">Ticket</span>
+						</div>
+
+						{/* Corpo do Ticket */}
+						<div className="p-4">
+							<div className="text-sm mb-2">
+								<span className="font-medium">
+									Nome do Cliente:
 								</span>{" "}
-								{myTicket?.raffleDescription}
-							</h2>
-						</div>
-						<div>
-							<h2 className="">
-								<span className="font-semibold">Regras:</span>{" "}
-								{myTicket?.raffleRules}
-							</h2>
-						</div>
-					</div>
-				</div>
-
-				{/* Descrição e Detalhes*/}
-				<div className="flex flex-col bg-white rounded-md shadow-md mt-4 ml-4 mr-8">
-					<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
-						Vencedor do Sorteio
-					</div>
-					{myTicket?.winner ? (
-						<>
-							<div className="flex flex-row my-4 mx-4 gap-2">
-								<div className="bg-ametista w-[100px] h-[100px] rounded-md">
-									Foto
-								</div>
-								<div className="flex flex-col">
-									<h1 className="text-black font-semibold">
-										{myTicket?.winner.customerName}
-									</h1>
-									<h2 className="text-black">
-										{`Ticket Sorteado: ${myTicket?.winner.ticketNumber}`}
-									</h2>
-								</div>
 							</div>
-						</>
-					) : (
-						<>
-							<p className="my-2 text-black text-center">
-								Este sorteio ainda não foi realizado!
-							</p>
-						</>
-					)}
-				</div>
+							<div className="text-sm mb-2">
+								<span className="font-medium">
+									Data de Emissão:
+								</span>{" "}
+							</div>
+							{/* Adicione mais detalhes conforme necessário */}
+						</div>
 
-				<div className="flex flex-row justify-center mt-8">
-					{loadingBtn ? (
-						<button className="flex flex-row justify-center items-center w-[250px] btn btn-primary shadow-md">
-							<span className="loading loading-spinner loading-md"></span>
-						</button>
-					) : (
-						<button
-							onClick={handleSubmit}
-							className="w-[250px] btn btn-primary shadow-md">
-							Sortear
-						</button>
-					)}
+						{/* Rodapé do Ticket */}
+						<div className="flex justify-between items-center p-4 bg-yellow-400">
+							<span className="text-xs">Validade:</span>
+							<button className="bg-yellow-600 text-white px-2 py-1 rounded-md text-xs">
+								Ver Mais
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>

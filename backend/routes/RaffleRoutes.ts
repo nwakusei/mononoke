@@ -43,4 +43,10 @@ router.get(
 	RaffleController.getAllRafflesByCustomer
 );
 
+router.get(
+	"/customer-tickets/:id",
+	verifyToken,
+	RaffleController.getAllTicketsByCustomer
+);
+
 export default router;
