@@ -38,6 +38,12 @@ router.get(
 );
 
 router.get(
+	"/customer-raffle/:id",
+	verifyToken,
+	RaffleController.getRaffleCustomerByID
+);
+
+router.get(
 	"/customer-raffles",
 	verifyToken,
 	RaffleController.getAllRafflesByCustomer

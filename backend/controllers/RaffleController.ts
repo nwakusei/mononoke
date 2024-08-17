@@ -578,6 +578,69 @@ class RaffleController {
 		}
 	}
 
+	static async getRaffleCustomerByID(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(422).json({ message: "O ID do Sorteio é obrigatório!" });
+			return;
+		}
+
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
+			res.status(422).json({
+				message:
+					"Você não possui autorização para visualizar essa página!",
+			});
+			return;
+		}
+
+		try {
+			const raffle = await RaffleModel.findById(id);
+
+			if (!raffle) {
+				res.status(404).json({ message: "Sorteio não encontrado!" });
+				return;
+			}
+
+			// Verifica se o cliente tem pelo menos um ticket ativo no sorteio
+			const activeTicket = raffle.registeredTickets.find(
+				(ticket) =>
+					ticket.customerID.toString() === customer._id.toString()
+			);
+
+			if (!activeTicket) {
+				res.status(403).json({
+					message:
+						"Acesso negado. Você não possui tickets ativos neste sorteio.",
+				});
+				return;
+			}
+
+			// Remove campos indesejados, como 'registeredTickets'
+			const {
+				raffleCost,
+				raffleDescription,
+				raffleRules,
+				registeredTickets,
+				minNumberParticipants,
+				partnerID,
+				...raffleData
+			} = raffle.toObject();
+
+			res.status(200).json({ raffle: raffleData });
+		} catch (error) {
+			res.status(500).json({ error: "Erro ao carregar os Sorteios" });
+		}
+	}
+
 	static async getAllTicketsByCustomer(req: Request, res: Response) {
 		const { id } = req.params; // ID do sorteio
 
