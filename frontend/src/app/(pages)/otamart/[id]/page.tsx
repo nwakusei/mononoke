@@ -25,13 +25,17 @@ import imageProfile from "../../../../../public/Kon.jpg";
 import { Currency } from "@icon-park/react";
 import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
 import { MdVerified } from "react-icons/md";
+import { ProductAdCard } from "@/components/ProductAdCard";
 
 function ProductPage() {
 	const { id } = useParams();
 	const [product, setProduct] = useState({});
+	const [recommendedProducts, setRecommendedProducts] = useState([]);
 	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
 	const [maximizedImage, setMaximizedImage] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
+
+	console.log(recommendedProducts);
 
 	const { partners } = useContext(Context);
 
@@ -81,8 +85,36 @@ function ProductPage() {
 			}
 		};
 
+		const fetchRecommendedProducts = async () => {
+			try {
+				const response = await api.get(
+					`/products/recommended-product/${id}`
+				);
+				setRecommendedProducts(response.data.recommendedProducts); // Certifique-se de usar a chave correta
+			} catch (error) {
+				console.error("Error fetching product:", error);
+			}
+		};
+
+		fetchRecommendedProducts();
+
 		fetchProduct();
 	}, [id]);
+
+	// useEffect(() => {
+	// 	const fetchRecommendedProducts = async () => {
+	// 		try {
+	// 			const response = await api.get(
+	// 				`/products/recommended-product/${id}`
+	// 			);
+	// 			setRecommendedProducts(response.data.recommendedProducts); // Certifique-se de usar a chave correta
+	// 		} catch (error) {
+	// 			console.error("Error fetching product:", error);
+	// 		}
+	// 	};
+
+	// 	fetchRecommendedProducts();
+	// }, [id]);
 
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
@@ -672,13 +704,57 @@ function ProductPage() {
 				</div>
 			</div>
 			{/* Produtos Recomendados */}
-			<div className="bg-white gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8">
+			<div className="gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
 				{/* Descrição e Detalhes*/}
 				<div className="flex flex-col justify-center items-center">
-					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-t-md select-none">
+					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-md select-none mb-4">
 						Produtos Recomendados
 					</h1>
-					<p className="text-black mb-2">{product?.description}</p>
+					<div className="flex flex-row flex-wrap gap-4 justify-center">
+						{recommendedProducts.length > 0 &&
+							recommendedProducts.map((recommendedProduct) => {
+								// Encontrar o parceiro correspondente com base no partnerID do produto
+								const partner = partners.find(
+									(partner) =>
+										partner._id ===
+										recommendedProduct.partnerID
+								);
+
+								// Obter o cashback do parceiro, se existir
+								const cashback = partner ? partner.cashback : 0;
+
+								return (
+									<ProductAdCard
+										key={recommendedProduct._id}
+										freeShipping={
+											recommendedProduct.freeShipping
+										}
+										productImage={`http://localhost:5000/images/products/${recommendedProduct.imagesProduct[0]}`}
+										title={recommendedProduct.productName}
+										originalPrice={Number(
+											recommendedProduct.originalPrice
+										)}
+										promocionalPrice={Number(
+											recommendedProduct.promocionalPrice
+										)}
+										price={Number(
+											recommendedProduct.originalPrice
+										)}
+										promoPrice={Number(
+											recommendedProduct.promocionalPrice
+										)}
+										cashback={cashback} // Passar o cashback para o componente ProductAdCard
+										rating={recommendedProduct.rating}
+										quantitySold={
+											recommendedProduct.productsSold > 1
+												? `${recommendedProduct.productsSold} Vendidos`
+												: `${recommendedProduct.productsSold} Vendido`
+										}
+										linkProductPage={`/otamart/${recommendedProduct._id}`}
+									/>
+								);
+							})}
+					</div>
 				</div>
 			</div>
 		</section>

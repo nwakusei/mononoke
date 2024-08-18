@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "@/utils/api";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 function useAuth() {
 	const [customerAuthenticated, setCustomerAuthenticated] = useState(false);
@@ -29,6 +30,11 @@ function useAuth() {
 
 			await authUser(data);
 		} catch (error: any) {
+			Swal.fire({
+				title: error.response.data.message,
+				width: 800,
+				icon: "error",
+			});
 			console.log(error);
 		}
 	}
@@ -38,11 +44,21 @@ function useAuth() {
 			const data = await api
 				.post("/partners/register", partner)
 				.then((response) => {
+					Swal.fire({
+						title: response.data.message,
+						width: 800,
+						icon: "success",
+					});
 					return response.data;
 				});
 
 			await authUser(data);
 		} catch (error: any) {
+			Swal.fire({
+				title: error.response.data.message,
+				width: 800,
+				icon: "error",
+			});
 			console.log(error);
 		}
 	}
@@ -55,7 +71,12 @@ function useAuth() {
 					return response.data;
 				});
 			await authUser(data);
-		} catch (error) {
+		} catch (error: any) {
+			Swal.fire({
+				title: error.response.data.message,
+				width: 800,
+				icon: "error",
+			});
 			console.log(error);
 		}
 	}

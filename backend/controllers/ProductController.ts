@@ -492,6 +492,64 @@ class ProductController {
 	// 	}
 	// }
 
+	static async recommendedProduct(req: Request, res: Response) {
+		const { id } = req.params;
+
+		try {
+			// Passo 1: Obter o produto atual
+			const currentProduct = await ProductModel.findById(id);
+
+			if (!currentProduct) {
+				res.status(422).json({
+					message: "Produto atual não encontrado!",
+				});
+				return;
+			}
+
+			// Passo 2: Buscar produtos com a mesma categoria e excluir o produto atual
+			let recommendedProducts = await ProductModel.aggregate([
+				{
+					$match: {
+						category: currentProduct.category,
+						_id: { $ne: new mongoose.Types.ObjectId(id) }, // Exclui o produto atual da lista de recomendação ($ne = Not Equal)
+					},
+				},
+				{
+					$sample: { size: 4 }, // Seleciona 4 produtos aleatórios
+				},
+			]);
+
+			// Passo 3: Se não houver produtos suficientes, buscar mais produtos independentemente da categoria
+			if (recommendedProducts.length < 4) {
+				const additionalProducts = await ProductModel.aggregate([
+					{
+						$match: {
+							_id: { $ne: new mongoose.Types.ObjectId(id) }, // Exclui o produto atual da lista de recomendação
+						},
+					},
+					{
+						$sample: { size: 4 - recommendedProducts.length }, // Seleciona o número necessário para completar 4 produtos
+					},
+				]);
+
+				// Concatenar os produtos adicionais com os produtos recomendados
+				recommendedProducts =
+					recommendedProducts.concat(additionalProducts);
+			}
+
+			// Passo 4: Enviar os produtos encontrados na resposta
+			res.status(200).json({
+				message: "Produtos recomendados encontrados!",
+				recommendedProducts,
+			});
+		} catch (error) {
+			console.error("Erro ao buscar produtos recomendados:", error);
+			res.status(500).json({
+				message: "Erro ao buscar produtos recomendados!",
+			});
+		}
+	}
+
 	static async simulateShipping(req: Request, res: Response) {
 		const {
 			cepDestino,

@@ -22,6 +22,7 @@ import { ShoppingCartOne } from "@icon-park/react";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { BiIdCard } from "react-icons/Bi";
 import { PiCreditCardBold } from "react-icons/pi";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function MyOrderByIDPage() {
 	const { id } = useParams();
@@ -36,11 +37,10 @@ function MyOrderByIDPage() {
 	const [myorder, setMyorder] = useState([]);
 	const [tracking, setTracking] = useState({});
 	const [tracking2, setTracking2] = useState({});
+	const [isLoading, setIsLoading] = useState(true);
 
 	console.log(tracking);
 	console.log(tracking2.tracks);
-
-	console.log(myorder);
 
 	const dateCreatedOrder = myorder.createdAt
 		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy - HH:mm")} hs`
@@ -64,6 +64,7 @@ function MyOrderByIDPage() {
 				);
 				if (response.data && response.data.order) {
 					setMyorder(response.data.order);
+					setIsLoading(false);
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
@@ -138,8 +139,12 @@ function MyOrderByIDPage() {
 		}
 	}
 
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-100 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="flex flex-col col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				{/* Gadget 1 */}
@@ -438,13 +443,28 @@ function MyOrderByIDPage() {
 
 							<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
 
-							<h1 className="text-lg mb-3">
-								Endereço de entrega e cobrança
-							</h1>
-							<h2>Endereço: 000.000.000-00</h2>
-							<h2>Bairro: 000.000.000-00</h2>
-							<h2>Cidade/Estado: 000.000.000-00</h2>
-							<h2>CEP: 00000-000</h2>
+							{myorder &&
+								myorder.customerAddress &&
+								myorder.customerAddress.length > 0 &&
+								myorder.customerAddress.map((myAddress) => (
+									<div key={myAddress._id || myAddress.id}>
+										{" "}
+										{/* Garantia de chave única */}
+										<h1 className="text-lg mb-3">
+											Endereço de entrega e cobrança
+										</h1>
+										<h2>
+											Endereço: {myAddress.logradouro}
+										</h2>{" "}
+										{/* Exibindo dados reais */}
+										<h2>Bairro: {myAddress.bairro}</h2>
+										<h2>
+											Cidade/Estado: {myAddress.cidade}/
+											{myAddress.uf}
+										</h2>
+										<h2>CEP: {myAddress.cep}</h2>
+									</div>
+								))}
 						</div>
 
 						{/* Gadget 4 */}
@@ -470,15 +490,14 @@ function MyOrderByIDPage() {
 									{`Status: ${myorder?.statusShipping}`}
 								</div>
 								<div className="flex flex-row gap-2">
-									{`Cód. de Rastreio: ${
-										myorder?.trackingCode ? (
-											<span className="bg-primary text-white px-2 rounded-md shadow-md">
-												{myorder?.trackingCode}
-											</span>
-										) : (
-											`—`
-										)
-									}`}
+									Cód. de Rastreio:
+									{myorder && myorder?.trackingCode ? (
+										<span className="bg-primary text-white px-2 rounded-md shadow-md">
+											{myorder?.trackingCode}
+										</span>
+									) : (
+										<> — </>
+									)}
 								</div>
 							</div>
 						</div>
@@ -487,7 +506,7 @@ function MyOrderByIDPage() {
 
 				{/* Rastreio do Pedido */}
 				<div className="flex flex-col justify-center items-center gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md mt-4 mr-4">
-					<h1 className="text-xl font-semibold text-black">
+					<h1 className="bg-primary text-xl font-semibold text-white text-center w-full py-2 rounded-md shadow-md">
 						Acompanhe seu pedido
 					</h1>
 					{/* <h2>
