@@ -154,6 +154,23 @@ class ProductController {
 			return;
 		}
 
+		if (!(partner.address as any[]).length) {
+			res.status(422).json({
+				message: "Configure um endereço de envio antes de prosseguir!",
+			});
+			return;
+		}
+
+		if ("shippingConfiguration" in partner) {
+			if (!partner.shippingConfiguration.length) {
+				res.status(422).json({
+					message:
+						"Configure as opções de envio antes de prosseguir!",
+				});
+				return;
+			}
+		}
+
 		// Criar um novo produto
 		const product = new ProductModel({
 			productName: productName,
@@ -632,6 +649,133 @@ class ProductController {
 			res.status(500).json({ error: "Erro ao fazer a requisição à API" }); // Retorna um erro 500 em caso de falha na requisição
 		}
 	}
+
+	// static async simulateShipping(req: Request, res: Response) {
+	// 	const {
+	// 		productID, // Adicione a propriedade productId se não estiver presente
+	// 		cepDestino,
+	// 		weight,
+	// 		height,
+	// 		width,
+	// 		length,
+	// 		productPrice,
+	// 		productPriceTotal,
+	// 		quantityThisProduct,
+	// 	} = req.body;
+
+	// 	if (!productID) {
+	// 		res.status(422).json({ message: "O ID do produto é obrigatório!" });
+	// 		return;
+	// 	}
+
+	// 	if (!cepDestino) {
+	// 		res.status(422).json({ message: "O CEP é obrigatório!" });
+	// 		return;
+	// 	}
+
+	// 	// Buscar o produto pelo ID
+	// 	const product = await ProductModel.findById(productID).exec();
+
+	// 	if (!product) {
+	// 		res.status(404).json({ message: "Produto não encontrado!" });
+	// 		return;
+	// 	}
+
+	// 	// Buscar o parceiro pelo partnerID do produto
+	// 	const partner = await PartnerModel.findById(product.partnerID).exec();
+
+	// 	if (!partner) {
+	// 		res.status(404).json({ message: "Parceiro não encontrado!" });
+	// 		return;
+	// 	}
+
+	// 	// Obter o CEP de Origem do Partner
+	// 	const cepOrigem =
+	// 		partner.address.length > 0 ? partner.address[0].cep : undefined;
+
+	// 	// Caso queira tratar casos onde pode não haver nenhum endereço
+	// 	if (!cepOrigem) {
+	// 		res.status(422).json({ message: "CEP de origem não encontrado!" });
+	// 		return;
+	// 	}
+
+	// 	// Obter a credencial da shippingConfiguration
+	// 	const shippingConfig = partner.shippingConfiguration.find(
+	// 		(config: any) => config.shippingOperator === "Kangu" // Substitua "Kangu" conforme sua lógica
+	// 	);
+
+	// 	if (!shippingConfig || !shippingConfig.credential) {
+	// 		res.status(422).json({
+	// 			message: "Configuração de envio não encontrada!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	const tokenKangu = shippingConfig.credential;
+
+	// 	const kanguApiUrl =
+	// 		"https://portal.kangu.com.br/tms/transporte/simular";
+
+	// 	const requestBody = {
+	// 		cepOrigem: cepOrigem,
+	// 		cepDestino: cepDestino,
+	// 		vlrMerc: productPriceTotal,
+	// 		pesoMerc: weight * quantityThisProduct,
+	// 		volumes: [
+	// 			{
+	// 				peso: weight * quantityThisProduct + 0.011,
+	// 				altura: height + 0.1,
+	// 				largura: width,
+	// 				comprimento: length,
+	// 				valor: productPrice,
+	// 				quantidade: quantityThisProduct,
+	// 			},
+	// 		],
+	// 		servicos: ["string"], // Atualize conforme necessário
+	// 	};
+
+	// 	console.log(requestBody);
+
+	// 	try {
+	// 		const response = await fetch(kanguApiUrl, {
+	// 			method: "POST",
+	// 			headers: {
+	// 				"Content-Type": "application/json",
+	// 				token: tokenKangu,
+	// 			},
+	// 			body: JSON.stringify(requestBody),
+	// 		});
+
+	// 		let data = await response.json();
+
+	// 		// Verificar se data é um array
+	// 		if (Array.isArray(data)) {
+	// 			// Filtrar apenas as transportadoras dos Correios com os serviços desejados (X, E, M)
+	// 			data = data.filter((transportadora: any) => {
+	// 				const servico = transportadora.servico;
+	// 				return (
+	// 					servico === "X" || servico === "E" || servico === "M"
+	// 				);
+	// 			});
+
+	// 			// Ordenar as transportadoras pelo valor do frete (do mais barato ao mais caro)
+	// 			data.sort((a: any, b: any) => a.vlrFrete - b.vlrFrete);
+
+	// 			console.log(data);
+	// 			res.json(data); // Retorna os dados recebidos da API como resposta
+	// 		} else {
+	// 			console.error(
+	// 				"Os dados retornados pela API não estão no formato esperado."
+	// 			);
+	// 			res.status(500).json({
+	// 				error: "Erro ao processar os dados da API",
+	// 			});
+	// 		}
+	// 	} catch (error) {
+	// 		console.error("Ocorreu um erro:", error);
+	// 		res.status(500).json({ error: "Erro ao fazer a requisição à API" }); // Retorna um erro 500 em caso de falha na requisição
+	// 	}
+	// }
 }
 
 export default ProductController;

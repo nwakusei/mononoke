@@ -1,6 +1,20 @@
 import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
 
+interface IAddress {
+	logradouro?: string;
+	compl?: string;
+	bairro?: string;
+	city?: string;
+	uf?: string;
+	cep?: string;
+}
+
+interface IShippingConfig {
+	shippingOperator?: string;
+	credential?: string;
+}
+
 // Interface tipando os dados que irão no Banco de Dados.
 interface IPartner {
 	profileImage: string;
@@ -12,18 +26,9 @@ interface IPartner {
 	cnpj: number;
 	cpf: number;
 	description: string;
-	address: [
-		{
-			// logradouro: string;
-			// compl: string;
-			// bairro: string;
-			// city: string;
-			// uf: string;
-			// cep: string;
-		}
-	];
+	address: IAddress[];
 	site: string;
-	kanguCredential: string;
+	shippingConfiguration: IShippingConfig[];
 	cashback: number;
 	followers: number;
 	rating: number;
@@ -74,8 +79,8 @@ const partnerSchema = new Schema<IPartner>(
 		site: {
 			type: String,
 		},
-		kanguCredential: {
-			type: String,
+		shippingConfiguration: {
+			type: [{}],
 		},
 		cashback: {
 			type: Number,
