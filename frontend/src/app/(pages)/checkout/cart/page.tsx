@@ -164,6 +164,7 @@ function CartPage() {
 				const productPriceTotal = product.productPriceTotal || 0;
 				const quantityThisProduct = product.quantityThisProduct || 0;
 				const transpID = product.transportadora?.id; // Obter apenas o ID da transportadora
+				const productID = product.productID; // Adicionar o ID do produto
 
 				if (!partnerInfo[partnerID]) {
 					partnerInfo[partnerID] = {
@@ -177,6 +178,7 @@ function CartPage() {
 						transportadora: {
 							id: transpID, // Inicializa o ID da transportadora
 						},
+						productID: productID, // Adicionar o ID do produto
 					};
 				} else {
 					// Acumular os valores de peso, comprimento, largura, altura e quantidade
@@ -189,6 +191,8 @@ function CartPage() {
 						productPriceTotal;
 					partnerInfo[partnerID].quantityThisProduct +=
 						quantityThisProduct;
+					// Atualiza o ID do produto se necessário
+					partnerInfo[partnerID].productID = productID;
 				}
 
 				// Atualize o cepDestino se o produto tiver um
@@ -262,6 +266,7 @@ function CartPage() {
 					const response = await api.post(
 						"/products/simulate-shipping",
 						{
+							productID: partnerData.productID, // Incluindo o productID
 							cepDestino: cepDestino,
 							weight: partnerData.weight,
 							height: partnerData.height,
@@ -343,6 +348,7 @@ function CartPage() {
 
 						// Calcular as informações dos produtos por parceiro
 						filteredProducts.forEach((product) => {
+							const productID = product.productID;
 							const partnerID = product.partnerID;
 							const weight = product.weight || 0;
 							const length = product.length || 0;
@@ -367,6 +373,7 @@ function CartPage() {
 									transportadora: {
 										id: transpID, // Inicializa o ID da transportadora
 									},
+									productID: productID,
 								};
 							} else {
 								// Acumular os valores de peso, comprimento, largura, altura e quantidade
@@ -457,6 +464,7 @@ function CartPage() {
 
 				// Calcular as informações dos produtos por parceiro
 				filteredProducts.forEach((product) => {
+					const productID = product.productID;
 					const partnerID = product.partnerID;
 					const weight = product.weight || 0;
 					const length = product.length || 0;
@@ -480,6 +488,7 @@ function CartPage() {
 							transportadora: {
 								id: transpID, // Inicializa o ID da transportadora
 							},
+							productID: productID,
 						};
 					} else {
 						// Acumular os valores de peso, comprimento, largura, altura e quantidade

@@ -307,9 +307,9 @@ function SideComponent() {
 			console.error("Preço do produto inválido:", product);
 			return;
 		}
-
 		try {
 			const response = await api.post("/products/simulate-shipping", {
+				productID: product._id,
 				cepDestino: cep,
 				weight: product.weight, // Adicione o peso do produto
 				height: product.height, // Adicione a altura do produto
@@ -494,8 +494,11 @@ function SideComponent() {
 							</span>
 						</div>
 
-						{product.freeShipping === true &&
-						partnerUFAddress === userUFAddress ? (
+						{!product || !partnerUFAddress || !userUFAddress ? (
+							// Mostrar um placeholder de carregamento ou nada enquanto os dados estão sendo carregados
+							<div className="flex flex-row justify-between items-center gap-2 mb-1"></div>
+						) : product.freeShipping === true &&
+						  partnerUFAddress === userUFAddress ? (
 							<div className="flex flex-row justify-between items-center gap-2 mb-1">
 								<div className="flex flex-row items-center text-black gap-2">
 									<LiaShippingFastSolid size={24} />
@@ -517,40 +520,29 @@ function SideComponent() {
 									<span>Meios de Envio</span>
 								</h2>
 								<div className="flex flex-row gap-2 mb-2">
-									{/* <input
-										type="text"
-										placeholder="Seu CEP"
-										className="input w-full max-w-[180px]"
-										value={cepDestino} // Valor do input é controlado pelo estado cepDestino
-										onChange={(e) =>
-											setCepDestino(e.target.value)
-										} // Atualizar o estado cepDestino quando o valor do input mudar
-									/> */}
 									<input
 										type="text"
 										placeholder="Seu CEP"
 										className="input w-full max-w-[180px]"
-										value={cepDestino} // Valor do input é controlado pelo estado cepDestino
+										value={cepDestino}
 										onChange={(e) => {
-											// Filtrar para permitir apenas números e limitar a 8 dígitos
 											const value =
 												e.target.value.replace(
 													/\D/g,
 													""
-												); // Remove qualquer caractere que não seja dígito
+												);
 											if (value.length <= 8) {
-												setCepDestino(value); // Atualizar o estado cepDestino somente se for até 8 dígitos
+												setCepDestino(value);
 											}
 										}}
-										maxLength={8} // Limita o comprimento máximo do input para 8 caracteres
+										maxLength={8}
 									/>
 
 									<button
 										type="button"
 										className="btn btn-primary w-[120px]"
 										onClick={handleButtonClick}
-										disabled={isCalculating} // Desabilitar o botão enquanto o cálculo estiver em andamento
-									>
+										disabled={isCalculating}>
 										{isCalculating ? (
 											<div className="btn btn-primary w-[120px]">
 												<span className="loading loading-spinner loading-xs"></span>
