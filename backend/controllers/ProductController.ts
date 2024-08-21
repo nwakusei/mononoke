@@ -272,6 +272,32 @@ class ProductController {
 		}
 	}
 
+	static async getAllProductsStoreByID(req: Request, res: Response) {
+		const { id } = req.params;
+
+		console.log(id);
+
+		if (!id) {
+			res.status(422).json({ message: "Loja não encontrada!" });
+			return;
+		}
+
+		try {
+			const products = await ProductModel.find({ partnerID: id });
+
+			if (!products || products.length === 0) {
+				res.status(422).json({
+					message: "Erro ao buscar os produtos!",
+				});
+				return;
+			}
+
+			res.status(200).json({ products: products });
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
 	static async getProductById(req: Request, res: Response) {
 		const { id } = req.params;
 

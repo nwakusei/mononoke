@@ -211,7 +211,7 @@ class PartnerController {
 		try {
 			const partners = await PartnerModel.find()
 				.select(
-					"-password -email -createdAt -updatedAt -__v -otakupayID"
+					"-accountType -password -email -createdAt -updatedAt -__v -otakupayID -shippingConfiguration"
 				)
 				.sort("-createdAt");
 

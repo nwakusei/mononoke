@@ -20,6 +20,12 @@ router.get(
 	verifyToken,
 	ProductController.getAllProductsPartner
 );
+
+router.get(
+	"/getall-products-store/:id",
+	ProductController.getAllProductsStoreByID
+);
+
 router.get("/:id", ProductController.getProductById);
 
 router.delete("/:id", verifyToken, ProductController.removeProductById);

@@ -3,6 +3,7 @@
 // Imports Essenciais
 import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 
@@ -34,8 +35,6 @@ function ProductPage() {
 	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
 	const [maximizedImage, setMaximizedImage] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
-
-	console.log(recommendedProducts);
 
 	const { partners } = useContext(Context);
 
@@ -567,7 +566,10 @@ function ProductPage() {
 								</div>
 								<div className="mt-1">
 									<button className="text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md hover:shadow-md">
-										Ver Loja
+										<Link
+											href={`/otamart/store/${partner._id}`}>
+											Ver Loja
+										</Link>
 									</button>
 								</div>
 							</div>
