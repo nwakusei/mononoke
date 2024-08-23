@@ -317,5 +317,16 @@ class PartnerController {
 			res.status(500).json({ message: err });
 		}
 	}
+
+	// static async getStoreInfo(req: Request, res: Response) {
+	// 	const { id } = req.params;
+
+	// 	if (!id) {
+	// 		res.status(422).json({
+	// 			message: "Informações da loja não encontrada!",
+	// 		});
+	// 		return;
+	// 	}
+	// }
 }
 export default PartnerController;

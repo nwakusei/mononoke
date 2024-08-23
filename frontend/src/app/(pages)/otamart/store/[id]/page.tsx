@@ -37,8 +37,21 @@ function StorePage() {
 	const { id } = useParams();
 
 	const partner = partners.find((p) => p._id === id);
+	const rating =
+		partner?.rating > 0 ? `${partner?.rating} (XX Notas)` : "N/A";
+	const totalProducts = products.length;
+	const followers = partner?.followers;
 
-	console.log(partners);
+	// // Calculando a média total de avaliações dos produtos
+	// const averageRating =
+	// 	products.length > 0
+	// 		? (
+	// 				products.reduce(
+	// 					(total, product) => total + (product.rating || 0),
+	// 					0
+	// 				) / products.length
+	// 		  ).toFixed(1) // Arredonda para uma casa decimal
+	// 		: "N/A"; // Retorna "N/A" se não houver produtos ou avaliações
 
 	useEffect(() => {
 		api.get(`/products/getall-products-store/${id}`)
@@ -76,7 +89,7 @@ function StorePage() {
 							/>
 						</div>
 
-						<div className="flex flex-col">
+						<div className="flex flex-col w-[230px]">
 							{/* Titulo e Selo de verificado */}
 							<div className="flex flex-row items-center gap-1 mb-4">
 								<span className="text-lg font-semibold">
@@ -88,12 +101,12 @@ function StorePage() {
 										size={17}
 									/> */}
 
-									<div className="relative inline-block mt-1">
+									<div className="relative inline-block mt-[7px]">
 										<div className="group">
 											{/* Icone Visível no Client Side  */}
 											<MdVerified
 												className="text-ametista cursor-pointer"
-												size={18}
+												size={17}
 											/>
 											{/* Tooltip */}
 											<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-64 p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 border-[1px] border-black bg-white text-black text-sm rounded shadow-lg pointer-events-none">
@@ -121,21 +134,31 @@ function StorePage() {
 									<CgBox size={18} />
 									{/* <BsBox2Heart size={17} /> */}
 								</span>
-								<h1>Produtos: 100</h1>
+								<h1>Produtos: {totalProducts}</h1>
 							</div>
 							<div className="flex flex-row items-center gap-2">
 								<span>
 									<Peoples size={18} />
 									{/* <BsPersonCheckFill size={20} /> */}
 								</span>
-								<h1>Seguidores: 500</h1>
+								<h1>Seguidores: {followers}</h1>
 							</div>
 							<div className="flex flex-row items-center gap-2">
 								<span>
 									<BsStar size={18} />
 								</span>
-								<h1>Avaliações: 5.0 (500 Notas)</h1>
+								<h1>Avaliações: {rating}</h1>
 							</div>
+						</div>
+						<div className="border-r-[1px] border-r-black"></div>
+						<div className="w-[450px]">
+							<h1 className="mb-2">Sobre a loja:</h1>
+							<p>
+								A Otakuya-san surgiu da ideia de trazer para o
+								Brasil uma loja totalmente voltada a cultura Pop
+								Japonesa. Tudo se iniciou em 2018, após passar
+								por diversas modificações.
+							</p>
 						</div>
 					</div>
 				</div>
@@ -143,26 +166,28 @@ function StorePage() {
 				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mb-4 rounded-md shadow-md select-none">
 					Produtos da Loja
 				</div>
-				<label className="input input-bordered input-primary flex items-center w-[1070px] gap-2 mb-8">
-					<input
-						type="text"
-						className="grow bg-base-100"
-						placeholder="Pesquisar na loja"
-					/>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 16 16"
-						fill="currentColor"
-						className="h-4 w-4 opacity-70 cursor-pointer active:scale-[.97]">
-						<path
-							fillRule="evenodd"
-							d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-							clipRule="evenodd"
+				<div className="flex flex-row justify-center">
+					<label className="input input-bordered input-primary flex items-center w-[1072px] gap-2 mb-8">
+						<input
+							type="text"
+							className="grow bg-base-100"
+							placeholder="Pesquisar na loja"
 						/>
-					</svg>
-				</label>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 16 16"
+							fill="currentColor"
+							className="h-4 w-4 opacity-70 cursor-pointer active:scale-[.97]">
+							<path
+								fillRule="evenodd"
+								d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+								clipRule="evenodd"
+							/>
+						</svg>
+					</label>
+				</div>
 
-				<div className="flex flex-row flex-wrap gap-4 justify-center">
+				<div className="flex flex-row justify-center flex-wrap gap-4 ">
 					{products &&
 						products.length > 0 &&
 						products.map((product) => {

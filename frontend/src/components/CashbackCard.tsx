@@ -1,8 +1,15 @@
 import Image from "next/image";
+import Link from "next/link";
 
 // Imagens
 
-function CashbackCard({ partnerName, partnerLogo, cashback, couponInfo }) {
+function CashbackCard({
+	partnerID,
+	partnerName,
+	partnerLogo,
+	cashback,
+	couponInfo,
+}) {
 	return (
 		<div className="bg-white w-[260px] flex flex-col relative rounded-md shadow-md select-none">
 			<div className="h-[150px] mx-3 mt-2 -mb-3 flex items-center justify-center">
@@ -26,7 +33,7 @@ function CashbackCard({ partnerName, partnerLogo, cashback, couponInfo }) {
 					{couponInfo}
 				</p>
 				<button className="btn btn-primary w-full shadow-md">
-					Acessar
+					<Link href={`/otamart/store/${partnerID}`}>Acessar</Link>
 				</button>
 			</div>
 		</div>

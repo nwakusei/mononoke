@@ -71,6 +71,7 @@ function CashbackPage() {
 										? couponExist
 										: "em compras na loja"
 								}
+								partnerID={partner._id}
 							/>
 						);
 					})}
