@@ -56,7 +56,6 @@ function StorePage() {
 	useEffect(() => {
 		api.get(`/products/getall-products-store/${id}`)
 			.then((response) => {
-				console.log(response.data.products);
 				setProducts(
 					response.data.products.filter(
 						(product) => product.stock > 0
@@ -187,7 +186,7 @@ function StorePage() {
 					</label>
 				</div>
 
-				<div className="flex flex-row justify-center flex-wrap gap-4 ">
+				<div className="flex flex-row justify-center flex-wrap gap-4">
 					{products &&
 						products.length > 0 &&
 						products.map((product) => {

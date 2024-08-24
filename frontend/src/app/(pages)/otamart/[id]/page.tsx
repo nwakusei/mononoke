@@ -451,25 +451,27 @@ function ProductPage() {
 										</div>
 									</div> */}
 
-									<div className="relative inline-block">
+									<div className="relative inline-block mt-[2px]">
 										<div className="group">
 											{/* Icone Visível no Client Side  */}
 											<MdVerified
-												className="text-blue-500 cursor-pointer"
-												size={18}
+												className="text-ametista cursor-pointer"
+												size={17}
 											/>
 											{/* Tooltip */}
 											<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-64 p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 border-[1px] border-black bg-white text-black text-sm rounded shadow-lg pointer-events-none">
 												<div className="flex flex-row items-center gap-2">
 													<MdVerified
-														className="text-blue-500"
+														className="text-ametista"
 														size={18}
 													/>
-													<span>Selo Azul:</span>
+													<span>Selo Ametista</span>
 												</div>
-												<p>
-													Conta verificada desde
-													Janeiro de 2024.
+												<p className="ml-[25px]">
+													Loja com mais de 500 vendas
+												</p>
+												<p className="ml-[25px]">
+													Conta verificada
 												</p>
 											</div>
 										</div>

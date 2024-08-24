@@ -32,6 +32,10 @@ router.delete("/:id", verifyToken, ProductController.removeProductById);
 
 router.get("/recommended-product/:id", ProductController.recommendedProduct);
 
+// router.get("/search-otamart", ProductController.searchProductsInOtamart);
+
+router.get("/search-store", ProductController.searchProductsInStore);
+
 router.post("/simulate-shipping/", ProductController.simulateShipping);
 
 export default router;
