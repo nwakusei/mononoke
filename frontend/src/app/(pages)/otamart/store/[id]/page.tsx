@@ -29,29 +29,22 @@ import { useParams } from "next/navigation";
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
+import Swal from "sweetalert2";
 
 function StorePage() {
 	const [products, setProducts] = useState([]);
 	const { partners } = useContext(Context);
 	const [isLoading, setIsLoading] = useState(true);
 	const { id } = useParams();
+	const [searchText, setSearchText] = useState("");
+	const [returnedProducts, setReturnedProducts] = useState([]);
+	const [noResults, setNoResults] = useState(false); // Nova variável de estado
 
 	const partner = partners.find((p) => p._id === id);
 	const rating =
 		partner?.rating > 0 ? `${partner?.rating} (XX Notas)` : "N/A";
 	const totalProducts = products.length;
 	const followers = partner?.followers;
-
-	// // Calculando a média total de avaliações dos produtos
-	// const averageRating =
-	// 	products.length > 0
-	// 		? (
-	// 				products.reduce(
-	// 					(total, product) => total + (product.rating || 0),
-	// 					0
-	// 				) / products.length
-	// 		  ).toFixed(1) // Arredonda para uma casa decimal
-	// 		: "N/A"; // Retorna "N/A" se não houver produtos ou avaliações
 
 	useEffect(() => {
 		api.get(`/products/getall-products-store/${id}`)
@@ -68,6 +61,49 @@ function StorePage() {
 				setIsLoading(false); // Pode ser necessário para parar o carregamento em caso de erro
 			});
 	}, [id]);
+
+	const handleSearch = async () => {
+		// Verifica se há texto na pesquisa antes de fazer a requisição
+		if (!searchText.trim()) {
+			return; // Se não houver texto, não faz a requisição
+		}
+
+		setIsLoading(true);
+		setNoResults(false);
+
+		const fetchReturnedProduct = async () => {
+			try {
+				const response = await api.post(
+					`/searches/search-store/${id}`,
+					{
+						productName: searchText, // Envia o searchText no corpo da requisição
+					}
+				);
+				if (response.data.products.length > 0) {
+					setReturnedProducts(response.data.products);
+				} else {
+					setNoResults(true);
+				}
+			} catch (error: any) {
+				if (error.response && error.response.status === 404) {
+					setNoResults(true); // Define como true se o status for 404
+				} else {
+					console.error("Erro ao buscar o produto:", error);
+				}
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchReturnedProduct();
+	};
+
+	// Função para lidar com o pressionamento da tecla Enter
+	const handleKeyDown = (e) => {
+		if (e.key === "Enter") {
+			handleSearch();
+		}
+	};
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -171,12 +207,16 @@ function StorePage() {
 							type="text"
 							className="grow bg-base-100"
 							placeholder="Pesquisar na loja"
+							value={searchText}
+							onChange={(e) => setSearchText(e.target.value)}
+							onKeyDown={handleKeyDown}
 						/>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 16 16"
 							fill="currentColor"
-							className="h-4 w-4 opacity-70 cursor-pointer active:scale-[.97]">
+							className="h-4 w-4 opacity-70 cursor-pointer active:scale-[.97]"
+							onClick={(e) => handleSearch(e)}>
 							<path
 								fillRule="evenodd"
 								d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
@@ -187,15 +227,56 @@ function StorePage() {
 				</div>
 
 				<div className="flex flex-row justify-center flex-wrap gap-4">
-					{products &&
+					{noResults ? (
+						<div className="min-h-screen">
+							<p className="text-black text-center bg-white p-4 w-[500px] rounded-md shadow-md">
+								Produto não encontrado!
+							</p>
+						</div>
+					) : returnedProducts.length > 0 ? (
+						returnedProducts.map((returnedProduct) => {
+							const partner = partners.find(
+								(partner) =>
+									partner._id === returnedProduct.partnerID
+							);
+							const cashback = partner ? partner.cashback : 0;
+
+							return (
+								<ProductAdCard
+									key={returnedProduct._id}
+									freeShipping={returnedProduct.freeShipping}
+									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
+									title={returnedProduct.productName}
+									originalPrice={Number(
+										returnedProduct.originalPrice
+									)}
+									promocionalPrice={Number(
+										returnedProduct.promocionalPrice
+									)}
+									price={Number(
+										returnedProduct.originalPrice
+									)}
+									promoPrice={Number(
+										returnedProduct.promocionalPrice
+									)}
+									cashback={cashback}
+									rating={returnedProduct.rating}
+									quantitySold={
+										returnedProduct.productsSold > 1
+											? `${returnedProduct.productsSold} Vendidos`
+											: `${returnedProduct.productsSold} Vendido`
+									}
+									linkProductPage={`/otamart/${returnedProduct._id}`}
+								/>
+							);
+						})
+					) : (
+						products &&
 						products.length > 0 &&
 						products.map((product) => {
-							// Encontrar o parceiro correspondente com base no partnerID do produto
 							const partner = partners.find(
 								(partner) => partner._id === product.partnerID
 							);
-
-							// Obter o cashback do parceiro, se existir
 							const cashback = partner ? partner.cashback : 0;
 
 							return (
@@ -214,7 +295,7 @@ function StorePage() {
 									promoPrice={Number(
 										product.promocionalPrice
 									)}
-									cashback={cashback} // Passar o cashback para o componente ProductAdCard
+									cashback={cashback}
 									rating={product.rating}
 									quantitySold={
 										product.productsSold > 1
@@ -224,7 +305,8 @@ function StorePage() {
 									linkProductPage={`/otamart/${product._id}`}
 								/>
 							);
-						})}
+						})
+					)}
 				</div>
 			</div>
 		</section>

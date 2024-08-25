@@ -45,6 +45,7 @@ import CouponRoutes from "./routes/CouponRoutes.js";
 import ReviewRoutes from "./routes/ReviewRoutes.js";
 import TrackingRoutes from "./routes/TrackingRoutes.js";
 import RaffeRoutes from "./routes/RaffleRoutes.js";
+import SearchRoutes from "./routes/SearchRoutes.js";
 
 // Definição das rotas
 app.use("/customers", CustomerRoutes);
@@ -58,6 +59,7 @@ app.use("/coupons", CouponRoutes);
 app.use("/reviews", ReviewRoutes);
 app.use("/tracking", TrackingRoutes);
 app.use("/raffles", RaffeRoutes);
+app.use("/searches", SearchRoutes);
 
 // Configuração do Listen
 app.listen(port, () => {
