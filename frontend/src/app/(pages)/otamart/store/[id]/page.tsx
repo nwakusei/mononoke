@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
+import { useParams } from "next/navigation";
 import api from "@/utils/api";
 import Image from "next/image";
 
@@ -12,19 +13,11 @@ import imageProfile from "../../../../../public/Kon.jpg";
 import { Context } from "@/context/UserContext";
 
 // Icons
-import { GiEvilBook, GiBattleMech } from "react-icons/gi";
-import { IoGameControllerOutline } from "react-icons/io5";
-import { LuDisc3 } from "react-icons/lu";
-import { PiTShirt } from "react-icons/pi";
-import { TbCards } from "react-icons/tb";
-import { RiPencilRuler2Line } from "react-icons/ri";
 import { MdVerified } from "react-icons/md";
-import { Peoples, RightUser } from "@icon-park/react";
+import { Peoples } from "@icon-park/react";
 import { BsStar, BsStarHalf, BsStarFill, BsBox2Heart } from "react-icons/bs";
-import { CiBoxes } from "react-icons/ci";
 import { CgBox } from "react-icons/cg";
-
-import { useParams } from "next/navigation";
+import { FiInfo } from "react-icons/fi";
 
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
@@ -42,7 +35,9 @@ function StorePage() {
 
 	const partner = partners.find((p) => p._id === id);
 	const rating =
-		partner?.rating > 0 ? `${partner?.rating} (XX Notas)` : "N/A";
+		partner?.rating > 0
+			? `${(partner?.rating).toFixed(1)} (XX Notas)`
+			: "N/A";
 	const totalProducts = products.length;
 	const followers = partner?.followers;
 
@@ -198,15 +193,22 @@ function StorePage() {
 					</div>
 				</div>
 
-				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mb-4 rounded-md shadow-md select-none">
-					Produtos da Loja
+				<div className="flex felx-row items-center justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mb-4 rounded-md shadow-md select-none">
+					{returnedProducts?.length === 0 ? (
+						<span>Produtos da Loja</span>
+					) : (
+						<>
+							<FiInfo className="mt-[2px]" size={20} />
+							<span>Resultado da pesquisa para ''</span>
+						</>
+					)}
 				</div>
-				<div className="flex flex-row justify-center">
+				<div>
 					<label className="input input-bordered input-primary flex items-center w-[1072px] gap-2 mb-8">
 						<input
 							type="text"
 							className="grow bg-base-100"
-							placeholder="Pesquisar na loja"
+							placeholder="Pesquisar na Loja"
 							value={searchText}
 							onChange={(e) => setSearchText(e.target.value)}
 							onKeyDown={handleKeyDown}
@@ -226,7 +228,7 @@ function StorePage() {
 					</label>
 				</div>
 
-				<div className="flex flex-row justify-center flex-wrap gap-4">
+				<div className="flex flex-row flex-wrap gap-4 justify-center">
 					{noResults ? (
 						<div className="min-h-screen">
 							<p className="text-black text-center bg-white p-4 w-[500px] rounded-md shadow-md">

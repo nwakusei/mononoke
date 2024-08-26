@@ -136,12 +136,12 @@ function ReviewByIdPage() {
 	// };
 
 	return (
-		<section className="grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="bg-gray-100 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="bg-gray-500 col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
+			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10">
 				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
-					<div className="bg-purple-400 w-[1200px] p-6 rounded-md mt-4">
+					<div className="bg-white text-black w-[1200px] p-6 rounded-md shadow-md mt-4">
 						{/* Adicionar Porduto */}
 						<div className="flex flex-col gap-2 mb-6">
 							<h1 className="text-2xl font-semibold">
@@ -222,28 +222,33 @@ function ReviewByIdPage() {
 									Dê a sua nota para esse pedido:
 								</div>
 
-								<div>
-									<div className="flex flex-row gap-2 mb-4">
-										<div
+								<div className="flex flex-col gap-4">
+									<div className="flex flex-row items-center text-black gap-2">
+										<button
 											onClick={decrement}
-											className="flex items-center text-center bg-blue-500 px-3 py-1 rounded shadow-md cursor-pointer active:scale-[.97]">
-											-
-										</div>
+											className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
+											<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-primary text-white rounded cursor-pointer active:scale-[.97]">
+												-
+											</h1>
+										</button>
+
 										<input
-											onChange={handleChange}
-											onBlur={handleBlur}
-											className="text-center w-[50px] rounded"
+											className="text-lg text-center bg-gray-300
+																w-[60px] h-[32px]
+																rounded"
 											type="text"
 											min="0"
 											max="5"
 											step="0.1"
 											value={inputValue}
 										/>
-										<div
+										<button
 											onClick={increment}
-											className="bg-blue-500 px-3 py-1 rounded shadow-md cursor-pointer active:scale-[.97]">
-											+
-										</div>
+											className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
+											<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-primary text-white rounded cursor-pointer active:scale-[.97]">
+												+
+											</h1>
+										</button>
 									</div>
 									<div className="-mt-3">Ex.: 4.3 ou 5</div>
 								</div>
@@ -256,7 +261,7 @@ function ReviewByIdPage() {
 								</label>
 								<textarea
 									onChange={handleDescriptionChange}
-									className="textarea textarea-bordered w-[600px]"
+									className="textarea textarea-bordered text-white w-[600px]"
 									placeholder="Conte como foi a sua experiência..."></textarea>
 							</div>
 						</div>
@@ -269,7 +274,7 @@ function ReviewByIdPage() {
 						/>
 					</div>
 					{/* Gadget 2 */}
-					<div className="flex flex-row justify-between items-center gap-4 bg-purple-400 w-[1200px] p-6 rounded-md">
+					<div className="flex flex-row justify-between items-center gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md">
 						<div className="flex flex-row gap-4">
 							{sendReviewLoading ? (
 								<button className="btn btn-primary">
@@ -279,7 +284,7 @@ function ReviewByIdPage() {
 							) : (
 								<button
 									onClick={handleSubmitReview}
-									className="btn btn-success">
+									className="btn btn-primary shadow-md">
 									Enviar Avaliação
 								</button>
 							)}

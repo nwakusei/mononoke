@@ -467,46 +467,65 @@ function MySaleByIDPage() {
 							</div>
 
 							{mysale.trackingCode === "" ? (
-								<form onSubmit={handleTracking}>
-									<label className="form-control w-full max-w-xs mb-4">
-										<input
-											type="text"
-											placeholder="Insira o código de Rastreio"
-											className="input input-bordered w-full"
-											value={trackingCode}
-											onChange={(e) =>
-												setTrackingCode(e.target.value)
-											}
-										/>
-										<div className="label">
-											<span className="label-text-alt text-error">
-												Msg de erro a ser exibida
-											</span>
+								<>
+									<form onSubmit={handleTracking}>
+										<label className="form-control w-full max-w-xs mb-4">
+											<select className="select select-primary w-full max-w-xs mb-2">
+												<option disabled selected>
+													Qual é o operador logístico?
+												</option>
+												<option>Kangu</option>
+												<option>Correios</option>
+												<option>Japan Post</option>
+												<option>DHL</option>
+												<option>FedEx</option>
+											</select>
+											<input
+												type="text"
+												placeholder="Insira o código de Rastreio"
+												className="input input-bordered input-primary w-full"
+												value={trackingCode}
+												onChange={(e) =>
+													setTrackingCode(
+														e.target.value
+													)
+												}
+											/>
+											<div className="label">
+												<span className="label-text-alt text-error">
+													Msg de erro a ser exibida
+												</span>
+											</div>
+										</label>
+										<div>
+											{trackingLoading ? (
+												<button className="btn btn-primary w-full">
+													<span className="loading loading-spinner loading-sm"></span>
+													<span>Processando...</span>
+												</button>
+											) : (
+												<button
+													type="submit"
+													className="btn btn-primary w-full shadow-md">
+													Enviar Código de Rastreio
+													<GrMapLocation size={20} />
+												</button>
+											)}
 										</div>
-									</label>
-									<div className="mb-2">
-										<button className="btn btn-primary w-full">
-											<span>Marcar como embalado</span>
-											{/* <LuPackageCheck size={20} /> */}
-											<BsBoxSeam size={20} />
-										</button>
-									</div>
-									<div>
-										{trackingLoading ? (
+									</form>
+									{mysale.trackingCode === "" ? (
+										<></>
+									) : (
+										<div className="mb-2">
 											<button className="btn btn-primary w-full">
-												<span className="loading loading-spinner loading-sm"></span>
-												<span>Processando...</span>
+												<span>
+													Marcar como embalado
+												</span>
+												<LuPackageCheck size={20} />
 											</button>
-										) : (
-											<button
-												type="submit"
-												className="btn btn-primary w-full shadow-md">
-												Enviar Código de Rastreio
-												<GrMapLocation size={20} />
-											</button>
-										)}
-									</div>
-								</form>
+										</div>
+									)}
+								</>
 							) : (
 								<div className="flex flex-row gap-2">
 									<div className="text-black">

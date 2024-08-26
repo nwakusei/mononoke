@@ -6,6 +6,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 // Middlewares
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
+import { PartnerModel } from "../models/PartnerModel.js";
 
 class ReviewController {
 	static async createReview(req: Request, res: Response) {
@@ -16,19 +17,19 @@ class ReviewController {
 			return;
 		}
 
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
 		try {
 			const order = await OrderModel.findById(id);
 
 			if (!order) {
 				res.status(422).json({ message: "O pedido não existe!" });
-				return;
-			}
-
-			const token: any = getToken(req);
-			const customer = await getUserByToken(token);
-
-			if (!customer) {
-				res.status(422).json({ message: "Usuário não encontrado!" });
 				return;
 			}
 
@@ -42,7 +43,14 @@ class ReviewController {
 			if (order.statusShipping !== "Entregue") {
 				res.status(422).json({
 					message:
-						"Não é possível enviar a avaliação pois o pedido ainda está em andamento!",
+						"Não é possível avaliar, pois o pedido ainda está em andamento!",
+				});
+				return;
+			}
+
+			if (order?.statusOrder === "Concluído") {
+				res.status(422).json({
+					message: "Pedido já concluído, não é possível avaliar!",
 				});
 				return;
 			}
@@ -66,6 +74,7 @@ class ReviewController {
 				reviewDescription: string;
 			}
 
+			// Validação comentada pararealizar testes, ativar novamente no final
 			// // Verificar se já existe uma avaliação do mesmo comprador para o pedido
 			// const existingReview = products.some((product) =>
 			// 	product.reviews.some(
@@ -184,6 +193,45 @@ class ReviewController {
 					product.save();
 				})
 			);
+
+			// Atualizar a quantidade vendida da Loja Parceira
+			const partnerID = order?.partnerID;
+
+			const partner = await PartnerModel.findById(partnerID);
+
+			if (!partner) {
+				res.status(422).json({ message: "Partner não encontrado" });
+				return;
+			}
+
+			// Buscar todos os produtos do parceiro
+			const partnerProducts = await ProductModel.find({ partnerID });
+
+			// Calcular a média de todos os produtos do parceiro
+			let totalPartnerRating = 0;
+			let totalReviewsCount = 0;
+			let totalProductsSold = 0;
+
+			partnerProducts.forEach((product) => {
+				totalPartnerRating += product.rating * product.reviews.length;
+				totalReviewsCount += product.reviews.length;
+				totalProductsSold += product.productsSold;
+			});
+
+			if (totalReviewsCount > 0) {
+				partner.rating = totalPartnerRating / totalReviewsCount;
+			} else {
+				partner.rating = 0;
+			}
+
+			// Atualizar productsSold do partner
+			partner.productsSold = totalProductsSold;
+
+			order.statusOrder = "Concluído";
+
+			await order.save();
+
+			await partner.save();
 
 			res.status(200).json({
 				message: "Avaliação enviada com sucesso!",

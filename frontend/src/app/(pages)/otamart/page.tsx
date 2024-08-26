@@ -191,7 +191,7 @@ function OtamartPage() {
 						<input
 							type="text"
 							className="grow bg-base-100"
-							placeholder="Pesquisar no Otamart"
+							placeholder="Pesquisar no OtaMart"
 							value={searchText}
 							onChange={(e) => setSearchText(e.target.value)}
 							onKeyDown={handleKeyDown}

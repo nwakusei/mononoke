@@ -156,10 +156,10 @@ class PartnerController {
 				password: passwordHash,
 				description: "",
 				address: [],
-				site: "meusite.com.br",
 				cashback: "1",
 				followers: 0,
 				rating: 0,
+				productsSold: 0,
 				otakupayID: newOtakupay._id,
 			});
 

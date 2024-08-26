@@ -27,11 +27,12 @@ interface IPartner {
 	cpf: number;
 	description: string;
 	address: IAddress[];
-	site: string;
+	// site: string;
 	shippingConfiguration: IShippingConfig[];
 	cashback: number;
 	followers: number;
 	rating: number;
+	productsSold: number;
 	accountStatus: string;
 	otakupayID: mongoose.Schema.Types.ObjectId;
 }
@@ -76,9 +77,9 @@ const partnerSchema = new Schema<IPartner>(
 		address: {
 			type: [{}],
 		},
-		site: {
-			type: String,
-		},
+		// site: {
+		// 	type: String,
+		// },
 		shippingConfiguration: {
 			type: [{}],
 		},
@@ -90,6 +91,9 @@ const partnerSchema = new Schema<IPartner>(
 			type: Number,
 		},
 		rating: {
+			type: Number,
+		},
+		productsSold: {
 			type: Number,
 		},
 		accountStatus: {

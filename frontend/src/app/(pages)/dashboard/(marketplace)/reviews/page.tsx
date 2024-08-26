@@ -14,7 +14,7 @@ import { Sidebar } from "@/components/Sidebar";
 
 function ReviewsPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
-	const [mysales, setMysales] = useState([]);
+	const [orders, setOrders] = useState([]);
 
 	useEffect(() => {
 		const fethData = async () => {
@@ -26,7 +26,7 @@ function ReviewsPage() {
 				});
 
 				if (response.data && response.data.orders) {
-					setMysales(response.data.orders);
+					setOrders(response.data.orders);
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
@@ -57,15 +57,6 @@ function ReviewsPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th>
-												<label>
-													<input
-														type="checkbox"
-														className="checkbox"
-													/>
-												</label>
-											</th>
-
 											<th className="text-sm text-black">
 												Nome do Produto
 											</th>
@@ -79,14 +70,14 @@ function ReviewsPage() {
 										</tr>
 									</thead>
 									<tbody>
-										{mysales
+										{orders
 											.filter(
-												(mysale) =>
-													mysale.statusShipping ===
+												(order) =>
+													order.statusOrder ===
 													"Entregue"
 											)
-											.map((mysale) => (
-												<tr key={mysale._id}>
+											.map((order) => (
+												<tr key={order._id}>
 													<th>
 														<label>
 															<input
@@ -96,7 +87,7 @@ function ReviewsPage() {
 														</label>
 													</th>
 													<td>
-														{mysale.itemsList.map(
+														{order.itemsList.map(
 															(item, index) => (
 																<div
 																	key={index}
@@ -141,20 +132,20 @@ function ReviewsPage() {
 													<td>
 														<div className="text-black">
 															{
-																mysale.statusShipping
+																order.statusShipping
 															}
 														</div>
 													</td>
 
 													<td>
 														<div className="text-black">
-															{mysale.orderID}
+															{order.orderID}
 														</div>
 													</td>
 													<th>
-														<button className="flex items-center btn btn-warning btn-xs shadow-md">
+														<button className="flex items-center btn btn-primary btn-xs shadow-md">
 															<Link
-																href={`/dashboard/reviews/${mysale._id}`}>
+																href={`/dashboard/reviews/${order._id}`}>
 																Avaliar
 															</Link>
 														</button>

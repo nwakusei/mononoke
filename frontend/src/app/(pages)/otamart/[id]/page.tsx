@@ -100,28 +100,13 @@ function ProductPage() {
 		fetchProduct();
 	}, [id]);
 
-	// useEffect(() => {
-	// 	const fetchRecommendedProducts = async () => {
-	// 		try {
-	// 			const response = await api.get(
-	// 				`/products/recommended-product/${id}`
-	// 			);
-	// 			setRecommendedProducts(response.data.recommendedProducts); // Certifique-se de usar a chave correta
-	// 		} catch (error) {
-	// 			console.error("Error fetching product:", error);
-	// 		}
-	// 	};
-
-	// 	fetchRecommendedProducts();
-	// }, [id]);
-
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
 		// Arredonda o rating para a casa decimal mais próxima
 		const roundedRating = Math.round(product.rating * 10) / 10;
 
 		// Verifica se o roundedRating é igual a 0
-		if (roundedRating === 0) {
+		if (product.reviews == 0) {
 			return (
 				<>
 					N/A {/* Renderiza "N/A" */}
@@ -305,7 +290,7 @@ function ProductPage() {
 					</h1>
 					{/* Avaliações e Vendidos */}
 					<div className="flex flex-row text-sm text-black mb-4 gap-1">
-						<div className="flex items-center gap-1 text-yellow-400">
+						<div className="flex items-center gap-1 text-yellow-500">
 							{/* Contêiner flexível para os ícones */}
 							{renderRatingIcons()}
 						</div>
@@ -584,7 +569,7 @@ function ProductPage() {
 			<div className="bg-white flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md">
 				<div className="w-full border-opacity-50">
 					<div className="flex flex-col">
-						<div className="flex flex-col justify-center items-center mb-2">
+						<div className="flex flex-col justify-center items-center mb-6">
 							<h1 className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
 								Avaliações do Produto
 							</h1>
@@ -593,7 +578,7 @@ function ProductPage() {
 						{product?.reviews && product?.reviews.length > 0 ? (
 							product?.reviews.map((item, index) => (
 								<div key={index} className="-mt-2">
-									<div className="flex flex-row gap-2 mb-1">
+									<div className="flex flex-row gap-2 text-black mb-1 ml-4">
 										<div className="avatar">
 											<div className="w-16 h-16 rounded-full">
 												<Image
@@ -611,7 +596,7 @@ function ProductPage() {
 												</h1>
 												<div className="flex flex-row items-center text-sm">
 													<span className="flex flex-row items-center gap-1">
-														<p className="flex flex-row items-center gap-1 mr-1 text-sm">
+														<p className="flex flex-row items-center gap-1 mr-1 text-sm text-yellow-500">
 															{renderReviewRatingIcons(
 																item?.reviewRating
 															)}
