@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import mongoose, { isValidObjectId } from "mongoose";
+import axios, { AxiosRequestConfig } from "axios";
 
 // Middlewares
 import getToken from "../helpers/get-token.js";
@@ -233,10 +234,43 @@ class ReviewController {
 
 			await partner.save();
 
-			res.status(200).json({
-				message: "Avaliação enviada com sucesso!",
-				newReview,
-			});
+			// Requisição teste para ativar outra requisição dentro da API
+			const transactionRequestConfig: AxiosRequestConfig = {
+				method: "post",
+				url: "http://localhost:5000/otakupay/liberar",
+				headers: {
+					"Content-Type": "application/json",
+					// Authorization: `Bearer ${accessToken}`, // Se precisar de um token de autenticação
+				},
+				// data: {
+				// 	// Dados que precisam ser enviados para a transação
+				// 	orderId: order._id,
+				// 	customerId: customer._id,
+				// 	reviewId: newReview.orderID, // ou outro dado necessário
+				// },
+				// httpsAgent: new https.Agent({
+				// 	cert: "caminho/do/seu/certificado.pem",
+				// 	key: "caminho/da/sua/chave.key",
+				// }),
+			};
+
+			const transactionResponse = await axios(transactionRequestConfig);
+
+			if (transactionResponse.status !== 200) {
+				console.log(
+					"Erro ao processar a transação, status:",
+					transactionResponse.status
+				);
+				res.status(500).json({
+					message: "Erro ao processar a transação!",
+				});
+				return;
+			} else {
+				res.status(200).json({
+					message: "Avaliação enviada com sucesso!",
+					newReview,
+				});
+			}
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({

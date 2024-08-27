@@ -1,6 +1,11 @@
 import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
 
+interface IFollowingStores {
+	storeID: mongoose.Schema.Types.ObjectId;
+	storeName: string | undefined;
+}
+
 // Interface tipando os dados que irão no Banco de Dados.
 interface ICustomer {
 	profileImage: string;
@@ -12,6 +17,7 @@ interface ICustomer {
 	address: [{}];
 	accountStatus: string;
 	otakupayID: mongoose.Schema.Types.ObjectId;
+	followingStores: IFollowingStores[];
 }
 
 // Schema que corresponda a Interface.
@@ -48,6 +54,9 @@ const customerSchema = new Schema<ICustomer>(
 		otakupayID: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "OtakupayModel",
+		},
+		followingStores: {
+			type: [{}],
 		},
 	},
 	{ timestamps: true }

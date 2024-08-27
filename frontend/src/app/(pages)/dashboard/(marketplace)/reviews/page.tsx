@@ -78,14 +78,6 @@ function ReviewsPage() {
 											)
 											.map((order) => (
 												<tr key={order._id}>
-													<th>
-														<label>
-															<input
-																type="checkbox"
-																className="checkbox"
-															/>
-														</label>
-													</th>
 													<td>
 														{order.itemsList.map(
 															(item, index) => (

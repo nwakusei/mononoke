@@ -4140,9 +4140,16 @@ class OtakupayController {
 			});
 		}
 	}
+
+	static async liberaçãoDeValores(req: Request, res: Response) {
+		console.log("Valores liberados com sucesso!");
+		// Adicione uma resposta ao cliente
+		res.status(200).json({ message: "Valores liberados com sucesso!" });
+	}
 }
 
 export default OtakupayController;
+
 function validateError(error: any) {
 	// Verifique o tipo de erro e retorne uma mensagem apropriada
 	if (typeof error === "string") {
