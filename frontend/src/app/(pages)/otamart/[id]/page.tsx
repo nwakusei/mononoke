@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 
+import "./otamartId.css";
+
 // Axios
 import api from "@/utils/api";
 
@@ -27,6 +29,8 @@ import { Currency } from "@icon-park/react";
 import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
 import { MdVerified } from "react-icons/md";
 import { ProductAdCard } from "@/components/ProductAdCard";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 function ProductPage() {
 	const { id } = useParams();
@@ -35,6 +39,32 @@ function ProductPage() {
 	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
 	const [maximizedImage, setMaximizedImage] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [buttonLoading, setbuttonLoading] = useState(false);
+
+	const [token] = useState(() => localStorage.getItem("token") || "");
+	const [alreadyfollowsStores, setAlreadyfollowsStores] = useState([]);
+	const [followedStores, setFollowedStores] = useState(alreadyfollowsStores);
+
+	// Função para buscar a lista de lojas seguidas
+	const fetchFollowedStores = async () => {
+		if (!token) return;
+
+		try {
+			const response = await api.get("/otakuprime/check-user", {
+				headers: {
+					Authorization: `Bearer ${JSON.parse(token)}`,
+				},
+			});
+			setFollowedStores(response.data.followingStores);
+		} catch (error) {
+			console.error("Erro ao buscar lojas seguidas:", error);
+		}
+	};
+
+	// Chama a função para buscar as lojas seguidas quando o componente é montado
+	useEffect(() => {
+		fetchFollowedStores();
+	}, [token]);
 
 	const { partners } = useContext(Context);
 
@@ -209,6 +239,24 @@ function ProductPage() {
 			} else {
 				return <span>N/A</span>;
 			}
+		}
+	};
+
+	const handleFollow = async () => {
+		setbuttonLoading(true);
+		try {
+			// Simula a chamada API para seguir a loja
+			await api.post(`/customers/follow-store/${id}`);
+
+			// Atualiza o estado local para refletir a nova lista de lojas seguidas
+			setFollowedStores((prevStores) => [
+				...prevStores,
+				{ storeID: partner?._id },
+			]);
+		} catch (error) {
+			console.error("Erro ao seguir a loja:", error);
+		} finally {
+			setbuttonLoading(false);
 		}
 	};
 
@@ -534,9 +582,33 @@ function ProductPage() {
 									</span>
 								</div>
 								<div className="mt-1">
-									<button className="bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md">
-										Seguir
-									</button>
+									{buttonLoading ? (
+										<button
+											disabled
+											className="button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+											<span className="loading loading-spinner loading-md"></span>
+										</button>
+									) : followedStores.some(
+											(store) =>
+												store.storeID === partner?._id
+									  ) ? (
+										<button
+											// Função para deixar de seguir - não implementada ainda
+											className="button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+											<span className="text-following">
+												Deixar de seguir
+											</span>
+											<span className="text-follow">
+												Seguindo
+											</span>
+										</button>
+									) : (
+										<button
+											onClick={handleFollow} // Função para seguir
+											className="button follow bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+											Seguir
+										</button>
+									)}
 								</div>
 							</div>
 							<div className="border border-y-[1px] border-black"></div>

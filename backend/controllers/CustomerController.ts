@@ -293,6 +293,105 @@ class CustomerController {
 		}
 	}
 
+	// // Requisição finalizada, mas precisa de ajustes
+	// static async followStore(req: Request, res: Response) {
+	// 	const { id } = req.params; // ID que pode ser da loja ou do produto
+
+	// 	// Verifique se o ID fornecido é válido
+	// 	if (!isValidObjectId(id)) {
+	// 		res.status(422).json({ message: "ID inválido!" });
+	// 		return;
+	// 	}
+
+	// 	try {
+	// 		let storeID: any = id;
+	// 		let storeName: string | null = null;
+
+	// 		// Tente encontrar a loja diretamente usando o ID fornecido
+	// 		const store = await PartnerModel.findById(storeID);
+
+	// 		// Se não encontrar a loja, então pode ser que o ID seja de um produto
+	// 		if (!store) {
+	// 			// Encontre o produto usando o ID
+	// 			const product = await ProductModel.findById(id);
+
+	// 			if (!product) {
+	// 				res.status(404).json({
+	// 					message: "Produto não encontrado!",
+	// 				});
+	// 				return;
+	// 			}
+
+	// 			// Obtenha o ID da loja associada ao produto
+	// 			storeID = product.partnerID;
+
+	// 			// Verifique se o ID da loja é válido
+	// 			if (!isValidObjectId(storeID)) {
+	// 				res.status(422).json({ message: "ID da loja inválido!" });
+	// 				return;
+	// 			}
+
+	// 			// Tente encontrar a loja usando o ID da loja obtido do produto
+	// 			const foundStore = await PartnerModel.findById(storeID);
+
+	// 			if (!foundStore) {
+	// 				res.status(404).json({ message: "Loja não encontrada!" });
+	// 				return;
+	// 			}
+
+	// 			storeName = foundStore.name; // Obtenha o nome da loja
+	// 		} else {
+	// 			storeName = store.name; // Obtenha o nome da loja diretamente
+	// 		}
+
+	// 		const token: any = getToken(req);
+	// 		const customer = await getUserByToken(token);
+	// 		const customerID = customer?._id;
+
+	// 		// Encontre o usuário ou seguidor usando o ID do usuário
+	// 		const user = await CustomerModel.findById(customerID);
+
+	// 		if (!user) {
+	// 			res.status(404).json({ message: "Customer não encontrado!" });
+	// 			return;
+	// 		}
+
+	// 		// Verifique se o usuário já está seguindo a loja
+	// 		if (
+	// 			user.followingStores.some(
+	// 				(following) =>
+	// 					following.storeID.toString() === storeID.toString()
+	// 			)
+	// 		) {
+	// 			res.status(400).json({
+	// 				message: "Você já segue esta loja!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		// Adicione a loja à lista de lojas seguidas do usuário
+	// 		const newFollowingStoreDate = {
+	// 			storeID: storeID,
+	// 			storeName: storeName,
+	// 		};
+
+	// 		user.followingStores.push(newFollowingStoreDate);
+	// 		await user.save();
+
+	// 		// Atualize o número de seguidores da loja
+	// 		await PartnerModel.findByIdAndUpdate(
+	// 			storeID,
+	// 			{ $inc: { followers: 1 } }, // Incrementa o número de seguidores
+	// 			{ new: true } // Retorna o documento atualizado
+	// 		).exec();
+
+	// 		res.status(200).json({ message: "Loja seguida com sucesso!" });
+	// 	} catch (error) {
+	// 		console.error("Erro ao seguir a loja:", error);
+	// 		res.status(500).json({ message: "Erro ao tentar seguir a loja!" });
+	// 	}
+	// }
+
 	// Requisição finalizada, mas precisa de ajustes
 	static async followStore(req: Request, res: Response) {
 		const { id } = req.params; // ID que pode ser da loja ou do produto
@@ -304,8 +403,10 @@ class CustomerController {
 		}
 
 		try {
-			// Tente encontrar a loja diretamente usando o ID fornecido
 			let storeID: any = id;
+			let storeName: string | null = null;
+
+			// Tente encontrar a loja diretamente usando o ID fornecido
 			const store = await PartnerModel.findById(storeID);
 
 			// Se não encontrar a loja, então pode ser que o ID seja de um produto
@@ -336,6 +437,10 @@ class CustomerController {
 					res.status(404).json({ message: "Loja não encontrada!" });
 					return;
 				}
+
+				storeName = foundStore.name; // Obtenha o nome da loja
+			} else {
+				storeName = store.name; // Obtenha o nome da loja diretamente
 			}
 
 			const token: any = getToken(req);
@@ -358,25 +463,17 @@ class CustomerController {
 				)
 			) {
 				res.status(400).json({
-					message: "Já está seguindo esta loja!",
+					message: "Você já segue esta loja!",
 				});
 				return;
 			}
-
-			// Verifique se o usuário já está seguindo a loja
-			if (user.followingStores.includes(storeID)) {
-				res.status(400).json({
-					message: "Já está seguindo esta loja!",
-				});
-				return;
-			}
-
-			const newFollowingStoreDate = {
-				storeID: storeID,
-				storeName: store?.name,
-			};
 
 			// Adicione a loja à lista de lojas seguidas do usuário
+			const newFollowingStoreDate = {
+				storeID: storeID,
+				storeName: storeName,
+			};
+
 			user.followingStores.push(newFollowingStoreDate);
 			await user.save();
 
