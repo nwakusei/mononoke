@@ -43,7 +43,7 @@ function ProductPage() {
 
 	const [token] = useState(() => localStorage.getItem("token") || "");
 	const [alreadyfollowsStores, setAlreadyfollowsStores] = useState([]);
-	const [followedStores, setFollowedStores] = useState(alreadyfollowsStores);
+	const [followedStores, setFollowedStores] = useState([]);
 
 	// Função para buscar a lista de lojas seguidas
 	const fetchFollowedStores = async () => {
@@ -253,8 +253,25 @@ function ProductPage() {
 				...prevStores,
 				{ storeID: partner?._id },
 			]);
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Erro ao seguir a loja:", error);
+		} finally {
+			setbuttonLoading(false);
+		}
+	};
+
+	const handleUnfollow = async () => {
+		setbuttonLoading(true);
+		try {
+			await api.post(`/customers/unfollow-store/${id}`);
+
+			// Remove a loja da lista de seguidos
+			setFollowedStores(
+				(prevStores) =>
+					prevStores.filter((store) => store.storeID !== partner?._id) // Remove a loja
+			);
+		} catch (error) {
+			console.error("Erro ao deixaar de seguir a loja:", error);
 		} finally {
 			setbuttonLoading(false);
 		}
@@ -581,34 +598,47 @@ function ProductPage() {
 										{`${partner?.followers} Seguidores`}
 									</span>
 								</div>
-								<div className="mt-1">
-									{buttonLoading ? (
-										<button
-											disabled
-											className="button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center">
-											<span className="loading loading-spinner loading-md"></span>
+								<div className="flex flex-row gap-4">
+									<div className="mt-1">
+										{buttonLoading ? (
+											<button
+												disabled
+												className="button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+												<span className="loading loading-spinner loading-md"></span>
+											</button>
+										) : followedStores.some(
+												(store) =>
+													store.storeID ===
+													partner?._id
+										  ) ? (
+											<button
+												// Função para deixar de seguir - não implementada ainda
+												className="button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+												<span className="text-following">
+													Deixar de seguir
+												</span>
+												<span
+													onClick={handleUnfollow}
+													className="text-follow">
+													Seguindo
+												</span>
+											</button>
+										) : (
+											<button
+												onClick={handleFollow} // Função para seguir
+												className="button follow bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+												Seguir
+											</button>
+										)}
+									</div>
+									<div className="mt-1">
+										<button className="text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 h-[36px] px-10 py-1 rounded-md hover:shadow-md">
+											<Link
+												href={`/otamart/store/${partner._id}`}>
+												Ver Loja
+											</Link>
 										</button>
-									) : followedStores.some(
-											(store) =>
-												store.storeID === partner?._id
-									  ) ? (
-										<button
-											// Função para deixar de seguir - não implementada ainda
-											className="button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
-											<span className="text-following">
-												Deixar de seguir
-											</span>
-											<span className="text-follow">
-												Seguindo
-											</span>
-										</button>
-									) : (
-										<button
-											onClick={handleFollow} // Função para seguir
-											className="button follow bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
-											Seguir
-										</button>
-									)}
+									</div>
 								</div>
 							</div>
 							<div className="border border-y-[1px] border-black"></div>
@@ -623,12 +653,12 @@ function ProductPage() {
 										Produtos: 2.3mil
 									</span>
 								</div>
-								<div className="mt-1">
-									<button className="text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md hover:shadow-md">
-										<Link
+								<div className="mt-3 opacity-0">
+									<button className="text-black hover:text-white border border-solid cursor-default border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 h-[36px] px-10 py-1 rounded-md hover:shadow-md">
+										{/* <Link
 											href={`/otamart/store/${partner._id}`}>
 											Ver Loja
-										</Link>
+										</Link> */}
 									</button>
 								</div>
 							</div>

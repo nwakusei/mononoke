@@ -24,4 +24,10 @@ router.patch(
 
 router.post("/follow-store/:id", verifyToken, CustomerController.followStore);
 
+router.post(
+	"/unfollow-store/:id",
+	verifyToken,
+	CustomerController.unfollowStore
+);
+
 export default router;

@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import api from "@/utils/api";
 import Image from "next/image";
 
+import "./storeId.css";
+
 // Importe suas imagens e ícones aqui
 import Amora from "../../../../../../public/amora.jpg";
 import imageProfile from "../../../../../public/Kon.jpg";
@@ -23,6 +25,7 @@ import { FiInfo } from "react-icons/fi";
 import { ProductAdCard } from "@/components/ProductAdCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 import Swal from "sweetalert2";
+import { set } from "date-fns";
 
 function StorePage() {
 	const [products, setProducts] = useState([]);
@@ -33,6 +36,10 @@ function StorePage() {
 	const [returnedProducts, setReturnedProducts] = useState([]);
 	const [noResults, setNoResults] = useState(false); // Nova variável de estado
 
+	const [buttonLoading, setbuttonLoading] = useState(false);
+	const [token] = useState(() => localStorage.getItem("token") || "");
+	const [followedStores, setFollowedStores] = useState([]);
+
 	const partner = partners.find((p) => p._id === id);
 	const rating =
 		partner?.rating > 0
@@ -40,6 +47,27 @@ function StorePage() {
 			: "N/A";
 	const totalProducts = products.length;
 	const followers = partner?.followers;
+
+	// Função para buscar a lista de lojas seguidas
+	const fetchFollowedStores = async () => {
+		if (!token) return;
+
+		try {
+			const response = await api.get("/otakuprime/check-user", {
+				headers: {
+					Authorization: `Bearer ${JSON.parse(token)}`,
+				},
+			});
+			setFollowedStores(response.data.followingStores);
+		} catch (error) {
+			console.error("Erro ao buscar lojas seguidas:", error);
+		}
+	};
+
+	// Chama a função para buscar as lojas seguidas quando o componente é montado
+	useEffect(() => {
+		fetchFollowedStores();
+	}, [token]);
 
 	useEffect(() => {
 		api.get(`/products/getall-products-store/${id}`)
@@ -97,6 +125,41 @@ function StorePage() {
 	const handleKeyDown = (e) => {
 		if (e.key === "Enter") {
 			handleSearch();
+		}
+	};
+
+	const handleFollow = async () => {
+		setbuttonLoading(true);
+		try {
+			// Simula a chamada API para seguir a loja
+			await api.post(`/customers/follow-store/${id}`);
+
+			// Atualiza o estado local para refletir a nova lista de lojas seguidas
+			setFollowedStores((prevStores) => [
+				...prevStores,
+				{ storeID: partner?._id },
+			]);
+		} catch (error) {
+			console.error("Erro ao seguir a loja:", error);
+		} finally {
+			setbuttonLoading(false);
+		}
+	};
+
+	const handleUnfollow = async () => {
+		setbuttonLoading(true);
+		try {
+			await api.post(`/customers/unfollow-store/${id}`);
+
+			// Remove a loja da lista de seguidos
+			setFollowedStores(
+				(prevStores) =>
+					prevStores.filter((store) => store.storeID !== partner?._id) // Remove a loja
+			);
+		} catch (error) {
+			console.error("Erro ao deixaar de seguir a loja:", error);
+		} finally {
+			setbuttonLoading(false);
 		}
 	};
 
@@ -173,11 +236,44 @@ function StorePage() {
 								</span>
 								<h1>Seguidores: {followers}</h1>
 							</div>
-							<div className="flex flex-row items-center gap-2">
+							<div className="flex flex-row items-center gap-2 mb-2">
 								<span>
 									<BsStar size={18} />
 								</span>
 								<h1>Avaliações: {rating}</h1>
+							</div>
+							<div className="mt-1">
+								{buttonLoading ? (
+									<button
+										disabled
+										className="button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+										<span className="loading loading-spinner loading-md"></span>
+									</button>
+								) : followedStores.some(
+										(store) =>
+											store.storeID === partner?._id
+								  ) ? (
+									<button
+										// Função para deixar de seguir - não implementada ainda
+										className="button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+										<span
+											// onClick={handleUnfollow} // Função para deixar de seguir
+											className="text-following">
+											Deixar de seguir
+										</span>
+										<span
+											onClick={handleUnfollow}
+											className="text-follow">
+											Seguindo
+										</span>
+									</button>
+								) : (
+									<button
+										onClick={handleFollow} // Função para seguir
+										className="button follow bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+										Seguir
+									</button>
+								)}
 							</div>
 						</div>
 						<div className="border-r-[1px] border-r-black"></div>

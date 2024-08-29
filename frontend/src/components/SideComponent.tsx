@@ -47,6 +47,8 @@ function SideComponent() {
 		user.address && user.address.length > 0 ? user.address[0].uf : "";
 
 	useEffect(() => {
+		if (!token) return;
+
 		api.get("/otakuprime/check-user", {
 			headers: {
 				Authorization: `Bearer ${JSON.parse(token)}`,
