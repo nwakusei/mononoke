@@ -57,7 +57,7 @@ function MySalesPage() {
 									<thead>
 										<tr>
 											<th className="text-sm text-black">
-												Produtos
+												{/* Produtos */}
 											</th>
 											<th className="text-sm text-black">
 												Total do Pedido

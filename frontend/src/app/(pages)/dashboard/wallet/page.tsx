@@ -182,9 +182,9 @@ function WalletPage() {
 						<thead>
 							<tr>
 								<th className="text-sm text-black">
-									{user?.accountType === "partner"
+									{/* {user?.accountType === "partner"
 										? `Cliente`
-										: `Loja`}
+										: `Loja`} */}
 								</th>
 								<th className="text-sm text-black">
 									Transação
@@ -250,13 +250,18 @@ function WalletPage() {
 									</button>
 									<dialog id="my_modal_1" className="modal">
 										<div className="modal-box bg-secondary">
-											<h3 className="font-bold text-lg">
-												Hello!
+											<h3 className="font-bold text-lg mb-4">
+												Detalhes da Transação{" "}
 											</h3>
-											<p className="py-4">
-												Press ESC key or click the
-												button below to close
+											<p className="mb-1">
+												Data do Pagamento: 20/08 - 03:28
+												hs
 											</p>
+											<p className="">
+												Hash da Transação:
+												151gds151sg15d1s515]
+											</p>
+
 											<div className="modal-action">
 												<form method="dialog">
 													{/* if there is a button in form, it will close the modal */}

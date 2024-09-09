@@ -428,7 +428,7 @@ function MySaleByIDPage() {
 								mysale.customerAddress.map((end) => (
 									<div key={end._id}>
 										<div className="text-lg mb-3">
-											Endereço de entrega e cobrança
+											Endereço de entrega
 										</div>
 										<div>Endereço: {end.logradouro}</div>
 										<div>

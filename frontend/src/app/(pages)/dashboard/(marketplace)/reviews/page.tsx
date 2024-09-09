@@ -58,7 +58,7 @@ function ReviewsPage() {
 									<thead>
 										<tr>
 											<th className="text-sm text-black">
-												Nome do Produto
+												{/* Nome do Produto */}
 											</th>
 											<th className="text-sm text-black">
 												Status

@@ -47,7 +47,7 @@ function MyOrdersPage() {
 						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
 							<h1 className="text-2xl text-black font-semibold">
-								Meus Pedidos
+								Minhas Compras
 							</h1>
 
 							{/* Lista de Pedidos */}
@@ -57,7 +57,7 @@ function MyOrdersPage() {
 									<thead>
 										<tr>
 											<th className="text-sm text-black">
-												Produtos
+												{/* Produtos */}
 											</th>
 											<th className="text-sm text-black">
 												Total do Pedido
