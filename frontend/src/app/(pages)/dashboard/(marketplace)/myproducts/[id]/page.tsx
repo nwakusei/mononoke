@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
@@ -76,13 +76,28 @@ const createProductFormSchema = z.object({
 	freeShippingRegion: z.string(),
 });
 
-function CreateProductPage() {
+function MyProductPage() {
 	const [offerFreeShipping, setOfferFreeShipping] = useState("");
 	const [selectedRegion, setSelectedRegion] = useState("");
 	const [variations, setVariations] = useState([]);
 	const [imagemSelecionada, setImagemSelecionada] = useState(null);
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [output, setOutput] = useState("");
+	const [selectedValue, setSelectedValue] = useState("");
+
+	const [product, setProduct] = useState({});
+
+	console.log(product);
+
+	const { id } = useParams();
+
+	useEffect(() => {
+		api.get(`/products/partner-product/${id}`).then((response) => {
+			setProduct(response.data.product);
+			setSelectedValue(response.data.product.freeShipping);
+			setSelectedRegion(response.data.product.freeShippingRegion);
+		});
+	}, [token, id]);
 
 	const handleImagemSelecionada = (event) => {
 		const file = event.target.files[0];
@@ -115,11 +130,18 @@ function CreateProductPage() {
 
 	const handleFreeShippingChange = (event) => {
 		const value = event.target.value;
+
+		// Atualiza o estado com o valor selecionado
+		setSelectedValue(value);
+
+		// Se você precisa realizar alguma ação adicional com base na seleção
 		if (value === "false") {
 			setSelectedRegion("Nenhuma");
-		} else {
-			setSelectedRegion("Escolha a região");
+		} else if (value === "true") {
+			setSelectedRegion("Alguma região"); // Ajuste conforme necessário
 		}
+
+		// Atualiza o estado para oferta de frete grátis
 		setOfferFreeShipping(value === "true");
 	};
 
@@ -228,6 +250,7 @@ function CreateProductPage() {
 										<input
 											type="text"
 											placeholder="Ex: One Piece Vol.1"
+											defaultValue={product?.productName}
 											className={`${
 												errors.productName &&
 												`input-error`
@@ -257,6 +280,7 @@ function CreateProductPage() {
 												`textarea-error`
 											} textarea textarea-success w-[885px] h-[200px]`}
 											placeholder="Descreva todos os detalhes do produto..."
+											defaultValue={product?.description}
 											{...register(
 												"description"
 											)}></textarea>
@@ -276,20 +300,47 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<select
-											className={`select select-success w-full`}
-											{...register("category")}>
-											<option disabled selected value="">
+											className={`select select-success w-full ${
+												errors.category
+													? "select-error"
+													: ""
+											}`}
+											defaultValue={product?.category} // Define o valor inicial
+											{...register("category", {
+												required:
+													"A categoria é obrigatória",
+											})} // Registro para validação
+										>
+											{/* Opção de placeholder sem "selected" */}
+											<option disabled value="">
 												Escolha a categoria do Produto
 											</option>
-											<option>Impresso</option>
-											<option>Figure</option>
-											<option>Game</option>
-											<option>CD/DVD</option>
-											<option>Vestuário</option>
-											<option>Acessório</option>
-											<option>TGC (Card Game)</option>
-											<option>Papelaria</option>
-											<option>Óculos</option>
+											{/* Outras opções */}
+											<option value="Impresso">
+												Impresso
+											</option>
+											<option value="Figure">
+												Figure
+											</option>
+											<option value="Game">Game</option>
+											<option value="CD/DVD">
+												CD/DVD
+											</option>
+											<option value="Vestuário">
+												Vestuário
+											</option>
+											<option value="Acessório">
+												Acessório
+											</option>
+											<option value="TGC (Card Game)">
+												TGC (Card Game)
+											</option>
+											<option value="Papelaria">
+												Papelaria
+											</option>
+											<option value="Óculos">
+												Óculos
+											</option>
 										</select>
 										<div className="label -mt-1">
 											{errors.category && (
@@ -482,6 +533,17 @@ function CreateProductPage() {
 															`input-error`
 														} input input-bordered input-success join-item`}
 														placeholder="0,00"
+														defaultValue={
+															product?.originalPrice
+																? product.originalPrice.toLocaleString(
+																		"pt-BR",
+																		{
+																			minimumFractionDigits: 2,
+																			maximumFractionDigits: 2,
+																		}
+																  )
+																: ""
+														}
 														{...register(
 															"originalPrice"
 														)}
@@ -525,6 +587,17 @@ function CreateProductPage() {
 													<input
 														className="input input-bordered input-success join-item"
 														placeholder="0,00"
+														defaultValue={
+															product?.promocionalPrice
+																? product.promocionalPrice.toLocaleString(
+																		"pt-BR",
+																		{
+																			minimumFractionDigits: 2,
+																			maximumFractionDigits: 2,
+																		}
+																  )
+																: ""
+														}
 														{...register(
 															"promocionalPrice"
 														)}
@@ -555,6 +628,9 @@ function CreateProductPage() {
 															`input-error`
 														} input input-bordered input-success join-item`}
 														placeholder="0"
+														defaultValue={
+															product?.stock
+														}
 														{...register("stock")}
 													/>
 												</div>
@@ -713,6 +789,15 @@ function CreateProductPage() {
 															`input-error`
 														} input input-bordered input-success join-item max-w-[120px]`}
 														placeholder="0,000"
+														defaultValue={
+															product?.weight &&
+															product?.weight
+																.toFixed(3)
+																.replace(
+																	".",
+																	","
+																)
+														}
 														{...register("weight")}
 													/>
 												</div>
@@ -754,6 +839,9 @@ function CreateProductPage() {
 															`input-error`
 														} input input-bordered input-success join-item max-w-[120px]`}
 														placeholder="0"
+														defaultValue={
+															product?.length
+														}
 														{...register("length")}
 													/>
 												</div>
@@ -807,6 +895,9 @@ function CreateProductPage() {
 															`input-error`
 														} input input-bordered input-success join-item max-w-[120px]`}
 														placeholder="0"
+														defaultValue={
+															product?.width
+														}
 														{...register("width")}
 													/>
 												</div>
@@ -860,6 +951,9 @@ function CreateProductPage() {
 															`input-error`
 														} input input-bordered input-success join-item max-w-[120px]`}
 														placeholder="0"
+														defaultValue={
+															product?.height
+														}
 														{...register("height")}
 													/>
 												</div>
@@ -895,8 +989,9 @@ function CreateProductPage() {
 										<select
 											{...register("freeShipping")}
 											className="select select-success w-full max-w-xs"
+											value={selectedValue} // Usa o estado para controlar o valor
 											onChange={handleFreeShippingChange}>
-											<option disabled selected>
+											<option disabled>
 												Escolha uma opção
 											</option>
 											<option value="true">Sim</option>
@@ -931,7 +1026,7 @@ function CreateProductPage() {
 											disabled={
 												offerFreeShipping === false
 											}>
-											<option value="" disabled selected>
+											<option value="" disabled>
 												Escolha a região
 											</option>
 											<option
@@ -1019,7 +1114,7 @@ function CreateProductPage() {
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black mb-4">
-									Deseja publicar o Produto?
+									Deseja atualizar o Produto?
 								</h1>
 								{/* Nome e Descrição */}
 
@@ -1028,12 +1123,12 @@ function CreateProductPage() {
 										type="button"
 										onClick={handleCancelar}
 										className="btn btn-outline btn-error hover:shadow-md">
-										Cancelar
+										Descartar
 									</button>
 									<button
 										type="submit"
 										className="btn btn-primary shadow-md">
-										Publicar Produto
+										Atualizar Produto
 									</button>
 								</div>
 							</div>
@@ -1047,4 +1142,4 @@ function CreateProductPage() {
 	);
 }
 
-export default CreateProductPage;
+export default MyProductPage;

@@ -245,10 +245,10 @@ function MySaleByIDPage() {
 									<thead>
 										<tr>
 											<th className="text-sm text-black">
-												Subtotal
+												Subtotal do Pedido
 											</th>
 											<th className="text-sm text-black">
-												Subtotal Frete
+												Total do Frete
 											</th>
 											<th className="text-sm text-black">
 												Desconto

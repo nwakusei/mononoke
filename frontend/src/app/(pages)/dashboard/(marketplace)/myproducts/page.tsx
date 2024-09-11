@@ -45,15 +45,6 @@ function MyProductsPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th>
-												<label>
-													<input
-														type="checkbox"
-														className="checkbox"
-													/>
-												</label>
-											</th>
-
 											<th className="text-sm text-black">
 												Nome do Produto
 											</th>
@@ -71,14 +62,6 @@ function MyProductsPage() {
 										{myproducts.length > 0 &&
 											myproducts.map((product) => (
 												<tr key={product._id}>
-													<th>
-														<label>
-															<input
-																type="checkbox"
-																className="checkbox"
-															/>
-														</label>
-													</th>
 													<td>
 														<div className="flex items-center gap-3">
 															<div className="avatar">
@@ -163,7 +146,10 @@ function MyProductsPage() {
 													</td>
 													<th>
 														<button className="flex items-center btn btn-primary btn-xs shadow-md">
-															+ Detalhes
+															<Link
+																href={`/dashboard/myproducts/${product._id}`}>
+																+ Detalhes
+															</Link>
 														</button>
 													</th>
 												</tr>

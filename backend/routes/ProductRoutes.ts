@@ -23,6 +23,12 @@ router.get(
 );
 
 router.get(
+	"/partner-product/:id",
+	verifyToken,
+	ProductController.getPartnerProductByID
+);
+
+router.get(
 	"/getall-products-store/:id",
 	ProductController.getAllProductsStoreByID
 );

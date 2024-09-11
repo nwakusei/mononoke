@@ -247,6 +247,43 @@ class ProductController {
 		const partner = await getUserByToken(token);
 
 		if (!partner) {
+			res.status(401).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message:
+					"Você não possui autorização para visualizar essa página!",
+			});
+			return;
+		}
+
+		try {
+			const products = await ProductModel.find({
+				partnerID: partner._id,
+			}).sort("-createdAt");
+
+			res.status(200).json({ products: products });
+		} catch (error) {
+			res.status(500).json({ error: "Erro ao carregar os Produtos" });
+			return;
+		}
+	}
+
+	static async getPartnerProductByID(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(404).json({ message: "Produto não encontrado!" });
+			return;
+		}
+
+		// Verificar o Administrador que cadastrou oss Produtos
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
 			res.status(401).json({ message: "Usuário não encontrado" });
 			return;
 		}
@@ -258,14 +295,20 @@ class ProductController {
 			});
 			return;
 		}
-		// Falta bloquear acesso de Customers
 
 		try {
-			const products = await ProductModel.find({
-				partnerID: partner._id,
+			const product = await ProductModel.findById({
+				_id: id,
 			}).sort("-createdAt");
 
-			res.status(200).json({ products: products });
+			if (product?.partnerID.toString() !== partner._id.toString()) {
+				res.status(422).json({
+					message: "Você não tem permissão para editar este produto!",
+				});
+				return;
+			}
+
+			res.status(200).json({ product: product });
 		} catch (error) {
 			res.status(500).json({ error: "Erro ao carregar os Produtos" });
 			return;

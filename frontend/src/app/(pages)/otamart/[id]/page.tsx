@@ -606,7 +606,7 @@ function ProductPage() {
 												className="button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center">
 												<span className="loading loading-spinner loading-md"></span>
 											</button>
-										) : followedStores.some(
+										) : followedStores?.some(
 												(store) =>
 													store.storeID ===
 													partner?._id
