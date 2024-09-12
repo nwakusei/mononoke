@@ -15,6 +15,7 @@ import { Deposit } from "@icon-park/react";
 import { LuQrCode } from "react-icons/lu";
 import { FaBullseye, FaPix } from "react-icons/fa6";
 import { toast } from "react-toastify";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function AddBalance() {
 	const [user, setUser] = useState({});
@@ -26,6 +27,7 @@ function AddBalance() {
 	const [btnLoading, setBtnLoading] = useState(false);
 	// Estado para armazenar o código do Pix copia e cola
 	const [pixCode, setPixCode] = useState("");
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -34,6 +36,7 @@ function AddBalance() {
 			},
 		}).then((response) => {
 			setUser(response.data);
+			setIsLoading(false);
 		});
 
 		// api.get("/otakupay/get-user-otakupay", {
@@ -109,10 +112,14 @@ function AddBalance() {
 		toast.success("Código Pix copiado para a área de transferência!");
 	};
 
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className="h-screen col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
+			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
 				{/* Gadget 1 */}
 				<div className="flex flex-row gap-4 mb-4">
 					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md">

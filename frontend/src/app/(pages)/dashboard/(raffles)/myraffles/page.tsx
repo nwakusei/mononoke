@@ -13,11 +13,12 @@ import { Sidebar } from "@/components/Sidebar";
 
 // Axios
 import api from "@/utils/api";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function MyRafflesPage() {
 	const [myraffles, setMyraffles] = useState([]);
 	const [token] = useState(localStorage.getItem("token") || "");
-	const [deleteLoading, setDeletLoading] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		api.get("/raffles/partner-raffles", {
@@ -26,11 +27,16 @@ function MyRafflesPage() {
 			},
 		}).then((response) => {
 			setMyraffles(response.data.raffles);
+			setIsLoading(false);
 		});
 	}, [token]);
 
 	if (!myraffles) {
 		return <div>Loading...</div>; // Ou qualquer outro componente de carregamento ou mensagem de erro
+	}
+
+	if (isLoading) {
+		return <LoadingPage />;
 	}
 
 	return (

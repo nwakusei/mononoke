@@ -12,10 +12,12 @@ import { Sidebar } from "@/components/Sidebar";
 
 // Axios
 import api from "@/utils/api";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function MySalesPage() {
 	const [mysales, setMysales] = useState([]);
 	const [token] = useState(localStorage.getItem("token") || "");
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -27,6 +29,7 @@ function MySalesPage() {
 				});
 				if (response.data && response.data.orders) {
 					setMysales(response.data.orders);
+					setIsLoading(false);
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
@@ -37,11 +40,15 @@ function MySalesPage() {
 		fetchData();
 	}, [token]);
 
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className=" bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
-				<div className="flex flex-col gap-4 mb-8">
+				<div className="h-screen flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
 					<div className="bg-white w-[1200px] p-6 rounded-md mt-4 mr-4">
 						{/* Adicionar Order */}

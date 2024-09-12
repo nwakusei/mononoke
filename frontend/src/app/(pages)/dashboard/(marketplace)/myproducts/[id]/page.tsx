@@ -677,8 +677,9 @@ function MyProductPage() {
 
 										<select
 											className="select select-success w-full max-w-xs"
+											defaultValue={product.condition}
 											{...register("condition")}>
-											<option disabled selected value="">
+											<option disabled value="">
 												Selecione a condição do Produto
 											</option>
 											<option>Novo</option>
@@ -703,8 +704,9 @@ function MyProductPage() {
 
 										<select
 											className="select select-success w-full max-w-xs"
+											defaultValue={product.preOrder}
 											{...register("preOrder")}>
-											<option disabled selected value="">
+											<option disabled value="">
 												Selecione uma opção
 											</option>
 											<option value="false">Não</option>
@@ -736,6 +738,9 @@ function MyProductPage() {
 															`input-error`
 														} input input-bordered input-success join-item`}
 														placeholder="0"
+														defaultValue={
+															product.daysShipping
+														}
 														{...register(
 															"daysShipping"
 														)}

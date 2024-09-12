@@ -22,6 +22,7 @@ import { CiWarning } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa6";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { GiWeight } from "react-icons/gi";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 const createProductFormSchema = z.object({
 	imagesProduct: z.instanceof(FileList).transform((list) => {
@@ -82,7 +83,17 @@ function CreateProductPage() {
 	const [variations, setVariations] = useState([]);
 	const [imagemSelecionada, setImagemSelecionada] = useState(null);
 	const [token] = useState(localStorage.getItem("token") || "");
-	const [output, setOutput] = useState("");
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		// Simular um atraso no carregamento
+		const timer = setTimeout(() => {
+			setIsLoading(false);
+		}, 2000); // 2000 ms = 2 segundos
+
+		// Limpar o timeout se o componente for desmontado antes do timeout ser concluído
+		return () => clearTimeout(timer);
+	}, []); // Executa apenas uma vez na montagem do componente
 
 	const handleImagemSelecionada = (event) => {
 		const file = event.target.files[0];
@@ -202,6 +213,10 @@ function CreateProductPage() {
 			toast.error(error.response.data.message);
 			return error.response.data;
 		}
+	}
+
+	if (isLoading) {
+		return <LoadingPage />;
 	}
 
 	return (
@@ -1040,7 +1055,6 @@ function CreateProductPage() {
 						</div>
 					</form>
 					<br />
-					<pre className="flex justify-center">{output}</pre>
 				</div>
 			</div>
 		</section>

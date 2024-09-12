@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Imagens e Logos
 
@@ -17,6 +18,7 @@ function MyCouponsPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [coupons, setCoupons] = useState([]);
 	const [deleteLoading, setDeletLoading] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		api.get("/coupons/partner-coupons", {
@@ -25,6 +27,7 @@ function MyCouponsPage() {
 			},
 		}).then((response) => {
 			setCoupons(response.data.coupons);
+			setIsLoading(false);
 		});
 	}, [token]);
 
@@ -66,11 +69,15 @@ function MyCouponsPage() {
 		}
 	}
 
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
-				<div className="flex flex-col gap-4 mb-8">
+				<div className="h-screen flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
 					<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mt-4">
 						{/* Adicionar Produto */}

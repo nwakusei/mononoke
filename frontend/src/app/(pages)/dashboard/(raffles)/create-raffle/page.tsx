@@ -30,6 +30,7 @@ import { CiWarning } from "react-icons/ci";
 import { FaPercent } from "react-icons/fa";
 import { LuCalendarRange } from "react-icons/lu";
 import { BsPersonFill } from "react-icons/bs";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 const createCouponFormSchema = z.object({
 	discountPercentage: z
@@ -41,6 +42,7 @@ const createCouponFormSchema = z.object({
 function CreateRafflePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [partner, setPartner] = useState({});
+	const [isLoading, setIsLoading] = useState(true);
 
 	const router = useRouter();
 	const {
@@ -56,6 +58,7 @@ function CreateRafflePage() {
 			},
 		}).then((responser) => {
 			setPartner(responser.data);
+			setIsLoading(false);
 		});
 	}, [token]);
 
@@ -75,6 +78,10 @@ function CreateRafflePage() {
 			toast.error(error.response.data.message);
 			return error.response.data;
 		}
+	}
+
+	if (isLoading) {
+		return <LoadingPage />;
 	}
 
 	return (

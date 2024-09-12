@@ -13,11 +13,13 @@ import Otakuyasan from "../../../../../public/otakuyasan.png";
 // Icons
 import { Deposit, Wallet } from "@icon-park/react";
 import { AiOutlineMoneyCollect } from "react-icons/ai";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function WalletPage() {
 	const [user, setUser] = useState({});
 	const [userOtakupay, setUserOtakupay] = useState({});
 	const [token] = useState(localStorage.getItem("token") || "");
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -26,6 +28,7 @@ function WalletPage() {
 			},
 		}).then((response) => {
 			setUser(response.data);
+			setIsLoading(false);
 		});
 
 		api.get("/otakupay/get-user-otakupay", {
@@ -42,10 +45,14 @@ function WalletPage() {
 			});
 	}, [token]);
 
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
-			<div className=" col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
+			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
 				{/* Gadget 1 */}
 				<div className="flex flex-row gap-4 mb-4">
 					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md">

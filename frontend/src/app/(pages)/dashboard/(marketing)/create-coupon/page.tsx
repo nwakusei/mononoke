@@ -23,6 +23,7 @@ import { Coupon } from "@icon-park/react";
 import { GoLinkExternal } from "react-icons/go";
 import { CiWarning } from "react-icons/ci";
 import { FaPercent } from "react-icons/fa";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 const createCouponFormSchema = z.object({
 	discountPercentage: z
@@ -34,7 +35,7 @@ const createCouponFormSchema = z.object({
 function CreateCouponPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [partner, setPartner] = useState({});
-
+	const [isLoading, setIsLoading] = useState(true);
 	const router = useRouter();
 
 	const {
@@ -50,6 +51,7 @@ function CreateCouponPage() {
 			},
 		}).then((responser) => {
 			setPartner(responser.data);
+			setIsLoading(false);
 		});
 	}, [token]);
 
@@ -69,6 +71,10 @@ function CreateCouponPage() {
 			toast.error(error.response.data.message);
 			return error.response.data;
 		}
+	}
+
+	if (isLoading) {
+		return <LoadingPage />;
 	}
 
 	return (

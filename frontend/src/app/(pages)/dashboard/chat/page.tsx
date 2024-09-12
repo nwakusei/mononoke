@@ -36,12 +36,24 @@ import { BsCheck2All, BsCheck2 } from "react-icons/bs";
 import { IoImageOutline } from "react-icons/io5";
 import { IoIosArrowDown } from "react-icons/io";
 import { HiOutlineEllipsisVertical } from "react-icons/hi2";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function ChatPage() {
 	const inputFileRef = useRef(null);
 	const [message, setMessage] = useState("");
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [isTyping, setIsTyping] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		// Simular um atraso no carregamento
+		const timer = setTimeout(() => {
+			setIsLoading(false);
+		}, 2000); // 2000 ms = 2 segundos
+
+		// Limpar o timeout se o componente for desmontado antes do timeout ser concluído
+		return () => clearTimeout(timer);
+	}, []); // Executa apenas uma vez na montagem do componente
 
 	const handleUseClientButtonClick = () => {
 		inputFileRef.current.click();
@@ -67,6 +79,11 @@ function ChatPage() {
 	const handleSendMessage = () => {
 		// Implementar lógica para enviar a mensagem
 	};
+
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />

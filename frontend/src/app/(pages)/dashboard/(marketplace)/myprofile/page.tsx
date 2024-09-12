@@ -17,6 +17,7 @@ import { Sidebar } from "@/components/Sidebar";
 // Icons
 import { AddPicture } from "@icon-park/react";
 import { FiInfo } from "react-icons/fi";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 const createProductFormSchema = z.object({
 	imagesProduct: z.instanceof(FileList).transform((list) => {
@@ -35,7 +36,7 @@ function MyProfilePage() {
 	const [imagemSelecionadaProfile, setImagemSelecionadaProfile] =
 		useState(null);
 	const [imagemSelecionadaLogo, setImagemSelecionadaLogo] = useState(null);
-	const [output, setOutput] = useState("");
+	const [isLoading, setIsLoading] = useState(true);
 
 	const router = useRouter();
 
@@ -46,6 +47,7 @@ function MyProfilePage() {
 			},
 		}).then((response) => {
 			setUser(response.data);
+			setIsLoading(false);
 		});
 	}, [token]);
 
@@ -70,6 +72,10 @@ function MyProfilePage() {
 		// Redirecionar para outra página ao clicar em Cancelar
 		router.push("/dashboard");
 	};
+
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
@@ -743,7 +749,6 @@ function MyProfilePage() {
 						</div>
 					</form>
 					<br />
-					<pre className="flex justify-center">{output}</pre>
 				</div>
 			</div>
 		</section>
