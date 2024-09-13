@@ -18,17 +18,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { AddPicture } from "@icon-park/react";
 import { FiInfo } from "react-icons/fi";
 import { LoadingPage } from "@/components/LoadingPageComponent";
-
-const createProductFormSchema = z.object({
-	imagesProduct: z.instanceof(FileList).transform((list) => {
-		const files = [];
-		for (let i = 0; i < list.length; i++) {
-			files.push(list.item(i));
-		}
-		return files;
-	}),
-	productName: z.string().min(1, "※ O nome do Produto é obrigatório!"),
-});
+import Swal from "sweetalert2";
 
 function MyProfilePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
@@ -62,11 +52,29 @@ function MyProfilePage() {
 		}
 	};
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm({ resolver: zodResolver(createProductFormSchema) });
+	async function handleUpdateUser(e) {
+		e.preventDefault();
+
+		const name = e.target.name.value;
+		const cashback = e.target.cashback.value;
+
+		try {
+			const response = await api.patch("/partners/edit", {
+				name: name, // Aqui enviamos o valor capturado no body
+				cashback: cashback,
+			});
+
+			Swal.fire({
+				title: response.data.message,
+				width: 900,
+				icon: "success",
+			});
+
+			console.log(response.data);
+		} catch (error) {
+			console.log(error);
+		}
+	}
 
 	const handleCancelar = () => {
 		// Redirecionar para outra página ao clicar em Cancelar
@@ -82,48 +90,41 @@ function MyProfilePage() {
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mt-4 mb-8">
-					<form>
+					<form onSubmit={handleUpdateUser}>
 						{/* Gadget 1 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
-									{`${
-										user?.accountType === "customer"
-											? "Dados de Usuário"
-											: "Dados da Loja"
-									}`}
+									{user?.accountType === "customer"
+										? "Dados de Usuário"
+										: "Dados da Loja"}
 								</h1>
 								<div className="flex flex-row gap-4">
 									{/* Nome Fantasia */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
 											<span className="label-text text-black">
-												{`${
-													user?.accountType ===
-													"customer"
-														? "Nome"
-														: "Nome Fantasia"
-												}`}
+												{user?.accountType ===
+												"customer"
+													? "Nome"
+													: "Nome Fantasia"}
 											</span>
 										</div>
 										<input
 											type="text"
-											placeholder={`${user?.name}`}
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-full max-w-3xl`}
-											{...register("productName")}
+											name="name"
+											placeholder={`...`}
+											defaultValue={user?.name}
+											className={`input input-bordered input-success w-full max-w-3xl`}
 										/>
 										<div className="label">
-											{errors.productName && (
-												<span className="label-text-alt text-red-500">
-													{errors.productName.message}
-												</span>
-											)}
+											<span className="label-text-alt text-red-500">
+												Erro
+											</span>
 										</div>
 									</label>
+
 									{/* CNPJ/CPF */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">
@@ -133,19 +134,14 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											placeholder={`${user?.cpf}`}
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-full max-w-3xl`}
-											{...register("productName")}
+											placeholder={`...`}
+											defaultValue={user?.cpf}
+											className={`input input-bordered input-success w-full max-w-3xl`}
 										/>
 										<div className="label">
-											{errors.productName && (
-												<span className="label-text-alt text-red-500">
-													{errors.productName.message}
-												</span>
-											)}
+											<span className="label-text-alt text-red-500">
+												Erro
+											</span>
 										</div>
 									</label>
 								</div>
@@ -159,19 +155,14 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="email"
-											placeholder={`${user?.email}`}
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-full max-w-3xl`}
-											{...register("productName")}
+											placeholder={`...`}
+											defaultValue={user?.email}
+											className={`input input-bordered input-success w-full max-w-3xl`}
 										/>
 										<div className="label">
-											{errors.productName && (
-												<span className="label-text-alt text-red-500">
-													{errors.productName.message}
-												</span>
-											)}
+											<span className="label-text-alt text-red-500">
+												Erro
+											</span>
 										</div>
 									</label>
 								</div>
@@ -180,8 +171,7 @@ function MyProfilePage() {
 									<></>
 								) : (
 									<>
-										<div className="flex flex-row gap-4">
-											{/* Site */}
+										{/* <div className="flex flex-row gap-4">
 											<label className="form-control w-full max-w-3xl">
 												<div className="label">
 													<span className="label-text text-black">
@@ -190,26 +180,16 @@ function MyProfilePage() {
 												</div>
 												<input
 													type="text"
-													placeholder={`${user?.site}`}
-													className={`${
-														errors.productName &&
-														`input-error`
-													} input input-bordered input-success w-fullmax-w-3xl`}
-													{...register("productName")}
+													placeholder={`...`}
+													className={`input input-bordered input-success w-fullmax-w-3xl`}
 												/>
 												<div className="label">
-													{errors.productName && (
-														<span className="label-text-alt text-red-500">
-															{
-																errors
-																	.productName
-																	.message
-															}
-														</span>
-													)}
+													<span className="label-text-alt text-red-500">
+														Erro
+													</span>
 												</div>
 											</label>
-										</div>
+										</div> */}
 
 										<div className="flex flex-row gap-4">
 											{/* Descrição da Loja */}
@@ -220,24 +200,15 @@ function MyProfilePage() {
 													</span>
 												</div>
 												<textarea
-													className={`${
-														errors.description &&
-														`textarea-error`
-													} textarea textarea-success`}
-													placeholder={`${user?.description}`}
-													{...register(
-														"description"
-													)}></textarea>
+													className={`textarea textarea-success`}
+													placeholder={`...`}
+													defaultValue={
+														user?.description
+													}></textarea>
 												<div className="label">
-													{errors.description && (
-														<span className="label-text-alt text-red-500">
-															{
-																errors
-																	.description
-																	.message
-															}
-														</span>
-													)}
+													<span className="label-text-alt text-red-500">
+														Erro
+													</span>
 												</div>
 											</label>
 										</div>
@@ -262,10 +233,7 @@ function MyProfilePage() {
 											</span>
 										</div>
 										<div
-											className={`${
-												errors.imagesProduct &&
-												`border-error`
-											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+											className={`text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 											{imagemSelecionadaProfile ? (
 												<img
 													src={
@@ -292,22 +260,14 @@ function MyProfilePage() {
 														type="file"
 														accept="image/*"
 														multiple
-														{...register(
-															"imageProfile"
-														)}
 													/>
 												</div>
 											)}
 										</div>
 										<div className="label">
-											{errors.imagesProduct && (
-												<span className="label-text-alt text-red-500">
-													{
-														errors.imagesProduct
-															.message
-													}
-												</span>
-											)}
+											<span className="label-text-alt text-red-500">
+												Erro
+											</span>
 										</div>
 									</label>
 
@@ -324,10 +284,7 @@ function MyProfilePage() {
 													</span>
 												</div>
 												<div
-													className={`${
-														errors.imagesProduct &&
-														`border-error`
-													} text-black hover:text-white flex flex-col justify-center items-center w-[200px] h-[80px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+													className={`text-black hover:text-white flex flex-col justify-center items-center w-[200px] h-[80px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 													{imagemSelecionadaLogo ? (
 														<img
 															src={
@@ -356,23 +313,14 @@ function MyProfilePage() {
 																type="file"
 																accept="image/*"
 																multiple
-																{...register(
-																	"imageLogo"
-																)}
 															/>
 														</div>
 													)}
 												</div>
 												<div className="label">
-													{errors.imagesProduct && (
-														<span className="label-text-alt text-red-500">
-															{
-																errors
-																	.imagesProduct
-																	.message
-															}
-														</span>
-													)}
+													<span className="label-text-alt text-red-500">
+														Erro
+													</span>
 												</div>
 											</label>
 										</>
@@ -386,11 +334,9 @@ function MyProfilePage() {
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
-									{`${
-										user?.accountType === "customer"
-											? "Endereço de Entrega"
-											: "Configurações de Envio"
-									}`}
+									{user?.accountType === "customer"
+										? "Endereço de Entrega"
+										: "Configurações de Envio"}
 								</h1>
 								{/* Row 1 */}
 								<div className="flex flex-row gap-4">
@@ -404,11 +350,10 @@ function MyProfilePage() {
 										<input
 											type="text"
 											placeholder="..."
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("productName")}
+											defaultValue={
+												user?.address[0].logradouro
+											}
+											className={`input input-bordered input-success w-fullmax-w-3xl`}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -427,11 +372,10 @@ function MyProfilePage() {
 										<input
 											type="text"
 											placeholder="..."
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("productName")}
+											defaultValue={
+												user?.address[0].complemento
+											}
+											className={`input input-bordered input-success w-fullmax-w-3xl`}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -450,11 +394,10 @@ function MyProfilePage() {
 										<input
 											type="text"
 											placeholder="..."
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("productName")}
+											defaultValue={
+												user?.address[0].bairro
+											}
+											className={`input input-bordered input-success w-fullmax-w-3xl`}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -475,11 +418,10 @@ function MyProfilePage() {
 										<input
 											type="text"
 											placeholder="..."
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("productName")}
+											defaultValue={
+												user?.address[0].cidade
+											}
+											className={`input input-bordered input-success w-fullmax-w-3xl`}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -498,11 +440,8 @@ function MyProfilePage() {
 										<input
 											type="text"
 											placeholder="..."
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("productName")}
+											defaultValue={user?.address[0].uf}
+											className={`input input-bordered input-success w-fullmax-w-3xl`}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -521,11 +460,8 @@ function MyProfilePage() {
 										<input
 											type="text"
 											placeholder="..."
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-full max-w-3xl`}
-											{...register("productName")}
+											defaultValue={user?.address[0].cep}
+											className={`input input-bordered input-success w-full max-w-3xl`}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -534,46 +470,39 @@ function MyProfilePage() {
 										</div>
 									</label>
 								</div>
-								{`${
-									user?.accountType === "customer" ? (
-										<></>
-									) : (
-										<>
-											{/* Credential */}
-											<label className="form-control w-full max-w-3xl">
-												<div className="label">
-													<span className="label-text text-black">
-														Credencial Kangu
-													</span>
-												</div>
-												<input
-													type="text"
-													placeholder={`${
-														user?.kanguCredential ===
-														""
-															? "Digite a credencial a Kangu"
-															: user?.kanguCredential
-													}`}
-													className={`${
-														errors.productName &&
-														`input-error`
-													} input input-bordered input-success w-full max-w-3xl`}
-													{...register("productName")}
-												/>
-												<div className="label">
-													<span className="label-text-alt text-black">
-														Obs.: A credencial da
-														Kangu é obrigatória para
-														que seja possível
-														calcular o frete dos
-														pedidos. Indicado para
-														envio dentro do Brasil!
-													</span>
-												</div>
-											</label>
-										</>
-									)
-								}`}
+								{user?.accountType === "customer" ? (
+									<></>
+								) : (
+									<>
+										{/* Credential */}
+										<label className="form-control w-full max-w-3xl">
+											<div className="label">
+												<span className="label-text text-black">
+													Credencial Kangu
+												</span>
+											</div>
+											<input
+												type="text"
+												placeholder={`...`}
+												defaultValue={
+													user
+														?.shippingConfiguration[0]
+														.credential
+												}
+												className={`input input-bordered input-success w-full max-w-3xl`}
+											/>
+											<div className="label">
+												<span className="label-text-alt text-black">
+													Obs.: A credencial da Kangu
+													é obrigatória para que seja
+													possível calcular o frete
+													dos pedidos. Indicado para
+													envio dentro do Brasil!
+												</span>
+											</div>
+										</label>
+									</>
+								)}
 							</div>
 						</div>
 
@@ -583,11 +512,6 @@ function MyProfilePage() {
 							<>
 								{/* Gadget 4 */}
 								<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
-									{`${
-										user?.accountType === "customer"
-											? "Endereço de Entrega"
-											: "Configurações de Envio"
-									}`}
 									{/* Adicionar Porduto */}
 									<div className="flex flex-col gap-2 ml-6 mb-6">
 										<h1 className="text-2xl font-semibold text-black">
@@ -643,16 +567,10 @@ function MyProfilePage() {
 											</div>
 											<input
 												type="text"
-												placeholder={`${
-													user.cashback === ""
-														? "Digite a credencial a Kangu"
-														: user.cashback
-												}`}
-												className={`${
-													errors.productName &&
-													`input-error`
-												} input input-bordered input-success w-full max-w-3xl`}
-												{...register("productName")}
+												name="cashback"
+												placeholder={`...`}
+												defaultValue={user?.cashback}
+												className={`input input-bordered input-success w-full max-w-3xl`}
 											/>
 											<div className="label">
 												<span className="label-text-alt text-black">
@@ -684,11 +602,7 @@ function MyProfilePage() {
 										<input
 											type="password"
 											placeholder="Digite a nova senha"
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success w-full max-w-3xl`}
-											{...register("productName")}
+											className={`input input-bordered input-success w-full max-w-3xl`}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -707,11 +621,7 @@ function MyProfilePage() {
 										<input
 											type="password"
 											placeholder="Confirme a senha"
-											className={`${
-												errors.productName &&
-												`input-error`
-											} input input-bordered input-success max-w-4xl`}
-											{...register("productName")}
+											className={`input input-bordered input-success max-w-4xl`}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">

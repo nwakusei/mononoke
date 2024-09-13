@@ -237,7 +237,7 @@ function AddBalance() {
 					)}
 				</div>
 
-				<div className="flex flex-row justify-center">
+				<div className="flex flex-row justify-center bg-gray-300 h-screen">
 					<Link href="/dashboard/wallet">
 						<button className="btn btn-primary select-none shadow-md">
 							Realizei o Pagamento

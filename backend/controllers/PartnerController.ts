@@ -235,84 +235,40 @@ class PartnerController {
 	}
 
 	static async editPartner(req: Request, res: Response) {
-		const token = getToken(req);
+		const { name, cashback } = req.body;
+
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		// Verificar se o usuário existe
+		if (!partner) {
+			res.status(422).json({
+				message: "Usuário não encontrado!",
+			});
+			return;
+		}
 
 		try {
-			// Verificar se o usuário existe
-			if (!token) {
-				res.status(422).json({
-					message: "Token ausente. Faça login novamente.",
+			// Verifique se o partner é de fato um parceiro e não um cliente
+			if (partner instanceof PartnerModel) {
+				partner.name = name;
+				partner.cashback = cashback;
+
+				await partner.save();
+
+				const updatedUser = await PartnerModel.findById(
+					partner._id
+				).select("-password");
+
+				res.status(200).json({
+					message: "Usuário atualizado com sucesso!",
+					updatedUser,
 				});
-				return;
-			}
-
-			const partner = await getUserByToken(token);
-
-			if (!partner) {
-				res.status(422).json({ message: "Usuário não encontrado!" });
-				return;
-			}
-
-			const { name, email, password, confirmPassword } = req.body;
-
-			let image = "";
-
-			if (req.file) {
-				partner.profileImage = req.file.filename;
-			}
-
-			// Validações
-			if (!name) {
-				res.status(422).json({ message: "O nome é obrigatório" });
-				return;
-			}
-
-			partner.name = name;
-
-			if (!email) {
-				res.status(422).json({ message: "O email é obrigatório" });
-				return;
-			}
-
-			if (email !== partner.email) {
-				const userExist = await PartnerModel.findOne({ email: email });
-
-				if (userExist) {
-					res.status(422).json({
-						message:
-							"Já existe um usuário cadastrado com esse email!",
-					});
-					return;
-				}
-
-				partner.email = email;
-			}
-
-			if (password !== confirmPassword) {
-				res.status(422).json({
-					message:
-						"A senha e a confirmação de senha precisam ser iguais!",
+			} else {
+				res.status(400).json({
+					message: "O usuário não é um parceiro válido.",
 				});
-				return;
 			}
-
-			if (password) {
-				// Alteração da senha
-				const salt = await bcrypt.genSalt(12);
-				const passwordHash = await bcrypt.hash(password, salt);
-				partner.password = passwordHash;
-			}
-
-			await partner.save();
-
-			const updatedUser = await PartnerModel.findById(partner._id).select(
-				"-password"
-			);
-
-			res.status(200).json({
-				message: "Usuário atualizado com sucesso!",
-				user: updatedUser,
-			});
 		} catch (err) {
 			res.status(500).json({ message: err });
 		}

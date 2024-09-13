@@ -20,7 +20,7 @@ router.get("/allpartners", PartnerController.getAllPartners);
 router.get("/:id", PartnerController.getPartnerById);
 
 router.patch(
-	"/edit/:id",
+	"/edit",
 	verifyToken,
 	imageUpload.single("image"),
 	PartnerController.editPartner
