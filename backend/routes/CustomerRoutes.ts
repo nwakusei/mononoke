@@ -15,12 +15,6 @@ router.post(
 	CustomerController.register
 );
 router.get("/:id", CustomerController.getCustomerById);
-router.patch(
-	"/edit/:id",
-	verifyToken,
-	imageUpload.single("image"),
-	CustomerController.editCustomer
-);
 
 router.post("/follow-store/:id", verifyToken, CustomerController.followStore);
 
@@ -28,6 +22,13 @@ router.post(
 	"/unfollow-store/:id",
 	verifyToken,
 	CustomerController.unfollowStore
+);
+
+router.patch(
+	"/edit",
+	verifyToken,
+	imageUpload.single("image"),
+	CustomerController.editCustomer
 );
 
 export default router;

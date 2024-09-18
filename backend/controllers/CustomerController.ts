@@ -208,90 +208,90 @@ class CustomerController {
 		res.status(200).json({ user });
 	}
 
-	static async editCustomer(req: Request, res: Response) {
-		const token = getToken(req);
+	// static async editCustomer(req: Request, res: Response) {
+	// 	const token = getToken(req);
 
-		try {
-			// Verificar se o usuário existe
-			if (!token) {
-				res.status(422).json({
-					message: "Token ausente. Faça login novamente.",
-				});
-				return;
-			}
+	// 	try {
+	// 		// Verificar se o usuário existe
+	// 		if (!token) {
+	// 			res.status(422).json({
+	// 				message: "Token ausente. Faça login novamente.",
+	// 			});
+	// 			return;
+	// 		}
 
-			const user = await getUserByToken(token);
-			console.log(user);
+	// 		const user = await getUserByToken(token);
+	// 		console.log(user);
 
-			if (!user) {
-				res.status(422).json({ message: "Usuário não encontrado!" });
-				return;
-			}
+	// 		if (!user) {
+	// 			res.status(422).json({ message: "Usuário não encontrado!" });
+	// 			return;
+	// 		}
 
-			const { name, email, password, confirmPassword } = req.body;
+	// 		const { name, email, password, confirmPassword } = req.body;
 
-			let image = "";
+	// 		let image = "";
 
-			if (req.file) {
-				user.profileImage = req.file.filename;
-			}
+	// 		if (req.file) {
+	// 			user.profileImage = req.file.filename;
+	// 		}
 
-			// Validações
-			if (!name) {
-				res.status(422).json({ message: "O nome é obrigatório" });
-				return;
-			}
+	// 		// Validações
+	// 		if (!name) {
+	// 			res.status(422).json({ message: "O nome é obrigatório" });
+	// 			return;
+	// 		}
 
-			user.name = name;
+	// 		user.name = name;
 
-			if (!email) {
-				res.status(422).json({ message: "O email é obrigatório" });
-				return;
-			}
+	// 		if (!email) {
+	// 			res.status(422).json({ message: "O email é obrigatório" });
+	// 			return;
+	// 		}
 
-			if (email !== user.email) {
-				const userExist = await CustomerModel.findOne({ email: email });
+	// 		if (email !== user.email) {
+	// 			const userExist = await CustomerModel.findOne({ email: email });
 
-				if (userExist) {
-					res.status(422).json({
-						message:
-							"Já existe um usuário cadastrado com esse email!",
-					});
-					return;
-				}
+	// 			if (userExist) {
+	// 				res.status(422).json({
+	// 					message:
+	// 						"Já existe um usuário cadastrado com esse email!",
+	// 				});
+	// 				return;
+	// 			}
 
-				user.email = email;
-			}
+	// 			user.email = email;
+	// 		}
 
-			if (password !== confirmPassword) {
-				res.status(422).json({
-					message:
-						"A senha e a confirmação de senha precisam ser iguais!",
-				});
-				return;
-			}
+	// 		if (password !== confirmPassword) {
+	// 			res.status(422).json({
+	// 				message:
+	// 					"A senha e a confirmação de senha precisam ser iguais!",
+	// 			});
+	// 			return;
+	// 		}
 
-			if (password) {
-				// Alteração da senha
-				const salt = await bcrypt.genSalt(12);
-				const passwordHash = await bcrypt.hash(password, salt);
-				user.password = passwordHash;
-			}
+	// 		if (password) {
+	// 			// Alteração da senha
+	// 			const salt = await bcrypt.genSalt(12);
+	// 			const passwordHash = await bcrypt.hash(password, salt);
+	// 			user.password = passwordHash;
+	// 		}
 
-			await user.save();
+	// 		await user.save();
 
-			const updatedUser = await CustomerModel.findById(user._id).select(
-				"-password"
-			);
+	// 		const updatedUser = await CustomerModel.findById(user._id).select(
+	// 			"-password"
+	// 		);
 
-			res.status(200).json({
-				message: "Usuário atualizado com sucesso!",
-				user: updatedUser,
-			});
-		} catch (err) {
-			res.status(500).json({ message: err });
-		}
-	}
+	// 		res.status(200).json({
+	// 			message: "Usuário atualizado com sucesso!",
+	// 			user: updatedUser,
+	// 		});
+	// 	} catch (err) {
+	// 		res.status(500).json({ message: err });
+	// 	}
+	// }
 
 	// // Requisição finalizada, mas precisa de ajustes
 	// static async followStore(req: Request, res: Response) {
@@ -589,6 +589,80 @@ class CustomerController {
 			res.status(500).json({
 				message: "Erro ao tentar deixar de seguir a loja!",
 			});
+		}
+	}
+
+	static async editCustomer(req: Request, res: Response) {
+		const { name, email, cpf, address, password, confirmPassword } =
+			req.body;
+
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		// Verificar se o usuário existe
+		if (!customer) {
+			res.status(422).json({
+				message: "Usuário não encontrado!",
+			});
+			return;
+		}
+
+		try {
+			// Verifique se o customer é de fato um parceiro e não um cliente
+			if (customer instanceof CustomerModel) {
+				customer.name = name;
+				customer.email = email;
+				customer.cpf = cpf;
+
+				if (customer.address.length > 0 && address) {
+					customer.address[0] = {
+						logradouro: address.logradouro,
+						complemento: address.complemento,
+						bairro: address.bairro,
+						cidade: address.cidade,
+						uf: address.uf,
+						cep: address.cep,
+					};
+				}
+
+				if (
+					password &&
+					confirmPassword &&
+					password === confirmPassword
+				) {
+					// Criar senha Hash (Codificada)
+					const salt = await bcrypt.genSalt(12);
+					const passwordHash = await bcrypt.hash(password, salt);
+
+					customer.password = passwordHash;
+				} else if (
+					password &&
+					confirmPassword &&
+					password !== confirmPassword
+				) {
+					res.status(422).json({
+						message: "As senhas precisam ser iguais!",
+					});
+					return;
+				}
+
+				await customer.save();
+
+				const updatedUser = await PartnerModel.findById(
+					customer._id
+				).select("-password");
+
+				res.status(200).json({
+					message: "Usuário atualizado com sucesso!",
+					updatedUser,
+				});
+			} else {
+				res.status(400).json({
+					message: "O usuário não é um customer válido.",
+				});
+			}
+		} catch (err) {
+			res.status(500).json({ message: err });
 		}
 	}
 }

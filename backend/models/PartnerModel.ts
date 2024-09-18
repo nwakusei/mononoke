@@ -3,9 +3,9 @@ import mongoose, { Schema, model } from "mongoose";
 
 interface IAddress {
 	logradouro?: string;
-	compl?: string;
+	complemento?: string;
 	bairro?: string;
-	city?: string;
+	cidade?: string;
 	uf?: string;
 	cep?: string;
 }
@@ -23,8 +23,7 @@ interface IPartner {
 	name: string;
 	email: string;
 	password: string;
-	cnpj: number;
-	cpf: number;
+	cpfCnpj: number;
 	description: string;
 	address: IAddress[];
 	// site: string;
@@ -65,10 +64,7 @@ const partnerSchema = new Schema<IPartner>(
 			min: 6,
 			max: 64,
 		},
-		cnpj: {
-			type: Number,
-		},
-		cpf: {
+		cpfCnpj: {
 			type: Number,
 		},
 		description: {

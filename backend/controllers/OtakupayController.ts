@@ -39,6 +39,7 @@ import getUserByToken from "../helpers/get-user-by-token.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import { CouponModel } from "../models/CouponModel.js";
 import { error } from "console";
+import { CustomerModel } from "../models/CustomerModel.js";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -100,11 +101,10 @@ class OtakupayController {
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
 
-		if (!customer || null) {
-			res.status(422).json({
-				message: "Customer inexistente!",
+		if (!(customer instanceof CustomerModel)) {
+			return res.status(422).json({
+				message: "Usuário não encontrado ou não é um cliente válido!",
 			});
-			return;
 		}
 
 		try {
@@ -192,7 +192,14 @@ class OtakupayController {
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
 
-		if (!token || !customer || customer.accountType !== "customer") {
+		if (!(customer instanceof CustomerModel)) {
+			res.status(422).json({
+				message: "Usuário não encontrado ou não é um cliente válido!",
+			});
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
 			res.status(422).json({
 				message:
 					"Usuário sem permissão para realizar este tipo de transação!",
@@ -200,7 +207,7 @@ class OtakupayController {
 			return;
 		}
 
-		if (!customer.cpf || customer.cpf == 0) {
+		if (!customer.cpf || customer.cpf == "") {
 			res.status(422).json({
 				message: "CPF inválido, atualize antes de prosseguir!",
 			});
@@ -1344,7 +1351,14 @@ class OtakupayController {
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
 
-		if (!token || !customer || customer.accountType !== "customer") {
+		if (!(customer instanceof CustomerModel)) {
+			res.status(422).json({
+				message: "Usuário não encontrado ou não é um cliente válido!",
+			});
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
 			res.status(422).json({
 				message:
 					"Usuário sem permissão para realizar este tipo de transação!",
@@ -1352,7 +1366,7 @@ class OtakupayController {
 			return;
 		}
 
-		if (!customer.cpf || customer.cpf == 0) {
+		if (!customer.cpf || customer.cpf == "") {
 			res.status(422).json({
 				message: "CPF inválido, atualize antes de prosseguir!",
 			});
@@ -2358,9 +2372,19 @@ class OtakupayController {
 		const tokenCustomer: any = getToken(req);
 		const customer = await getUserByToken(tokenCustomer);
 
-		if (!customer) {
-			res.status(422).json({ message: "Customer não encontrado!" });
-			return;
+		// Verifique se o usuário é uma instância de CustomerModel
+		if (!(customer instanceof CustomerModel)) {
+			return res.status(422).json({
+				message: "Usuário não encontrado ou não é um cliente válido!",
+			});
+		}
+
+		// Verifique o tipo de conta
+		if (customer.accountType !== "customer") {
+			return res.status(422).json({
+				message:
+					"Usuário sem permissão para realizar este tipo de transação!",
+			});
 		}
 
 		const customerOtakupay: any = await OtakupayModel.findOne({
@@ -2689,11 +2713,15 @@ class OtakupayController {
 								const token: any = getToken(req);
 								const customer = await getUserByToken(token);
 
-								if (
-									!token ||
-									!customer ||
-									customer.accountType !== "customer"
-								) {
+								if (!(customer instanceof CustomerModel)) {
+									res.status(422).json({
+										message:
+											"Usuário não encontrado ou não é um cliente válido!",
+									});
+									return;
+								}
+
+								if (customer.accountType !== "customer") {
 									res.status(422).json({
 										message:
 											"Usuário sem permissão para realizar este tipo de transação!",
@@ -2701,7 +2729,7 @@ class OtakupayController {
 									return;
 								}
 
-								if (!customer.cpf || customer.cpf == 0) {
+								if (!customer.cpf || customer.cpf == "") {
 									res.status(422).json({
 										message:
 											"CPF inválido, atualize antes de prosseguir!",
@@ -3914,10 +3942,17 @@ class OtakupayController {
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
 
-		if (!token || !customer || customer.accountType !== "customer") {
+		if (!(customer instanceof CustomerModel)) {
+			res.status(422).json({
+				message: "Usuário não encontrado ou não é um cliente válido!",
+			});
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
 			res.status(422).json({
 				message:
-					"Usuário sem permição para realizar envio de dinheiro!",
+					"Usuário sem permissão para realizar este tipo de transação!",
 			});
 			return;
 		}

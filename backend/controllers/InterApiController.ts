@@ -16,6 +16,7 @@ import qs from "qs";
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
 import { InterPixModel } from "../models/InterPixModel.js";
+import { CustomerModel } from "../models/CustomerModel.js";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -97,11 +98,14 @@ class InterApiController {
 		const tokenCustomer: any = getToken(req);
 		const customer = await getUserByToken(tokenCustomer);
 
-		if (
-			!tokenCustomer ||
-			!customer ||
-			customer.accountType !== "customer"
-		) {
+		if (!(customer instanceof CustomerModel)) {
+			res.status(422).json({
+				message: "Usuário não encontrado ou não é um cliente válido!",
+			});
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
 			res.status(422).json({
 				message:
 					"Usuário sem permissão para realizar este tipo de transação!",

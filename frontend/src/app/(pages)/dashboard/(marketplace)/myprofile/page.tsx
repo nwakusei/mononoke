@@ -4,21 +4,40 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+
+// React Hook Form e Zod
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "react-toastify";
 
+const updateUserFormSchema = z.object({
+	name: z.string().nonempty(),
+	email: z
+		.string()
+		.min(1, "Digite algo")
+		.email("Formato de email inválido!")
+		.toLowerCase(),
+	cpfCnpj: z.string(),
+	// cpf: z.string(),
+	// description: z.string(),
+	// password: z.number(),
+	// confirmPassword: z.number(),
+});
+
+type TUpdateUserFormData = z.infer<typeof updateUserFormSchema>;
+
+// Axios
 import api from "@/utils/api";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Icons
 import { AddPicture } from "@icon-park/react";
 import { FiInfo } from "react-icons/fi";
-import { LoadingPage } from "@/components/LoadingPageComponent";
-import Swal from "sweetalert2";
 
 function MyProfilePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
@@ -27,8 +46,17 @@ function MyProfilePage() {
 		useState(null);
 	const [imagemSelecionadaLogo, setImagemSelecionadaLogo] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
-
 	const router = useRouter();
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<TUpdateUserFormData>({
+		resolver: zodResolver(updateUserFormSchema),
+	});
+
+	const [output, setOutput] = useState("");
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -52,28 +80,104 @@ function MyProfilePage() {
 		}
 	};
 
-	async function handleUpdateUser(e) {
-		e.preventDefault();
+	async function updateUser(data: any) {
+		// e.preventDefault();
 
-		const name = e.target.name.value;
-		const cashback = e.target.cashback.value;
+		setOutput(JSON.stringify(data, null, 2));
 
-		try {
-			const response = await api.patch("/partners/edit", {
-				name: name, // Aqui enviamos o valor capturado no body
-				cashback: cashback,
-			});
+		console.log(data);
 
-			Swal.fire({
-				title: response.data.message,
-				width: 900,
-				icon: "success",
-			});
+		// try {
+		// 	if (user?.accountType === "partner") {
+		// 		const name = e.target.name.value;
+		// 		const cashback = e.target.cashback.value;
+		// 		const email = e.target.email.value;
+		// 		const cpfCnpj = e.target.cpfCnpj.value;
 
-			console.log(response.data);
-		} catch (error) {
-			console.log(error);
-		}
+		// 		const logradouro = e.target.logradouro.value;
+		// 		const complemento = e.target.complemento.value;
+		// 		const bairro = e.target.bairro.value;
+		// 		const cidade = e.target.cidade.value;
+		// 		const uf = e.target.uf.value;
+		// 		const cep = e.target.cep.value;
+
+		// 		const address = {
+		// 			logradouro: logradouro,
+		// 			complemento: complemento,
+		// 			bairro: bairro,
+		// 			cidade: cidade,
+		// 			uf: uf,
+		// 			cep: cep,
+		// 		};
+
+		// 		const password = e.target.password.value;
+		// 		const confirmPassword = e.target.confirmPassword.value;
+
+		// 		const response = await api.patch("/partners/edit", {
+		// 			name: name,
+		// 			cashback: cashback,
+		// 			email: email,
+		// 			cpfCnpj: cpfCnpj,
+		// 			address: address,
+		// 			password: password,
+		// 			confirmPassword: confirmPassword,
+		// 		});
+
+		// 		Swal.fire({
+		// 			title: response.data.message,
+		// 			width: 900,
+		// 			icon: "success",
+		// 		});
+
+		// 		console.log(response.data);
+		// 	} else if (user?.accountType === "customer") {
+		// 		const name = e.target.name.value;
+		// 		const email = e.target.email.value;
+		// 		const cpf = e.target.cpf.value;
+
+		// 		const logradouro = e.target.logradouro.value;
+		// 		const complemento = e.target.complemento.value;
+		// 		const bairro = e.target.bairro.value;
+		// 		const cidade = e.target.cidade.value;
+		// 		const uf = e.target.uf.value;
+		// 		const cep = e.target.cep.value;
+
+		// 		const address = {
+		// 			logradouro: logradouro,
+		// 			complemento: complemento,
+		// 			bairro: bairro,
+		// 			cidade: cidade,
+		// 			uf: uf,
+		// 			cep: cep,
+		// 		};
+
+		// 		const password = e.target.password.value;
+		// 		const confirmPassword = e.target.confirmPassword.value;
+
+		// 		const response = await api.patch("/customers/edit", {
+		// 			name: name,
+		// 			email: email,
+		// 			cpf: cpf,
+		// 			address: address,
+		// 			password: password,
+		// 			confirmPassword: confirmPassword,
+		// 		});
+
+		// 		// Swal.fire({
+		// 		// 	title: response.data.message,
+		// 		// 	width: 900,
+		// 		// 	icon: "success",
+		// 		// });
+		// 	}
+		// } catch (error: any) {
+		// 	console.log(error);
+
+		// 	// Swal.fire({
+		// 	// 	title: error.response.data.message,
+		// 	// 	width: 900,
+		// 	// 	icon: "error",
+		// 	// });
+		// }
 	}
 
 	const handleCancelar = () => {
@@ -90,7 +194,7 @@ function MyProfilePage() {
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mt-4 mb-8">
-					<form onSubmit={handleUpdateUser}>
+					<form onSubmit={handleSubmit(updateUser)}>
 						{/* Gadget 1 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
@@ -113,10 +217,11 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											name="name"
+											// name="name"
 											placeholder={`...`}
 											defaultValue={user?.name}
 											className={`input input-bordered input-success w-full max-w-3xl`}
+											{...register("name")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -134,9 +239,11 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
+											// name="cpfCnpj"
 											placeholder={`...`}
-											defaultValue={user?.cpf}
+											defaultValue={user?.cpfCnpj}
 											className={`input input-bordered input-success w-full max-w-3xl`}
+											{...register("cpfCnpj")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -155,13 +262,19 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="email"
+											// name="email"
 											placeholder={`...`}
 											defaultValue={user?.email}
 											className={`input input-bordered input-success w-full max-w-3xl`}
+											{...register("email")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
-												Erro
+												{errors.email && (
+													<span>
+														{errors.email.message}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
@@ -349,11 +462,13 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
+											// name="logradouro"
 											placeholder="..."
 											defaultValue={
 												user?.address[0].logradouro
 											}
 											className={`input input-bordered input-success w-fullmax-w-3xl`}
+											{...register("logradouro")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -371,11 +486,13 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
+											// name="complemento"
 											placeholder="..."
 											defaultValue={
 												user?.address[0].complemento
 											}
 											className={`input input-bordered input-success w-fullmax-w-3xl`}
+											{...register("complemento")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -393,11 +510,13 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
+											// name="bairro"
 											placeholder="..."
 											defaultValue={
 												user?.address[0].bairro
 											}
 											className={`input input-bordered input-success w-fullmax-w-3xl`}
+											{...register("bairro")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -417,11 +536,13 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
+											// name="cidade"
 											placeholder="..."
 											defaultValue={
 												user?.address[0].cidade
 											}
 											className={`input input-bordered input-success w-fullmax-w-3xl`}
+											{...register("cidade")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -439,9 +560,11 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
+											// name="uf"
 											placeholder="..."
 											defaultValue={user?.address[0].uf}
 											className={`input input-bordered input-success w-fullmax-w-3xl`}
+											{...register("uf")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -459,9 +582,11 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
+											// name="cep"
 											placeholder="..."
 											defaultValue={user?.address[0].cep}
 											className={`input input-bordered input-success w-full max-w-3xl`}
+											{...register("cep")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -601,8 +726,10 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="password"
+											// name="password"
 											placeholder="Digite a nova senha"
 											className={`input input-bordered input-success w-full max-w-3xl`}
+											{...register("password")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -620,8 +747,10 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="password"
+											// name="confirmPassword"
 											placeholder="Confirme a senha"
 											className={`input input-bordered input-success max-w-4xl`}
+											{...register("confirmPassword")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-black">
@@ -658,6 +787,7 @@ function MyProfilePage() {
 							</div>
 						</div>
 					</form>
+					<pre>{output}</pre>
 					<br />
 				</div>
 			</div>
