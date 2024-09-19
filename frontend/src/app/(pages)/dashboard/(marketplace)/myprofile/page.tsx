@@ -12,19 +12,83 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const updateUserFormSchema = z.object({
-	name: z.string().nonempty(),
-	email: z
-		.string()
-		.min(1, "Digite algo")
-		.email("Formato de email inválido!")
-		.toLowerCase(),
-	cpfCnpj: z.string(),
-	// cpf: z.string(),
-	// description: z.string(),
-	// password: z.number(),
-	// confirmPassword: z.number(),
-});
+const updateUserFormSchema = z
+	.object({
+		// imageProfile: z
+		// 	.instanceof(FileList)
+		// 	.transform((list) => list.item(0))
+		// 	.refine(
+		// 		(file) => file!.size <= 2 * 1024 * 1024,
+		// 		"O arquivo precisa ter no máximo 2Mb!"
+		// 	),
+		name: z
+			.string()
+			.min(1, "Digite o nome!")
+			.transform((name) => {
+				return name
+					.toLocaleLowerCase()
+					.trim()
+					.split(" ")
+					.map((word) => {
+						return word[0]
+							.toLocaleUpperCase()
+							.concat(word.substring(1));
+					})
+					.join(" ");
+			}),
+		email: z
+			.string()
+			.min(1, "Informe um email válido!")
+			.email("Formato de email inválido!")
+			.toLowerCase(),
+		cpfCnpj: z.string(),
+		// cpf: z.string(),
+		cashback: z
+			.string()
+			.min(1, "O Cashback não pode ser vazio!")
+			.refine((val) => !isNaN(Number(val)), {
+				message: "O Cashback deve ser um número válido!",
+			})
+			.refine((val) => Number.isInteger(Number(val)), {
+				message: "O Cashback deve ser um número inteiro!",
+			})
+			.refine((val) => Number(val) >= 1, {
+				message: "O Cashback não pode ser menor do que 1%!",
+			})
+			.transform((val) => Number(val)), // Converte a string para número
+		// description: z.string(),
+		password: z
+			.string()
+			.optional()
+			.refine(
+				(value) => {
+					if (value === undefined || value === "") {
+						// Se o valor é undefined ou uma string vazia, a validação passa
+						return true;
+					}
+					// Se o valor não for uma string vazia, deve ter pelo menos 6 caracteres
+					return value.length >= 6;
+				},
+				{
+					message: "A senha precisa ter no mínimo 6 caracteres!",
+				}
+			),
+		confirmPassword: z.string().optional(),
+	})
+	.refine(
+		(data) => {
+			// Se password não for fornecida, não há necessidade de validar confirmPassword
+			if (!data.password) {
+				return true;
+			}
+			// Se password for fornecida, confirmPassword também deve ser fornecida e ser igual a password
+			return data.password === data.confirmPassword;
+		},
+		{
+			message: "As senhas precisam ser iguais!",
+			path: ["confirmPassword"], // Define o caminho onde o erro será exibido
+		}
+	);
 
 type TUpdateUserFormData = z.infer<typeof updateUserFormSchema>;
 
@@ -80,104 +144,124 @@ function MyProfilePage() {
 		}
 	};
 
-	async function updateUser(data: any) {
-		// e.preventDefault();
+	// async function updateUser(data: TUpdateUserFormData) {
+	// 	console.log(data.imageProfile);
 
+	// 	setOutput(JSON.stringify(data, null, 2));
+
+	// 	try {
+	// 		if (user?.accountType === "partner") {
+	// 			const name = e.target.name.value;
+	// 			const cashback = e.target.cashback.value;
+	// 			const email = e.target.email.value;
+	// 			const cpfCnpj = e.target.cpfCnpj.value;
+
+	// 			const logradouro = e.target.logradouro.value;
+	// 			const complemento = e.target.complemento.value;
+	// 			const bairro = e.target.bairro.value;
+	// 			const cidade = e.target.cidade.value;
+	// 			const uf = e.target.uf.value;
+	// 			const cep = e.target.cep.value;
+
+	// 			const address = {
+	// 				logradouro: logradouro,
+	// 				complemento: complemento,
+	// 				bairro: bairro,
+	// 				cidade: cidade,
+	// 				uf: uf,
+	// 				cep: cep,
+	// 			};
+
+	// 			const password = e.target.password.value;
+	// 			const confirmPassword = e.target.confirmPassword.value;
+
+	// 			const response = await api.patch("/partners/edit", {
+	// 				name: name,
+	// 				cashback: cashback,
+	// 				email: email,
+	// 				cpfCnpj: cpfCnpj,
+	// 				address: address,
+	// 				password: password,
+	// 				confirmPassword: confirmPassword,
+	// 			});
+
+	// 			Swal.fire({
+	// 				title: response.data.message,
+	// 				width: 900,
+	// 				icon: "success",
+	// 			});
+
+	// 			console.log(response.data);
+	// 		} else if (user?.accountType === "customer") {
+	// 			const name = e.target.name.value;
+	// 			const email = e.target.email.value;
+	// 			const cpf = e.target.cpf.value;
+
+	// 			const logradouro = e.target.logradouro.value;
+	// 			const complemento = e.target.complemento.value;
+	// 			const bairro = e.target.bairro.value;
+	// 			const cidade = e.target.cidade.value;
+	// 			const uf = e.target.uf.value;
+	// 			const cep = e.target.cep.value;
+
+	// 			const address = {
+	// 				logradouro: logradouro,
+	// 				complemento: complemento,
+	// 				bairro: bairro,
+	// 				cidade: cidade,
+	// 				uf: uf,
+	// 				cep: cep,
+	// 			};
+
+	// 			const password = e.target.password.value;
+	// 			const confirmPassword = e.target.confirmPassword.value;
+
+	// 			const response = await api.patch("/customers/edit", {
+	// 				name: name,
+	// 				email: email,
+	// 				cpf: cpf,
+	// 				address: address,
+	// 				password: password,
+	// 				confirmPassword: confirmPassword,
+	// 			});
+
+	// 			Swal.fire({
+	// 				title: response.data.message,
+	// 				width: 900,
+	// 				icon: "success",
+	// 			});
+	// 		}
+	// 	} catch (error: any) {
+	// 		console.log(error);
+
+	// 		Swal.fire({
+	// 			title: error.response.data.message,
+	// 			width: 900,
+	// 			icon: "error",
+	// 		});
+	// 	}
+	// }
+
+	async function updateUser(data: TUpdateUserFormData) {
 		setOutput(JSON.stringify(data, null, 2));
 
-		console.log(data);
+		try {
+			if (user?.accountType === "partner") {
+				const response = await api.patch("/partners/edit", {
+					data,
+				});
 
-		// try {
-		// 	if (user?.accountType === "partner") {
-		// 		const name = e.target.name.value;
-		// 		const cashback = e.target.cashback.value;
-		// 		const email = e.target.email.value;
-		// 		const cpfCnpj = e.target.cpfCnpj.value;
+				toast.success(response.data.message);
+			} else if (user?.accountType === "customer") {
+				const response = await api.patch("/customers/edit", {
+					data,
+				});
 
-		// 		const logradouro = e.target.logradouro.value;
-		// 		const complemento = e.target.complemento.value;
-		// 		const bairro = e.target.bairro.value;
-		// 		const cidade = e.target.cidade.value;
-		// 		const uf = e.target.uf.value;
-		// 		const cep = e.target.cep.value;
-
-		// 		const address = {
-		// 			logradouro: logradouro,
-		// 			complemento: complemento,
-		// 			bairro: bairro,
-		// 			cidade: cidade,
-		// 			uf: uf,
-		// 			cep: cep,
-		// 		};
-
-		// 		const password = e.target.password.value;
-		// 		const confirmPassword = e.target.confirmPassword.value;
-
-		// 		const response = await api.patch("/partners/edit", {
-		// 			name: name,
-		// 			cashback: cashback,
-		// 			email: email,
-		// 			cpfCnpj: cpfCnpj,
-		// 			address: address,
-		// 			password: password,
-		// 			confirmPassword: confirmPassword,
-		// 		});
-
-		// 		Swal.fire({
-		// 			title: response.data.message,
-		// 			width: 900,
-		// 			icon: "success",
-		// 		});
-
-		// 		console.log(response.data);
-		// 	} else if (user?.accountType === "customer") {
-		// 		const name = e.target.name.value;
-		// 		const email = e.target.email.value;
-		// 		const cpf = e.target.cpf.value;
-
-		// 		const logradouro = e.target.logradouro.value;
-		// 		const complemento = e.target.complemento.value;
-		// 		const bairro = e.target.bairro.value;
-		// 		const cidade = e.target.cidade.value;
-		// 		const uf = e.target.uf.value;
-		// 		const cep = e.target.cep.value;
-
-		// 		const address = {
-		// 			logradouro: logradouro,
-		// 			complemento: complemento,
-		// 			bairro: bairro,
-		// 			cidade: cidade,
-		// 			uf: uf,
-		// 			cep: cep,
-		// 		};
-
-		// 		const password = e.target.password.value;
-		// 		const confirmPassword = e.target.confirmPassword.value;
-
-		// 		const response = await api.patch("/customers/edit", {
-		// 			name: name,
-		// 			email: email,
-		// 			cpf: cpf,
-		// 			address: address,
-		// 			password: password,
-		// 			confirmPassword: confirmPassword,
-		// 		});
-
-		// 		// Swal.fire({
-		// 		// 	title: response.data.message,
-		// 		// 	width: 900,
-		// 		// 	icon: "success",
-		// 		// });
-		// 	}
-		// } catch (error: any) {
-		// 	console.log(error);
-
-		// 	// Swal.fire({
-		// 	// 	title: error.response.data.message,
-		// 	// 	width: 900,
-		// 	// 	icon: "error",
-		// 	// });
-		// }
+				toast.success(response.data.message);
+			}
+		} catch (error: any) {
+			toast.error(error.response.data.message);
+		}
 	}
 
 	const handleCancelar = () => {
@@ -225,7 +309,11 @@ function MyProfilePage() {
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
-												Erro
+												{errors.name && (
+													<span>
+														{errors.name.message}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
@@ -372,14 +460,23 @@ function MyProfilePage() {
 														className="hidden"
 														type="file"
 														accept="image/*"
-														multiple
+														// {...register(
+														// 	"imageProfile"
+														// )}
 													/>
 												</div>
 											)}
 										</div>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
-												Erro
+												{/* {errors.imageProfile && (
+													<span>
+														{
+															errors.imageProfile
+																.message
+														}
+													</span>
+												)} */}
 											</span>
 										</div>
 									</label>
@@ -692,14 +789,21 @@ function MyProfilePage() {
 											</div>
 											<input
 												type="text"
-												name="cashback"
 												placeholder={`...`}
 												defaultValue={user?.cashback}
 												className={`input input-bordered input-success w-full max-w-3xl`}
+												{...register("cashback")}
 											/>
 											<div className="label">
-												<span className="label-text-alt text-black">
-													Ex.: 5%
+												<span className="label-text-alt text-red-500">
+													{errors.cashback && (
+														<span>
+															{
+																errors.cashback
+																	.message
+															}
+														</span>
+													)}
 												</span>
 											</div>
 										</label>
@@ -718,7 +822,7 @@ function MyProfilePage() {
 
 								<div className="flex flex-row gap-4">
 									{/* Credential */}
-									<label className="form-control max-w-3xl">
+									<label className="form-control w-[250px]">
 										<div className="label">
 											<span className="label-text text-black">
 												Nova Senha
@@ -732,14 +836,21 @@ function MyProfilePage() {
 											{...register("password")}
 										/>
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Obs.:
+											<span className="label-text-alt text-red-500">
+												{errors.password && (
+													<span>
+														{
+															errors.password
+																.message
+														}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
 
 									{/* Credential */}
-									<label className="form-control w-3xl">
+									<label className="form-control w-[250px]">
 										<div className="label">
 											<span className="label-text text-black">
 												Confirme a Senha
@@ -753,8 +864,16 @@ function MyProfilePage() {
 											{...register("confirmPassword")}
 										/>
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Obs.:
+											<span className="label-text-alt text-red-500">
+												{errors.confirmPassword && (
+													<span>
+														{
+															errors
+																.confirmPassword
+																.message
+														}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
