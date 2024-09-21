@@ -316,7 +316,10 @@ class PartnerController {
 	// }
 
 	static async editPartner(req: Request, res: Response) {
-		const { data } = req.body;
+		const { name, email, cpfCnpj, cashback, password, confirmPassword } =
+			req.body;
+
+		const imageProfile = req.file;
 
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
@@ -332,10 +335,10 @@ class PartnerController {
 		try {
 			// Verifique se o partner é de fato um parceiro e não um cliente
 			if (partner instanceof PartnerModel) {
-				partner.name = data.name;
-				partner.email = data.email;
-				partner.cpfCnpj = data.cpfCnpj;
-				partner.cashback = data.cashback;
+				partner.name = name;
+				partner.email = email;
+				partner.cpfCnpj = cpfCnpj;
+				partner.cashback = cashback;
 
 				// if (partner.address.length > 0 && address) {
 				// 	partner.address[0] = {
@@ -349,18 +352,18 @@ class PartnerController {
 				// }
 
 				if (
-					data.password &&
-					data.confirmPassword &&
-					data.password === data.confirmPassword
+					password &&
+					confirmPassword &&
+					password === confirmPassword
 				) {
 					const salt = await bcrypt.genSalt(12);
-					const passwordHash = await bcrypt.hash(data.password, salt);
+					const passwordHash = await bcrypt.hash(password, salt);
 
 					partner.password = passwordHash;
 				} else if (
-					data.password &&
-					data.confirmPassword &&
-					data.password !== data.confirmPassword
+					password &&
+					confirmPassword &&
+					password !== confirmPassword
 				) {
 					res.status(422).json({
 						message: "As senhas precisam ser iguais!",

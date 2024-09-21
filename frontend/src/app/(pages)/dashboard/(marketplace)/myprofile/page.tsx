@@ -14,13 +14,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const updateUserFormSchema = z
 	.object({
-		// imageProfile: z
-		// 	.instanceof(FileList)
-		// 	.transform((list) => list.item(0))
-		// 	.refine(
-		// 		(file) => file!.size <= 2 * 1024 * 1024,
-		// 		"O arquivo precisa ter no máximo 2Mb!"
-		// 	),
+		imageProfile: z
+			.instanceof(FileList)
+			.transform((list) => list.item(0))
+			.optional() // Torna a imagem opcional
+			.refine(
+				(file) => file === null || file.size <= 2 * 1024 * 1024, // Verifica se é null ou se o tamanho está dentro do limite
+				"O arquivo precisa ter no máximo 2Mb!"
+			),
 		name: z
 			.string()
 			.min(1, "Digite o nome!")
@@ -41,7 +42,10 @@ const updateUserFormSchema = z
 			.min(1, "Informe um email válido!")
 			.email("Formato de email inválido!")
 			.toLowerCase(),
-		cpfCnpj: z.string(),
+		cpfCnpj: z
+			.string()
+			.min(11, "Digite um documento válido!")
+			.max(14, "CNPJ possui no máximo 14 digitos!"),
 		// cpf: z.string(),
 		cashback: z
 			.string()
@@ -100,7 +104,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Icons
-import { AddPicture } from "@icon-park/react";
+import { AddPicture, Key } from "@icon-park/react";
 import { FiInfo } from "react-icons/fi";
 
 function MyProfilePage() {
@@ -245,17 +249,29 @@ function MyProfilePage() {
 	async function updateUser(data: TUpdateUserFormData) {
 		setOutput(JSON.stringify(data, null, 2));
 
+		console.log("Dados recebidos:", data);
+
+		// Cria um novo FormData
+		const formData = new FormData();
+
+		// Itera sobre os campos do objeto 'data' e adiciona ao FormData
+		Object.entries(data).forEach(([key, value]) => {
+			if (key === "imageProfile" && value instanceof File) {
+				formData.append(key, value);
+				console.log(`Adicionado ao FormData: ${key} - [Imagem]`);
+			} else {
+				formData.append(key, value);
+				console.log(`Adicionado ao FormData: ${key} - ${value}`);
+			}
+		});
+
 		try {
 			if (user?.accountType === "partner") {
-				const response = await api.patch("/partners/edit", {
-					data,
-				});
+				const response = await api.patch("/partners/edit", formData);
 
 				toast.success(response.data.message);
 			} else if (user?.accountType === "customer") {
-				const response = await api.patch("/customers/edit", {
-					data,
-				});
+				const response = await api.patch("/customers/edit", formData);
 
 				toast.success(response.data.message);
 			}
@@ -304,7 +320,11 @@ function MyProfilePage() {
 											// name="name"
 											placeholder={`...`}
 											defaultValue={user?.name}
-											className={`input input-bordered input-success w-full max-w-3xl`}
+											className={`input input-bordered ${
+												errors.name
+													? `input-error`
+													: `input-success`
+											} w-full max-w-3xl`}
 											{...register("name")}
 										/>
 										<div className="label">
@@ -330,12 +350,20 @@ function MyProfilePage() {
 											// name="cpfCnpj"
 											placeholder={`...`}
 											defaultValue={user?.cpfCnpj}
-											className={`input input-bordered input-success w-full max-w-3xl`}
+											className={`input input-bordered ${
+												errors.cpfCnpj
+													? `input-error`
+													: `input-success`
+											} w-full max-w-3xl`}
 											{...register("cpfCnpj")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
-												Erro
+												{errors.cpfCnpj && (
+													<span>
+														{errors.cpfCnpj.message}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
@@ -353,7 +381,11 @@ function MyProfilePage() {
 											// name="email"
 											placeholder={`...`}
 											defaultValue={user?.email}
-											className={`input input-bordered input-success w-full max-w-3xl`}
+											className={`input input-bordered ${
+												errors.email
+													? `input-error`
+													: `input-success`
+											} w-full max-w-3xl`}
 											{...register("email")}
 										/>
 										<div className="label">
@@ -460,23 +492,23 @@ function MyProfilePage() {
 														className="hidden"
 														type="file"
 														accept="image/*"
-														// {...register(
-														// 	"imageProfile"
-														// )}
+														{...register(
+															"imageProfile"
+														)}
 													/>
 												</div>
 											)}
 										</div>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
-												{/* {errors.imageProfile && (
+												{errors.imageProfile && (
 													<span>
 														{
 															errors.imageProfile
 																.message
 														}
 													</span>
-												)} */}
+												)}
 											</span>
 										</div>
 									</label>
@@ -791,7 +823,11 @@ function MyProfilePage() {
 												type="text"
 												placeholder={`...`}
 												defaultValue={user?.cashback}
-												className={`input input-bordered input-success w-full max-w-3xl`}
+												className={`input input-bordered ${
+													errors.cashback
+														? `input-error`
+														: `input-success`
+												} w-full max-w-3xl`}
 												{...register("cashback")}
 											/>
 											<div className="label">
@@ -832,7 +868,11 @@ function MyProfilePage() {
 											type="password"
 											// name="password"
 											placeholder="Digite a nova senha"
-											className={`input input-bordered input-success w-full max-w-3xl`}
+											className={`input input-bordered ${
+												errors.password
+													? `input-error`
+													: `input-success`
+											} w-full max-w-3xl`}
 											{...register("password")}
 										/>
 										<div className="label">
@@ -860,7 +900,11 @@ function MyProfilePage() {
 											type="password"
 											// name="confirmPassword"
 											placeholder="Confirme a senha"
-											className={`input input-bordered input-success max-w-4xl`}
+											className={`input input-bordered ${
+												errors.confirmPassword
+													? `input-error`
+													: `input-success`
+											} max-w-4xl`}
 											{...register("confirmPassword")}
 										/>
 										<div className="label">
