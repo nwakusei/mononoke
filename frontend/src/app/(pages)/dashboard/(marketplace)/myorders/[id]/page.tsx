@@ -447,22 +447,25 @@ function MyOrderByIDPage() {
 								myorder.customerAddress &&
 								myorder.customerAddress.length > 0 &&
 								myorder.customerAddress.map((myAddress) => (
-									<div key={myAddress._id || myAddress.id}>
+									<div key={myAddress?._id || myAddress?.id}>
 										{" "}
 										{/* Garantia de chave única */}
 										<h1 className="text-lg mb-3">
 											Endereço de entrega e cobrança
 										</h1>
+										<h2>Endereço: {myAddress?.street}</h2>{" "}
 										<h2>
-											Endereço: {myAddress.logradouro}
-										</h2>{" "}
-										{/* Exibindo dados reais */}
-										<h2>Bairro: {myAddress.bairro}</h2>
-										<h2>
-											Cidade/Estado: {myAddress.cidade}/
-											{myAddress.uf}
+											Complemento: {myAddress?.complement}
 										</h2>
-										<h2>CEP: {myAddress.cep}</h2>
+										{/* Exibindo dados reais */}
+										<h2>
+											Bairro: {myAddress?.neighborhood}
+										</h2>
+										<h2>
+											Cidade/Estado: {myAddress?.city}/
+											{myAddress?.state}
+										</h2>
+										<h2>CEP: {myAddress?.postalCode}</h2>
 									</div>
 								))}
 						</div>

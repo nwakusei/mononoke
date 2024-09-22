@@ -786,7 +786,9 @@ class ProductController {
 
 		// Obter o CEP de Origem do Partner
 		const cepOrigem =
-			partner.address.length > 0 ? partner.address[0].cep : undefined;
+			partner.address.length > 0
+				? partner.address[0].postalCode
+				: undefined;
 
 		// Caso queira tratar casos onde pode não haver nenhum endereço
 		if (!cepOrigem) {

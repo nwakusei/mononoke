@@ -2,12 +2,12 @@ import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
 
 interface IAddress {
-	logradouro?: string;
-	complemento?: string;
-	bairro?: string;
-	cidade?: string;
-	uf?: string;
-	cep?: string;
+	street?: string; // logradouro
+	complement?: string; // complemento
+	neighborhood?: string; // bairro
+	city?: string; // cidade
+	state?: string; // uf
+	postalCode?: string; // cep
 }
 
 interface IShippingConfig {

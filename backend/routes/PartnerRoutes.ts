@@ -22,7 +22,7 @@ router.get("/:id", PartnerController.getPartnerById);
 router.patch(
 	"/edit",
 	verifyToken,
-	imageUpload.single("imageProfile"),
+	imageUpload.single("profileImage"),
 	PartnerController.editPartner
 );
 

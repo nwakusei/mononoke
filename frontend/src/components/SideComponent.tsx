@@ -41,10 +41,10 @@ function SideComponent() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 
-	const partnerUFAddress =
-		partner && partner.address.length > 0 ? partner.address[0].uf : "";
-	const userUFAddress =
-		user.address && user.address.length > 0 ? user.address[0].uf : "";
+	const partnerStateAddress =
+		partner && partner.address.length > 0 ? partner.address[0].state : "";
+	const userStateAddress =
+		user.address && user.address.length > 0 ? user.address[0].state : "";
 
 	useEffect(() => {
 		if (!token) return;
@@ -483,7 +483,7 @@ function SideComponent() {
 								partner.address.length > 0 ? (
 									partner.address.map((end) => (
 										<div key={end._id}>
-											<div>{`Enviado de ${end.cidade}/${end.uf}`}</div>
+											<div>{`Enviado de ${end.city}/${end.state}`}</div>
 										</div>
 									))
 								) : (
@@ -496,11 +496,13 @@ function SideComponent() {
 							</span>
 						</div>
 
-						{!product || !partnerUFAddress || !userUFAddress ? (
+						{!product ||
+						!partnerStateAddress ||
+						!userStateAddress ? (
 							// Mostrar um placeholder de carregamento ou nada enquanto os dados estão sendo carregados
 							<div className="flex flex-row justify-between items-center gap-2 mb-1"></div>
 						) : product.freeShipping === true &&
-						  partnerUFAddress === userUFAddress ? (
+						  partnerStateAddress === userStateAddress ? (
 							<div className="flex flex-row justify-between items-center gap-2 mb-1">
 								<div className="flex flex-row items-center text-black gap-2">
 									<LiaShippingFastSolid size={24} />

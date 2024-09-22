@@ -11,6 +11,15 @@ interface IOrderItem {
 	daysShipping: number;
 }
 
+interface ICustomerAddress {
+	street?: string; // logradouro
+	complement?: string; // complemento
+	neighborhood?: string; // bairro
+	city?: string; // cidade
+	state?: string; // uf
+	postalCode?: string; // cep
+}
+
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOrder {
 	orderID: string;
@@ -28,15 +37,7 @@ interface IOrder {
 	customerID: object;
 	customerName: string;
 	customerCPF: string;
-	customerAddress: {
-		id: mongoose.Schema.Types.ObjectId;
-		logradouro: string;
-		complemento: string;
-		bairro: string;
-		cidade: string;
-		uf: string;
-		cep: string;
-	}[];
+	customerAddress: ICustomerAddress[];
 	shippingMethod: string;
 	statusShipping: string;
 	trackingCode: string;
@@ -114,23 +115,22 @@ const orderSchema = new Schema<IOrder>(
 		},
 		customerAddress: [
 			{
-				id: mongoose.Schema.Types.ObjectId,
-				logradouro: {
+				street: {
 					type: String,
 				},
-				complemento: {
+				complement: {
 					type: String,
 				},
-				bairro: {
+				neighborhood: {
 					type: String,
 				},
-				cidade: {
+				city: {
 					type: String,
 				},
-				uf: {
+				state: {
 					type: String,
 				},
-				cep: {
+				postalCode: {
 					type: String,
 				},
 			},

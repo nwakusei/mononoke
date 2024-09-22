@@ -430,19 +430,19 @@ function MySaleByIDPage() {
 										<div className="text-lg mb-3">
 											Endereço de entrega
 										</div>
-										<div>Endereço: {end.logradouro}</div>
+										<div>Endereço: {end.street}</div>
 										<div>
 											{end.complemento ? (
-												`Complemento: ${end.complemento}`
+												`Complemento: ${end.complement}`
 											) : (
 												<>—</>
 											)}
 										</div>
-										<div>Bairro: {end.bairro}</div>
+										<div>Bairro: {end.neighborhood}</div>
 										<div>
-											Cidade/UF: {end.cidade}/{end.uf}
+											Cidade/UF: {end.city}/{end.uf}
 										</div>
-										<div>CEP: {end.cep}</div>
+										<div>CEP: {end.postalCode}</div>
 									</div>
 								))}
 						</div>

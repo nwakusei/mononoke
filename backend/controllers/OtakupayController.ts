@@ -1034,12 +1034,12 @@ class OtakupayController {
 							customerCPF: customer.cpf,
 							customerAddress: [
 								{
-									logradouro: customerAddress.logradouro,
-									complemento: customerAddress.complemento,
-									bairro: customerAddress.bairro,
-									cidade: customerAddress.cidade,
-									uf: customerAddress.uf,
-									cep: customerAddress.cep,
+									street: customerAddress.street,
+									complement: customerAddress.complement,
+									neighborhood: customerAddress.neighborhood,
+									city: customerAddress.city,
+									state: customerAddress.state,
+									postalCode: customerAddress.postalCode,
 								},
 							],
 							shippingMethod: transportadora,
@@ -2194,12 +2194,12 @@ class OtakupayController {
 							customerCPF: customer.cpf,
 							customerAddress: [
 								{
-									logradouro: customerAddress.logradouro,
-									complemento: customerAddress.complemento,
-									bairro: customerAddress.bairro,
-									cidade: customerAddress.cidade,
-									uf: customerAddress.uf,
-									cep: customerAddress.cep,
+									street: customerAddress.street,
+									complement: customerAddress.complement,
+									neighborhood: customerAddress.neighborhood,
+									city: customerAddress.city,
+									state: customerAddress.state,
+									postalCode: customerAddress.postalCode,
 								},
 							],
 							shippingMethod: transportadora,
@@ -3712,14 +3712,15 @@ class OtakupayController {
 													customerCPF: customer.cpf,
 													customerAddress: [
 														{
-															logradouro:
-																customerAddress.logradouro,
-															complemento:
-																customerAddress.complemento,
-															bairro: customerAddress.bairro,
-															cidade: customerAddress.cidade,
-															uf: customerAddress.uf,
-															cep: customerAddress.cep,
+															street: customerAddress.street,
+															complement:
+																customerAddress.complement,
+															neighborhood:
+																customerAddress.neighborhood,
+															city: customerAddress.city,
+															state: customerAddress.state,
+															postalCode:
+																customerAddress.postalCode,
 														},
 													],
 													shippingMethod:

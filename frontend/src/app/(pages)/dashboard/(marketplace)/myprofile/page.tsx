@@ -14,14 +14,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const updateUserFormSchema = z
 	.object({
-		imageProfile: z
+		profileImage: z
 			.instanceof(FileList)
 			.transform((list) => list.item(0))
 			.optional() // Torna a imagem opcional
 			.refine(
-				(file) => file === null || file.size <= 2 * 1024 * 1024, // Verifica se é null ou se o tamanho está dentro do limite
+				(file) => file === null || file!.size <= 2 * 1024 * 1024, // Verifica se é null ou se o tamanho está dentro do limite
 				"O arquivo precisa ter no máximo 2Mb!"
 			),
+		// logoImage: z
+		// 	.instanceof(FileList)
+		// 	.transform((list) => list.item(0))
+		// 	.optional()
+		// 	.refine(
+		// 		(file) => file === null || file!.size <= 2 * 1024 * 1024,
+		// 		"O arquivo precisa ter no máximo 2Mb!"
+		// 	),
 		name: z
 			.string()
 			.min(1, "Digite o nome!")
@@ -42,11 +50,37 @@ const updateUserFormSchema = z
 			.min(1, "Informe um email válido!")
 			.email("Formato de email inválido!")
 			.toLowerCase(),
-		cpfCnpj: z
+		// cpfCnpj: z
+		// 	.string()
+		// 	.min(11, "Digite um documento válido!")
+		// 	.max(14, "CNPJ possui no máximo 14 digitos!"),
+		// cpf: z
+		// 	.string()
+		// 	.min(11, "Digite um documento válido!")
+		// 	.max(11, "CPF possui no máximo 11 digitos!"),
+		description: z
 			.string()
-			.min(11, "Digite um documento válido!")
-			.max(14, "CNPJ possui no máximo 14 digitos!"),
-		// cpf: z.string(),
+			.optional()
+			.refine(
+				(value) => {
+					if (value === undefined || value === "") {
+						return true;
+					}
+
+					return value.length >= 100 && value.length <= 150;
+				},
+				{
+					message:
+						"A descrição precisa ter entre 100 e 150 caracteres!",
+				}
+			),
+		street: z.string().min(1, "Digite o nome da rua e o número!"),
+		complement: z.string().optional(),
+		neighborhood: z.string().min(1, "Digite o nome do bairro!"),
+		city: z.string().min(1, "Digite o nome da cidade!"),
+		state: z.string().min(1, "Informe o estado!"),
+		postalCode: z.string().min(1, "Digite o número do CEP!"),
+		credential: z.string().min(1, "Insira a credencial Kangu!"),
 		cashback: z
 			.string()
 			.min(1, "O Cashback não pode ser vazio!")
@@ -149,7 +183,7 @@ function MyProfilePage() {
 	};
 
 	// async function updateUser(data: TUpdateUserFormData) {
-	// 	console.log(data.imageProfile);
+	// 	console.log(data.profileImage);
 
 	// 	setOutput(JSON.stringify(data, null, 2));
 
@@ -256,7 +290,7 @@ function MyProfilePage() {
 
 		// Itera sobre os campos do objeto 'data' e adiciona ao FormData
 		Object.entries(data).forEach(([key, value]) => {
-			if (key === "imageProfile" && value instanceof File) {
+			if (key === "profileImage" && value instanceof File) {
 				formData.append(key, value);
 				console.log(`Adicionado ao FormData: ${key} - [Imagem]`);
 			} else {
@@ -339,34 +373,68 @@ function MyProfilePage() {
 									</label>
 
 									{/* CNPJ/CPF */}
-									<label className="form-control w-full max-w-3xl">
-										<div className="label">
-											<span className="label-text text-black">
-												CNPJ/CPF
-											</span>
-										</div>
-										<input
-											type="text"
-											// name="cpfCnpj"
-											placeholder={`...`}
-											defaultValue={user?.cpfCnpj}
-											className={`input input-bordered ${
-												errors.cpfCnpj
-													? `input-error`
-													: `input-success`
-											} w-full max-w-3xl`}
-											{...register("cpfCnpj")}
-										/>
-										<div className="label">
-											<span className="label-text-alt text-red-500">
-												{errors.cpfCnpj && (
-													<span>
-														{errors.cpfCnpj.message}
-													</span>
-												)}
-											</span>
-										</div>
-									</label>
+									{user?.accountType === "partner" ? (
+										<label className="form-control w-full max-w-3xl">
+											<div className="label">
+												<span className="label-text text-black">
+													CNPJ/CPF
+												</span>
+											</div>
+											<input
+												type="text"
+												// name="cpfCnpj"
+												placeholder={`...`}
+												defaultValue={user?.cpfCnpj}
+												className={`input input-bordered ${
+													errors.cpfCnpj
+														? `input-error`
+														: `input-success`
+												} w-full max-w-3xl`}
+												{...register("cpfCnpj")}
+											/>
+											<div className="label">
+												<span className="label-text-alt text-red-500">
+													{errors.cpfCnpj && (
+														<span>
+															{
+																errors.cpfCnpj
+																	.message
+															}
+														</span>
+													)}
+												</span>
+											</div>
+										</label>
+									) : (
+										<label className="form-control w-full max-w-3xl">
+											<div className="label">
+												<span className="label-text text-black">
+													CPF
+												</span>
+											</div>
+											<input
+												type="text"
+												// name="cpfCnpj"
+												placeholder={`...`}
+												defaultValue={user?.cpf}
+												className={`input input-bordered ${
+													errors.cpf
+														? `input-error`
+														: `input-success`
+												} w-full max-w-3xl`}
+												{...register("cpf")}
+											/>
+											<div className="label">
+												<span className="label-text-alt text-red-500">
+													{errors.cpf && (
+														<span>
+															{errors.cpf.message}
+														</span>
+													)}
+												</span>
+											</div>
+										</label>
+									)}
 								</div>
 								<div className="flex flex-row gap-4">
 									{/* Email */}
@@ -433,14 +501,29 @@ function MyProfilePage() {
 													</span>
 												</div>
 												<textarea
-													className={`textarea textarea-success`}
+													className={`textarea ${
+														errors.description
+															? `textarea-error`
+															: `textarea-success`
+													}`}
 													placeholder={`...`}
 													defaultValue={
 														user?.description
-													}></textarea>
+													}
+													{...register(
+														"description"
+													)}></textarea>
 												<div className="label">
 													<span className="label-text-alt text-red-500">
-														Erro
+														{errors.description && (
+															<span>
+																{
+																	errors
+																		.description
+																		.message
+																}
+															</span>
+														)}
 													</span>
 												</div>
 											</label>
@@ -493,7 +576,7 @@ function MyProfilePage() {
 														type="file"
 														accept="image/*"
 														{...register(
-															"imageProfile"
+															"profileImage"
 														)}
 													/>
 												</div>
@@ -501,10 +584,10 @@ function MyProfilePage() {
 										</div>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
-												{errors.imageProfile && (
+												{errors.profileImage && (
 													<span>
 														{
-															errors.imageProfile
+															errors.profileImage
 																.message
 														}
 													</span>
@@ -554,14 +637,24 @@ function MyProfilePage() {
 																className="hidden"
 																type="file"
 																accept="image/*"
-																multiple
+																{...register(
+																	"logoImage"
+																)}
 															/>
 														</div>
 													)}
 												</div>
 												<div className="label">
 													<span className="label-text-alt text-red-500">
-														Erro
+														{errors.logoImage && (
+															<span>
+																{
+																	errors
+																		.logoImage
+																		.message
+																}
+															</span>
+														)}
 													</span>
 												</div>
 											</label>
@@ -573,7 +666,7 @@ function MyProfilePage() {
 
 						{/* Gadget 3 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
-							{/* Adicionar Porduto */}
+							{/* Endereço Partner / Customer */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
 									{user?.accountType === "customer"
@@ -591,17 +684,24 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											// name="logradouro"
 											placeholder="..."
 											defaultValue={
-												user?.address[0].logradouro
+												user?.address[0].street
 											}
-											className={`input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("logradouro")}
+											className={`input input-bordered ${
+												errors.street
+													? `input-error`
+													: `input-success`
+											} w-fullmax-w-3xl`}
+											{...register("street")}
 										/>
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Ex.: Rua X, 128
+											<span className="label-text-alt text-red-500">
+												{errors.street && (
+													<span>
+														{errors.street.message}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
@@ -618,14 +718,25 @@ function MyProfilePage() {
 											// name="complemento"
 											placeholder="..."
 											defaultValue={
-												user?.address[0].complemento
+												user?.address[0].complement
 											}
-											className={`input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("complemento")}
+											className={`input input-bordered ${
+												errors.complement
+													? `input-error`
+													: `input-success`
+											} w-fullmax-w-3xl`}
+											{...register("complement")}
 										/>
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Ex.: Apto. 240
+											<span className="label-text-alt text-red-500">
+												{errors.complement && (
+													<span>
+														{
+															errors.complement
+																.message
+														}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
@@ -642,14 +753,25 @@ function MyProfilePage() {
 											// name="bairro"
 											placeholder="..."
 											defaultValue={
-												user?.address[0].bairro
+												user?.address[0].neighborhood
 											}
-											className={`input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("bairro")}
+											className={`input input-bordered ${
+												errors.neighborhood
+													? `input-error`
+													: `input-success`
+											} w-fullmax-w-3xl`}
+											{...register("neighborhood")}
 										/>
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Ex.: Centro
+											<span className="label-text-alt text-red-500">
+												{errors.neighborhood && (
+													<span>
+														{
+															errors.neighborhood
+																.message
+														}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
@@ -667,15 +789,21 @@ function MyProfilePage() {
 											type="text"
 											// name="cidade"
 											placeholder="..."
-											defaultValue={
-												user?.address[0].cidade
-											}
-											className={`input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("cidade")}
+											defaultValue={user?.address[0].city}
+											className={`input input-bordered ${
+												errors.city
+													? `input-error`
+													: `input-success`
+											} w-fullmax-w-3xl`}
+											{...register("city")}
 										/>
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Ex.: São Paulo
+											<span className="label-text-alt text-red-500">
+												{errors.city && (
+													<span>
+														{errors.city.message}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
@@ -687,17 +815,123 @@ function MyProfilePage() {
 												Estado
 											</span>
 										</div>
-										<input
+										<select
+											className={`select ${
+												errors.state
+													? `select-error`
+													: `select-success`
+											} w-full max-w-3xl`}
+											defaultValue={
+												user?.address[0].state || ""
+											}
+											{...register("state")}>
+											<option disabled selected>
+												Em qual estado sua loja está
+												localizada?
+											</option>
+											<option value="SP">
+												São Paulo (SP)
+											</option>
+											<option value="RJ">
+												Rio de Janeiro (RJ)
+											</option>
+											<option value="PR">
+												Paraná (PR)
+											</option>
+											<option value="MG">
+												Minas Gerais (MG)
+											</option>
+											<option value="SC">
+												Santa Catarina (SC)
+											</option>
+											<option value="RS">
+												Rio Grande do Sul (RS)
+											</option>
+											<option value="ES">
+												Espírito Santo (ES)
+											</option>
+											<option value="GO">
+												Goiás (GO)
+											</option>
+											<option value="DF">
+												Destrito Federal (DF)
+											</option>
+											<option value="MS">
+												Mato Grosso do Sul (MS)
+											</option>
+											<option value="MT">
+												Mato Grosso (MT)
+											</option>
+											<option value="BA">
+												Bahia (BA)
+											</option>
+											<option value="PE">
+												Pernambuco (PE)
+											</option>
+											<option value="CE">
+												Ceará (CE)
+											</option>
+											<option value="MA">
+												Maranhão (MA)
+											</option>
+											<option value="RN">
+												Rio Grande do Norte (RN)
+											</option>
+											<option value="PB">
+												Paraíba (PB)
+											</option>
+											<option value="PI">
+												Piauí (PI)
+											</option>
+											<option value="SE">
+												Sergipe (SE)
+											</option>
+											<option value="AL">
+												Alagoas (AL)
+											</option>
+											<option value="PA">
+												Pará (PA)
+											</option>
+											<option value="AM">
+												Amazonas (AM)
+											</option>
+											<option value="TO">
+												Tocantins (TO)
+											</option>
+											<option value="AP">
+												Amapá (AP)
+											</option>
+											<option value="RR">
+												Roraima (RR)
+											</option>
+											<option value="RO">
+												Rondônia (RO)
+											</option>
+											<option value="AC">
+												Acre (AC)
+											</option>
+										</select>
+										{/* <input
 											type="text"
 											// name="uf"
 											placeholder="..."
-											defaultValue={user?.address[0].uf}
-											className={`input input-bordered input-success w-fullmax-w-3xl`}
-											{...register("uf")}
-										/>
+											defaultValue={
+												user?.address[0].state
+											}
+											className={`input input-bordered ${
+												errors.state
+													? `input-error`
+													: `input-success`
+											} w-full max-w-3xl`}
+											{...register("state")}
+										/> */}
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Ex.: SP
+											<span className="label-text-alt text-red-500">
+												{errors.state && (
+													<span>
+														{errors.state.message}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
@@ -713,13 +947,26 @@ function MyProfilePage() {
 											type="text"
 											// name="cep"
 											placeholder="..."
-											defaultValue={user?.address[0].cep}
-											className={`input input-bordered input-success w-full max-w-3xl`}
-											{...register("cep")}
+											defaultValue={
+												user?.address[0].postalCode
+											}
+											className={`input input-bordered ${
+												errors.postalCode
+													? `input-error`
+													: `input-success`
+											} w-full max-w-3xl`}
+											{...register("postalCode")}
 										/>
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Ex.: 04850213
+											<span className="label-text-alt text-red-500">
+												{errors.postalCode && (
+													<span>
+														{
+															errors.postalCode
+																.message
+														}
+													</span>
+												)}
 											</span>
 										</div>
 									</label>
@@ -743,15 +990,35 @@ function MyProfilePage() {
 														?.shippingConfiguration[0]
 														.credential
 												}
-												className={`input input-bordered input-success w-full max-w-3xl`}
+												className={`input input-bordered ${
+													errors.credential
+														? `input-error`
+														: `input-success`
+												} w-full max-w-3xl`}
+												{...register("credential")}
 											/>
 											<div className="label">
-												<span className="label-text-alt text-black">
-													Obs.: A credencial da Kangu
-													é obrigatória para que seja
-													possível calcular o frete
-													dos pedidos. Indicado para
-													envio dentro do Brasil!
+												<span className="label-text-alt text-red-500">
+													{errors.credential ? (
+														<span>
+															{
+																errors
+																	.credential
+																	.message
+															}
+														</span>
+													) : (
+														<span className="text-black">
+															Obs.: A credencial
+															da Kangu é
+															obrigatória para que
+															seja possível
+															calcular o frete dos
+															pedidos. Indicado
+															para envio dentro do
+															Brasil!
+														</span>
+													)}
 												</span>
 											</div>
 										</label>

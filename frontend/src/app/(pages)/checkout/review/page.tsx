@@ -111,14 +111,14 @@ function ReviewInfoPage() {
 													Endereço de Entrega:
 												</h1>
 												<h1 className="text-base">
-													{end.logradouro}
+													{end.street}
 												</h1>
-												<h2>{end.complemento}</h2>
-												<h2>{end.bairro}</h2>
+												<h2>{end.complement}</h2>
+												<h2>{end.neighborhood}</h2>
 												<h2>
-													{end.cidade}/{end.uf}
+													{end.city}/{end.state}
 												</h2>
-												<h2>{end.cep}</h2>
+												<h2>{end.postalCode}</h2>
 											</div>
 										</div>
 									</>

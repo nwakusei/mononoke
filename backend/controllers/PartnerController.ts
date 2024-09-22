@@ -316,10 +316,24 @@ class PartnerController {
 	// }
 
 	static async editPartner(req: Request, res: Response) {
-		const { name, email, cpfCnpj, cashback, password, confirmPassword } =
-			req.body;
+		const {
+			name,
+			email,
+			cpfCnpj,
+			description,
+			cashback,
+			password,
+			confirmPassword,
+			street,
+			complement,
+			neighborhood,
+			city,
+			state,
+			postalCode,
+		} = req.body;
 
-		const imageProfile = req.file;
+		// Upload de imagem de Perfil
+		const profileImage = req.file as Express.Multer.File;
 
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
@@ -338,18 +352,34 @@ class PartnerController {
 				partner.name = name;
 				partner.email = email;
 				partner.cpfCnpj = cpfCnpj;
+				partner.description = description;
 				partner.cashback = cashback;
 
-				// if (partner.address.length > 0 && address) {
-				// 	partner.address[0] = {
-				// 		logradouro: address.logradouro,
-				// 		complemento: address.complemento,
-				// 		bairro: address.bairro,
-				// 		cidade: address.cidade,
-				// 		uf: address.uf,
-				// 		cep: address.cep,
-				// 	};
-				// }
+				partner.address[0] = {
+					street: street,
+					complement: complement,
+					neighborhood: neighborhood,
+					city: city,
+					state: state,
+					postalCode: postalCode,
+				};
+
+				// Verifica se a imagem foi enviada
+				if (profileImage) {
+					let image = ""; // Declara a variável aqui
+
+					// Verifica se é um upload na AWS S3
+					if ("key" in profileImage) {
+						// Estamos usando o armazenamento na AWS S3
+						if (typeof profileImage.key === "string") {
+							image = profileImage.key;
+						}
+					} else if (typeof profileImage.filename === "string") {
+						image = profileImage.filename; // Para armazenamento local
+					}
+
+					partner.profileImage = image; // Atualiza o campo da imagem
+				}
 
 				if (
 					password &&
@@ -389,80 +419,6 @@ class PartnerController {
 		} catch (err) {
 			res.status(500).json({ message: err });
 		}
-
-		// try {
-		// 	partner.name = data.name;
-
-		// 	await partner.save();
-
-		// 	res.status(200).json({
-		// 		message: "Usuário atualizado com sucesso!",
-		// 	});
-		// } catch (err) {
-		// 	console.log(
-		// 		err,
-		// 		"Ocorreu um erro com o salvamento das informações!"
-		// 	);
-		// 	res.status(500).json({ message: err });
-		// }
-
-		// try {
-		// 	// Verifique se o partner é de fato um parceiro e não um cliente
-		// 	if (partner instanceof PartnerModel) {
-		// 		partner.name = name;
-		// 		partner.email = email;
-		// 		partner.cpfCnpj = cpfCnpj;
-		// 		partner.cashback = cashback;
-
-		// 		if (partner.address.length > 0 && address) {
-		// 			partner.address[0] = {
-		// 				logradouro: address.logradouro,
-		// 				complemento: address.complemento,
-		// 				bairro: address.bairro,
-		// 				cidade: address.cidade,
-		// 				uf: address.uf,
-		// 				cep: address.cep,
-		// 			};
-		// 		}
-
-		// 		if (
-		// 			password &&
-		// 			confirmPassword &&
-		// 			password === confirmPassword
-		// 		) {
-		// 			const salt = await bcrypt.genSalt(12);
-		// 			const passwordHash = await bcrypt.hash(password, salt);
-
-		// 			partner.password = passwordHash;
-		// 		} else if (
-		// 			password &&
-		// 			confirmPassword &&
-		// 			password !== confirmPassword
-		// 		) {
-		// 			res.status(422).json({
-		// 				message: "As senhas precisam ser iguais!",
-		// 			});
-		// 			return;
-		// 		}
-
-		// 		await partner.save();
-
-		// 		const updatedUser = await PartnerModel.findById(
-		// 			partner._id
-		// 		).select("-password");
-
-		// 		res.status(200).json({
-		// 			message: "Usuário atualizado com sucesso!",
-		// 			updatedUser,
-		// 		});
-		// 	} else {
-		// 		res.status(400).json({
-		// 			message: "O usuário não é um parceiro válido.",
-		// 		});
-		// 	}
-		// } catch (err) {
-		// 	res.status(500).json({ message: err });
-		// }
 	}
 
 	// static async getStoreInfo(req: Request, res: Response) {
