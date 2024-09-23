@@ -50,10 +50,10 @@ const updateUserFormSchema = z
 			.min(1, "Informe um email válido!")
 			.email("Formato de email inválido!")
 			.toLowerCase(),
-		// cpfCnpj: z
-		// 	.string()
-		// 	.min(11, "Digite um documento válido!")
-		// 	.max(14, "CNPJ possui no máximo 14 digitos!"),
+		cpfCnpj: z
+			.string()
+			.min(11, "Digite um documento válido!")
+			.max(14, "CNPJ possui no máximo 14 digitos!"),
 		// cpf: z
 		// 	.string()
 		// 	.min(11, "Digite um documento válido!")
@@ -148,6 +148,7 @@ function MyProfilePage() {
 		useState(null);
 	const [imagemSelecionadaLogo, setImagemSelecionadaLogo] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [loadingButton, setLoadingButton] = useState(false);
 	const router = useRouter();
 
 	const {
@@ -300,15 +301,17 @@ function MyProfilePage() {
 		});
 
 		try {
+			setLoadingButton(true);
+
 			if (user?.accountType === "partner") {
 				const response = await api.patch("/partners/edit", formData);
 
 				toast.success(response.data.message);
 			} else if (user?.accountType === "customer") {
 				const response = await api.patch("/customers/edit", formData);
-
 				toast.success(response.data.message);
 			}
+			setLoadingButton(false);
 		} catch (error: any) {
 			toast.error(error.response.data.message);
 		}
@@ -536,20 +539,20 @@ function MyProfilePage() {
 						{/* Gadget 2 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
-							<div className="flex flex-col gap-2 ml-6 mb-6">
+							<div className="flex flex-col ml-6 mb-6 gap-2">
 								<h1 className="text-2xl font-semibold text-black">
 									Imagens
 								</h1>
-								<div className="flex flex-row justify-center items-center">
+								<div className="flex flex-row items-center gap-10">
 									{/* Add Imagens */}
-									<label className="form-control w-full max-w-3xl">
+									<label className="form-control">
 										<div className="label">
 											<span className="label-text text-black">
 												Imagem de Perfil
 											</span>
 										</div>
 										<div
-											className={`text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+											className={`text-black hover:text-white flex flex-col justify-center items-center w-[120px] h-[120px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 											{imagemSelecionadaProfile ? (
 												<img
 													src={
@@ -584,17 +587,101 @@ function MyProfilePage() {
 										</div>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
-												{errors.profileImage && (
+												{errors.profileImage ? (
 													<span>
 														{
 															errors.profileImage
 																.message
 														}
 													</span>
+												) : (
+													<span className="text-black">
+														Tamanho
+													</span>
 												)}
 											</span>
 										</div>
 									</label>
+
+									{/* <label className="form-control">
+										<div className="label">
+											<span className="label-text text-black">
+												Imagem de Perfil
+											</span>
+										</div>
+										<div
+											className={`text-black hover:text-white flex flex-col justify-center items-center w-[120px] h-[120px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+											{imagemSelecionadaProfile ? (
+												<div className="relative w-full h-full">
+													<img
+														src={
+															imagemSelecionadaProfile
+														}
+														alt="Imagem selecionada"
+														className="object-contain w-full h-full rounded"
+													/>
+
+													<button
+														type="button"
+														className="absolute top-1 right-1 bg-red-500 text-white p-1 w-8 h-8 rounded-md z-10"
+														onClick={() =>
+															setImagemSelecionadaProfile(
+																null
+															)
+														}>
+														X
+													</button>
+
+													<input
+														className="absolute inset-0 opacity-0 cursor-pointer z-0"
+														type="file"
+														accept="image/*"
+														onChange={(event) =>
+															handleImagemSelecionada(
+																event,
+																setImagemSelecionadaProfile
+															)
+														}
+													/>
+												</div>
+											) : (
+												<div className="flex flex-col justify-center items-center">
+													<h2 className="text-xs mb-2">
+														Add Imagem
+													</h2>
+													<AddPicture size={20} />
+													<input
+														className="absolute inset-0 opacity-0 cursor-pointer"
+														type="file"
+														accept="image/*"
+														onChange={(event) =>
+															handleImagemSelecionada(
+																event,
+																setImagemSelecionadaProfile
+															)
+														}
+													/>
+												</div>
+											)}
+										</div>
+										<div className="label">
+											<span className="label-text-alt text-red-500">
+												{errors.profileImage ? (
+													<span>
+														{
+															errors.profileImage
+																.message
+														}
+													</span>
+												) : (
+													<span className="text-black">
+														Tamanho recomendado:
+														120x120p
+													</span>
+												)}
+											</span>
+										</div>
+									</label> */}
 
 									{user &&
 									user?.accountType === "customer" ? (
@@ -602,14 +689,14 @@ function MyProfilePage() {
 									) : (
 										<>
 											{/* Add Imagens */}
-											<label className="form-control w-full max-w-3xl">
+											<label className="form-control">
 												<div className="label">
 													<span className="label-text text-black">
 														Logo da Loja
 													</span>
 												</div>
 												<div
-													className={`text-black hover:text-white flex flex-col justify-center items-center w-[200px] h-[80px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+													className={`text-black hover:text-white flex flex-col justify-center items-center w-[200px] h-[120px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 													{imagemSelecionadaLogo ? (
 														<img
 															src={
@@ -646,13 +733,17 @@ function MyProfilePage() {
 												</div>
 												<div className="label">
 													<span className="label-text-alt text-red-500">
-														{errors.logoImage && (
+														{errors.logoImage ? (
 															<span>
 																{
 																	errors
 																		.logoImage
 																		.message
 																}
+															</span>
+														) : (
+															<span className="text-black">
+																Tamanho
 															</span>
 														)}
 													</span>
@@ -1208,11 +1299,17 @@ function MyProfilePage() {
 										className="btn btn-outline btn-error hover:shadow-md">
 										Cancelar
 									</button>
-									<button
-										type="submit"
-										className="btn btn-primary shadow-md">
-										Atualizar Perfil
-									</button>
+									{loadingButton ? (
+										<button className="btn btn-primary shadow-md w-[200px]">
+											<span className="loading loading-spinner loading-md"></span>
+										</button>
+									) : (
+										<button
+											type="submit"
+											className="btn btn-primary shadow-md w-[200px]">
+											Atualizar Perfil
+										</button>
+									)}
 								</div>
 							</div>
 						</div>
