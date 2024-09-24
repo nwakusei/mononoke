@@ -7,6 +7,9 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
+
 // React Hook Form e Zod
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -33,15 +36,34 @@ const updateUserFormSchema = z
 		name: z
 			.string()
 			.min(1, "Digite o nome!")
+			.refine(
+				(name) => {
+					const sanitized = DOMPurify.sanitize(name);
+
+					// Valida que o nome não contém caracteres não permitidos usando regex
+					const isValid = /^[A-Za-zÀ-ÿ\s]+$/.test(sanitized);
+					return isValid;
+				},
+				{
+					message: "O nome deve conter apenas letras e espaços!",
+				}
+			)
 			.transform((name) => {
-				return name
+				// Sanitiza a entrada
+				const sanitized = DOMPurify.sanitize(name);
+
+				// Formata o nome
+				return sanitized
 					.toLocaleLowerCase()
 					.trim()
 					.split(" ")
 					.map((word) => {
-						return word[0]
-							.toLocaleUpperCase()
-							.concat(word.substring(1));
+						if (word && word.length > 0) {
+							return (
+								word[0].toLocaleUpperCase() + word.substring(1)
+							);
+						}
+						return word; // ou return ""; para descartar
 					})
 					.join(" ");
 			}),
@@ -50,14 +72,42 @@ const updateUserFormSchema = z
 			.min(1, "Informe um email válido!")
 			.email("Formato de email inválido!")
 			.toLowerCase(),
+		cpf: z
+			.string()
+			.optional()
+			.refine(
+				(val) => val === undefined || val === "" || !isNaN(Number(val)),
+				{
+					message: "O CPF deve ser um número válido!",
+				}
+			)
+			.refine((val) => val === undefined || val.length === 11, {
+				message: "O CPF deve ter 11 dígitos.",
+			}),
+
 		cpfCnpj: z
 			.string()
-			.min(11, "Digite um documento válido!")
-			.max(14, "CNPJ possui no máximo 14 digitos!"),
-		// cpf: z
-		// 	.string()
-		// 	.min(11, "Digite um documento válido!")
-		// 	.max(11, "CPF possui no máximo 11 digitos!"),
+			.optional()
+			.refine(
+				(val) => val === undefined || val === "" || !isNaN(Number(val)),
+				{
+					message: "O CNPJ/CPF deve ser um número válido!",
+				}
+			)
+			.refine(
+				(val) => {
+					// Verifica se é null ou se o tamanho é 11 ou 14
+					return (
+						val === undefined ||
+						val.length === 11 ||
+						val.length === 14
+					);
+				},
+				{
+					message:
+						"O CNPJ deve ter 14 dígitos | O CPF deve ter 11 dígitos.",
+				}
+			),
 		description: z
 			.string()
 			.optional()
@@ -74,27 +124,85 @@ const updateUserFormSchema = z
 						"A descrição precisa ter entre 100 e 150 caracteres!",
 				}
 			),
-		street: z.string().min(1, "Digite o nome da rua e o número!"),
-		complement: z.string().optional(),
+		street: z
+			.string()
+			.min(1, "Digite o nome da rua e o número!")
+			.refine(
+				(st) => {
+					const sanitized = DOMPurify.sanitize(st);
+
+					// Expressão regular que permite Texto, números, ponto e traço
+					const isValid = /^[A-Za-zÀ-ÿ\s.,\-0-9]+$/.test(sanitized);
+
+					return isValid;
+				},
+				{
+					message: "Endereço inválido!",
+				}
+			)
+			.transform((st) => {
+				return st.trim();
+			}),
+		complement: z
+			.string()
+			.optional()
+			.refine(
+				(comp) => {
+					if (!comp) return true; // Se for undefined, considera como válido
+
+					const sanitized = DOMPurify.sanitize(comp);
+
+					// Expressão regular que permite Texto, números, ponto e traço
+					const isValid = /^[A-Za-zÀ-ÿ\s.\-0-9]+$/.test(sanitized);
+
+					return isValid;
+				},
+				{
+					message: "Complemento inválido!",
+				}
+			)
+			.transform((comp) => {
+				return comp?.trim();
+			}),
 		neighborhood: z.string().min(1, "Digite o nome do bairro!"),
 		city: z.string().min(1, "Digite o nome da cidade!"),
 		state: z.string().min(1, "Informe o estado!"),
-		postalCode: z.string().min(1, "Digite o número do CEP!"),
-		credential: z.string().min(1, "Insira a credencial Kangu!"),
+		postalCode: z
+			.string()
+			.min(8, "Digite o número do CEP!")
+			.max(8, "O CEP precisa ter 8 números!")
+			.refine(
+				(val) => val === undefined || val === "" || !isNaN(Number(val)),
+				{
+					message: "O CEP deve ser um número válido!",
+				}
+			),
+		credential: z.string().optional(), // Torna opcional inicialmente
 		cashback: z
 			.string()
-			.min(1, "O Cashback não pode ser vazio!")
-			.refine((val) => !isNaN(Number(val)), {
-				message: "O Cashback deve ser um número válido!",
-			})
-			.refine((val) => Number.isInteger(Number(val)), {
-				message: "O Cashback deve ser um número inteiro!",
-			})
-			.refine((val) => Number(val) >= 1, {
-				message: "O Cashback não pode ser menor do que 1%!",
-			})
-			.transform((val) => Number(val)), // Converte a string para número
-		// description: z.string(),
+			.optional() // Mantém como opcional inicialmente
+			.refine(
+				(val) => val === undefined || val === "" || !isNaN(Number(val)),
+				{
+					message: "O Cashback deve ser um número válido!",
+				}
+			)
+			.refine(
+				(val) =>
+					val === undefined ||
+					val === "" ||
+					Number.isInteger(Number(val)),
+				{
+					message: "O Cashback deve ser um número inteiro!",
+				}
+			)
+			.refine(
+				(val) => val === undefined || val === "" || Number(val) >= 1,
+				{
+					message: "O Cashback não pode ser menor do que 1%!",
+				}
+			)
+			.transform((val) => (val ? Number(val) : undefined)), // Converte a string para número ou retorna undefined
 		password: z
 			.string()
 			.optional()
@@ -125,6 +233,38 @@ const updateUserFormSchema = z
 		{
 			message: "As senhas precisam ser iguais!",
 			path: ["confirmPassword"], // Define o caminho onde o erro será exibido
+		}
+	)
+	.refine(
+		(data) => {
+			const hasCpf = !!data.cpf;
+			const hasCnpj = !!data.cpfCnpj;
+
+			return (hasCpf && !hasCnpj) || (!hasCpf && hasCnpj);
+		},
+		{
+			message: "Preencha apenas um dos campos: CPF ou CNPJ.",
+			path: ["cpf", "cpfCnpj"], // Onde o erro será associado
+		}
+	)
+	.refine(
+		(data) => {
+			const hasCpfCnpj = !!data.cpfCnpj;
+			return !hasCpfCnpj || !!data.credential; // Credencial deve ser preenchido se CPF/CNPJ estiver preenchido
+		},
+		{
+			message: "A Credencial Kangu é obrigatória!",
+			path: ["credential"], // Mensagem associada ao campo credential
+		}
+	)
+	.refine(
+		(data) => {
+			const hasCpfCnpj = !!data.cpfCnpj;
+			return !hasCpfCnpj || !!data.cashback; // Cashback deve ser preenchido se CPF/CNPJ estiver preenchido
+		},
+		{
+			message: "O cashback é obrigatório!",
+			path: ["cashback"], // Mensagem associada ao campo cashback
 		}
 	);
 
@@ -282,15 +422,27 @@ function MyProfilePage() {
 	// }
 
 	async function updateUser(data: TUpdateUserFormData) {
-		setOutput(JSON.stringify(data, null, 2));
+		// Sanitiza os dados antes de usá-los
+		const sanitizedData = Object.fromEntries(
+			Object.entries(data).map(([key, value]) => {
+				// Verifica se o valor é uma string (ou outro tipo que precise de sanitização)
+				if (typeof value === "string") {
+					return [key, DOMPurify.sanitize(value)];
+				}
+				return [key, value]; // Retorna o valor original se não for uma string
+			})
+		);
 
-		console.log("Dados recebidos:", data);
+		console.log(sanitizedData);
+
+		setOutput(JSON.stringify(sanitizedData, null, 2));
+		console.log("Dados sanitizados:", sanitizedData);
 
 		// Cria um novo FormData
 		const formData = new FormData();
 
-		// Itera sobre os campos do objeto 'data' e adiciona ao FormData
-		Object.entries(data).forEach(([key, value]) => {
+		// Itera sobre os campos do objeto 'sanitizedData' e adiciona ao FormData
+		Object.entries(sanitizedData).forEach(([key, value]) => {
 			if (key === "profileImage" && value instanceof File) {
 				formData.append(key, value);
 				console.log(`Adicionado ao FormData: ${key} - [Imagem]`);
@@ -305,7 +457,6 @@ function MyProfilePage() {
 
 			if (user?.accountType === "partner") {
 				const response = await api.patch("/partners/edit", formData);
-
 				toast.success(response.data.message);
 			} else if (user?.accountType === "customer") {
 				const response = await api.patch("/customers/edit", formData);
@@ -314,8 +465,45 @@ function MyProfilePage() {
 			setLoadingButton(false);
 		} catch (error: any) {
 			toast.error(error.response.data.message);
+			setLoadingButton(false); // Certifique-se de parar o loading se ocorrer um erro
 		}
 	}
+
+	// async function updateUser(data: TUpdateUserFormData) {
+	// 	setOutput(JSON.stringify(data, null, 2));
+
+	// 	console.log("Dados recebidos:", data);
+
+	// 	// Cria um novo FormData
+	// 	const formData = new FormData();
+
+	// 	// Itera sobre os campos do objeto 'data' e adiciona ao FormData
+	// 	Object.entries(data).forEach(([key, value]) => {
+	// 		if (key === "profileImage" && value instanceof File) {
+	// 			formData.append(key, value);
+	// 			console.log(`Adicionado ao FormData: ${key} - [Imagem]`);
+	// 		} else {
+	// 			formData.append(key, value);
+	// 			console.log(`Adicionado ao FormData: ${key} - ${value}`);
+	// 		}
+	// 	});
+
+	// 	try {
+	// 		setLoadingButton(true);
+
+	// 		if (user?.accountType === "partner") {
+	// 			const response = await api.patch("/partners/edit", formData);
+
+	// 			toast.success(response.data.message);
+	// 		} else if (user?.accountType === "customer") {
+	// 			const response = await api.patch("/customers/edit", formData);
+	// 			toast.success(response.data.message);
+	// 		}
+	// 		setLoadingButton(false);
+	// 	} catch (error: any) {
+	// 		toast.error(error.response.data.message);
+	// 	}
+	// }
 
 	const handleCancelar = () => {
 		// Redirecionar para outra página ao clicar em Cancelar
@@ -554,13 +742,25 @@ function MyProfilePage() {
 										<div
 											className={`text-black hover:text-white flex flex-col justify-center items-center w-[120px] h-[120px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 											{imagemSelecionadaProfile ? (
-												<img
-													src={
-														imagemSelecionadaProfile
-													}
-													alt="Imagem selecionada"
-													className="object-contain w-full h-full rounded"
-												/>
+												<>
+													<img
+														src={
+															imagemSelecionadaProfile
+														}
+														alt="Imagem selecionada"
+														className="object-contain w-full h-full rounded"
+													/>
+													<button
+														type="button"
+														className="absolute top-1 right-1 bg-red-500 text-white p-1 w-8 h-8 rounded-md z-10"
+														onClick={() =>
+															setImagemSelecionadaProfile(
+																null
+															)
+														}>
+														X
+													</button>
+												</>
 											) : (
 												<div
 													className="flex flex-col justify-center items-center"
@@ -596,7 +796,7 @@ function MyProfilePage() {
 													</span>
 												) : (
 													<span className="text-black">
-														Tamanho
+														Tamanho recomendado
 													</span>
 												)}
 											</span>

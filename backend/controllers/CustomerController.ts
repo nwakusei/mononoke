@@ -593,8 +593,22 @@ class CustomerController {
 	}
 
 	static async editCustomer(req: Request, res: Response) {
-		const { name, email, cpf, address, password, confirmPassword } =
-			req.body;
+		const {
+			name,
+			email,
+			cpf,
+			password,
+			confirmPassword,
+			street,
+			complement,
+			neighborhood,
+			city,
+			state,
+			postalCode,
+		} = req.body;
+
+		// Upload de imagem de Perfil
+		const profileImage = req.file as Express.Multer.File;
 
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
@@ -614,15 +628,30 @@ class CustomerController {
 				customer.email = email;
 				customer.cpf = cpf;
 
-				if (customer.address.length > 0 && address) {
-					customer.address[0] = {
-						logradouro: address.logradouro,
-						complemento: address.complemento,
-						bairro: address.bairro,
-						cidade: address.cidade,
-						uf: address.uf,
-						cep: address.cep,
-					};
+				customer.address[0] = {
+					street: street,
+					complement: complement,
+					neighborhood: neighborhood,
+					city: city,
+					state: state,
+					postalCode: postalCode,
+				};
+
+				// Verifica se a imagem foi enviada
+				if (profileImage) {
+					let image = ""; // Declara a variável aqui
+
+					// Verifica se é um upload na AWS S3
+					if ("key" in profileImage) {
+						// Estamos usando o armazenamento na AWS S3
+						if (typeof profileImage.key === "string") {
+							image = profileImage.key;
+						}
+					} else if (typeof profileImage.filename === "string") {
+						image = profileImage.filename; // Para armazenamento local
+					}
+
+					customer.profileImage = image; // Atualiza o campo da imagem
 				}
 
 				if (

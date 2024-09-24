@@ -27,7 +27,7 @@ router.post(
 router.patch(
 	"/edit",
 	verifyToken,
-	imageUpload.single("image"),
+	imageUpload.single("profileImage"),
 	CustomerController.editCustomer
 );
 

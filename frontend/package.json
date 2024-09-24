@@ -29,6 +29,7 @@
     "axios": "^1.6.7",
     "daisyui": "^3.9.3",
     "date-fns": "^3.6.0",
+    "dompurify": "^3.1.6",
     "eslint": "8.49.0",
     "eslint-config-next": "^14.2.3",
     "mercadopago": "^2.0.9",
@@ -47,6 +48,7 @@
     "zod": "^3.23.0-canary.20231004T224911"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "@types/qrcode": "^1.5.5",
     "@types/uuid": "^9.0.8"
   }
