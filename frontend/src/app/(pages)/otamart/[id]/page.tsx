@@ -444,12 +444,14 @@ function ProductPage() {
 
 			{/* Descrição do produto*/}
 			<div className="bg-white gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md">
-				{/* Descrição e Detalhes*/}
+				{/* Descrição e Detalhes */}
 				<div className="flex flex-col justify-center items-center">
 					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-t-md select-none">
 						Descrição e Detalhes do Produto
 					</h1>
-					<p className="text-black mb-2">{product?.description}</p>
+					<p className="text-black mb-2 py-2 px-4 break-words max-w-full">
+						{product?.description}
+					</p>
 				</div>
 			</div>
 

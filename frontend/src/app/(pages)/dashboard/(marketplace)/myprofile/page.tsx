@@ -7,13 +7,13 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-// Bliblioteca de Sanitização
-import DOMPurify from "dompurify";
-
 // React Hook Form e Zod
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
 
 const updateUserFormSchema = z
 	.object({
@@ -23,7 +23,12 @@ const updateUserFormSchema = z
 			.optional() // Torna a imagem opcional
 			.refine(
 				(file) => file === null || file!.size <= 2 * 1024 * 1024, // Verifica se é null ou se o tamanho está dentro do limite
-				"O arquivo precisa ter no máximo 2Mb!"
+				"※ O arquivo precisa ter no máximo 2Mb!"
+			)
+			.refine(
+				(file) =>
+					file === null || /\.(jpg|jpeg|png)$/i.test(file!.name), // Verifica se a extensão é JPG, JPEG ou PNG
+				"※ O arquivo precisa ser do tipo JPG, JPEG ou PNG!"
 			),
 		// logoImage: z
 		// 	.instanceof(FileList)
@@ -35,7 +40,7 @@ const updateUserFormSchema = z
 		// 	),
 		name: z
 			.string()
-			.min(1, "Digite o nome!")
+			.min(1, "※ Digite o nome!")
 			.refine(
 				(name) => {
 					const sanitized = DOMPurify.sanitize(name);
@@ -45,7 +50,7 @@ const updateUserFormSchema = z
 					return isValid;
 				},
 				{
-					message: "O nome deve conter apenas letras e espaços!",
+					message: "※ O nome deve conter apenas letras e espaços!",
 				}
 			)
 			.transform((name) => {
@@ -69,8 +74,8 @@ const updateUserFormSchema = z
 			}),
 		email: z
 			.string()
-			.min(1, "Informe um email válido!")
-			.email("Formato de email inválido!")
+			.min(1, "※ Informe um email válido!")
+			.email("※ Formato de email inválido!")
 			.toLowerCase(),
 		cpf: z
 			.string()
@@ -78,11 +83,11 @@ const updateUserFormSchema = z
 			.refine(
 				(val) => val === undefined || val === "" || !isNaN(Number(val)),
 				{
-					message: "O CPF deve ser um número válido!",
+					message: "※ O CPF deve ser um número válido!",
 				}
 			)
 			.refine((val) => val === undefined || val.length === 11, {
-				message: "O CPF deve ter 11 dígitos.",
+				message: "※ O CPF deve ter 11 dígitos.",
 			}),
 
 		cpfCnpj: z
@@ -91,7 +96,7 @@ const updateUserFormSchema = z
 			.refine(
 				(val) => val === undefined || val === "" || !isNaN(Number(val)),
 				{
-					message: "O CNPJ/CPF deve ser um número válido!",
+					message: "※ O CNPJ/CPF deve ser um número válido!",
 				}
 			)
 			.refine(
@@ -105,7 +110,7 @@ const updateUserFormSchema = z
 				},
 				{
 					message:
-						"O CNPJ deve ter 14 dígitos | O CPF deve ter 11 dígitos.",
+						"※ O CNPJ deve ter 14 dígitos | O CPF deve ter 11 dígitos.",
 				}
 			),
 		description: z
@@ -121,12 +126,12 @@ const updateUserFormSchema = z
 				},
 				{
 					message:
-						"A descrição precisa ter entre 100 e 150 caracteres!",
+						"※ A descrição precisa ter entre 100 e 150 caracteres!",
 				}
 			),
 		street: z
 			.string()
-			.min(1, "Digite o nome da rua e o número!")
+			.min(1, "※ Digite o nome da rua e o número!")
 			.refine(
 				(st) => {
 					const sanitized = DOMPurify.sanitize(st);
@@ -137,7 +142,7 @@ const updateUserFormSchema = z
 					return isValid;
 				},
 				{
-					message: "Endereço inválido!",
+					message: "※ Endereço inválido!",
 				}
 			)
 			.transform((st) => {
@@ -158,23 +163,57 @@ const updateUserFormSchema = z
 					return isValid;
 				},
 				{
-					message: "Complemento inválido!",
+					message: "※ Complemento inválido!",
 				}
 			)
 			.transform((comp) => {
 				return comp?.trim();
 			}),
-		neighborhood: z.string().min(1, "Digite o nome do bairro!"),
-		city: z.string().min(1, "Digite o nome da cidade!"),
-		state: z.string().min(1, "Informe o estado!"),
+		neighborhood: z
+			.string()
+			.min(1, "※ Digite o nome do bairro!")
+			.refine(
+				(nbh) => {
+					const sanitized = DOMPurify.sanitize(nbh);
+
+					const isValid = /^[A-Za-zÀ-ÿ\s.\-0-9]+$/.test(sanitized);
+
+					return isValid;
+				},
+				{
+					message: "※ Bairro inválido!",
+				}
+			)
+			.transform((nbh) => {
+				return nbh.trim();
+			}),
+		city: z
+			.string()
+			.min(1, "※ Digite o nome da cidade!")
+			.refine(
+				(city) => {
+					const sanitized = DOMPurify.sanitize(city);
+
+					const isValid = /^[A-Za-zÀ-ÿ\s.\-0-9]+$/.test(sanitized);
+
+					return isValid;
+				},
+				{
+					message: "※ Cidade inválida!",
+				}
+			)
+			.transform((city) => {
+				return city.trim();
+			}),
+		state: z.string().min(1, "※ Informe o estado!"),
 		postalCode: z
 			.string()
-			.min(8, "Digite o número do CEP!")
-			.max(8, "O CEP precisa ter 8 números!")
+			.min(8, "※ Digite o número do CEP!")
+			.max(8, "※ O CEP precisa ter 8 números!")
 			.refine(
 				(val) => val === undefined || val === "" || !isNaN(Number(val)),
 				{
-					message: "O CEP deve ser um número válido!",
+					message: "※ O CEP deve ser um número válido!",
 				}
 			),
 		credential: z.string().optional(), // Torna opcional inicialmente
@@ -184,7 +223,7 @@ const updateUserFormSchema = z
 			.refine(
 				(val) => val === undefined || val === "" || !isNaN(Number(val)),
 				{
-					message: "O Cashback deve ser um número válido!",
+					message: "※ O Cashback deve ser um número válido!",
 				}
 			)
 			.refine(
@@ -193,13 +232,13 @@ const updateUserFormSchema = z
 					val === "" ||
 					Number.isInteger(Number(val)),
 				{
-					message: "O Cashback deve ser um número inteiro!",
+					message: "※ O Cashback deve ser um número inteiro!",
 				}
 			)
 			.refine(
 				(val) => val === undefined || val === "" || Number(val) >= 1,
 				{
-					message: "O Cashback não pode ser menor do que 1%!",
+					message: "※ O Cashback não pode ser menor do que 1%!",
 				}
 			)
 			.transform((val) => (val ? Number(val) : undefined)), // Converte a string para número ou retorna undefined
@@ -216,9 +255,16 @@ const updateUserFormSchema = z
 					return value.length >= 6;
 				},
 				{
-					message: "A senha precisa ter no mínimo 6 caracteres!",
+					message: "※ A senha precisa ter no mínimo 6 caracteres!",
 				}
-			),
+			)
+			.refine((password) => {
+				if (!password) return true; // Se for undefined, considera como válido
+
+				const sanitized = DOMPurify.sanitize(password);
+
+				return sanitized;
+			}),
 		confirmPassword: z.string().optional(),
 	})
 	.refine(
@@ -231,7 +277,7 @@ const updateUserFormSchema = z
 			return data.password === data.confirmPassword;
 		},
 		{
-			message: "As senhas precisam ser iguais!",
+			message: "※ As senhas precisam ser iguais!",
 			path: ["confirmPassword"], // Define o caminho onde o erro será exibido
 		}
 	)
@@ -243,7 +289,7 @@ const updateUserFormSchema = z
 			return (hasCpf && !hasCnpj) || (!hasCpf && hasCnpj);
 		},
 		{
-			message: "Preencha apenas um dos campos: CPF ou CNPJ.",
+			message: "※ Preencha apenas um dos campos: CPF ou CNPJ.",
 			path: ["cpf", "cpfCnpj"], // Onde o erro será associado
 		}
 	)
@@ -253,7 +299,7 @@ const updateUserFormSchema = z
 			return !hasCpfCnpj || !!data.credential; // Credencial deve ser preenchido se CPF/CNPJ estiver preenchido
 		},
 		{
-			message: "A Credencial Kangu é obrigatória!",
+			message: "※ A Credencial Kangu é obrigatória!",
 			path: ["credential"], // Mensagem associada ao campo credential
 		}
 	)
@@ -263,7 +309,7 @@ const updateUserFormSchema = z
 			return !hasCpfCnpj || !!data.cashback; // Cashback deve ser preenchido se CPF/CNPJ estiver preenchido
 		},
 		{
-			message: "O cashback é obrigatório!",
+			message: "※ O cashback é obrigatório!",
 			path: ["cashback"], // Mensagem associada ao campo cashback
 		}
 	);
@@ -977,7 +1023,7 @@ function MyProfilePage() {
 											type="text"
 											placeholder="..."
 											defaultValue={
-												user?.address[0].street
+												user.address[0]?.street
 											}
 											className={`input input-bordered ${
 												errors.street
@@ -1009,7 +1055,7 @@ function MyProfilePage() {
 											// name="complemento"
 											placeholder="..."
 											defaultValue={
-												user?.address[0].complement
+												user.address[0]?.complement
 											}
 											className={`input input-bordered ${
 												errors.complement
@@ -1044,7 +1090,7 @@ function MyProfilePage() {
 											// name="bairro"
 											placeholder="..."
 											defaultValue={
-												user?.address[0].neighborhood
+												user.address[0]?.neighborhood
 											}
 											className={`input input-bordered ${
 												errors.neighborhood
@@ -1080,7 +1126,7 @@ function MyProfilePage() {
 											type="text"
 											// name="cidade"
 											placeholder="..."
-											defaultValue={user?.address[0].city}
+											defaultValue={user.address[0]?.city}
 											className={`input input-bordered ${
 												errors.city
 													? `input-error`
@@ -1112,10 +1158,10 @@ function MyProfilePage() {
 													? `select-error`
 													: `select-success`
 											} w-full max-w-3xl`}
+											{...register("state")}
 											defaultValue={
-												user?.address[0].state || ""
-											}
-											{...register("state")}>
+												user.address[0]?.state
+											}>
 											<option disabled selected>
 												Em qual estado sua loja está
 												localizada?
@@ -1239,7 +1285,7 @@ function MyProfilePage() {
 											// name="cep"
 											placeholder="..."
 											defaultValue={
-												user?.address[0].postalCode
+												user.address[0]?.postalCode
 											}
 											className={`input input-bordered ${
 												errors.postalCode
@@ -1278,8 +1324,8 @@ function MyProfilePage() {
 												placeholder={`...`}
 												defaultValue={
 													user
-														?.shippingConfiguration[0]
-														.credential
+														.shippingConfiguration[0]
+														?.credential
 												}
 												className={`input input-bordered ${
 													errors.credential
