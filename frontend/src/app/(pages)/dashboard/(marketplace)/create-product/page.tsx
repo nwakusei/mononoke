@@ -43,7 +43,7 @@ const createProductFormSchema = z.object({
 				return files !== null && files.length > 0;
 			},
 			{
-				message: "※ Pelo menos 1 imagem é obrigatória!",
+				message: "※ Insira pelo menos 1 imagem!",
 			}
 		)
 		.refine(
@@ -65,17 +65,19 @@ const createProductFormSchema = z.object({
 			},
 			{
 				message:
-					"※ Todos os arquivos precisam ser do tipo JPG, JPEG ou PNG!",
+					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
 			}
 		),
 	productName: z
 		.string()
-		.min(1, "※ O nome do Produto é obrigatório!")
+		.min(1, "※ O título do Produto é obrigatório!")
 		.refine(
 			(pName) => {
 				const sanitized = DOMPurify.sanitize(pName);
 
-				const isValid = /^[A-Za-zÀ-ÿ\s\.,\-0-9]+$/.test(sanitized);
+				const isValid = /^[A-Za-zÀ-ÿ\s\.,—\-0-9\[\]\(\)]+$/.test(
+					sanitized
+				);
 
 				return isValid;
 			},
@@ -92,44 +94,52 @@ const createProductFormSchema = z.object({
 				if (value === undefined || value === "") {
 					return true;
 				}
-
 				return value.length >= 100;
 			},
 			{
-				message: "A descrição precisa ter no mínimo 100 caracteres!",
+				message: "※ A descrição precisa ter no mínimo 100 caracteres!",
+			}
+		)
+		.refine(
+			(desc) => {
+				const sanitized = DOMPurify.sanitize(desc);
+
+				const isValid = /^[A-Za-zÀ-ÿ\s\.,—※*•◉_\-0-9\[\]\(\)]+$/.test(
+					sanitized
+				);
+
+				return isValid;
+			},
+			{
+				message:
+					"※ A descrição do produto deve conter apenas letras e espaços!",
 			}
 		),
-	// .refine(
-	// 	(desc) => {
-	// 		const sanitized = DOMPurify.sanitize(desc);
-
-	// 		const isValid = /^[A-Za-zÀ-ÿ\s\.,\-0-9]+$/.test(sanitized);
-
-	// 		return isValid;
-	// 	},
-	// 	{
-	// 		message:
-	// 			"※ A descrição do produto deve conter apenas letras e espaços!",
-	// 	}
-	// ),
 	category: z.string().min(1, "※ A categoria do produto é obrigatória!"),
 	originalPrice: z
 		.string()
 		.min(1, "※ O valor do produto é obrigatório!")
-		.refine((value) => /^\d+(\.\d+)?$/.test(value.replace(",", ".")), {
-			message: "※ O valor do produto deve ser um número válido!",
+		.transform((value) => value.replace(",", "."))
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ Insira um valor válido!",
 		})
-		.transform((value) => parseFloat(value.replace(",", "."))),
+		.transform((value) => parseFloat(value)),
 	promocionalPrice: z
 		.string()
 		.optional()
-		.refine((value) => /^\d+(\.\d+)?$/.test(value!.replace(",", ".")), {
-			message: "※ O valor do produto deve ser um número válido!",
+		.transform((value) =>
+			value === undefined || value === "" ? "0" : value.replace(",", ".")
+		)
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ Insira um valor válido!",
 		})
-		.transform((value) => parseFloat(value!.replace(",", "."))),
+		.transform((value) => parseFloat(value)),
 	stock: z
 		.string()
 		.min(1, "※ A quantidade de produtos em estoque é obrigatória!")
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ Insira um número válido!",
+		})
 		.refine(
 			(value) => {
 				// Verifica se o valor é um número, não é undefined e é um inteiro
@@ -137,8 +147,7 @@ const createProductFormSchema = z.object({
 				return !isNaN(numberValue) && Number.isInteger(numberValue);
 			},
 			{
-				message:
-					"※ A quantidade em estoque deve ser um número inteiro válido!",
+				message: "※ Insira somente números inteiros!",
 			}
 		),
 	condition: z.string().min(1, "※ A condição do produto é obrigatória!"),
@@ -148,14 +157,16 @@ const createProductFormSchema = z.object({
 	daysShipping: z
 		.string()
 		.min(1, "※ A quantidade de dias para envio é obrigatória!")
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ Insira um número válido!",
+		})
 		.refine(
 			(value) => {
 				const numberValue = Number(value);
 				return !isNaN(numberValue); // Verifica se é um número
 			},
 			{
-				message:
-					"※ A quantidade de dias para envio deve ser um número válido!",
+				message: "※ Insira um número válido!",
 			}
 		)
 		.refine(
@@ -164,19 +175,41 @@ const createProductFormSchema = z.object({
 				return Number.isInteger(numberValue) && numberValue > 0; // Verifica se é um inteiro e maior que 0
 			},
 			{
-				message:
-					"※ A quantidade de dias para envio deve ser um número inteiro maior que 0!",
+				message: "※ Insira somente números inteiros maior do que 0!",
 			}
 		),
 	weight: z
 		.string()
-		.refine((value) => /^\d+(\.\d+)?$/.test(value.replace(",", ".")), {
-			message: "※ O peso do produto é obrigatório!",
+		.min(1, "※ O peso do produto é obrigatório!")
+		.transform((value) => value.replace(",", "."))
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ O peso do produto deve ser um número válido!",
 		})
-		.transform((value) => parseFloat(value.replace(",", "."))),
-	length: z.string().min(1, "※ O comprimento é obrigatório!"),
-	width: z.string().min(1, "※ A largura é obrigatório!"),
-	height: z.string().min(1, "※ A altura é obrigatório!"),
+		.transform((value) => parseFloat(value)),
+	length: z
+		.string()
+		.min(1, "※ O comprimento é obrigatório!")
+		.transform((value) => value.replace(",", "."))
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ O comprimento do produto deve ser um número válido!",
+		})
+		.transform((value) => parseFloat(value)),
+	width: z
+		.string()
+		.min(1, "※ A largura é obrigatório!")
+		.transform((value) => value.replace(",", "."))
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ A largura do produto deve ser um número válido!",
+		})
+		.transform((value) => parseFloat(value)),
+	height: z
+		.string()
+		.min(1, "※ A altura é obrigatório!")
+		.transform((value) => value.replace(",", "."))
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ A altura do produto deve ser um número válido!",
+		})
+		.transform((value) => parseFloat(value)),
 	freeShipping: z.string().refine((value) => value !== "", {
 		message: "※ É obrigatório selecionar uma opção de frete!",
 	}),
@@ -659,7 +692,11 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className="input input-bordered input-success join-item"
+														className={`input input-bordered ${
+															errors.promocionalPrice
+																? `input-error`
+																: `input-success`
+														} join-item`}
 														placeholder="0,00"
 														{...register(
 															"promocionalPrice"
@@ -669,9 +706,18 @@ function CreateProductPage() {
 											</div>
 										</div>
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Ex.: R$ 1,00
-											</span>
+											{errors.promocionalPrice ? (
+												<span className="label-text-alt text-red-500">
+													{
+														errors.promocionalPrice
+															.message
+													}
+												</span>
+											) : (
+												<span className="label-text-alt text-black">
+													Ex.: R$ 1,00
+												</span>
+											)}
 										</div>
 									</label>
 
@@ -1029,6 +1075,7 @@ function CreateProductPage() {
 										</div>
 									</label>
 								</div>
+
 								<div className="flex flex-row items-center mb-6">
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
@@ -1060,8 +1107,8 @@ function CreateProductPage() {
 													}
 												</span>
 											) : (
-												<span className="hidden label-text-alt">
-													Ex.: Sim/Não
+												<span className="label-text-alt text-black opacity-0">
+													Label não visivel
 												</span>
 											)}
 										</div>
@@ -1121,9 +1168,9 @@ function CreateProductPage() {
 											<option>Acre</option>
 										</select>
 										<div className="label">
-											{/* <span className="hidden label-text-alt">
-													Ex.: São Paulo
-												</span> */}
+											<span className="label-text-alt text-black">
+												Ex.: São Paulo
+											</span>
 										</div>
 									</label>
 								</div>
