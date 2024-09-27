@@ -415,7 +415,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 									className="flex justify-between mb-2">
 									<h2>
 										{productInCart.quantityThisProduct} x{" "}
-										{productInCart.productName}
+										{productInCart.productTitle}
 									</h2>
 									<h2>
 										{productInCart.productPrice.toLocaleString(

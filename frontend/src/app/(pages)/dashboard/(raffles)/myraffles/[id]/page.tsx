@@ -82,7 +82,7 @@ function MyRafflesByID() {
 										<Image
 											className="object-contain h-full"
 											src={`http://localhost:5000/images/raffles/${myraffle?.imagesRaffle[0]}`}
-											alt={myraffle?.productName}
+											alt={myraffle?.productTitle}
 											width={280}
 											height={10}
 											unoptimized

@@ -87,7 +87,7 @@ function MyOrdersPage() {
 																			<Image
 																				src={`http://localhost:5000/images/products/${item.productImage}`}
 																				alt={
-																					item.productName
+																					item.productTitle
 																				}
 																				width={
 																					280
@@ -105,7 +105,7 @@ function MyOrdersPage() {
 																			<h2 className="w-[230px] overflow-x-hidden mb-2">
 																				<span>
 																					{
-																						item.productName
+																						item.productTitle
 																					}
 																					{index !==
 																						myorder

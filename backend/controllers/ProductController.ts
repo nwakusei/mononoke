@@ -13,7 +13,7 @@ import getUserByToken from "../helpers/get-user-by-token.js";
 class ProductController {
 	static async create(req: Request, res: Response) {
 		const {
-			productName,
+			productTitle,
 			description,
 			originalPrice,
 			promocionalPrice,
@@ -34,9 +34,9 @@ class ProductController {
 		const imagesProduct = req.files as Express.Multer.File[];
 
 		// Validações
-		if (!productName) {
+		if (!productTitle) {
 			res.status(422).json({
-				message: "O nome do produto é obrigatório!",
+				message: "O título do produto é obrigatório!",
 			});
 			return;
 		}
@@ -173,7 +173,7 @@ class ProductController {
 
 		// Criar um novo produto
 		const product = new ProductModel({
-			productName: productName,
+			productTitle: productTitle,
 			description: description,
 			originalPrice: originalPrice,
 			promocionalPrice: promocionalPrice || 0.0,
@@ -747,7 +747,7 @@ class ProductController {
 
 	static async simulateShipping(req: Request, res: Response) {
 		const {
-			productID, // Adicione a propriedade productId se não estiver presente
+			productID,
 			cepDestino,
 			weight,
 			height,
@@ -789,6 +789,8 @@ class ProductController {
 			partner.address.length > 0
 				? partner.address[0].postalCode
 				: undefined;
+
+		console.log(partner.address[0].postalCode);
 
 		// Caso queira tratar casos onde pode não haver nenhum endereço
 		if (!cepOrigem) {

@@ -99,7 +99,7 @@ function StorePage() {
 				const response = await api.post(
 					`/searches/search-store/${id}`,
 					{
-						productName: searchText, // Envia o searchText no corpo da requisição
+						productTitle: searchText, // Envia o searchText no corpo da requisição
 					}
 				);
 				if (response.data.products.length > 0) {
@@ -339,7 +339,7 @@ function StorePage() {
 									key={returnedProduct._id}
 									freeShipping={returnedProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
-									title={returnedProduct.productName}
+									title={returnedProduct.productTitle}
 									originalPrice={Number(
 										returnedProduct.originalPrice
 									)}
@@ -377,7 +377,7 @@ function StorePage() {
 									key={product._id}
 									freeShipping={product.freeShipping}
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
-									title={product.productName}
+									title={product.productTitle}
 									originalPrice={Number(
 										product.originalPrice
 									)}

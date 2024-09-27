@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 
 // Interface para a estrutura de um objeto de revisão
 interface IProduct {
-	productName: string;
+	productTitle: string;
 	imagesProduct: string[];
 	description: string;
 	originalPrice: number;
@@ -28,7 +28,7 @@ interface IProduct {
 // Schema que corresponda a Interface
 const productSchema = new Schema<IProduct>(
 	{
-		productName: {
+		productTitle: {
 			type: String,
 		},
 		imagesProduct: {

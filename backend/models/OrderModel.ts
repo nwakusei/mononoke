@@ -4,7 +4,7 @@ import mongoose, { Schema, model } from "mongoose";
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOrderItem {
 	productID: mongoose.Schema.Types.ObjectId;
-	productName: string;
+	productTitle: string;
 	productImage: string;
 	productPrice: number;
 	productQuantity: number;
@@ -79,7 +79,7 @@ const orderSchema = new Schema<IOrder>(
 					type: mongoose.Schema.Types.ObjectId,
 					ref: "ProductModel",
 				},
-				productName: {
+				productTitle: {
 					type: String,
 				},
 				productImage: {

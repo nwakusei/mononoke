@@ -695,7 +695,7 @@ function CartPage() {
 															className="object-contain h-full"
 															src={`http://localhost:5000/images/products/${productInCart.imageProduct}`}
 															alt={
-																productInCart.productName
+																productInCart.productTitle
 															}
 															width={100}
 															height={100}
@@ -705,7 +705,7 @@ function CartPage() {
 													<div>
 														<h1 className="text-lg text-black">
 															{
-																productInCart.productName
+																productInCart.productTitle
 															}
 														</h1>
 														<h2 className="mb-2 text-black">

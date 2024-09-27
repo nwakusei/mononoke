@@ -55,7 +55,7 @@ const storageTypes: {
 const imageUpload = multer({
 	storage: storageTypes["local"],
 	limits: {
-		fileSize: 10 * 1024 * 1024,
+		fileSize: 2 * 1024 * 1024,
 	},
 	fileFilter: (req, file, cb) => {
 		console.log("File received:", file);

@@ -5,18 +5,20 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-toastify";
+
+// Axios
 import api from "@/utils/api";
 
-// React Hook Form e Zod
+// Components
+import { Sidebar } from "@/components/Sidebar";
+
+// React Hook Form, Zod e ZodResolver
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 // Bliblioteca de Sanitização
 import DOMPurify from "dompurify";
-
-// Components
-import { Sidebar } from "@/components/Sidebar";
 
 // Icons
 import { AddPicture, Weight } from "@icon-park/react";
@@ -68,9 +70,10 @@ const createProductFormSchema = z.object({
 					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
 			}
 		),
-	productName: z
+	productTitle: z
 		.string()
 		.min(1, "※ O título do Produto é obrigatório!")
+		.trim()
 		.refine(
 			(pName) => {
 				const sanitized = DOMPurify.sanitize(pName);
@@ -82,13 +85,45 @@ const createProductFormSchema = z.object({
 				return isValid;
 			},
 			{
-				message:
-					"O título do produto deve conter apenas letras e espaços!",
+				message: "Caractere inválido!",
 			}
 		),
 	description: z
 		.string()
 		.min(1, "※ A descrição é obrigatoria!")
+		.trim()
+		.refine(
+			(desc) => {
+				// Lista de tags HTML permitidas para formatação básica
+				const allowedTags = [
+					"b",
+					"i",
+					"u",
+					"strong",
+					"em",
+					"p",
+					"ul",
+					"ol",
+					"li",
+					"br",
+					"a",
+					"span",
+				];
+
+				// Sanitizar a descrição, permitindo apenas as tags especificadas
+				const sanitized = DOMPurify.sanitize(desc, {
+					ALLOWED_TAGS: allowedTags,
+				});
+
+				// Checar se a descrição contém algum conteúdo não permitido (tags ilegais já são removidas pelo DOMPurify)
+				const isValid = sanitized.length > 0;
+
+				return isValid;
+			},
+			{
+				message: "Caractere inválido!",
+			}
+		)
 		.refine(
 			(value) => {
 				if (value === undefined || value === "") {
@@ -99,26 +134,12 @@ const createProductFormSchema = z.object({
 			{
 				message: "※ A descrição precisa ter no mínimo 100 caracteres!",
 			}
-		)
-		.refine(
-			(desc) => {
-				const sanitized = DOMPurify.sanitize(desc);
-
-				const isValid = /^[A-Za-zÀ-ÿ\s\.,—※*•◉_\-0-9\[\]\(\)]+$/.test(
-					sanitized
-				);
-
-				return isValid;
-			},
-			{
-				message:
-					"※ A descrição do produto deve conter apenas letras e espaços!",
-			}
 		),
 	category: z.string().min(1, "※ A categoria do produto é obrigatória!"),
 	originalPrice: z
 		.string()
 		.min(1, "※ O valor do produto é obrigatório!")
+		.trim()
 		.transform((value) => value.replace(",", "."))
 		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
 			message: "※ Insira um valor válido!",
@@ -126,6 +147,7 @@ const createProductFormSchema = z.object({
 		.transform((value) => parseFloat(value)),
 	promocionalPrice: z
 		.string()
+		.trim()
 		.optional()
 		.transform((value) =>
 			value === undefined || value === "" ? "0" : value.replace(",", ".")
@@ -136,7 +158,8 @@ const createProductFormSchema = z.object({
 		.transform((value) => parseFloat(value)),
 	stock: z
 		.string()
-		.min(1, "※ A quantidade de produtos em estoque é obrigatória!")
+		.min(1, "※ A quantidade em estoque é obrigatória!")
+		.trim()
 		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
 			message: "※ Insira um número válido!",
 		})
@@ -150,13 +173,12 @@ const createProductFormSchema = z.object({
 				message: "※ Insira somente números inteiros!",
 			}
 		),
-	condition: z.string().min(1, "※ A condição do produto é obrigatória!"),
-	preOrder: z
-		.string()
-		.min(1, "※ É obrigatório informar se é uma encomenda ou não!"),
+	condition: z.string().min(1, "※ item obrigatório!"),
+	preOrder: z.string().min(1, "※ item obrigatório!"),
 	daysShipping: z
 		.string()
-		.min(1, "※ A quantidade de dias para envio é obrigatória!")
+		.min(1, "※ item obrigatório!")
+		.trim()
 		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
 			message: "※ Insira um número válido!",
 		})
@@ -172,46 +194,59 @@ const createProductFormSchema = z.object({
 		.refine(
 			(value) => {
 				const numberValue = Number(value);
+				return Number.isInteger(numberValue); // Verifica se é um inteiro e maior que 0
+			},
+			{
+				message: "※ Insira somente números inteiros!",
+			}
+		)
+		.refine(
+			(value) => {
+				const numberValue = Number(value);
 				return Number.isInteger(numberValue) && numberValue > 0; // Verifica se é um inteiro e maior que 0
 			},
 			{
-				message: "※ Insira somente números inteiros maior do que 0!",
+				message: "※ Insira um número maior do que 0!",
 			}
 		),
 	weight: z
 		.string()
 		.min(1, "※ O peso do produto é obrigatório!")
+		.trim()
 		.transform((value) => value.replace(",", "."))
 		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ O peso do produto deve ser um número válido!",
+			message: "※ Insira um valor válido!",
 		})
 		.transform((value) => parseFloat(value)),
 	length: z
 		.string()
 		.min(1, "※ O comprimento é obrigatório!")
+		.trim()
 		.transform((value) => value.replace(",", "."))
 		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ O comprimento do produto deve ser um número válido!",
+			message: "※ Insira um valor válido!",
 		})
 		.transform((value) => parseFloat(value)),
 	width: z
 		.string()
-		.min(1, "※ A largura é obrigatório!")
+		.min(1, "※ A largura é obrigatória!")
+		.trim()
 		.transform((value) => value.replace(",", "."))
 		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ A largura do produto deve ser um número válido!",
+			message: "※ Insira um valor válido!",
 		})
 		.transform((value) => parseFloat(value)),
 	height: z
 		.string()
-		.min(1, "※ A altura é obrigatório!")
+		.min(1, "※ A altura é obrigatória!")
+		.trim()
 		.transform((value) => value.replace(",", "."))
 		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ A altura do produto deve ser um número válido!",
+			message: "Insira um valor válido!",
 		})
 		.transform((value) => parseFloat(value)),
 	freeShipping: z.string().refine((value) => value !== "", {
-		message: "※ É obrigatório selecionar uma opção de frete!",
+		message: "※ Item obrigatório!",
 	}),
 	freeShippingRegion: z.string(),
 });
@@ -219,8 +254,6 @@ const createProductFormSchema = z.object({
 type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
 
 function CreateProductPage() {
-	const [offerFreeShipping, setOfferFreeShipping] = useState("");
-	const [selectedRegion, setSelectedRegion] = useState("");
 	const [variations, setVariations] = useState([]);
 	const [imagemSelecionada, setImagemSelecionada] = useState<
 		string | ArrayBuffer | null
@@ -228,17 +261,28 @@ function CreateProductPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [isLoading, setIsLoading] = useState(true);
 
+	const [offerFreeShipping, setOfferFreeShipping] = useState("");
+
+	const handleFreeShippingChange = (event) => {
+		const value = event.target.value;
+		setOfferFreeShipping(value);
+
+		// Se "Não" for selecionado, reseta o segundo select para "Nenhuma"
+		if (value === "false") {
+			setValue("freeShippingRegion", "Nenhuma"); // Define como "Nenhuma"
+		} else {
+			setValue("freeShippingRegion", ""); // Limpa a seleção para "Sim"
+		}
+	};
+
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-		watch,
+		setValue,
 	} = useForm<TCreateProductFormData>({
 		resolver: zodResolver(createProductFormSchema),
 	});
-
-	// Observa o valor de freeShipping como string
-	const freeShippingValue = watch("freeShipping", "");
 
 	useEffect(() => {
 		// Simular um atraso no carregamento
@@ -280,25 +324,6 @@ function CreateProductPage() {
 	// 	// Aqui você pode fazer algo com a lista de arquivos processados, como armazená-la em um estado.
 	// 	// Por exemplo: setListaDeArquivos(fileList);
 	// };
-
-	const handleFreeShippingChange = (
-		event: React.ChangeEvent<HTMLSelectElement>
-	) => {
-		const value = event.target.value;
-		if (value === "false") {
-			setSelectedRegion("Nenhuma");
-		} else {
-			setSelectedRegion("Escolha a região");
-		}
-		setOfferFreeShipping(value === "true");
-	};
-
-	const handleRegionChange = (
-		event: React.ChangeEvent<HTMLSelectElement>
-	) => {
-		const value = event.target.value;
-		setSelectedRegion(value);
-	};
 
 	const router = useRouter();
 
@@ -394,15 +419,18 @@ function CreateProductPage() {
 											type="text"
 											placeholder="Ex: One Piece Vol.1"
 											className={`${
-												errors.productName &&
+												errors.productTitle &&
 												`input-error`
 											} input input-bordered input-success w-full`}
-											{...register("productName")}
+											{...register("productTitle")}
 										/>
 										<div className="label">
-											{errors.productName && (
+											{errors.productTitle && (
 												<span className="label-text-alt text-red-500">
-													{errors.productName.message}
+													{
+														errors.productTitle
+															.message
+													}
 												</span>
 											)}
 										</div>
@@ -1084,15 +1112,18 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<select
-											{...register("freeShipping")}
+											{...register("freeShipping", {
+												required: "Selecione uma opção",
+											})}
+											onChange={handleFreeShippingChange}
+											defaultValue=""
+											value={offerFreeShipping}
 											className={`select select-success w-full max-w-xs ${
 												errors.freeShipping
 													? "select-error"
-													: freeShippingValue
-													? "select-success"
-													: ""
+													: "select-success"
 											}`}>
-											<option disabled selected value="">
+											<option value="" disabled selected>
 												Escolha uma opção
 											</option>
 											<option value="true">Sim</option>
@@ -1113,7 +1144,6 @@ function CreateProductPage() {
 											)}
 										</div>
 									</label>
-
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
 											<span className="label-text text-black">
@@ -1121,23 +1151,25 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<select
-											{...register("freeShippingRegion")}
+											{...register("freeShippingRegion", {
+												required:
+													offerFreeShipping === "true"
+														? "Selecione uma região"
+														: false,
+											})}
 											className="select select-success w-full max-w-xs"
-											value={selectedRegion}
-											onChange={handleRegionChange}
 											disabled={
-												offerFreeShipping === false
-											}
-											defaultValue="">
-											<option value="" disabled selected>
+												offerFreeShipping === "false"
+											} // Desabilita se "Não" for selecionado
+											defaultValue={
+												offerFreeShipping === "false"
+													? "Nenhuma"
+													: ""
+											}>
+											<option value="" disabled>
 												Escolha a região
 											</option>
-											<option
-												value="Nenhuma"
-												disabled
-												selected>
-												Nenhuma
-											</option>
+											<option disabled>Nenhuma</option>
 											<option>Brasil</option>
 											<option>São Paulo</option>
 											<option>Rio de Janeiro</option>

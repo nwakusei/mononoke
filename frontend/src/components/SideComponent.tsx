@@ -2,6 +2,7 @@
 
 // Imports Essenciais
 import { useState, useEffect, useContext } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
@@ -19,18 +20,23 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 import { GrLocation } from "react-icons/gr";
 import { FiInfo } from "react-icons/fi";
 import { LuCalendarClock } from "react-icons/lu";
-import Link from "next/link";
+import { MdOutlineLocationOff } from "react-icons/md";
+
+// React Hook Form, Zod e ZodResolver
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 function SideComponent() {
 	const { id } = useParams();
 	const [product, setProduct] = useState({});
 	const [transportadoras, setTransportadoras] = useState([]);
 	const [isCalculating, setIsCalculating] = useState(false);
-	const [cepDestino, setCepDestino] = useState(""); // Estado para armazenar o valor do input
+	const [cepDestino, setCepDestino] = useState("");
 	const [selectedTransportadora, setSelectedTransportadora] = useState<{
 		[key: string]: boolean;
 	}>({});
-	const stock = product.stock; // Constante que irá representar a quantidade de estoque que vem do Banco de Dados
+	const stock = product.stock;
 
 	const { partners } = useContext(Context);
 	const { setCart, setSubtotal } = useContext(CheckoutContext);
@@ -244,7 +250,7 @@ function SideComponent() {
 			const newProduct = {
 				partnerID: product.partnerID,
 				productID: product._id,
-				productName: product.productName,
+				productTitle: product.productTitle,
 				imageProduct: product.imagesProduct[0],
 				quantityThisProduct: Math.min(quantity, product.stock),
 				productPrice: productPrice,
@@ -475,7 +481,7 @@ function SideComponent() {
 				{/* Meios de envio/Frete */}
 				<div className="bg-white flex flex-col border-black border-solid border-[1px] border-opacity-20 p-2 rounded-md shadow-md mr-2">
 					<div>
-						<div className="text-black flex flex-row items-center gap-2 mb-2">
+						{/* <div className="text-black flex flex-row items-center gap-2 mb-2">
 							<GrLocation size={18} />
 							<span className="text-sm">
 								{partner &&
@@ -494,67 +500,127 @@ function SideComponent() {
 									</div>
 								)}
 							</span>
-						</div>
+						</div> */}
 
-						{!product ||
-						!partnerStateAddress ||
-						!userStateAddress ? (
-							// Mostrar um placeholder de carregamento ou nada enquanto os dados estão sendo carregados
-							<div className="flex flex-row justify-between items-center gap-2 mb-1"></div>
-						) : product.freeShipping === true &&
-						  partnerStateAddress === userStateAddress ? (
-							<div className="flex flex-row justify-between items-center gap-2 mb-1">
-								<div className="flex flex-row items-center text-black gap-2">
-									<LiaShippingFastSolid size={24} />
-									<span>Frete Grátis</span>
+						{product?.freeShipping === true &&
+						partnerStateAddress === userStateAddress ? (
+							<div>
+								<div className="text-black flex flex-row items-center gap-2 mb-2">
+									<GrLocation size={18} />
+									<span className="text-sm">
+										{partner &&
+										partner.address &&
+										partner.address.length > 0 ? (
+											partner.address.map((end) => (
+												<div key={end._id}>
+													<div>{`Enviado de ${end.city}/${end.state}`}</div>
+												</div>
+											))
+										) : (
+											<div>
+												<span className="text-black">
+													Cidade de origem
+													Indefinida...
+												</span>
+											</div>
+										)}
+									</span>
 								</div>
-								<div
-									className="tooltip cursor-pointer text-black"
-									data-tip="A transportadora será escolhida pela loja, de acordo com o melhor custo benefício!">
-									<FiInfo
-										className="animate-pulse"
-										size={18}
-									/>
+								<div className="flex flex-row justify-between items-center gap-2 mb-1">
+									<div className="flex flex-row items-center text-black gap-2">
+										<LiaShippingFastSolid size={24} />
+										<span>Frete Grátis</span>
+									</div>
+									<div
+										className="tooltip cursor-pointer text-black"
+										data-tip="A transportadora será escolhida pela loja, de acordo com o melhor custo benefício!">
+										<FiInfo
+											className="animate-pulse"
+											size={18}
+										/>
+									</div>
+								</div>
+							</div>
+						) : product &&
+						  partnerStateAddress &&
+						  userStateAddress ? (
+							<div>
+								<div className="text-black flex flex-row items-center gap-2 mb-2">
+									<GrLocation size={18} />
+									<span className="text-sm">
+										{partner &&
+										partner.address &&
+										partner.address.length > 0 ? (
+											partner.address.map((end) => (
+												<div key={end._id}>
+													<div>{`Enviado de ${end.city}/${end.state}`}</div>
+												</div>
+											))
+										) : (
+											<div>
+												<span className="text-black">
+													Cidade de origem
+													Indefinida...
+												</span>
+											</div>
+										)}
+									</span>
+								</div>
+
+								<div>
+									<h2 className="flex flex-row items-center text-black gap-2 mb-1">
+										<LiaShippingFastSolid size={24} />
+										<span>Meios de Envio</span>
+									</h2>
+									<div className="flex flex-row gap-2 mb-2">
+										<input
+											type="text"
+											placeholder="Seu CEP"
+											className="input w-full max-w-[180px]"
+											value={cepDestino}
+											onChange={(e) => {
+												const value =
+													e.target.value.replace(
+														/\D/g,
+														""
+													);
+												if (value.length <= 8) {
+													setCepDestino(value);
+												}
+											}}
+											maxLength={8}
+										/>
+
+										<button
+											type="button"
+											className="btn btn-primary w-[120px]"
+											onClick={handleButtonClick}
+											disabled={isCalculating}>
+											{isCalculating ? (
+												<div className="btn btn-primary w-[120px]">
+													<span className="loading loading-spinner loading-xs"></span>
+												</div>
+											) : (
+												"Calcular"
+											)}
+										</button>
+									</div>
 								</div>
 							</div>
 						) : (
-							<div>
-								<h2 className="flex flex-row items-center text-black gap-2 mb-1">
-									<LiaShippingFastSolid size={24} />
-									<span>Meios de Envio</span>
-								</h2>
-								<div className="flex flex-row gap-2 mb-2">
-									<input
-										type="text"
-										placeholder="Seu CEP"
-										className="input w-full max-w-[180px]"
-										value={cepDestino}
-										onChange={(e) => {
-											const value =
-												e.target.value.replace(
-													/\D/g,
-													""
-												);
-											if (value.length <= 8) {
-												setCepDestino(value);
-											}
-										}}
-										maxLength={8}
+							// Mostrar um placeholder de carregamento ou nada enquanto os dados estão sendo carregados
+							<div className="flex flex-row justify-between items-center gap-2 mb-1">
+								<div className="flex flex-row items-center text-black gap-2 mt-1">
+									<MdOutlineLocationOff size={24} />
+									<span>Erro de localização</span>
+								</div>
+								<div
+									className="tooltip cursor-pointer text-black mt-1"
+									data-tip="Erro na busca do endereço da Loja e/ou do cliente. Confira seu endereço e atualize se necessário, se o erro persistir entre em contato com a loja!">
+									<FiInfo
+										className="animate-pulse text-red-500"
+										size={18}
 									/>
-
-									<button
-										type="button"
-										className="btn btn-primary w-[120px]"
-										onClick={handleButtonClick}
-										disabled={isCalculating}>
-										{isCalculating ? (
-											<div className="btn btn-primary w-[120px]">
-												<span className="loading loading-spinner loading-xs"></span>
-											</div>
-										) : (
-											"Calcular"
-										)}
-									</button>
 								</div>
 							</div>
 						)}
@@ -609,7 +675,7 @@ function SideComponent() {
 											Prazo de entrega
 										</span>
 										<h2 className="text-sm">
-											{`${
+											{`≅ ${
 												product.daysShipping +
 												transportadora.prazoEnt
 											} dias`}

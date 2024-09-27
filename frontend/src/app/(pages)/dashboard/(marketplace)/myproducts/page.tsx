@@ -89,7 +89,7 @@ function MyProductsPage() {
 															<div>
 																<div className="font-bold text-black">
 																	{
-																		product.productName
+																		product.productTitle
 																	}
 																</div>
 																<div className="text-sm text-black opacity-50">

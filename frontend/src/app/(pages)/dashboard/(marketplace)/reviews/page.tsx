@@ -89,7 +89,7 @@ function ReviewsPage() {
 																			<Image
 																				src={`http://localhost:5000/images/products/${item.productImage}`} // Troque example.com pelo seu domínio real ou caminho para as imagens
 																				alt={
-																					item.productName
+																					item.productTitle
 																				}
 																				width={
 																					280
@@ -106,7 +106,7 @@ function ReviewsPage() {
 																		<div className="font-bold">
 																			<h2 className="w-[250px] overflow-x-auto mb-2 text-black">
 																				{
-																					item.productName
+																					item.productTitle
 																				}
 																			</h2>
 																		</div>

@@ -95,7 +95,7 @@ function RafflePage() {
 										<Image
 											className="object-contain h-full"
 											src={`http://localhost:5000/images/raffles/${raffle?.imagesRaffle[0]}`}
-											alt={raffle?.productName}
+											alt={raffle?.productTitle}
 											width={280}
 											height={10}
 											unoptimized

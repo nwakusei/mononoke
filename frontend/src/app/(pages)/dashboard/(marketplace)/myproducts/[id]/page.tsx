@@ -37,7 +37,7 @@ const createProductFormSchema = z.object({
 	// 		message: "※ Pelo menos uma imagem é obrigatória",
 	// 	})
 	// 	.transform((value) => Array.from(value)),
-	productName: z.string().min(1, "※ O nome do Produto é obrigatório!"),
+	productTitle: z.string().min(1, "※ O nome do Produto é obrigatório!"),
 	description: z.string().min(1, "※ A descrição é obrigatoria!"),
 	category: z.string().min(1, "※ A categoria do produto é obrigatória"),
 	originalPrice: z
@@ -250,17 +250,20 @@ function MyProductPage() {
 										<input
 											type="text"
 											placeholder="Ex: One Piece Vol.1"
-											defaultValue={product?.productName}
+											defaultValue={product?.productTitle}
 											className={`${
-												errors.productName &&
+												errors.productTitle &&
 												`input-error`
 											} input input-bordered input-success w-full`}
-											{...register("productName")}
+											{...register("productTitle")}
 										/>
 										<div className="label">
-											{errors.productName && (
+											{errors.productTitle && (
 												<span className="label-text-alt text-red-500">
-													{errors.productName.message}
+													{
+														errors.productTitle
+															.message
+													}
 												</span>
 											)}
 										</div>

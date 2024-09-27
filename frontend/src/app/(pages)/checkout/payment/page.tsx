@@ -58,7 +58,7 @@ function PaymentPage() {
 
 	const productsList = productsInCart.map((product) => ({
 		productID: product.productID,
-		productName: product.productName,
+		productTitle: product.productTitle,
 		productImage: product.imageProduct,
 		productPrice: product.productPrice,
 		productQuantity: product.quantityThisProduct,

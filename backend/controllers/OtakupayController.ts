@@ -1072,7 +1072,7 @@ class OtakupayController {
 							// Adicionar o item ao pedido
 							order.itemsList.push({
 								productID: product.productID,
-								productName: product.productName,
+								productTitle: product.productName,
 								productImage: product.productImage,
 								productPrice: productCost,
 								daysShipping:
@@ -1115,7 +1115,7 @@ class OtakupayController {
 					dbProduct.stock -= product.productQuantity;
 					await dbProduct.save();
 					console.log(
-						`Estoque do produto ${dbProduct.productName} atualizado.`
+						`Estoque do produto ${dbProduct.productTitle} atualizado.`
 					);
 				} catch (error) {
 					console.error(
@@ -2232,7 +2232,7 @@ class OtakupayController {
 							// Adicionar o item ao pedido
 							order.itemsList.push({
 								productID: product.productID,
-								productName: product.productName,
+								productTitle: product.productName,
 								productImage: product.productImage,
 								productPrice: productCost,
 								daysShipping:
@@ -2275,7 +2275,7 @@ class OtakupayController {
 					dbProduct.stock -= product.productQuantity;
 					await dbProduct.save();
 					console.log(
-						`Estoque do produto ${dbProduct.productName} atualizado.`
+						`Estoque do produto ${dbProduct.productTitle} atualizado.`
 					);
 				} catch (error) {
 					console.error(
@@ -3758,7 +3758,7 @@ class OtakupayController {
 													order.itemsList.push({
 														productID:
 															product.productID,
-														productName:
+														productTitle:
 															product.productName,
 														productImage:
 															product.productImage,
@@ -3808,7 +3808,7 @@ class OtakupayController {
 												product.productQuantity;
 											await dbProduct.save();
 											console.log(
-												`Estoque do produto ${dbProduct.productName} atualizado.`
+												`Estoque do produto ${dbProduct.productTitle} atualizado.`
 											);
 										} catch (error) {
 											console.error(

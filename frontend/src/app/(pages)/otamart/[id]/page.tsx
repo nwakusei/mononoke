@@ -293,7 +293,7 @@ function ProductPage() {
 									<Image
 										className="object-contain h-full"
 										src={`http://localhost:5000/images/products/${product?.imagesProduct[0]}`}
-										alt={product?.productName}
+										alt={product?.productTitle}
 										width={280}
 										height={10}
 										unoptimized
@@ -351,7 +351,7 @@ function ProductPage() {
 				<div className="flex flex-col w-[350px]">
 					{/* Título */}
 					<h1 className="text-xl font-semibold text-black mb-1">
-						{product?.productName}
+						{product?.productTitle}
 					</h1>
 					{/* Avaliações e Vendidos */}
 					<div className="flex flex-row text-sm text-black mb-4 gap-1">
@@ -823,7 +823,7 @@ function ProductPage() {
 											recommendedProduct.freeShipping
 										}
 										productImage={`http://localhost:5000/images/products/${recommendedProduct.imagesProduct[0]}`}
-										title={recommendedProduct.productName}
+										title={recommendedProduct.productTitle}
 										originalPrice={Number(
 											recommendedProduct.originalPrice
 										)}
