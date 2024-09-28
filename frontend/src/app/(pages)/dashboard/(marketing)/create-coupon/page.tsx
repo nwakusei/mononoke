@@ -4,19 +4,16 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+
+// Axios
 import api from "@/utils/api";
 
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-import { toast } from "react-toastify";
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
-
-// Imagens e Logos
-import MundosInfinitos from "../../../../../public/mundos-infinitos.png";
 
 // Icons
 import { Coupon } from "@icon-park/react";
@@ -25,12 +22,59 @@ import { CiWarning } from "react-icons/ci";
 import { FaPercent } from "react-icons/fa";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
+// React Hook Form, Zod e ZodResolver
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 const createCouponFormSchema = z.object({
 	discountPercentage: z
 		.string()
-		.min(1, "A porcentagem de desconto é obrigatória!"),
-	couponCode: z.string().min(1, "O código do cupom é obrigatório!"),
+		.min(1, "A porcentagem de desconto é obrigatória!")
+		.trim()
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ Insira um número válido!",
+		})
+		.refine(
+			(value) => {
+				const numberValue = Number(value);
+
+				return !isNaN(numberValue) && Number.isInteger(numberValue);
+			},
+			{
+				message: "※ Insira somente números inteiros!",
+			}
+		)
+		.refine(
+			(value) => {
+				const numberValue = Number(value);
+				return numberValue <= 90 && numberValue >= 0;
+			},
+			{
+				message: "※ O desconto máximo permitido é 90%",
+			}
+		),
+	couponCode: z
+		.string()
+		.min(1, "※ O código do cupom é obrigatório!")
+		.max(8, "※ Insira no máximo 8 caracteres!")
+		.trim()
+		.transform((cCode) => cCode.toUpperCase()) // Transforma o valor para maiúsculas
+		.refine(
+			(cCode) => {
+				const sanitized = DOMPurify.sanitize(cCode); // Sanitiza o texto
+
+				const isValid = /^[A-Za-zÀ-ÿ0-9\s]+$/.test(sanitized); // Verifica se é alfanumérico
+
+				return isValid;
+			},
+			{
+				message: "※ Caractere inválido!",
+			}
+		),
 });
+
+type TCreateCouponFormSchema = z.infer<typeof createCouponFormSchema>;
 
 function CreateCouponPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
@@ -42,7 +86,9 @@ function CreateCouponPage() {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm({ resolver: zodResolver(createCouponFormSchema) });
+	} = useForm<TCreateCouponFormSchema>({
+		resolver: zodResolver(createCouponFormSchema),
+	});
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -91,8 +137,7 @@ function CreateCouponPage() {
 									Criar Cupom de Desconto
 								</h1>
 
-								<div className="flex flex-row gap-10">
-									{/* Nome e Descrição */}
+								{/* <div className="flex flex-row gap-10">
 									<label className="form-control w-full">
 										<div className="label">
 											<span className="label-text text-black">
@@ -106,7 +151,7 @@ function CreateCouponPage() {
 											disabled
 										/>
 									</label>
-								</div>
+								</div> */}
 
 								<div className="flex flex-row items-center gap-4">
 									{/* Cashback Atual */}
@@ -121,7 +166,7 @@ function CreateCouponPage() {
 												<div>
 													<input
 														className="input input-bordered input-success join-item w-[325px]"
-														placeholder={`${partner.cashback}`}
+														placeholder={`${partner?.cashback}`}
 														disabled
 													/>
 												</div>

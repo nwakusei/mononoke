@@ -9,16 +9,11 @@ import { toast } from "react-toastify";
 // Axios
 import api from "@/utils/api";
 
-// Components
-import { Sidebar } from "@/components/Sidebar";
-
-// React Hook Form, Zod e ZodResolver
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
 // Bliblioteca de Sanitização
 import DOMPurify from "dompurify";
+
+// Components
+import { Sidebar } from "@/components/Sidebar";
 
 // Icons
 import { AddPicture, Weight } from "@icon-park/react";
@@ -29,6 +24,11 @@ import { FaPlus } from "react-icons/fa6";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { GiWeight } from "react-icons/gi";
 import { LoadingPage } from "@/components/LoadingPageComponent";
+
+// React Hook Form, Zod e ZodResolver
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const createProductFormSchema = z.object({
 	imagesProduct: z
@@ -85,7 +85,7 @@ const createProductFormSchema = z.object({
 				return isValid;
 			},
 			{
-				message: "Caractere inválido!",
+				message: "※ Caractere inválido!",
 			}
 		),
 	description: z
@@ -248,7 +248,9 @@ const createProductFormSchema = z.object({
 	freeShipping: z.string().refine((value) => value !== "", {
 		message: "※ Item obrigatório!",
 	}),
-	freeShippingRegion: z.string(),
+	freeShippingRegion: z.string().refine((value) => value !== "", {
+		message: "※ Item obrigatório!",
+	}),
 });
 
 type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
@@ -263,6 +265,15 @@ function CreateProductPage() {
 
 	const [offerFreeShipping, setOfferFreeShipping] = useState("");
 
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		setValue,
+	} = useForm<TCreateProductFormData>({
+		resolver: zodResolver(createProductFormSchema),
+	});
+
 	const handleFreeShippingChange = (event) => {
 		const value = event.target.value;
 		setOfferFreeShipping(value);
@@ -274,15 +285,6 @@ function CreateProductPage() {
 			setValue("freeShippingRegion", ""); // Limpa a seleção para "Sim"
 		}
 	};
-
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		setValue,
-	} = useForm<TCreateProductFormData>({
-		resolver: zodResolver(createProductFormSchema),
-	});
 
 	useEffect(() => {
 		// Simular um atraso no carregamento
@@ -1112,9 +1114,7 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<select
-											{...register("freeShipping", {
-												required: "Selecione uma opção",
-											})}
+											{...register("freeShipping")}
 											onChange={handleFreeShippingChange}
 											defaultValue=""
 											value={offerFreeShipping}
@@ -1144,6 +1144,7 @@ function CreateProductPage() {
 											)}
 										</div>
 									</label>
+
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
 											<span className="label-text text-black">
@@ -1151,13 +1152,12 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<select
-											{...register("freeShippingRegion", {
-												required:
-													offerFreeShipping === "true"
-														? "Selecione uma região"
-														: false,
-											})}
-											className="select select-success w-full max-w-xs"
+											{...register("freeShippingRegion")}
+											className={`select ${
+												errors.freeShippingRegion
+													? `select-error`
+													: `select-success`
+											} w-full max-w-xs`}
 											disabled={
 												offerFreeShipping === "false"
 											} // Desabilita se "Não" for selecionado
@@ -1170,39 +1170,73 @@ function CreateProductPage() {
 												Escolha a região
 											</option>
 											<option disabled>Nenhuma</option>
-											<option>Brasil</option>
-											<option>São Paulo</option>
-											<option>Rio de Janeiro</option>
-											<option>Paraná</option>
-											<option>Minas Gerais</option>
-											<option>Santa Catarina</option>
-											<option>Rio Grande do Sul</option>
-											<option>Espírito Santo</option>
-											<option>Goiás</option>
-											<option>Destrito Federal</option>
-											<option>Mato Grosso do Sul</option>
-											<option>Mato Grosso</option>
-											<option>Bahia</option>
-											<option>Pernambuco</option>
-											<option>Ceará</option>
-											<option>Maranhão</option>
-											<option>Rio Grande do Norte</option>
-											<option>Paraíba</option>
-											<option>Piauí</option>
-											<option>Sergipe</option>
-											<option>Alagoas</option>
-											<option>Pará</option>
-											<option>Amazonas</option>
-											<option>Tocantins</option>
-											<option>Amapá</option>
-											<option>Roraima</option>
-											<option>Rondônia</option>
-											<option>Acre</option>
+											<option value="BR">Brasil</option>
+											<option value="SP">
+												São Paulo
+											</option>
+											<option value="RJ">
+												Rio de Janeiro
+											</option>
+											<option value="PR">Paraná</option>
+											<option value="MG">
+												Minas Gerais
+											</option>
+											<option value="SC">
+												Santa Catarina
+											</option>
+											<option value="RS">
+												Rio Grande do Sul
+											</option>
+											<option value="ES">
+												Espírito Santo
+											</option>
+											<option value="GO">Goiás</option>
+											<option value="DF">
+												Destrito Federal
+											</option>
+											<option value="MS">
+												Mato Grosso do Sul
+											</option>
+											<option value="MT">
+												Mato Grosso
+											</option>
+											<option value="BA">Bahia</option>
+											<option value="PE">
+												Pernambuco
+											</option>
+											<option value="CE">Ceará</option>
+											<option value="MA">Maranhão</option>
+											<option value="RN">
+												Rio Grande do Norte
+											</option>
+											<option value="PB">Paraíba</option>
+											<option value="PI">Piauí</option>
+											<option value="SE">Sergipe</option>
+											<option value="AL">Alagoas</option>
+											<option value="PA">Pará</option>
+											<option value="AM">Amazonas</option>
+											<option value="TO">
+												Tocantins
+											</option>
+											<option value="AP">Amapá</option>
+											<option value="RR">Roraima</option>
+											<option value="RO">Rondônia</option>
+											<option value="AC">Acre</option>
 										</select>
 										<div className="label">
-											<span className="label-text-alt text-black">
-												Ex.: São Paulo
-											</span>
+											{errors.freeShippingRegion ? (
+												<span className="label-text-alt text-red-500">
+													{
+														errors
+															.freeShippingRegion
+															.message
+													}
+												</span>
+											) : (
+												<span className="label-text-alt text-black opacity-0">
+													Label não visivel
+												</span>
+											)}
 										</div>
 									</label>
 								</div>
