@@ -4,6 +4,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+
+// ToastFy
 import { toast } from "react-toastify";
 
 // Axios
@@ -85,7 +87,7 @@ const createProductFormSchema = z.object({
 				return isValid;
 			},
 			{
-				message: "※ Caractere inválido!",
+				message: "※ O título possui caracteres inválidos!",
 			}
 		),
 	description: z
@@ -121,7 +123,7 @@ const createProductFormSchema = z.object({
 				return isValid;
 			},
 			{
-				message: "Caractere inválido!",
+				message: "※ A descrição possui caracteres inválidos!",
 			}
 		)
 		.refine(
@@ -272,6 +274,7 @@ function CreateProductPage() {
 		setValue,
 	} = useForm<TCreateProductFormData>({
 		resolver: zodResolver(createProductFormSchema),
+		mode: "onBlur",
 	});
 
 	const handleFreeShippingChange = (event) => {
@@ -380,7 +383,11 @@ function CreateProductPage() {
 		}
 
 		try {
-			const response = await api.post("/products/create", formData);
+			const response = await api.post("/products/create", formData, {
+				headers: {
+					Authorization: `Bearer ${JSON.parse(token)}`,
+				},
+			});
 			// Exibe toast de sucesso
 			toast.success(response.data.message);
 

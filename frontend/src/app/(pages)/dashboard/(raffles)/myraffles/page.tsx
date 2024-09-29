@@ -132,7 +132,11 @@ function MyRafflesPage() {
 													<td className="text-black">
 														<div>
 															{`${myraffle?.raffleCost.toLocaleString(
-																"pt-BR"
+																"pt-BR",
+																{
+																	minimumFractionDigits: 2,
+																	maximumFractionDigits: 2,
+																}
 															)} OP`}
 														</div>
 														<span className="badge badge-info badge-sm text-white py-2">

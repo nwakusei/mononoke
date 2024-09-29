@@ -48,7 +48,13 @@ function RaffleCard({
 							className="mt-[1px]"
 							size={18}
 						/>
-						<div className="text-sm">{raffleCost} OP</div>
+						<div className="text-sm">
+							{raffleCost.toLocaleString("pt-BR", {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2,
+							})}{" "}
+							OP
+						</div>
 					</div>
 					<h2 className="flex flex-row items-center text-sm gap-2 mb-4">
 						<MdOutlineStore size={18} />

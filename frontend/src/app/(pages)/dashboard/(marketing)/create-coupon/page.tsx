@@ -88,6 +88,7 @@ function CreateCouponPage() {
 		formState: { errors },
 	} = useForm<TCreateCouponFormSchema>({
 		resolver: zodResolver(createCouponFormSchema),
+		mode: "onBlur",
 	});
 
 	useEffect(() => {

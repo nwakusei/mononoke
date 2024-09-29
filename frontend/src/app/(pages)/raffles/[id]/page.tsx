@@ -19,6 +19,7 @@ import { LuCalendarRange } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
 import { BsPersonFill, BsPeopleFill } from "react-icons/bs";
 import { Coupon } from "@icon-park/react";
+import Link from "next/link";
 
 function RafflePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
@@ -152,77 +153,87 @@ function RafflePage() {
 					</div>
 
 					{/* Componente intermediário */}
-					<div className="flex flex-col w-[700px] text-black">
+					<div className="flex flex-col w-[650px] text-black">
 						<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md select-none">
 							Detalhes do Sorteio
 						</div>
-						<h1 className="text-xl font-semibold mb-4">
-							{raffle?.rafflePrize}
-						</h1>
-						<div className="flex flex-row items-center gap-2">
-							{/* <MdOutlineLocalActivity
+						<div className="flex flex-col">
+							<h1 className="text-xl font-semibold mb-4">
+								{raffle?.rafflePrize}
+							</h1>
+							<div className="flex flex-row items-center gap-2">
+								{/* <MdOutlineLocalActivity
 								className="mt-[1px]"
 								size={19}
 							/> */}
-							<Coupon size={17} />
-							<span>
-								Valor do Ticket:{" "}
-								{raffle?.raffleCost.toLocaleString("pt-BR")} OP
-							</span>
-						</div>
-						<div className="flex flex-row items-center gap-2">
-							<BsPersonFill size={17} />
-							<span>
-								Mínimo de Participantes:{" "}
-								{raffle?.minNumberParticipants}
-							</span>
-						</div>
-						<div className="flex flex-row items-center gap-2">
-							<LuCalendarRange size={16} />
-
-							<span>
-								{`Data do Sorteio: ${
-									raffle?.raffleDate
-										? format(
-												new Date(raffle?.raffleDate),
-												"dd/MM/yyy"
-										  )
-										: ""
-								}`}
-							</span>
-						</div>
-
-						<div className="flex flex-row items-center gap-2">
-							{/* <BsPeopleFill size={17} /> */}
-							<MdOutlineLocalActivity size={19} />
-							<span>
-								Tickets Registrados:{" "}
-								{raffle?.registeredTickets.length}
-							</span>
-						</div>
-
-						<div className="flex flex-row items-center gap-2 mb-4">
-							<MdOutlineStore size={18} />
-							<div>
-								Organizado por{" "}
-								<span className="text-primary transition-all ease-in duration-200 hover:text-secondary cursor-pointer">
-									{raffle?.raffleOrganizer}
+								<Coupon size={17} />
+								<span>
+									{`Valor do Ticket: ${raffle?.raffleCost.toLocaleString(
+										"pt-BR",
+										{
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										}
+									)} OP`}
 								</span>
 							</div>
-						</div>
-						<div>
-							<h2 className="mb-2">
-								<span className="font-semibold">
-									Descrição:
-								</span>{" "}
-								{raffle?.raffleDescription}
-							</h2>
-						</div>
-						<div>
-							<h2 className="">
-								<span className="font-semibold">Regras:</span>{" "}
-								{raffle?.raffleRules}
-							</h2>
+							<div className="flex flex-row items-center gap-2">
+								<BsPersonFill size={17} />
+								<span>
+									{`Mínimo de Participantes: ${raffle?.minNumberParticipants}`}
+								</span>
+							</div>
+							<div className="flex flex-row items-center gap-2">
+								<LuCalendarRange size={16} />
+
+								<span>
+									{`Data do Sorteio: ${
+										raffle?.raffleDate
+											? format(
+													new Date(
+														raffle?.raffleDate
+													),
+													"dd/MM/yyy"
+											  )
+											: ""
+									}`}
+								</span>
+							</div>
+
+							<div className="flex flex-row items-center gap-2">
+								{/* <BsPeopleFill size={17} /> */}
+								<MdOutlineLocalActivity size={19} />
+								<span>
+									{`Tickets Registrados: ${raffle?.registeredTickets.length}`}
+								</span>
+							</div>
+
+							<div className="flex flex-row items-center gap-2 mb-4">
+								<MdOutlineStore size={18} />
+								<div>
+									Organizado por:
+									<span className="text-primary transition-all ease-in duration-200 hover:text-secondary cursor-pointer">
+										{/* <Link href={`/otamart/store/${idStore}`}></Link> */}
+										{raffle?.raffleOrganizer}
+									</span>
+								</div>
+							</div>
+							<div className="">
+								<h2 className="mb-2 break-words">
+									<span className="font-semibold">
+										Descrição:
+									</span>{" "}
+									{raffle?.raffleDescription}
+								</h2>
+							</div>
+							<div className="">
+								<h2 className="break-words">
+									<span className="font-semibold">
+										Regras:
+									</span>{" "}
+									{raffle?.raffleRules}
+								</h2>
+							</div>
 						</div>
 					</div>
 				</div>

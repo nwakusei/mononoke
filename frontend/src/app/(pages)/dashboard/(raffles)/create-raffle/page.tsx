@@ -2,46 +2,235 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import api from "@/utils/api";
 
-// React Hook Form e Zod
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-// Toast
+// ToastFy
 import { toast } from "react-toastify";
 
-// TipTap
-import Tiptap from "@/components/Tiptap";
+// Axios
+import api from "@/utils/api";
+
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
 
-// Imagens e Logos
-
 // Icons
-import { Coupon } from "@icon-park/react";
+import { Coupon, Key } from "@icon-park/react";
 import { GoLinkExternal } from "react-icons/go";
 import { CiWarning } from "react-icons/ci";
 import { FaPercent } from "react-icons/fa";
 import { LuCalendarRange } from "react-icons/lu";
 import { BsPersonFill } from "react-icons/bs";
 import { LoadingPage } from "@/components/LoadingPageComponent";
+import { AddPicture, Weight } from "@icon-park/react";
+
+// React Hook Form, Zod e ZodResolver
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const today = new Date().toISOString().split("T")[0];
 
 const createCouponFormSchema = z.object({
-	discountPercentage: z
+	rafflePrize: z
 		.string()
-		.min(1, "A porcentagem de desconto é obrigatória!"),
-	couponCode: z.string().min(1, "O código do cupom é obrigatório!"),
+		.min(1, "※ O titulo do sorteio é obrigatório!")
+		.trim()
+		.refine(
+			(rPrize) => {
+				const sanitized = DOMPurify.sanitize(rPrize);
+
+				const isValid = /^[A-Za-zÀ-ÿ\s\.,—\-0-9\[\]\(\)]+$/.test(
+					sanitized
+				);
+
+				return isValid;
+			},
+			{
+				message: "※ O título possui caracteres inválidos!",
+			}
+		),
+	raffleDate: z
+		.string()
+		.refine((val) => !isNaN(Date.parse(val)), {
+			message: "※ A data de realização do sorteio é obrigatória!",
+		})
+		.refine((val) => val >= today, {
+			message: "※ A data não pode ser anterior à data atual!",
+		}),
+	raffleCost: z
+		.string()
+		.min(1, "※ O custo do sorteio é obrigatório!")
+		.trim()
+		.transform((value) => value.replace(",", "."))
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ Insira um valor válido!",
+		}),
+	minNumberParticipants: z
+		.string()
+		.min(1, "※ A quantidade mínima de participantes é obrigatória!")
+		.trim()
+		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			message: "※ Insira um número válido!",
+		})
+		.refine(
+			(value) => {
+				const numberValue = Number(value);
+
+				return !isNaN(numberValue) && Number.isInteger(numberValue);
+			},
+			{
+				message: "※ Insira somente números inteiros!",
+			}
+		),
+	raffleDescription: z
+		.string()
+		.min(1, "※ A descrição do sorteio é obrigatória!")
+		.trim()
+		.refine(
+			(desc) => {
+				// Lista de tags HTML permitidas para formatação básica
+				const allowedTags = [
+					"b",
+					"i",
+					"u",
+					"strong",
+					"em",
+					"p",
+					"ul",
+					"ol",
+					"li",
+					"br",
+					"a",
+					"span",
+				];
+
+				// Sanitizar a descrição, permitindo apenas as tags especificadas
+				const sanitized = DOMPurify.sanitize(desc, {
+					ALLOWED_TAGS: allowedTags,
+				});
+
+				// Checar se a descrição contém algum conteúdo não permitido (tags ilegais já são removidas pelo DOMPurify)
+				const isValid = sanitized.length > 0;
+
+				return isValid;
+			},
+			{
+				message: "※ A descrição possui caracteres inválidos!",
+			}
+		)
+		.refine(
+			(value) => {
+				if (value === undefined || value === "") {
+					return true;
+				}
+				return value.length >= 100;
+			},
+			{
+				message: "※ A descrição precisa ter no mínimo 100 caracteres!",
+			}
+		),
+	raffleRules: z
+		.string()
+		.min(1, "※ As regras do sorteio são obrigatória!")
+		.trim()
+		.refine(
+			(desc) => {
+				// Lista de tags HTML permitidas para formatação básica
+				const allowedTags = [
+					"b",
+					"i",
+					"u",
+					"strong",
+					"em",
+					"p",
+					"ul",
+					"ol",
+					"li",
+					"br",
+					"a",
+					"span",
+				];
+
+				// Sanitizar a descrição, permitindo apenas as tags especificadas
+				const sanitized = DOMPurify.sanitize(desc, {
+					ALLOWED_TAGS: allowedTags,
+				});
+
+				// Checar se a descrição contém algum conteúdo não permitido (tags ilegais já são removidas pelo DOMPurify)
+				const isValid = sanitized.length > 0;
+
+				return isValid;
+			},
+			{
+				message: "※ As regras possuem caracteres inválidos!",
+			}
+		)
+		.refine(
+			(value) => {
+				if (value === undefined || value === "") {
+					return true;
+				}
+				return value.length >= 100;
+			},
+			{
+				message: "※ As regras precisa ter no mínimo 100 caracteres!",
+			}
+		),
+	imagesRaffle: z
+		.instanceof(FileList)
+		.transform((list) => {
+			const files = [];
+
+			for (let i = 0; i < list.length; i++) {
+				files.push(list.item(i));
+			}
+
+			return files;
+		})
+		.refine(
+			(files) => {
+				return files !== null && files.length > 0;
+			},
+			{
+				message: "※ Insira pelo menos 1 imagem!",
+			}
+		)
+		.refine(
+			(files) => {
+				return files.every(
+					(file) => file === null || file.size <= 2 * 1024 * 1024
+				);
+			},
+			{
+				message: "※ Cada arquivo precisa ter no máximo 2Mb!",
+			}
+		)
+		.refine(
+			(files) => {
+				return files.every(
+					(file) =>
+						file === null || /\.(jpg|jpeg|png)$/i.test(file.name)
+				);
+			},
+			{
+				message:
+					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+			}
+		),
 });
+
+type TCreateCouponFormSchema = z.infer<typeof createCouponFormSchema>;
 
 function CreateRafflePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [partner, setPartner] = useState({});
+	const [imagemSelecionada, setImagemSelecionada] = useState<
+		string | ArrayBuffer | null
+	>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
 	const router = useRouter();
@@ -49,7 +238,10 @@ function CreateRafflePage() {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm({ resolver: zodResolver(createCouponFormSchema) });
+	} = useForm<TCreateCouponFormSchema>({
+		resolver: zodResolver(createCouponFormSchema),
+		mode: "onBlur",
+	});
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -62,17 +254,56 @@ function CreateRafflePage() {
 		});
 	}, [token]);
 
-	async function handleCreateRaffle(CouponData) {
-		try {
-			const response = await api.post("/coupons/create", CouponData, {
-				headers: {
-					Authorization: `Bearer ${JSON.parse(token)}`,
-				},
+	const handleImagemSelecionada = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = () => {
+				setImagemSelecionada(reader.result);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	async function handleCreateRaffle(CouponData: { [key: string]: any }) {
+		console.log(CouponData);
+
+		const formData = new FormData();
+
+		console.log(formData);
+
+		// Itera sobre os campos de texto e adiciona ao FormData
+		Object.entries(CouponData).forEach(([key, value]) => {
+			if (key !== "imagesRaffle") {
+				formData.append(key, value);
+			}
+		});
+
+		// Itera sobre as imagens e adiciona ao FormData
+		if (CouponData.imagesRaffle) {
+			CouponData.imagesRaffle.forEach((image: File) => {
+				formData.append(`imagesRaffle`, image);
 			});
+		}
+
+		console.log(formData);
+
+		try {
+			const response = await api.post(
+				"/raffles/create-raffle",
+				formData,
+				{
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
+					},
+				}
+			);
 
 			toast.success(response.data.message);
 
-			router.push("/dashboard/mycoupons");
+			router.push("/dashboard/myraffles");
 			return response.data;
 		} catch (error) {
 			toast.error(error.response.data.message);
@@ -98,23 +329,57 @@ function CreateRafflePage() {
 									Criar Sorteio
 								</h1>
 
-								<div className="flex flex-row gap-10">
-									{/* Nome e Descrição */}
-									<label className="form-control w-full">
-										<div className="label">
-											<span className="label-text text-black">
-												Prêmio do Sorteio
-											</span>
-										</div>
-										<input
-											type="text"
-											placeholder={`Digite o título do prêmio...`}
-											className="input input-bordered input-success"
-										/>
-									</label>
-								</div>
-
 								<div className="flex flex-col gap-10">
+									{/* Nome e Descrição */}
+									<div className="flex flex-row gap-8 w-full">
+										<label className="form-control">
+											<div className="label">
+												<span className="label-text text-black">
+													Prêmio do Sorteio
+												</span>
+											</div>
+											<div className="join">
+												{/* <div className="indicator">
+												<button
+													type="button"
+													className="btn join-item flex flex-row items-center">
+													<TbCurrencyReal size={20} />
+												</button>
+											</div> */}
+												<div>
+													<div>
+														<input
+															type="text"
+															placeholder={`Digite o título do prêmio...`}
+															className={`input input-bordered ${
+																errors.rafflePrize
+																	? `input-error`
+																	: `input-success`
+															} w-[1100px]`}
+															{...register(
+																"rafflePrize"
+															)}
+														/>
+													</div>
+												</div>
+											</div>
+											<div className="label">
+												{errors.rafflePrize ? (
+													<span className="label-text-alt text-red-500">
+														{
+															errors.rafflePrize
+																.message
+														}
+													</span>
+												) : (
+													<span className="label-text-alt text-black">
+														Exemplo
+													</span>
+												)}
+											</div>
+										</label>
+									</div>
+
 									<div className="flex flex-row gap-8 w-full">
 										{/* Cashback Atual */}
 										<label className="form-control">
@@ -128,8 +393,16 @@ function CreateRafflePage() {
 													<div>
 														<input
 															type="date"
-															className="input input-bordered input-success join-item w-[296px]"
+															min={today} // Impede datas anteriores a hoje
+															className={`input input-bordered ${
+																errors.raffleDate
+																	? `input-error`
+																	: `input-success`
+															} join-item w-[296px]`}
 															placeholder={`dd/MM`}
+															{...register(
+																"raffleDate"
+															)}
 														/>
 													</div>
 												</div>
@@ -144,10 +417,18 @@ function CreateRafflePage() {
 												</div>
 											</div>
 											<div className="label">
-												<span className="label-text-alt text-black">
-													Não possível alterar por
-													aqui
-												</span>
+												{errors.raffleDate ? (
+													<span className="text-red-500 label-text-alt">
+														{
+															errors.raffleDate
+																.message
+														}
+													</span>
+												) : (
+													<span className="label-text-alt text-black">
+														Ex: 20/04
+													</span>
+												)}
 											</div>
 										</label>
 
@@ -162,13 +443,14 @@ function CreateRafflePage() {
 												<div>
 													<div>
 														<input
-															className={`${
-																errors.discountPercentage &&
-																`input-error`
-															} input input-bordered input-success join-item w-[296px]`}
+															className={`input input-bordered ${
+																errors.raffleCost
+																	? `input-error`
+																	: `input-success`
+															} join-item w-[296px]`}
 															placeholder="0"
 															{...register(
-																"discountPercentage"
+																"raffleCost"
 															)}
 														/>
 													</div>
@@ -182,17 +464,16 @@ function CreateRafflePage() {
 												</div>
 											</div>
 											<div className="label">
-												{errors.discountPercentage ? (
+												{errors.raffleCost ? (
 													<span className="text-red-500 label-text-alt">
 														{
-															errors
-																.discountPercentage
+															errors.raffleCost
 																.message
 														}
 													</span>
 												) : (
 													<span className="label-text-alt text-black">
-														Ex: 10 Otaku Points
+														Ex: 10,50 Otaku Points
 													</span>
 												)}
 											</div>
@@ -210,13 +491,14 @@ function CreateRafflePage() {
 												<div>
 													<div>
 														<input
-															className={`${
-																errors.discountPercentage &&
-																`input-error`
-															} input input-bordered input-success join-item w-[295px]`}
+															className={`input input-bordered ${
+																errors.minNumberParticipants
+																	? `input-error`
+																	: `input-success`
+															} join-item w-[295px]`}
 															placeholder="0"
 															{...register(
-																"discountPercentage"
+																"minNumberParticipants"
 															)}
 														/>
 													</div>
@@ -232,11 +514,11 @@ function CreateRafflePage() {
 												</div>
 											</div>
 											<div className="label">
-												{errors.discountPercentage ? (
+												{errors.minNumberParticipants ? (
 													<span className="text-red-500 label-text-alt">
 														{
 															errors
-																.discountPercentage
+																.minNumberParticipants
 																.message
 														}
 													</span>
@@ -259,14 +541,22 @@ function CreateRafflePage() {
 												</span>
 											</div>
 											<textarea
-												className="textarea textarea-bordered w-[535px] h-[150px]"
-												placeholder="Bio"></textarea>
+												className={`textarea textarea-bordered ${
+													errors.raffleDescription
+														? `textarea-error`
+														: `textarea-success`
+												} w-[535px] h-[150px]`}
+												placeholder="..."
+												{...register(
+													"raffleDescription"
+												)}></textarea>
 
 											<div className="label">
-												{errors.couponCode ? (
+												{errors.raffleDescription ? (
 													<span className="text-red-500 label-text-alt">
 														{
-															errors.couponCode
+															errors
+																.raffleDescription
 																.message
 														}
 													</span>
@@ -286,21 +576,27 @@ function CreateRafflePage() {
 												</span>
 											</div>
 											<textarea
-												className="textarea textarea-bordered w-[536px] h-[150px]"
-												placeholder="Bio"></textarea>
+												className={`textarea textarea-bordered ${
+													errors.raffleRules
+														? `textarea-error`
+														: `textarea-success`
+												} w-[535px] h-[150px]`}
+												placeholder="..."
+												{...register(
+													"raffleRules"
+												)}></textarea>
 
 											<div className="label">
-												{errors.couponCode ? (
+												{errors.raffleRules ? (
 													<span className="text-red-500 label-text-alt">
 														{
-															errors.couponCode
+															errors.raffleRules
 																.message
 														}
 													</span>
 												) : (
 													<span className="label-text-alt text-black">
-														Informe as regras do
-														Sorteio
+														Descreva as informações
 													</span>
 												)}
 											</div>
@@ -312,6 +608,64 @@ function CreateRafflePage() {
 
 						{/* Gadget 2 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
+							{/* Adicionar Porduto */}
+							<div className="flex flex-col gap-2 ml-6 mb-6">
+								<h1 className="text-2xl font-semibold text-black">
+									Imagens do Prêmio
+								</h1>
+								{/* Add Imagens */}
+								<label className="form-control w-full max-w-3xl">
+									<div className="label">
+										<span className="label-text text-black">
+											Imagem Principal
+										</span>
+									</div>
+									<div
+										className={`${
+											errors.imagesRaffle &&
+											`border-error`
+										} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+										{imagemSelecionada ? (
+											<img
+												src={imagemSelecionada}
+												alt="Imagem selecionada"
+												className="object-contain w-full h-full rounded-sm"
+											/>
+										) : (
+											<div
+												className="flex flex-col justify-center items-center "
+												onChange={
+													handleImagemSelecionada
+												}>
+												<h2 className="text-xs mb-2">
+													Add Imagem
+												</h2>
+												<AddPicture size={20} />
+												<input
+													className="hidden"
+													type="file"
+													accept="image/*"
+													multiple
+													{...register(
+														"imagesRaffle"
+													)}
+												/>
+											</div>
+										)}
+									</div>
+									<div className="label">
+										{errors.imagesRaffle && (
+											<span className="label-text-alt text-red-500">
+												{errors.imagesRaffle.message}
+											</span>
+										)}
+									</div>
+								</label>
+							</div>
+						</div>
+
+						{/* Gadget 3 */}
+						{/* <div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
 									Importante!
@@ -352,9 +706,9 @@ function CreateRafflePage() {
 									</p>
 								</div>
 							</div>
-						</div>
+						</div> */}
 
-						{/* Gadget 3 */}
+						{/* Gadget 4 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">

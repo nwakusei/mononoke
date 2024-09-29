@@ -25,6 +25,20 @@ function MyRafflesByID() {
 	const [loadingBtn, setLoadingBtn] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 
+	const [counter, setCounter] = useState(5); // Iniciar com 99, por exemplo
+
+	// Atualizar o contador a cada segundo
+	useEffect(() => {
+		if (counter > 0) {
+			const intervalId = setInterval(() => {
+				setCounter((prevCounter) => prevCounter - 1);
+			}, 1000);
+
+			// Limpar o intervalo quando o contador chegar a 0
+			return () => clearInterval(intervalId);
+		}
+	}, [counter]);
+
 	useEffect(() => {
 		api.get(`/raffles/partner-raffle/${id}`, {
 			headers: {
@@ -93,7 +107,7 @@ function MyRafflesByID() {
 					</div>
 
 					{/* Componente intermediário */}
-					<div className="flex flex-col w-[700px] text-black py-4 pr-4">
+					<div className="flex flex-col w-[640px] text-black py-4 pr-4">
 						<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md select-none">
 							Detalhes do Sorteio
 						</div>
@@ -107,16 +121,19 @@ function MyRafflesByID() {
 							/> */}
 							<Coupon size={17} />
 							<span>
-								Valor do Ticket:{" "}
-								{myraffle?.raffleCost?.toLocaleString("pt-BR")}{" "}
-								OP
+								{`Valor do Ticket: ${myraffle?.raffleCost?.toLocaleString(
+									"pt-BR",
+									{
+										minimumFractionDigits: 2,
+										maximumFractionDigits: 2,
+									}
+								)} OP`}
 							</span>
 						</div>
 						<div className="flex flex-row items-center gap-2">
 							<BsPersonFill size={17} />
 							<span>
-								Mínimo de Participantes:{" "}
-								{myraffle?.minNumberParticipants}
+								{`Mínimo de Participantes: ${myraffle?.minNumberParticipants}`}
 							</span>
 						</div>
 						<div className="flex flex-row items-center gap-2">
@@ -138,11 +155,10 @@ function MyRafflesByID() {
 							{/* <BsPeopleFill size={17} /> */}
 							<MdOutlineLocalActivity size={19} />
 							<span>
-								Tickets Registrados:{" "}
-								{myraffle?.registeredTickets?.length}
+								{`Tickets Registrados: ${myraffle?.registeredTickets?.length}`}
 							</span>
 						</div>
-						<div>
+						<div className="break-words">
 							<h2 className="mb-2">
 								<span className="font-semibold">
 									Descrição:
@@ -150,7 +166,7 @@ function MyRafflesByID() {
 								{myraffle?.raffleDescription}
 							</h2>
 						</div>
-						<div>
+						<div className="break-words">
 							<h2 className="">
 								<span className="font-semibold">Regras:</span>{" "}
 								{myraffle?.raffleRules}
@@ -185,6 +201,13 @@ function MyRafflesByID() {
 							<p className="my-2 text-black text-center">
 								Este sorteio ainda não foi realizado!
 							</p>
+							<span className="countdown font-mono text-6xl">
+								{/* Atualizando a variável CSS --value dinamicamente */}
+								<span
+									style={{
+										["--value" as any]: counter,
+									}}></span>
+							</span>
 						</>
 					)}
 				</div>
