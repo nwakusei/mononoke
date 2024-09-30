@@ -7,14 +7,15 @@ import api from "@/utils/api";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
-
-// Imagens e Logos
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Icons
 
 function ReviewsPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [orders, setOrders] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingButtonId, setLoadingButtonId] = useState(null);
 
 	useEffect(() => {
 		const fethData = async () => {
@@ -30,6 +31,8 @@ function ReviewsPage() {
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
+
+				setIsLoading(false);
 			} catch (error) {
 				console.error("Erro ao obter dados do Pedido:", error);
 			}
@@ -37,6 +40,17 @@ function ReviewsPage() {
 
 		fethData();
 	}, [token]);
+
+	const handleClick = (orderId) => {
+		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
+		setTimeout(() => {
+			window.location.href = `/dashboard/reviews/${orderId}`;
+		}, 2000); // O tempo pode ser ajustado conforme necessário
+	};
+
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
@@ -135,12 +149,22 @@ function ReviewsPage() {
 														</div>
 													</td>
 													<th>
-														<button className="flex items-center btn btn-primary btn-xs shadow-md">
-															<Link
-																href={`/dashboard/reviews/${order._id}`}>
-																Avaliar
-															</Link>
-														</button>
+														{loadingButtonId ===
+														order._id ? (
+															<button className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
+																<span className="loading loading-dots loading-md"></span>
+															</button>
+														) : (
+															<button
+																onClick={() =>
+																	handleClick(
+																		order._id
+																	)
+																} // Passa o ID do pedido
+																className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
+																+ Detalhes
+															</button>
+														)}
 													</th>
 												</tr>
 											))}

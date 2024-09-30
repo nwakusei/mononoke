@@ -142,22 +142,18 @@ const createProductFormSchema = z.object({
 		.string()
 		.min(1, "※ O valor do produto é obrigatório!")
 		.trim()
-		.transform((value) => value.replace(",", "."))
-		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ Insira um valor válido!",
+		.refine((value) => /^\d+,\d{2}$/.test(value), {
+			message: "※ Insira um valor válido no formato 0,00!",
 		})
-		.transform((value) => parseFloat(value)),
+		.transform((value) => parseFloat(value.replace(",", "."))),
 	promocionalPrice: z
 		.string()
 		.trim()
 		.optional()
-		.transform((value) =>
-			value === undefined || value === "" ? "0" : value.replace(",", ".")
-		)
-		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ Insira um valor válido!",
+		.refine((value) => /^\d+,\d{2}$/.test(value), {
+			message: "※ Insira um valor válido no formato 0,00!",
 		})
-		.transform((value) => parseFloat(value)),
+		.transform((value) => parseFloat(value.replace(",", "."))),
 	stock: z
 		.string()
 		.min(1, "※ A quantidade em estoque é obrigatória!")

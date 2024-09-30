@@ -1,19 +1,89 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 
+// ToastFy
+import { toast } from "react-toastify";
+
+// Axios
 import api from "@/utils/api";
+
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
-import { toast } from "react-toastify";
 import { AddPicture } from "@icon-park/react";
 
-// Imagens e Logos
-
 // Icons
+
+// React Hook Form, Zod e ZodResolver
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const createReviewFormSchema = z.object({
+	imagesReview: z
+		.instanceof(FileList)
+		.transform((list) => {
+			const files = [];
+
+			for (let i = 0; i < list.length; i++) {
+				files.push(list.item(i));
+			}
+
+			return files;
+		})
+		.refine(
+			(files) => {
+				return files !== null && files.length > 0;
+			},
+			{
+				message: "※ Insira pelo menos 1 imagem!",
+			}
+		)
+		.refine(
+			(files) => {
+				return files.every(
+					(file) => file === null || file.size <= 2 * 1024 * 1024
+				);
+			},
+			{
+				message: "※ Cada arquivo precisa ter no máximo 2Mb!",
+			}
+		)
+		.refine(
+			(files) => {
+				return files.every(
+					(file) =>
+						file === null || /\.(jpg|jpeg|png)$/i.test(file.name)
+				);
+			},
+			{
+				message:
+					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+			}
+		),
+	reviewRating: z
+		.string()
+		.min(1, "A nota é obrigatória!")
+		.refine(
+			(note) => {
+				const numberValue = Number(note);
+
+				return numberValue > 0.0;
+			},
+			{
+				message: "Insirá um valor maior do que 0,1",
+			}
+		),
+	reviewDescription: z.string().min(1, "A descrição é obrigatória!"),
+});
+
+type TCreateReviewFormSchema = z.infer<typeof createReviewFormSchema>;
 
 function ReviewByIdPage() {
 	const { id } = useParams();
@@ -23,6 +93,19 @@ function ReviewByIdPage() {
 	const [description, setDescription] = useState("");
 	const [images, setImages] = useState([]);
 	const [sendReviewLoading, setSendReviewLoading] = useState(false);
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<TCreateReviewFormSchema>({
+		resolver: zodResolver(createReviewFormSchema),
+		mode: "onBlur",
+	});
+
+	const [imagemSelecionada, setImagemSelecionada] = useState<
+		string | ArrayBuffer | null
+	>(null);
 
 	useEffect(() => {
 		const fetchOrder = async () => {
@@ -47,22 +130,21 @@ function ReviewByIdPage() {
 		fetchOrder();
 	}, [token, id]);
 
-	// const handleChange = (event) => {
-	// 	const newValue = event.target.value;
-	// 	setInputValue(newValue);
-	// };
-
-	const handleBlur = () => {
-		let newValue = parseFloat(inputValue);
-		if (isNaN(newValue) || newValue < 0) {
-			newValue = 0;
-		} else if (newValue > 5) {
-			newValue = 5;
+	const handleImagemSelecionada = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = () => {
+				setImagemSelecionada(reader.result);
+			};
+			reader.readAsDataURL(file);
 		}
-		setInputValue(newValue.toFixed(1));
 	};
 
-	const increment = () => {
+	const increment = (event) => {
+		event.preventDefault(); // Previne a submissão do formulário
 		let newValue = parseFloat(inputValue) + 0.1;
 		if (newValue > 5) {
 			newValue = 5;
@@ -70,7 +152,8 @@ function ReviewByIdPage() {
 		setInputValue(newValue.toFixed(1));
 	};
 
-	const decrement = () => {
+	const decrement = (event) => {
+		event.preventDefault(); // Previne a submissão do formulário
 		let newValue = parseFloat(inputValue) - 0.1;
 		if (newValue < 0) {
 			newValue = 0;
@@ -80,66 +163,47 @@ function ReviewByIdPage() {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Função para enviar a avaliação
-	const handleSubmitReview = async () => {
-		try {
-			setSendReviewLoading(true);
+	async function handleSubmitReview(data: { [key: string]: any }) {
+		console.log("Data: ", data);
 
-			const formData = new FormData();
-			formData.append("reviewRating", inputValue);
-			formData.append("reviewDescription", description);
-			images.forEach((image) => {
-				formData.append("imagesReview", image);
+		const formData = new FormData();
+
+		Object.entries(data).forEach(([key, value]) => {
+			if (key !== "imagesReview") {
+				formData.append(key, value);
+			}
+		});
+
+		if (data.imagesReview) {
+			data.imagesReview.forEach((image: File) => {
+				formData.append(`imagesReview`, image);
 			});
+		}
 
+		try {
 			const response = await api.patch(
 				`/reviews/create-review/${id}`,
 				formData,
 				{
 					headers: {
 						Authorization: `Bearer ${JSON.parse(token)}`,
-						"Content-Type": "multipart/form-data",
 					},
 				}
 			);
 
-			setSendReviewLoading(false);
 			toast.success(response.data.message);
-		} catch (error) {
-			setSendReviewLoading(false);
+		} catch (error: any) {
 			toast.error(error.response.data.message);
 		}
-	};
-
-	// Funções para manipular o estado dos inputs
-	const handleChange = (event) => {
-		setInputValue(event.target.value);
-	};
-
-	const handleDescriptionChange = (event) => {
-		setDescription(event.target.value);
-	};
-
-	const handleImageChange = (event) => {
-		const files = event.target.files;
-		setImages([...images, ...files]);
-	};
-
-	// const handleImageChange = (event) => {
-	// 	const file = event.target.files[0];
-	// 	if (file) {
-	// 		const reader = new FileReader();
-	// 		reader.onload = () => {
-	// 			setImages(reader.result);
-	// 		};
-	// 		reader.readAsDataURL(file);
-	// 	}
-	// };
+	}
 
 	return (
 		<section className="bg-gray-100 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10">
-				<div className="flex flex-col gap-4 mb-8">
+				<form
+					onSubmit={handleSubmit(handleSubmitReview)}
+					className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
 					<div className="bg-white text-black w-[1200px] p-6 rounded-md shadow-md mt-4">
 						{/* Adicionar Porduto */}
@@ -216,6 +280,7 @@ function ReviewByIdPage() {
 								</table>
 							</div>
 						</div>
+
 						<div className="flex flex-row gap-16">
 							<div>
 								<div className="text-base mb-4">
@@ -233,15 +298,21 @@ function ReviewByIdPage() {
 										</button>
 
 										<input
-											className="text-lg text-center bg-gray-300
+											className={`input input-bordered ${
+												errors.reviewRating
+													? `input-error`
+													: `input-success`
+											} text-lg text-center bg-gray-300
 																w-[60px] h-[32px]
-																rounded"
+																rounded`}
 											type="text"
 											min="0"
 											max="5"
 											step="0.1"
 											value={inputValue}
+											{...register("reviewRating")}
 										/>
+
 										<button
 											onClick={increment}
 											className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
@@ -250,7 +321,17 @@ function ReviewByIdPage() {
 											</h1>
 										</button>
 									</div>
-									<div className="-mt-3">Ex.: 4.3 ou 5</div>
+									<div className="label">
+										{errors.reviewRating ? (
+											<span className="label-text-alt text-red-500">
+												{errors.reviewRating.message}
+											</span>
+										) : (
+											<span className="label-text-alt text-black">
+												Exemplo
+											</span>
+										)}
+									</div>
 								</div>
 							</div>
 							<div>
@@ -260,20 +341,86 @@ function ReviewByIdPage() {
 									</div>
 								</label>
 								<textarea
-									onChange={handleDescriptionChange}
-									className="textarea textarea-bordered text-white w-[600px]"
-									placeholder="Conte como foi a sua experiência..."></textarea>
+									className={`textarea textarea-bordered ${
+										errors.reviewDescription
+											? `textarea-error`
+											: `textarea-success`
+									} text-white w-[600px]`}
+									placeholder="Conte como foi a sua experiência..."
+									{...register(
+										"reviewDescription"
+									)}></textarea>
+								<div className="label">
+									{errors.reviewDescription ? (
+										<span className="label-text-alt text-red-500">
+											{errors.reviewDescription.message}
+										</span>
+									) : (
+										<span className="label-text-alt text-black">
+											Exemplo
+										</span>
+									)}
+								</div>
 							</div>
 						</div>
-
-						<input
-							type="file"
-							accept="image/*"
-							multiple
-							onChange={handleImageChange}
-						/>
 					</div>
+
 					{/* Gadget 2 */}
+					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
+						<div className="flex flex-col gap-2 ml-6 mb-6">
+							<h1 className="text-2xl font-semibold text-black">
+								Fotos
+							</h1>
+							<label className="form-control w-full max-w-3xl">
+								<div className="label">
+									<span className="label-text text-black">
+										Foto Principal
+									</span>
+								</div>
+								<div
+									className={`${
+										errors.imagesReview
+											? `border-error`
+											: `border-success`
+									} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+									{imagemSelecionada ? (
+										<Image
+											src={imagemSelecionada}
+											alt="Imagem selecionada"
+											className="object-contain w-full h-full rounded-sm"
+											width={10}
+											height={10}
+										/>
+									) : (
+										<div
+											className="flex flex-col justify-center items-center "
+											onChange={handleImagemSelecionada}>
+											<h2 className="text-xs mb-2">
+												Add Imagem
+											</h2>
+											<AddPicture size={20} />
+											<input
+												className="hidden"
+												type="file"
+												accept="image/*"
+												multiple
+												{...register("imagesReview")}
+											/>
+										</div>
+									)}
+								</div>
+								<div className="label">
+									{errors.imagesReview && (
+										<span className="label-text-alt text-red-500">
+											{errors.imagesReview.message}
+										</span>
+									)}
+								</div>
+							</label>
+						</div>
+					</div>
+
+					{/* Gadget 3 */}
 					<div className="flex flex-row justify-between items-center gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md">
 						<div className="flex flex-row gap-4">
 							{sendReviewLoading ? (
@@ -283,14 +430,14 @@ function ReviewByIdPage() {
 								</button>
 							) : (
 								<button
-									onClick={handleSubmitReview}
+									type="submit"
 									className="btn btn-primary shadow-md">
 									Enviar Avaliação
 								</button>
 							)}
 						</div>
 					</div>
-				</div>
+				</form>
 			</div>
 		</section>
 	);

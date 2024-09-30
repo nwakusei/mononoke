@@ -65,10 +65,10 @@ const createCouponFormSchema = z.object({
 		.string()
 		.min(1, "※ O custo do sorteio é obrigatório!")
 		.trim()
-		.transform((value) => value.replace(",", "."))
-		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ Insira um valor válido!",
-		}),
+		.refine((value) => /^\d+,\d{2}$/.test(value), {
+			message: "※ Insira um valor válido no formato 0,00!",
+		})
+		.transform((value) => parseFloat(value.replace(",", "."))),
 	minNumberParticipants: z
 		.string()
 		.min(1, "※ A quantidade mínima de participantes é obrigatória!")

@@ -20,6 +20,7 @@ function WalletPage() {
 	const [userOtakupay, setUserOtakupay] = useState({});
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [isLoading, setIsLoading] = useState(true);
+	const [loadingButtonId, setLoadingButtonId] = useState(false);
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -44,6 +45,13 @@ function WalletPage() {
 				console.error("Erro ao obter saldo do OtakuPay:", error);
 			});
 	}, [token]);
+
+	const handleClick = () => {
+		setLoadingButtonId(true);
+		setTimeout(() => {
+			window.location.href = `/dashboard/wallet/add-balance`;
+		}, 2000); // O tempo pode ser ajustado conforme necessário
+	};
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -84,17 +92,18 @@ function WalletPage() {
 									</h1>
 								</div>
 								<div className="flex flex-col mx-6 gap-4">
-									<Link href="/dashboard/wallet/add-balance">
-										<button className="flex flex-row items-center btn btn-outline btn-primary text-black w-[200px] hover:shadow-md">
+									{loadingButtonId ? (
+										<button className="flex flex-row items-center btn btn-primary text-black shadow-md w-[200px]">
+											<span className="loading loading-spinner loading-md"></span>
+										</button>
+									) : (
+										<button
+											onClick={handleClick}
+											className="flex flex-row items-center btn btn-outline btn-primary text-black w-[200px] hover:shadow-md">
 											<AiOutlineMoneyCollect size={22} />
 											Adicionar Crédito
 										</button>
-									</Link>
-
-									{/* <button className="btn btn-success">
-										<Expenses size={18} />
-										Sacar
-									</button> */}
+									)}
 								</div>
 							</div>
 							{/* <div className="flex flex-row mx-6 gap-4">

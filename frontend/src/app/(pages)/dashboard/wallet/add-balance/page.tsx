@@ -285,7 +285,14 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const createPixCodeFormSchema = z.object({
-	inputValue: z.string().min(1, "Item Obrigatório!"),
+	inputValue: z
+		.string()
+		.min(1, "※ O valor é obrigatório!")
+		.trim()
+		.refine((value) => /^\d+,\d{2}$/.test(value), {
+			message: "※ Insira um valor válido no formato 0,00!",
+		})
+		.transform((value) => parseFloat(value.replace(",", "."))),
 });
 
 type TCreatePixCodeFormSchema = z.infer<typeof createPixCodeFormSchema>;
@@ -300,6 +307,7 @@ function AddBalance() {
 	// Estado para armazenar o código do Pix copia e cola
 	const [pixCode, setPixCode] = useState("");
 	const [isLoading, setIsLoading] = useState(true);
+	const [loadingButtonId, setLoadingButtonId] = useState(false);
 
 	const {
 		register,
@@ -308,6 +316,7 @@ function AddBalance() {
 		setValue,
 	} = useForm<TCreatePixCodeFormSchema>({
 		resolver: zodResolver(createPixCodeFormSchema),
+		mode: "onBlur",
 	});
 
 	useEffect(() => {
@@ -327,10 +336,6 @@ function AddBalance() {
 
 	async function handleQRCode(data) {
 		let originalValue = data.inputValue;
-
-		if (originalValue.includes(",")) {
-			originalValue = originalValue.replace(",", ".");
-		}
 
 		try {
 			setBtnLoading(true);
@@ -371,6 +376,13 @@ function AddBalance() {
 	const copyPixCode = () => {
 		navigator.clipboard.writeText(pixCode);
 		toast.success("Código Pix copiado para a área de transferência!");
+	};
+
+	const handleClick = () => {
+		setLoadingButtonId(true);
+		setTimeout(() => {
+			window.location.href = `/dashboard/wallet`;
+		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 
 	if (isLoading) {
@@ -515,11 +527,17 @@ function AddBalance() {
 				</div>
 
 				<div className="flex flex-row justify-center bg-gray-300 h-screen">
-					<Link href="/dashboard/wallet">
-						<button className="btn btn-primary select-none shadow-md">
+					{loadingButtonId ? (
+						<button className="flex flex-row items-center btn btn-primary text-black shadow-md w-[200px]">
+							<span className="loading loading-spinner loading-md"></span>
+						</button>
+					) : (
+						<button
+							onClick={handleClick}
+							className="flex flex-row items-center btn btn-primary text-black w-[200px] shadow-md">
 							Realizei o Pagamento
 						</button>
-					</Link>
+					)}
 				</div>
 			</div>
 		</section>
