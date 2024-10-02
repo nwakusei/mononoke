@@ -2,7 +2,9 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
+// Axios
 import api from "@/utils/api";
 
 // Components
@@ -16,6 +18,8 @@ function ReviewsPage() {
 	const [orders, setOrders] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingButtonId, setLoadingButtonId] = useState(null);
+
+	const router = useRouter();
 
 	useEffect(() => {
 		const fethData = async () => {
@@ -44,7 +48,7 @@ function ReviewsPage() {
 	const handleClick = (orderId) => {
 		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
 		setTimeout(() => {
-			window.location.href = `/dashboard/reviews/${orderId}`;
+			router.push(`/dashboard/reviews/${orderId}`);
 		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 
@@ -152,7 +156,7 @@ function ReviewsPage() {
 														{loadingButtonId ===
 														order._id ? (
 															<button className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
-																<span className="loading loading-dots loading-md"></span>
+																<span className="loading loading-dots loading-sm"></span>
 															</button>
 														) : (
 															<button

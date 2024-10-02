@@ -7,13 +7,13 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
+
 // React Hook Form e Zod
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-// Bliblioteca de Sanitização
-import DOMPurify from "dompurify";
 
 const updateUserFormSchema = z
 	.object({
@@ -79,6 +79,7 @@ const updateUserFormSchema = z
 			.toLowerCase(),
 		cpf: z
 			.string()
+			.trim()
 			.optional()
 			.refine(
 				(val) => val === undefined || val === "" || !isNaN(Number(val)),
@@ -92,6 +93,7 @@ const updateUserFormSchema = z
 
 		cpfCnpj: z
 			.string()
+			.trim()
 			.optional()
 			.refine(
 				(val) => val === undefined || val === "" || !isNaN(Number(val)),
@@ -115,6 +117,7 @@ const updateUserFormSchema = z
 			),
 		description: z
 			.string()
+			.trim()
 			.optional()
 			.refine(
 				(value) => {
@@ -132,6 +135,7 @@ const updateUserFormSchema = z
 		street: z
 			.string()
 			.min(1, "※ Digite o nome da rua e o número!")
+			.trim()
 			.refine(
 				(st) => {
 					const sanitized = DOMPurify.sanitize(st);
@@ -150,6 +154,7 @@ const updateUserFormSchema = z
 			}),
 		complement: z
 			.string()
+			.trim()
 			.optional()
 			.refine(
 				(comp) => {
@@ -172,6 +177,7 @@ const updateUserFormSchema = z
 		neighborhood: z
 			.string()
 			.min(1, "※ Digite o nome do bairro!")
+			.trim()
 			.refine(
 				(nbh) => {
 					const sanitized = DOMPurify.sanitize(nbh);
@@ -190,6 +196,7 @@ const updateUserFormSchema = z
 		city: z
 			.string()
 			.min(1, "※ Digite o nome da cidade!")
+			.trim()
 			.refine(
 				(city) => {
 					const sanitized = DOMPurify.sanitize(city);
@@ -205,20 +212,22 @@ const updateUserFormSchema = z
 			.transform((city) => {
 				return city.trim();
 			}),
-		state: z.string().min(1, "※ Informe o estado!"),
+		state: z.string().min(1, "※ Informe o estado!").trim(),
 		postalCode: z
 			.string()
 			.min(8, "※ Digite o número do CEP!")
 			.max(8, "※ O CEP precisa ter 8 números!")
+			.trim()
 			.refine(
 				(val) => val === undefined || val === "" || !isNaN(Number(val)),
 				{
 					message: "※ O CEP deve ser um número válido!",
 				}
 			),
-		credential: z.string().optional(), // Torna opcional inicialmente
+		credential: z.string().trim().optional(), // Torna opcional inicialmente
 		cashback: z
 			.string()
+			.trim()
 			.optional() // Mantém como opcional inicialmente
 			.refine(
 				(val) => val === undefined || val === "" || !isNaN(Number(val)),
@@ -244,6 +253,7 @@ const updateUserFormSchema = z
 			.transform((val) => (val ? Number(val) : undefined)), // Converte a string para número ou retorna undefined
 		password: z
 			.string()
+			.trim()
 			.optional()
 			.refine(
 				(value) => {
@@ -265,7 +275,7 @@ const updateUserFormSchema = z
 
 				return sanitized;
 			}),
-		confirmPassword: z.string().optional(),
+		confirmPassword: z.string().trim().optional(),
 	})
 	.refine(
 		(data) => {

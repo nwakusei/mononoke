@@ -211,7 +211,7 @@ function RafflePage() {
 							<div className="flex flex-row items-center gap-2 mb-4">
 								<MdOutlineStore size={18} />
 								<div>
-									Organizado por:
+									Organizado por:{" "}
 									<span className="text-primary transition-all ease-in duration-200 hover:text-secondary cursor-pointer">
 										{/* <Link href={`/otamart/store/${idStore}`}></Link> */}
 										{raffle?.raffleOrganizer}

@@ -2,10 +2,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import api from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+
+// Axios
+import api from "@/utils/api";
 
 // Imagens e Logos
 import Otakuyasan from "../../../../../public/otakuyasan.png";
@@ -21,6 +24,8 @@ function WalletPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingButtonId, setLoadingButtonId] = useState(false);
+
+	const router = useRouter();
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -49,7 +54,7 @@ function WalletPage() {
 	const handleClick = () => {
 		setLoadingButtonId(true);
 		setTimeout(() => {
-			window.location.href = `/dashboard/wallet/add-balance`;
+			router.push(`/dashboard/wallet/add-balance`);
 		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 

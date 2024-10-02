@@ -4,6 +4,12 @@ import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import Swal from "sweetalert2";
 
+// Context
+import { Context } from "@/context/UserContext";
+
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
+
 // Zod Hook Form
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,19 +21,25 @@ import Logo from "../../../../public/logo.png";
 // Components
 import { InputUserForm } from "@/components/InputUserForm";
 
-// Context
-import { Context } from "@/context/UserContext";
-import { title } from "process";
-
 const createUserFormSchema = z.object({
 	email: z
 		.string()
-		.min(1, "O email é obrigatório!")
-		.email("O formato do email é inválido!")
+		.min(1, "※ O email é obrigatório!")
+		.email("※ O formato do email é inválido!")
 		.toLowerCase(),
-	password: z.string().min(1, "A senha é obrigatória!").max(34, {
-		message: "A senha precisa ter no máximo 34 caracteres!",
-	}),
+	password: z
+		.string()
+		.min(1, "※ A senha é obrigatória!")
+		.max(34, {
+			message: "※ A senha precisa ter no máximo 34 caracteres!",
+		})
+		.refine((password) => {
+			if (!password) return true;
+
+			const sanitized = DOMPurify.sanitize(password);
+
+			return sanitized;
+		}),
 });
 
 type TCreateUserFormData = z.infer<typeof createUserFormSchema>;

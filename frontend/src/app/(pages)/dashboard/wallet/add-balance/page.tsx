@@ -262,6 +262,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import QRCode from "qrcode"; // Importe a biblioteca QRCode
 import { toast } from "react-toastify";
 
@@ -308,6 +309,8 @@ function AddBalance() {
 	const [pixCode, setPixCode] = useState("");
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingButtonId, setLoadingButtonId] = useState(false);
+
+	const router = useRouter();
 
 	const {
 		register,
@@ -381,7 +384,7 @@ function AddBalance() {
 	const handleClick = () => {
 		setLoadingButtonId(true);
 		setTimeout(() => {
-			window.location.href = `/dashboard/wallet`;
+			router.push(`/dashboard/wallet`);
 		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 

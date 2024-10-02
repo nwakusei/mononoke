@@ -11,9 +11,9 @@ import getUserByToken from "../helpers/get-user-by-token.js";
 
 class ProductController {
 	static async searchProductsInOtamart(req: Request, res: Response) {
-		const { productName } = req.body;
+		const { productTitle } = req.body;
 
-		if (!productName) {
+		if (!productTitle) {
 			res.status(422).json({
 				message: "O nome do produto é obrigatório!",
 			});
@@ -22,7 +22,7 @@ class ProductController {
 
 		try {
 			const products = await ProductModel.find({
-				productName: { $regex: productName, $options: "i" },
+				productTitle: { $regex: productTitle, $options: "i" },
 			});
 
 			if (products.length > 0) {
@@ -43,9 +43,9 @@ class ProductController {
 			return;
 		}
 
-		const { productName } = req.body;
+		const { productTitle } = req.body;
 
-		if (!productName) {
+		if (!productTitle) {
 			res.status(422).json({
 				message: "O nome do produto é obrigatório!",
 			});
@@ -55,7 +55,7 @@ class ProductController {
 		try {
 			const products = await ProductModel.find({
 				partnerID: id,
-				productName: { $regex: productName, $options: "i" },
+				productTitle: { $regex: productTitle, $options: "i" },
 			});
 
 			if (products.length > 0) {

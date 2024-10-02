@@ -18,8 +18,7 @@ function MyRafflesTicketsPage() {
 	const [myTickets, setMyTickets] = useState([]);
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [deleteLoading, setDeletLoading] = useState(null);
-
-	console.log(myTickets);
+	const [loadingButtonId, setLoadingButtonId] = useState(null);
 
 	useEffect(() => {
 		api.get("/raffles/customer-raffles", {
@@ -30,6 +29,13 @@ function MyRafflesTicketsPage() {
 			setMyTickets(response.data.raffles);
 		});
 	}, [token]);
+
+	const handleClick = (orderId) => {
+		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
+		setTimeout(() => {
+			window.location.href = `/dashboard/myrafflestickets/${orderId}`;
+		}, 2000); // O tempo pode ser ajustado conforme necessário
+	};
 
 	if (!myTickets) {
 		return <div>Loading...</div>; // Ou qualquer outro componente de carregamento ou mensagem de erro
@@ -157,12 +163,29 @@ function MyRafflesTicketsPage() {
 														</div>
 													</td>
 													<th>
-														<button className="flex flex-row items-center btn btn-primary btn-xs text-white w-[90px] shadow-md">
+														{/* <button className="flex flex-row items-center btn btn-primary btn-xs text-white w-[90px] shadow-md">
 															<Link
 																href={`/dashboard/myrafflestickets/${myTicket._id}`}>
 																+ Detalhes
 															</Link>
-														</button>
+														</button> */}
+
+														{loadingButtonId ===
+														myTicket._id ? (
+															<button className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
+																<span className="loading loading-dots loading-sm"></span>
+															</button>
+														) : (
+															<button
+																onClick={() =>
+																	handleClick(
+																		myTicket._id
+																	)
+																} // Passa o ID do pedido
+																className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
+																+ Detalhes
+															</button>
+														)}
 													</th>
 												</tr>
 											))}

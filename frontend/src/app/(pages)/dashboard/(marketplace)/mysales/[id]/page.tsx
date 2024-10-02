@@ -12,6 +12,7 @@ const secretKey = "chaveSuperSecretaDe32charsdgklot";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Axios
 import api from "@/utils/api";
@@ -35,6 +36,7 @@ function MySaleByIDPage() {
 	const [mysale, setMysale] = useState([]);
 	const [trackingCode, setTrackingCode] = useState("");
 	const [trackingLoading, setTrackingLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const dateCreatedOrder = mysale.createdAt
 		? `${format(new Date(mysale.createdAt), "dd/MM - HH:mm")} hs`
@@ -53,6 +55,8 @@ function MySaleByIDPage() {
 				} else {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
+
+				setIsLoading(false);
 			} catch (error) {
 				console.error("Erro ao obter dados do usuário:", error);
 			}
@@ -105,6 +109,10 @@ function MySaleByIDPage() {
 			console.error("Erro ao descriptografar o saldo:", error);
 			return null;
 		}
+	}
+
+	if (isLoading) {
+		return <LoadingPage />;
 	}
 
 	return (

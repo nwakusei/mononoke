@@ -10,8 +10,6 @@ import { toast } from "react-toastify";
 import { Sidebar } from "@/components/Sidebar";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
-// Imagens e Logos
-
 // Icons
 
 function MyCouponsPage() {
@@ -172,7 +170,7 @@ function MyCouponsPage() {
 														{deleteLoading ===
 														coupon?._id ? (
 															<div className="btn btn-error btn-xs w-[80px]">
-																<span className="loading loading-dots loading-xs"></span>
+																<span className="loading loading-dots loading-sm"></span>
 															</div>
 														) : (
 															"Excluir"

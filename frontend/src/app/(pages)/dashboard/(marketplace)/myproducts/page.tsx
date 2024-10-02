@@ -2,14 +2,14 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-
-import api from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
-// Imagens e Logos
+// Axios
+import api from "@/utils/api";
 
 // Icons
 
@@ -17,6 +17,9 @@ function MyProductsPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [myproducts, setMyproducts] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [loadingButtonId, setLoadingButtonId] = useState(null);
+
+	const router = useRouter();
 
 	useEffect(() => {
 		api.get("/products/partner-products", {
@@ -28,6 +31,13 @@ function MyProductsPage() {
 			setIsLoading(false);
 		});
 	}, [token]);
+
+	const handleClick = (orderId) => {
+		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
+		setTimeout(() => {
+			router.push(`/dashboard/myproducts/${orderId}`);
+		}, 2000); // O tempo pode ser ajustado conforme necessário
+	};
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -152,12 +162,29 @@ function MyProductsPage() {
 														{product.stock} un
 													</td>
 													<th>
-														<button className="flex items-center btn btn-primary btn-xs shadow-md">
+														{/* <button className="flex items-center btn btn-primary btn-xs shadow-md">
 															<Link
 																href={`/dashboard/myproducts/${product._id}`}>
 																+ Detalhes
 															</Link>
-														</button>
+														</button> */}
+
+														{loadingButtonId ===
+														product._id ? (
+															<button className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
+																<span className="loading loading-dots loading-sm"></span>
+															</button>
+														) : (
+															<button
+																onClick={() =>
+																	handleClick(
+																		product._id
+																	)
+																} // Passa o ID do pedido
+																className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
+																+ Detalhes
+															</button>
+														)}
 													</th>
 												</tr>
 											))}

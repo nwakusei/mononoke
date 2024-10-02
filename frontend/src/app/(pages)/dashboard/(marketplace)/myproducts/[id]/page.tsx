@@ -13,6 +13,7 @@ import api from "@/utils/api";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Icons
 import { AddPicture, Weight } from "@icon-park/react";
@@ -84,6 +85,7 @@ function MyProductPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [output, setOutput] = useState("");
 	const [selectedValue, setSelectedValue] = useState("");
+	const [isLoading, setIsLoading] = useState(true);
 
 	const [product, setProduct] = useState({});
 
@@ -92,11 +94,31 @@ function MyProductPage() {
 	const { id } = useParams();
 
 	useEffect(() => {
-		api.get(`/products/partner-product/${id}`).then((response) => {
-			setProduct(response.data.product);
-			setSelectedValue(response.data.product.freeShipping);
-			setSelectedRegion(response.data.product.freeShippingRegion);
-		});
+		const fetchData = async () => {
+			try {
+				const response = await api.get(
+					`/products/partner-product/${id}`,
+					{
+						headers: {
+							Authorization: `Bearer ${JSON.parse(token)}`,
+						},
+					}
+				);
+
+				if (response.data && response.data.product) {
+					setProduct(response.data.product);
+					setSelectedValue(response.data.product.freeShipping);
+					setSelectedRegion(response.data.product.freeShippingRegion);
+				} else {
+					console.error("Dados de pedidos inválidos:", response.data);
+				}
+				setIsLoading(false);
+			} catch (error) {
+				console.error("Erro ao obter dados do produto:", error);
+			}
+		};
+
+		fetchData();
 	}, [token, id]);
 
 	const handleImagemSelecionada = (event) => {
@@ -224,6 +246,10 @@ function MyProductPage() {
 			toast.error(error.response.data.message);
 			return error.response.data;
 		}
+	}
+
+	if (isLoading) {
+		return <LoadingPage />;
 	}
 
 	return (

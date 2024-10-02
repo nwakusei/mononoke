@@ -2,9 +2,11 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Imagens e Logos
 
@@ -12,12 +14,14 @@ import { Sidebar } from "@/components/Sidebar";
 
 // Axios
 import api from "@/utils/api";
-import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function MySalesPage() {
 	const [mysales, setMysales] = useState([]);
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [isLoading, setIsLoading] = useState(true);
+	const [loadingButtonId, setLoadingButtonId] = useState(null);
+
+	const router = useRouter();
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -39,6 +43,13 @@ function MySalesPage() {
 		};
 		fetchData();
 	}, [token]);
+
+	const handleClick = (orderId) => {
+		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
+		setTimeout(() => {
+			router.push(`/dashboard/mysales/${orderId}`);
+		}, 2000); // O tempo pode ser ajustado conforme necessário
+	};
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -163,12 +174,29 @@ function MySalesPage() {
 														{mysale.orderID}
 													</td>
 													<th className="text-black">
-														<button className="flex items-center btn btn-primary btn-xs shadow-md">
+														{/* <button className="flex items-center btn btn-primary btn-xs shadow-md">
 															<Link
 																href={`/dashboard/mysales/${mysale._id}`}>
 																+ Detalhes
 															</Link>
-														</button>{" "}
+														</button> */}
+
+														{loadingButtonId ===
+														mysale._id ? (
+															<button className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
+																<span className="loading loading-dots loading-sm"></span>
+															</button>
+														) : (
+															<button
+																onClick={() =>
+																	handleClick(
+																		mysale._id
+																	)
+																} // Passa o ID do pedido
+																className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
+																+ Detalhes
+															</button>
+														)}
 													</th>
 												</tr>
 											))}

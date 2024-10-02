@@ -3,10 +3,11 @@
 import { useState, useContext } from "react";
 import Image from "next/image";
 
-// Zod Hook Form
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+// Context
+import { Context } from "@/context/UserContext";
+
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
 
 // Imagens
 import Logo from "../../../../public/logo.png";
@@ -14,72 +15,111 @@ import Logo from "../../../../public/logo.png";
 // Components
 import { InputUserForm } from "@/components/InputUserForm";
 
-// Context
-import { Context } from "@/context/UserContext";
-
-// Função que obriga as senhas serem iguais
-function validatePasswordConfirmation(
-	password: string,
-	confirmPassword: string
-) {
-	return password === confirmPassword;
-}
+// Zod Hook Form
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const createUserFormSchema = z
 	.object({
 		accountType: z
 			.string()
-			.min(1, "O tipo de conta é obrigatório!")
+			.min(1, "※ O tipo de conta é obrigatório!")
 			.refine((value) => value !== "", {
-				message: "Escolha uma opção",
+				message: "※ Escolha uma opção",
 				path: ["accountType"],
 			}),
 		name: z
 			.string()
-			.min(1, "O nome é obrigatório!")
+			.min(1, "※ O nome é obrigatório!")
+			.trim()
+			.refine(
+				(name) => {
+					const sanitized = DOMPurify.sanitize(name);
+
+					// Valida que o nome não contém caracteres não permitidos usando regex
+					const isValid = /^[A-Za-zÀ-ÿ\s]+$/.test(sanitized);
+					return isValid;
+				},
+				{
+					message: "※ O nome deve conter apenas letras e espaços!",
+				}
+			)
 			.transform((name) => {
-				// Remover caracteres especiais
-				return name.trim().replace(/[$.]/g, ""); // Por exemplo, remover os caracteres $ e .
-			})
-			.transform((name) => {
-				return name
+				// Sanitiza a entrada
+				const sanitized = DOMPurify.sanitize(name);
+
+				// Formata o nome
+				return sanitized
+					.toLocaleLowerCase()
 					.trim()
 					.split(" ")
 					.map((word) => {
-						return (
-							word.charAt(0).toUpperCase() +
-							word.slice(1).toLowerCase()
-						);
+						if (word && word.length > 0) {
+							return (
+								word[0].toLocaleUpperCase() + word.substring(1)
+							);
+						}
+						return word; // ou return ""; para descartar
 					})
 					.join(" ");
 			}),
 		cpf: z
 			.string()
-			.min(1, { message: "O CPF é obrigatório!" })
-			.refine((value) => /^\d+$/.test(value), {
-				message: "O CPF deve conter apenas números!",
-			})
-			.refine((value) => value.length === 11, {
-				message: "O CPF precisa ter 11 números!",
+			.min(1, { message: "※ O CPF é obrigatório!" })
+			.trim()
+			.refine(
+				(val) => val === undefined || val === "" || !isNaN(Number(val)),
+				{
+					message: "※ O CPF deve ser um número válido!",
+				}
+			)
+			.refine((val) => val === undefined || val.length === 11, {
+				message: "※ O CPF deve ter 11 dígitos.",
 			}),
 		email: z
 			.string()
-			.min(1, "O email é obrigatório!")
-			.email("O formato do email é inválido!")
+			.min(1, "※ Informe um email válido!")
+			.email("※ Formato de email inválido!")
 			.toLowerCase(),
-		password: z.string().min(1, "A senha é obrigatória!").max(34, {
-			message: "A senha precisa ter no máximo 34 caracteres!",
-		}),
-		confirmPassword: z
+		password: z
 			.string()
-			.min(1, "A confirmação de senha é obrigatória!"),
+			.min(1, "※A senha é obrigatória!")
+			.trim()
+			.refine(
+				(value) => {
+					if (value === undefined || value === "") {
+						// Se o valor é undefined ou uma string vazia, a validação passa
+						return true;
+					}
+					// Se o valor não for uma string vazia, deve ter pelo menos 6 caracteres
+					return value.length >= 6;
+				},
+				{
+					message: "※ A senha precisa ter no mínimo 6 caracteres!",
+				}
+			)
+			.refine((password) => {
+				if (!password) return true; // Se for undefined, considera como válido
+
+				const sanitized = DOMPurify.sanitize(password);
+
+				return sanitized;
+			}),
+		confirmPassword: z.string().trim(),
 	})
 	.refine(
-		(data) =>
-			validatePasswordConfirmation(data.password, data.confirmPassword),
+		(data) => {
+			// Se password não for fornecida, não há necessidade de validar confirmPassword
+			if (!data.password) {
+				return true;
+			}
+			// Se password for fornecida, confirmPassword também deve ser fornecida e ser igual a password
+			return data.password === data.confirmPassword;
+		},
 		{
-			message: "As senhas precisam ser iguais!",
-			path: ["confirmPassword"], // Indica o campo específico onde o erro deve ser mostrado
+			message: "※ As senhas precisam ser iguais!",
+			path: ["confirmPassword"], // Define o caminho onde o erro será exibido
 		}
 	);
 

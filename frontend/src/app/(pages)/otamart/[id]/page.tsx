@@ -5,7 +5,11 @@ import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 import "./otamartId.css";
 
@@ -29,8 +33,6 @@ import { Currency } from "@icon-park/react";
 import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
 import { MdVerified } from "react-icons/md";
 import { ProductAdCard } from "@/components/ProductAdCard";
-import Swal from "sweetalert2";
-import { toast } from "react-toastify";
 
 function ProductPage() {
 	const { id } = useParams();
@@ -44,6 +46,10 @@ function ProductPage() {
 	const [token] = useState(() => localStorage.getItem("token") || "");
 	const [alreadyfollowsStores, setAlreadyfollowsStores] = useState([]);
 	const [followedStores, setFollowedStores] = useState([]);
+
+	const [loadingButtonId, setLoadingButtonId] = useState(null);
+
+	const router = useRouter();
 
 	// Função para buscar a lista de lojas seguidas
 	const fetchFollowedStores = async () => {
@@ -275,6 +281,13 @@ function ProductPage() {
 		} finally {
 			setbuttonLoading(false);
 		}
+	};
+
+	const handleClick = (orderId) => {
+		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
+		setTimeout(() => {
+			router.push(`/otamart/store/${orderId}`);
+		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 
 	if (isLoading) {
@@ -634,12 +647,26 @@ function ProductPage() {
 										)}
 									</div>
 									<div className="mt-1">
-										<button className="text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 h-[36px] px-10 py-1 rounded-md hover:shadow-md">
+										{/* <button className="text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 h-[36px] px-10 py-1 rounded-md hover:shadow-md">
 											<Link
 												href={`/otamart/store/${partner._id}`}>
 												Ver Loja
 											</Link>
-										</button>
+										</button> */}
+
+										{loadingButtonId === partner._id ? (
+											<button className="flex items-center justify-center text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 w-[150px] h-[36px] px-10 py-1 rounded-md hover:shadow-md">
+												<span className="loading loading-spinner loading-md"></span>
+											</button>
+										) : (
+											<button
+												onClick={() =>
+													handleClick(partner._id)
+												} // Passa o ID do pedido
+												className="flex items-center justify-center text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 w-[150px] h-[36px] px-10 py-1 rounded-md hover:shadow-md">
+												Ver Loja
+											</button>
+										)}
 									</div>
 								</div>
 							</div>

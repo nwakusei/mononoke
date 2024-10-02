@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
@@ -17,6 +18,8 @@ function MyOrdersPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingButtonId, setLoadingButtonId] = useState(null);
+
+	const router = useRouter();
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -44,7 +47,7 @@ function MyOrdersPage() {
 	const handleClick = (orderId) => {
 		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
 		setTimeout(() => {
-			window.location.href = `/dashboard/myorders/${orderId}`;
+			router.push(`/dashboard/myorders/${orderId}`);
 		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 
@@ -174,7 +177,7 @@ function MyOrdersPage() {
 														{loadingButtonId ===
 														myorder._id ? (
 															<button className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
-																<span className="loading loading-dots loading-md"></span>
+																<span className="loading loading-dots loading-sm"></span>
 															</button>
 														) : (
 															<button
