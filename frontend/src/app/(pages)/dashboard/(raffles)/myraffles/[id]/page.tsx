@@ -159,18 +159,18 @@ function MyRafflesByID() {
 							</span>
 						</div>
 						<div className="break-words">
-							<h2 className="mb-2">
+							<p className="whitespace-pre-wrap mb-2">
 								<span className="font-semibold">
 									Descrição:
 								</span>{" "}
 								{myraffle?.raffleDescription}
-							</h2>
+							</p>
 						</div>
 						<div className="break-words">
-							<h2 className="">
+							<p className="whitespace-pre-wrap">
 								<span className="font-semibold">Regras:</span>{" "}
 								{myraffle?.raffleRules}
-							</h2>
+							</p>
 						</div>
 					</div>
 				</div>

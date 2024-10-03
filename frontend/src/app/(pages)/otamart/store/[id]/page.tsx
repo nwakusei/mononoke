@@ -279,7 +279,9 @@ function StorePage() {
 						<div className="border-r-[1px] border-r-black"></div>
 						<div className="w-[450px]">
 							<h1 className="mb-2">Sobre a loja:</h1>
-							<p>{partner?.description}</p>
+							<p className="whitespace-pre-wrap">
+								{partner?.description}
+							</p>
 						</div>
 					</div>
 				</div>

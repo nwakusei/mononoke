@@ -255,19 +255,21 @@ type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
 
 function CreateProductPage() {
 	const [variations, setVariations] = useState([]);
-	const [imagemSelecionada, setImagemSelecionada] = useState<
-		string | ArrayBuffer | null
-	>(null);
+	const [imagensSelecionadas, setImagensSelecionadas] = useState<File[]>([]);
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [isLoading, setIsLoading] = useState(true);
 
 	const [offerFreeShipping, setOfferFreeShipping] = useState("");
+
+	console.log(imagensSelecionadas);
 
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
 		setValue,
+		setError,
+		clearErrors,
 	} = useForm<TCreateProductFormData>({
 		resolver: zodResolver(createProductFormSchema),
 		mode: "onBlur",
@@ -295,36 +297,43 @@ function CreateProductPage() {
 		return () => clearTimeout(timer);
 	}, []); // Executa apenas uma vez na montagem do componente
 
-	const handleImagemSelecionada = (
-		event: React.ChangeEvent<HTMLInputElement>
-	) => {
-		const file = event.target.files?.[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = () => {
-				setImagemSelecionada(reader.result);
-			};
-			reader.readAsDataURL(file);
-		}
-	};
-
-	// const handleImagemSelecionada = (event) => {
-	// 	const files = event.target.files;
-	// 	const fileList = [];
-	// 	for (let i = 0; i < files.length; i++) {
-	// 		const file = files[i];
+	// // Solução para armazenamento de apenas 1 imagem
+	// const handleImagemSelecionada = (
+	// 	event: React.ChangeEvent<HTMLInputElement>
+	// ) => {
+	// 	const file = event.target.files?.[0];
+	// 	if (file) {
 	// 		const reader = new FileReader();
 	// 		reader.onload = () => {
-	// 			fileList.push(reader.result);
-	// 			// Se você deseja processar os arquivos aqui, você pode chamar uma função
-	// 			// para fazer isso dentro do evento onload.
-	// 			// Por exemplo: processarArquivo(reader.result);
+	// 			setImagemSelecionada(reader.result);
 	// 		};
 	// 		reader.readAsDataURL(file);
 	// 	}
-	// 	// Aqui você pode fazer algo com a lista de arquivos processados, como armazená-la em um estado.
-	// 	// Por exemplo: setListaDeArquivos(fileList);
 	// };
+
+	// // Solução para armazenamento de Array de imagens
+	// const handleImagemSelecionada = (
+	// 	event: React.ChangeEvent<HTMLInputElement>
+	// ) => {
+	// 	const files = event.target.files;
+	// 	if (files) {
+	// 		const fileArray = Array.from(files); // Converte o FileList em um array
+	// 		setImagensSelecionadas((prev) => [...prev, ...fileArray]); // Adiciona novos arquivos ao estado
+	// 	}
+	// };
+
+	const handleImagemSelecionada = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		const files = event.target.files;
+		if (files) {
+			const fileArray = Array.from(files); // Converte o FileList em um array
+
+			// Aqui, você já fez a validação com Zod, então assumimos que se o arquivo chegou aqui, passou pelas validações.
+			setImagensSelecionadas((prev) => [...prev, ...fileArray]); // Adiciona novos arquivos ao estado
+			clearErrors("imagesProduct"); // Limpa erros anteriores, se houver
+		}
+	};
 
 	const router = useRouter();
 
@@ -371,12 +380,24 @@ function CreateProductPage() {
 			}
 		});
 
-		// Itera sobre as imagens e adiciona ao FormData
-		if (productData.imagesProduct) {
-			productData.imagesProduct.forEach((image: File) => {
-				formData.append(`imagesProduct`, image);
+		// // Itera sobre as imagens e adiciona ao FormData
+		// if (productData.imagesProduct) {
+		// 	productData.imagesProduct.forEach((image: File) => {
+		// 		formData.append(`imagesProduct`, image);
+		// 	});
+		// }
+
+		// Adiciona as imagens ao FormData
+		if (imagensSelecionadas.length === 0) {
+			setError("imagesProduct", {
+				message: "※ Insira pelo menos 1 imagem!",
 			});
+			return; // Se não houver imagens, retorna
 		}
+
+		imagensSelecionadas.forEach((image) => {
+			formData.append("imagesProduct", image);
+		});
 
 		try {
 			const response = await api.post("/products/create", formData, {
@@ -513,7 +534,7 @@ function CreateProductPage() {
 									Imagens do Produto
 								</h1>
 								{/* Add Imagens */}
-								<label className="form-control w-full max-w-3xl">
+								{/* <label className="form-control w-full max-w-3xl">
 									<div className="label">
 										<span className="label-text text-black">
 											Imagem Principal
@@ -559,7 +580,128 @@ function CreateProductPage() {
 											</span>
 										)}
 									</div>
+								</label> */}
+
+								<label className="form-control w-full max-w-3xl">
+									<div className="label">
+										<span className="label-text text-black">
+											Imagem Principal
+										</span>
+									</div>
+									<div className="flex flex-row items-center flex-wrap">
+										{imagensSelecionadas.map(
+											(imagem, index) => {
+												const imageUrl =
+													URL.createObjectURL(imagem); // Cria a URL para a imagem
+												return (
+													<div
+														key={index}
+														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded m-1">
+														<img
+															src={imageUrl}
+															alt={`Imagem selecionada ${
+																index + 1
+															}`}
+															className="object-contain w-full h-full rounded-sm"
+														/>
+													</div>
+												);
+											}
+										)}
+										{/* Adiciona um input para selecionar novas imagens */}
+										<div
+											className={`${
+												errors.imagesProduct &&
+												`border-error`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+											<span className="text-xs">
+												Add Imagem
+											</span>
+											<AddPicture size={20} />
+											<input
+												type="file"
+												accept="image/*"
+												multiple
+												className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
+												{...register("imagesProduct")} // Conecta o input ao react-hook-form
+												onChange={
+													handleImagemSelecionada
+												} // Manuseia arquivos selecionados
+											/>
+										</div>
+									</div>
+									<div className="label">
+										{errors.imagesProduct && (
+											<span className="label-text-alt text-red-500">
+												{errors.imagesProduct.message}
+											</span>
+										)}
+									</div>
 								</label>
+
+								{/* <label className="form-control w-full max-w-3xl">
+									<div className="label">
+										<span className="label-text text-black">
+											Imagem Principal
+										</span>
+									</div>
+									<div className="flex flex-row items-center flex-wrap">
+										{imagensSelecionadas.map(
+											(imagem, index) => {
+												const imageUrl =
+													URL.createObjectURL(imagem); // Cria a URL para a imagem
+												return (
+													<div
+														key={index}
+														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded m-1">
+														<img
+															src={imageUrl}
+															alt={`Imagem selecionada ${
+																index + 1
+															}`}
+															className="object-contain w-full h-full rounded-sm"
+														/>
+														<input
+															type="file"
+															accept="image/*"
+															className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
+															onChange={
+																handleImagemSelecionada
+															}
+														/>
+													</div>
+												);
+											}
+										)}
+										
+										<div
+											className={`${
+												errors.imagesProduct &&
+												`border-error`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+											<span className="text-xs">
+												Add Imagem
+											</span>
+											<AddPicture size={20} />
+											<input
+												type="file"
+												accept="image/*"
+												multiple
+												className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
+												onChange={
+													handleImagemSelecionada
+												}
+											/>
+										</div>
+									</div>
+									<div className="label">
+										{errors.imagesProduct && (
+											<span className="label-text-alt text-red-500">
+												{errors.imagesProduct.message}
+											</span>
+										)}
+									</div>
+								</label> */}
 							</div>
 						</div>
 

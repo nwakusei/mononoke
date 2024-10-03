@@ -219,20 +219,21 @@ function RafflePage() {
 								</div>
 							</div>
 							<div className="">
-								<h2 className="mb-2 break-words">
+								<p className="whitespace-pre-wrap break-words mb-2">
 									<span className="font-semibold">
 										Descrição:
 									</span>{" "}
 									{raffle?.raffleDescription}
-								</h2>
+								</p>
 							</div>
+							<div className="divider">E</div>
 							<div className="">
-								<h2 className="break-words">
+								<p className="whitespace-pre-wrap break-words">
 									<span className="font-semibold">
 										Regras:
 									</span>{" "}
 									{raffle?.raffleRules}
-								</h2>
+								</p>
 							</div>
 						</div>
 					</div>

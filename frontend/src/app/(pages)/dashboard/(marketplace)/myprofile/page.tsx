@@ -478,6 +478,8 @@ function MyProfilePage() {
 	// }
 
 	async function updateUser(data: TUpdateUserFormData) {
+		console.log("Valor do textarea:", data.description);
+
 		// Sanitiza os dados antes de usá-los
 		const sanitizedData = Object.fromEntries(
 			Object.entries(data).map(([key, value]) => {

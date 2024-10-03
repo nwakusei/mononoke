@@ -175,9 +175,15 @@ function RegisterPage() {
 							</div>
 							<div className="flex flex-row items-center">
 								<select
-									className="select select-success w-full max-w-xs"
+									className={`select ${
+										errors.accountType
+											? "focus:outline-none focus:ring focus:ring-red-500"
+											: "focus:outline-none focus:ring focus:ring-green-500"
+									} w-full max-w-xs`}
 									{...register("accountType")}>
-									<option value="">Escolha uma opção</option>
+									<option value="" disabled selected>
+										Escolha uma opção
+									</option>
 									<option value="customer">
 										Conta Cliente
 									</option>

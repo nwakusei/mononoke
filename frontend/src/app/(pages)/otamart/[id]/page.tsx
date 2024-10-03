@@ -462,7 +462,7 @@ function ProductPage() {
 					<h1 className="w-full bg-primary text-center text-xl py-2 rounded-t-md select-none">
 						Descrição e Detalhes do Produto
 					</h1>
-					<p className="text-black mb-2 py-2 px-4 break-words max-w-full">
+					<p className="text-black whitespace-pre-wrap break-words max-w-full py-2 px-4 mb-2">
 						{product?.description}
 					</p>
 				</div>
