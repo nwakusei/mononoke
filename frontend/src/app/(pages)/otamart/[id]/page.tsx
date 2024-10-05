@@ -11,6 +11,8 @@ import { format } from "date-fns";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
+import { ThumbnailCarousel } from "@/components/ThumbnailComponent";
+
 import "./otamartId.css";
 
 // Axios
@@ -298,6 +300,7 @@ function ProductPage() {
 		<section className="bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<div className="bg-white p-4 rounded-md shadow-md flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
 				{/* Componente de Imagem Principal */}
+				<ThumbnailCarousel />
 				<div className="flex flex-col">
 					<div className="bg-white w-[402px] border-black border-solid border-[1px] border-opacity-20 rounded-md relative shadow-lg mb-2">
 						<div className="h-[402px] flex items-center justify-center mx-3 my-2">

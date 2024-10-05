@@ -42,14 +42,14 @@ const createProductFormSchema = z.object({
 			}
 			return files;
 		})
-		.refine(
-			(files) => {
-				return files !== null && files.length > 0;
-			},
-			{
-				message: "※ Insira pelo menos 1 imagem!",
-			}
-		)
+		// .refine(
+		// 	(files) => {
+		// 		return files !== null && files.length > 0;
+		// 	},
+		// 	{
+		// 		message: "※ Insira pelo menos 1 imagem!",
+		// 	}
+		// )
 		.refine(
 			(files) => {
 				return files.every(
@@ -80,7 +80,7 @@ const createProductFormSchema = z.object({
 			(pName) => {
 				const sanitized = DOMPurify.sanitize(pName);
 
-				const isValid = /^[A-Za-zÀ-ÿ\s\.,—\-0-9\[\]\(\)]+$/.test(
+				const isValid = /^[A-Za-zÀ-ÿ\s\.,—~\-0-9\[\]\(\)]+$/.test(
 					sanitized
 				);
 
@@ -322,16 +322,70 @@ function CreateProductPage() {
 	// 	}
 	// };
 
+	// // Solução para armazenamento de Array de imagens em um Estado, para então armazenar no banco de dados.
+	// const handleImagemSelecionada = (
+	// 	event: React.ChangeEvent<HTMLInputElement>
+	// ) => {
+	// 	const files = event.target.files;
+	// 	if (files) {
+	// 		const fileArray = Array.from(files); // Converte o FileList em um array
+
+	// 		// Aqui, você já fez a validação com Zod, então assumimos que se o arquivo chegou aqui, passou pelas validações.
+	// 		setImagensSelecionadas((prev) => [...prev, ...fileArray]); // Adiciona novos arquivos ao estado
+	// 		clearErrors("imagesProduct"); // Limpa erros anteriores, se houver
+	// 	}
+	// };
+
 	const handleImagemSelecionada = (
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const files = event.target.files;
+
 		if (files) {
 			const fileArray = Array.from(files); // Converte o FileList em um array
 
-			// Aqui, você já fez a validação com Zod, então assumimos que se o arquivo chegou aqui, passou pelas validações.
-			setImagensSelecionadas((prev) => [...prev, ...fileArray]); // Adiciona novos arquivos ao estado
-			clearErrors("imagesProduct"); // Limpa erros anteriores, se houver
+			// Filtra as imagens válidas
+			const validFiles = fileArray.filter((file) => {
+				const isValidSize = file.size <= 2 * 1024 * 1024; // Tamanho menor que 2MB
+				const isValidFormat = /\.(jpg|jpeg|png)$/i.test(file.name); // Extensão válida
+
+				// Define os erros conforme a validade
+				if (!isValidSize) {
+					setError("imagesProduct", {
+						message: "※ Cada arquivo precisa ter no máximo 2Mb!",
+					});
+				}
+
+				if (!isValidFormat) {
+					setError("imagesProduct", {
+						message:
+							"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+					});
+				}
+
+				return isValidSize && isValidFormat; // Retorna apenas arquivos válidos
+			});
+
+			// Verifica se há imagens válidas
+			if (validFiles.length > 0) {
+				// Se houver imagens válidas, atualiza o estado
+				setImagensSelecionadas((prev) => [...prev, ...validFiles]);
+				clearErrors("imagesProduct"); // Limpa os erros anteriores
+			} else {
+				// Caso não haja imagens válidas, define uma mensagem de erro
+				setError("imagesProduct", {
+					message: errors.imagesProduct
+						? errors.imagesProduct.message
+						: "Nenhuma imagem válida selecionada!",
+				});
+			}
+
+			// // Adiciona a validação para garantir que pelo menos uma imagem foi selecionada
+			// if (validFiles.length === 0) {
+			// 	setError("imagesProduct", {
+			// 		message: "※ Insira pelo menos 1 imagem!",
+			// 	});
+			// }
 		}
 	};
 
@@ -363,11 +417,6 @@ function CreateProductPage() {
 				: variation
 		);
 		setVariations(updatedVariations);
-	};
-
-	const handleCancelar = () => {
-		// Redirecionar para outra página ao clicar em Cancelar
-		router.push("/dashboard/myproducts");
 	};
 
 	async function handleCreateProduct(productData: { [key: string]: any }) {
@@ -415,6 +464,11 @@ function CreateProductPage() {
 			return error.response.data;
 		}
 	}
+
+	const handleCancelar = () => {
+		// Redirecionar para outra página ao clicar em Cancelar
+		router.push("/dashboard/myproducts");
+	};
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -582,12 +636,18 @@ function CreateProductPage() {
 									</div>
 								</label> */}
 
-								<label className="form-control w-full max-w-3xl">
-									<div className="label">
+								<div className="label">
+									<span className="label-text text-black">
+										Imagem Principal
+									</span>
+								</div>
+
+								<label className="form-control w-24">
+									{/* <div className="label">
 										<span className="label-text text-black">
 											Imagem Principal
 										</span>
-									</div>
+									</div> */}
 									<div className="flex flex-row items-center flex-wrap">
 										{imagensSelecionadas.map(
 											(imagem, index) => {
@@ -630,14 +690,14 @@ function CreateProductPage() {
 											/>
 										</div>
 									</div>
-									<div className="label">
-										{errors.imagesProduct && (
-											<span className="label-text-alt text-red-500">
-												{errors.imagesProduct.message}
-											</span>
-										)}
-									</div>
 								</label>
+								<div className="label">
+									{errors.imagesProduct && (
+										<span className="label-text-alt text-red-500">
+											{errors.imagesProduct.message}
+										</span>
+									)}
+								</div>
 
 								{/* <label className="form-control w-full max-w-3xl">
 									<div className="label">
