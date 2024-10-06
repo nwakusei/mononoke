@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
+import { CarouselComponent } from "@/components/CarouselComponent";
 import { ThumbnailCarousel } from "@/components/ThumbnailComponent";
 
 import "./otamartId.css";
@@ -52,6 +53,13 @@ function ProductPage() {
 	const [loadingButtonId, setLoadingButtonId] = useState(null);
 
 	const router = useRouter();
+
+	const [selectedImage, setSelectedImage] = useState(0);
+
+	// Função para alterar a imagem ao clicar em uma miniatura
+	const handleThumbnailClick = (index) => {
+		setSelectedImage(index);
+	};
 
 	// Função para buscar a lista de lojas seguidas
 	const fetchFollowedStores = async () => {
@@ -298,10 +306,15 @@ function ProductPage() {
 
 	return (
 		<section className="bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
-			<div className="bg-white p-4 rounded-md shadow-md flex flex-row justify-between gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
-				{/* Componente de Imagem Principal */}
-				<ThumbnailCarousel />
-				<div className="flex flex-col">
+			<div className="flex flex-col bg-white p-4 rounded-md shadow-md col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
+				<div className="flex flex-row justify-between">
+					{/* Componente para a imagem principal */}
+					<CarouselComponent
+						selectedImage={selectedImage}
+						product={product}
+					/>
+
+					{/* <div className="flex flex-col">
 					<div className="bg-white w-[402px] border-black border-solid border-[1px] border-opacity-20 rounded-md relative shadow-lg mb-2">
 						<div className="h-[402px] flex items-center justify-center mx-3 my-2">
 							{product?.imagesProduct &&
@@ -317,7 +330,6 @@ function ProductPage() {
 								)}
 						</div>
 					</div>
-					{/* Pequenas imagens */}
 					<div className="flex flex-row gap-2">
 						{product?.imagesProduct &&
 							product?.imagesProduct.length > 0 &&
@@ -341,7 +353,6 @@ function ProductPage() {
 							))}
 					</div>
 
-					{/* Renderizar imagem maximizada se existir */}
 					{maximizedImageProduct && (
 						<div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center">
 							<div className="relative max-w-full max-h-full">
@@ -361,101 +372,105 @@ function ProductPage() {
 							</div>
 						</div>
 					)}
-				</div>
+				</div> */}
+					{/* Componente intermediário */}
+					<div className="flex flex-col w-[350px]">
+						{/* Título */}
+						<h1 className="text-xl font-semibold text-black mb-1">
+							{product?.productTitle}
+						</h1>
+						{/* Avaliações e Vendidos */}
+						<div className="flex flex-row text-sm text-black mb-4 gap-1">
+							<div className="flex items-center gap-1 text-yellow-500">
+								{/* Contêiner flexível para os ícones */}
+								{renderRatingIcons()}
+							</div>
+							<span>|</span>
+							<div>
+								{product?.reviews &&
+								Array.isArray(product?.reviews) &&
+								product?.reviews.length === 0
+									? "Nenhuma Avaliação"
+									: product?.reviews &&
+									  Array.isArray(product?.reviews) &&
+									  product?.reviews.length === 1
+									? "1 Avaliação"
+									: product?.reviews &&
+									  Array.isArray(product?.reviews)
+									? `${product?.reviews.length} Avaliações`
+									: "0 Avaliações"}
+							</div>
+							<span>|</span>
+							<div>
+								{product?.productsSold > 1
+									? `${product?.productsSold} Vendidos`
+									: `${product?.productsSold} Vendido`}
+							</div>
+						</div>
 
-				{/* Componente intermediário */}
-				<div className="flex flex-col w-[350px]">
-					{/* Título */}
-					<h1 className="text-xl font-semibold text-black mb-1">
-						{product?.productTitle}
-					</h1>
-					{/* Avaliações e Vendidos */}
-					<div className="flex flex-row text-sm text-black mb-4 gap-1">
-						<div className="flex items-center gap-1 text-yellow-500">
-							{/* Contêiner flexível para os ícones */}
-							{renderRatingIcons()}
-						</div>
-						<span>|</span>
-						<div>
-							{product?.reviews &&
-							Array.isArray(product?.reviews) &&
-							product?.reviews.length === 0
-								? "Nenhuma Avaliação"
-								: product?.reviews &&
-								  Array.isArray(product?.reviews) &&
-								  product?.reviews.length === 1
-								? "1 Avaliação"
-								: product?.reviews &&
-								  Array.isArray(product?.reviews)
-								? `${product?.reviews.length} Avaliações`
-								: "0 Avaliações"}
-						</div>
-						<span>|</span>
-						<div>
-							{product?.productsSold > 1
-								? `${product?.productsSold} Vendidos`
-								: `${product?.productsSold} Vendido`}
-						</div>
-					</div>
-
-					{/* Preço */}
-					{product?.promocionalPrice > 0 ? (
-						<div>
-							{/* Preço promocional */}
-							<h2 className="text-2xl text-primary font-semibold">
-								{Number(
-									product?.promocionalPrice
-								).toLocaleString("pt-BR", {
-									style: "currency",
-									currency: "BRL",
-								})}
-							</h2>
-							{/* Preço antes do desconto */}
-							<div className="flex flex-row items-center mb-2">
-								<span className="text-base text-black line-through mr-2">
+						{/* Preço */}
+						{product?.promocionalPrice > 0 ? (
+							<div>
+								{/* Preço promocional */}
+								<h2 className="text-2xl text-primary font-semibold">
+									{Number(
+										product?.promocionalPrice
+									).toLocaleString("pt-BR", {
+										style: "currency",
+										currency: "BRL",
+									})}
+								</h2>
+								{/* Preço antes do desconto */}
+								<div className="flex flex-row items-center mb-2">
+									<span className="text-base text-black line-through mr-2">
+										{Number(
+											product?.originalPrice
+										).toLocaleString("pt-BR", {
+											style: "currency",
+											currency: "BRL",
+										})}
+									</span>
+									<span className="bg-primary text-xs px-1 rounded-sm select-none shadow-md">
+										{`${discountPercentage}% Off`}
+									</span>
+								</div>
+							</div>
+						) : (
+							<div>
+								<h2 className="text-2xl text-primary font-semibold">
 									{Number(
 										product?.originalPrice
 									).toLocaleString("pt-BR", {
 										style: "currency",
 										currency: "BRL",
 									})}
-								</span>
-								<span className="bg-primary text-xs px-1 rounded-sm select-none shadow-md">
-									{`${discountPercentage}% Off`}
+								</h2>
+							</div>
+						)}
+						{/* Cashback */}
+						{partner && (
+							<div className="flex flex-row items-center mb-4">
+								<span>
+									<p className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
+										<Currency size={18} />{" "}
+										{`${partner?.cashback}% de Cashback`}
+									</p>
 								</span>
 							</div>
-						</div>
-					) : (
-						<div>
-							<h2 className="text-2xl text-primary font-semibold">
-								{Number(product?.originalPrice).toLocaleString(
-									"pt-BR",
-									{
-										style: "currency",
-										currency: "BRL",
-									}
-								)}
-							</h2>
-						</div>
-					)}
-					{/* Cashback */}
-					{partner && (
-						<div className="flex flex-row items-center mb-4">
-							<span>
-								<p className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
-									<Currency size={18} />{" "}
-									{`${partner?.cashback}% de Cashback`}
-								</p>
-							</span>
-						</div>
-					)}
+						)}
 
-					{/* Variações */}
-					<ProductVariation />
+						{/* Variações */}
+						<ProductVariation />
+					</div>
+					{/* Componente Lateral D. */}
+					<SideComponent />
 				</div>
-
-				{/* Componente Lateral D. */}
-				<SideComponent />
+				{/* Componente para as miniaturas */}
+				<ThumbnailCarousel
+					product={product}
+					handleThumbnailClick={handleThumbnailClick}
+					selectedImage={selectedImage}
+				/>
 			</div>
 
 			{/* Descrição do produto*/}

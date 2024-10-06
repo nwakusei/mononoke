@@ -1,57 +1,86 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
-import "./Carousel.css"; // Certifique-se de que o CSS personalizado está correto
 
-const ThumbnailCarousel = () => {
-	const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
-	const [selectedIndex, setSelectedIndex] = useState(0);
+// React Icons
+import { MdOutlineArrowBackIosNew } from "react-icons/md";
+import { MdOutlineArrowForwardIos } from "react-icons/md";
 
-	// Monitora a troca de slides no Embla
-	const onSelect = () => {
+const ThumbnailCarousel = ({
+	product,
+	handleThumbnailClick,
+	selectedImage,
+}) => {
+	const [emblaRef, emblaApi] = useEmblaCarousel({
+		loop: false, // O carrossel não irá voltar automaticamente ao início
+		containScroll: "trimSnaps", // Mantém as imagens centralizadas e ajustadas
+		align: "start", // Alinha o conteúdo no início
+		slidesToScroll: 1, // Rola uma imagem de cada vez
+		dragFree: false, // Usuário não pode arrastar livremente
+	});
+	const [canScrollPrev, setCanScrollPrev] = useState(false);
+	const [canScrollNext, setCanScrollNext] = useState(false);
+
+	const onSelect = useCallback(() => {
 		if (!emblaApi) return;
-		setSelectedIndex(emblaApi.selectedScrollSnap());
-	};
+		setCanScrollPrev(emblaApi.canScrollPrev());
+		setCanScrollNext(emblaApi.canScrollNext());
+	}, [emblaApi]);
 
-	// Liga o evento onSelect no emblaApi
 	useEffect(() => {
 		if (!emblaApi) return;
 		emblaApi.on("select", onSelect);
-	}, [emblaApi]);
-
-	const slides = [
-		"https://pm1.aminoapps.com/8607/207d3a1d5d87c8f11d627c8d3eef530baf7d2713r1-1000-1000v2_uhq.jpg",
-		"imagem2.jpg",
-		"imagem3.jpg",
-		"imagem4.jpg",
-	];
-
-	const goToSlide = (index) => {
-		if (emblaApi) emblaApi.scrollTo(index);
-	};
+		onSelect(); // Atualiza o estado das setas no início
+	}, [emblaApi, onSelect]);
 
 	return (
-		<div>
-			<div className="embla" ref={emblaRef}>
-				<div className="embla__container">
-					{slides.map((slide, index) => (
-						<div className="embla__slide" key={index}>
-							<img src={slide} alt={`Slide ${index}`} />
+		<div className="relative w-[402px]">
+			{/* Contêiner de miniaturas */}
+			<div
+				className="embla w-full overflow-hidden relative"
+				ref={emblaRef}>
+				<div className="embla__container flex gap-2">
+					{product?.imagesProduct?.map((image, index) => (
+						<div
+							key={index}
+							className={`embla__slide flex-none bg-white border-black border-solid border-[1px] w-[74px] rounded relative shadow-md cursor-pointer ${
+								selectedImage === index
+									? "border-primary"
+									: "border-opacity-20"
+							}`}
+							onClick={() => handleThumbnailClick(index)}>
+							<div className="h-[74px] flex items-center justify-center">
+								<Image
+									className="object-contain h-full cursor-pointer"
+									src={`http://localhost:5000/images/products/${image}`}
+									alt={`Thumbnail ${index}`}
+									width={50}
+									height={10}
+								/>
+							</div>
 						</div>
 					))}
 				</div>
-			</div>
-			{/* Thumbnails que servem como botões */}
-			<div className="thumbnails">
-				{slides.map((slide, index) => (
-					<button
-						key={index}
-						className={`thumbnail ${
-							selectedIndex === index ? "is-selected" : ""
-						}`} // Adiciona uma classe se estiver selecionada
-						onClick={() => goToSlide(index)}>
-						<img src={slide} alt={`Thumbnail ${index}`} />
-					</button>
-				))}
+
+				{/* Botão de navegação anterior */}
+				<button
+					onClick={() => emblaApi && emblaApi.scrollPrev()}
+					disabled={!canScrollPrev}
+					className={`flex flex-row items-center justify-center w-[30px] h-[60px] absolute left-0 top-1/2 transform -translate-y-1/2 z-10 text-black px-2 py-1 bg-primary rounded ${
+						!canScrollPrev ? "opacity-50" : ""
+					}`}>
+					<MdOutlineArrowBackIosNew size={20} />
+				</button>
+
+				{/* Botão de navegação próximo */}
+				<button
+					onClick={() => emblaApi && emblaApi.scrollNext()}
+					disabled={!canScrollNext}
+					className={`flex flex-row items-center justify-center w-[30px] h-[60px] absolute right-0 top-1/2 transform -translate-y-1/2 z-10 text-black px-2 py-1 bg-primary rounded ${
+						!canScrollNext ? "opacity-50" : ""
+					}`}>
+					<MdOutlineArrowForwardIos size={20} />
+				</button>
 			</div>
 		</div>
 	);
