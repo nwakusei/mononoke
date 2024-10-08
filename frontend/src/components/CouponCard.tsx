@@ -34,13 +34,13 @@ function CouponCard({
 
 	return (
 		<div className="bg-white w-[260px] flex flex-col rounded-md relative shadow-md select-none">
-			<div className="h-[150px] mx-3 mt-2 -mb-3 flex items-center justify-center">
+			<div className="h-[130px] mx-3 mt-2 -mb-3 flex items-center justify-center">
 				<Image
 					className="object-contain w-full h-full pointer-events-none"
 					src={partnerLogo}
 					alt="Logo Partner"
-					width={150}
-					height={100}
+					width={260}
+					height={130}
 					unoptimized
 				/>
 			</div>

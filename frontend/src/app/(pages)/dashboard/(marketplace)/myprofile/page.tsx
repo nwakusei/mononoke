@@ -30,14 +30,19 @@ const updateUserFormSchema = z
 					file === null || /\.(jpg|jpeg|png)$/i.test(file!.name), // Verifica se a extensão é JPG, JPEG ou PNG
 				"※ O arquivo precisa ser do tipo JPG, JPEG ou PNG!"
 			),
-		// logoImage: z
-		// 	.instanceof(FileList)
-		// 	.transform((list) => list.item(0))
-		// 	.optional()
-		// 	.refine(
-		// 		(file) => file === null || file!.size <= 2 * 1024 * 1024,
-		// 		"O arquivo precisa ter no máximo 2Mb!"
-		// 	),
+		logoImage: z
+			.instanceof(FileList)
+			.transform((list) => list.item(0))
+			.optional()
+			.refine(
+				(file) => file === null || file!.size <= 2 * 1024 * 1024, // Verifica se é null ou se o tamanho está dentro do limite
+				"※ O arquivo precisa ter no máximo 2Mb!"
+			)
+			.refine(
+				(file) =>
+					file === null || /\.(jpg|jpeg|png)$/i.test(file!.name), // Verifica se a extensão é JPG, JPEG ou PNG
+				"※ O arquivo precisa ser do tipo JPG, JPEG ou PNG!"
+			),
 		name: z
 			.string()
 			.min(1, "※ Digite o nome!")
@@ -341,11 +346,13 @@ function MyProfilePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 	const [imagemSelecionadaProfile, setImagemSelecionadaProfile] =
-		useState(null);
-	const [imagemSelecionadaLogo, setImagemSelecionadaLogo] = useState(null);
+		useState("");
+	const [imagemSelecionadaLogo, setImagemSelecionadaLogo] = useState("");
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingButton, setLoadingButton] = useState(false);
 	const router = useRouter();
+
+	console.log(imagemSelecionadaLogo);
 
 	const {
 		register,
@@ -367,6 +374,21 @@ function MyProfilePage() {
 			setIsLoading(false);
 		});
 	}, [token]);
+
+	useEffect(() => {
+		if (user) {
+			setImagemSelecionadaProfile(
+				user?.profileImage
+					? `http://localhost:5000/images/partners/${user.profileImage}`
+					: ""
+			);
+			setImagemSelecionadaLogo(
+				user?.logoImage
+					? `http://localhost:5000/images/partners/${user.logoImage}`
+					: ""
+			);
+		}
+	}, [user]); // Atualiza a imagem quando o usuário muda
 
 	const handleImagemSelecionada = (event, setImageFunction) => {
 		const file = event.target.files[0];
@@ -499,11 +521,30 @@ function MyProfilePage() {
 		// Cria um novo FormData
 		const formData = new FormData();
 
+		// // Itera sobre os campos do objeto 'sanitizedData' e adiciona ao FormData
+		// Object.entries(sanitizedData).forEach(([key, value]) => {
+		// 	if (key === "profileImage" && value instanceof File) {
+		// 		formData.append(key, value);
+		// 		console.log(`Adicionado ao FormData: ${key} - [Imagem]`);
+		// 	} else {
+		// 		formData.append(key, value);
+		// 		console.log(`Adicionado ao FormData: ${key} - ${value}`);
+		// 	}
+		// });
+
 		// Itera sobre os campos do objeto 'sanitizedData' e adiciona ao FormData
 		Object.entries(sanitizedData).forEach(([key, value]) => {
+			// Verifica se o valor é a imagem de perfil (profileImage)
 			if (key === "profileImage" && value instanceof File) {
 				formData.append(key, value);
-				console.log(`Adicionado ao FormData: ${key} - [Imagem]`);
+				console.log(
+					`Adicionado ao FormData: ${key} - [Imagem de Perfil]`
+				);
+			}
+			// Verifica se o valor é a logo (LogoImage)
+			else if (key === "LogoImage" && value instanceof File) {
+				formData.append(key, value);
+				console.log(`Adicionado ao FormData: ${key} - [Logo]`);
 			} else {
 				formData.append(key, value);
 				console.log(`Adicionado ao FormData: ${key} - ${value}`);
@@ -754,7 +795,7 @@ function MyProfilePage() {
 														errors.description
 															? `textarea-error`
 															: `textarea-success`
-													}`}
+													} h-[150px]`}
 													placeholder={`...`}
 													defaultValue={
 														user?.description
@@ -798,15 +839,18 @@ function MyProfilePage() {
 											</span>
 										</div>
 										<div
-											className={`text-black hover:text-white flex flex-col justify-center items-center w-[120px] h-[120px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+											className={`text-black hover:text-white flex flex-col justify-center items-center w-[150px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 											{imagemSelecionadaProfile ? (
 												<>
-													<img
+													<Image
+														className="object-contain w-full h-full rounded"
 														src={
 															imagemSelecionadaProfile
 														}
 														alt="Imagem selecionada"
-														className="object-contain w-full h-full rounded"
+														width={150}
+														height={150}
+														unoptimized
 													/>
 													<button
 														type="button"
@@ -854,7 +898,7 @@ function MyProfilePage() {
 													</span>
 												) : (
 													<span className="text-black">
-														Tamanho recomendado
+														T. máx. 450x450p
 													</span>
 												)}
 											</span>
@@ -954,14 +998,17 @@ function MyProfilePage() {
 													</span>
 												</div>
 												<div
-													className={`text-black hover:text-white flex flex-col justify-center items-center w-[200px] h-[120px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+													className={`text-black hover:text-white flex flex-col justify-center items-center w-[300px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 													{imagemSelecionadaLogo ? (
-														<img
+														<Image
+															className="object-contain w-full h-full rounded"
 															src={
 																imagemSelecionadaLogo
 															}
 															alt="Imagem selecionada"
-															className="object-contain w-full h-full rounded-sm"
+															width={300}
+															height={150}
+															unoptimized
 														/>
 													) : (
 														<div
@@ -1001,7 +1048,11 @@ function MyProfilePage() {
 															</span>
 														) : (
 															<span className="text-black">
-																Tamanho
+																T. máx. 900x450p
+																(mantenha a
+																proporção para
+																não distorcer a
+																imagem)
 															</span>
 														)}
 													</span>

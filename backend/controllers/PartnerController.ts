@@ -332,8 +332,10 @@ class PartnerController {
 			postalCode,
 		} = req.body;
 
-		// Upload de imagem de Perfil
-		const profileImage = req.file as Express.Multer.File;
+		// Upload de imagens de Perfil Logo da Loja
+		const files = req.files as { [key: string]: Express.Multer.File[] };
+		const profileImage = files?.profileImage?.[0];
+		const logoImage = files?.logoImage?.[0];
 
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
@@ -379,6 +381,20 @@ class PartnerController {
 					}
 
 					partner.profileImage = image; // Atualiza o campo da imagem
+				}
+
+				if (logoImage) {
+					let image = "";
+
+					if ("key" in logoImage) {
+						if (typeof logoImage.key === "string") {
+							image = logoImage.key;
+						}
+					} else if (typeof logoImage.filename === "string") {
+						image = logoImage.filename;
+					}
+
+					partner.logoImage = image;
 				}
 
 				if (

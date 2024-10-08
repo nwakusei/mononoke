@@ -48,10 +48,19 @@ const createCouponFormSchema = z.object({
 		.refine(
 			(value) => {
 				const numberValue = Number(value);
-				return numberValue <= 90 && numberValue >= 0;
+				return numberValue > 0;
 			},
 			{
-				message: "※ O desconto máximo permitido é 90%",
+				message: "※ O desconto mínimo permitido é 1%!",
+			}
+		)
+		.refine(
+			(value) => {
+				const numberValue = Number(value);
+				return numberValue <= 90;
+			},
+			{
+				message: "※ O desconto máximo permitido é 90%!",
 			}
 		),
 	couponCode: z

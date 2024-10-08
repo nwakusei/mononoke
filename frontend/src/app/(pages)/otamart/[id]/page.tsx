@@ -488,15 +488,17 @@ function ProductPage() {
 
 			{/* Informações da Loja */}
 			<div className="bg-white flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md">
-				<div className="w-full p-2 select-none">
+				<div className="w-full p-4 select-none">
 					{/* Logo da Loja */}
 					{partner && (
 						<div className="flex flex-row gap-4">
-							<div className="w-[230px] h-24 bg-pink-200 border-solid border-[1px] border-black border-opacity-20 px-1 rounded-md shadow-md">
+							<div className="w-[260px] h-[130px] bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
 								<Image
 									className="object-contain w-full h-full pointer-events-none"
-									src={Amora}
+									src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
 									alt="Logo Shop"
+									width={260}
+									height={130}
 									unoptimized
 								/>
 							</div>

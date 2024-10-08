@@ -173,11 +173,13 @@ function StorePage() {
 				<div>
 					<div className="flex flex-row gap-8 bg-white text-black w-[1100px] h-[200px] p-4 mt-8 mb-8 rounded-md shadow-md select-none">
 						{/* Card Store Info 1 */}
-						<div className="flex flex-row gap-2 p-4 bg-pink-200 border-solid border-[1px] border-black border-opacity-20 w-[300px] h-[130px] rounded-md shadow-md">
+						<div className="w-[300px] h-[150px] flex flex-row bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
 							<Image
 								className="object-contain w-full h-full pointer-events-none"
-								src={Amora}
+								src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
 								alt="Logo Shop"
+								width={300}
+								height={150}
 								unoptimized
 							/>
 						</div>

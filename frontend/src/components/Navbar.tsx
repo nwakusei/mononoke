@@ -1,8 +1,10 @@
 "use client";
 
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+
+import "./Navbar.css";
 
 // Icons
 import {
@@ -35,6 +37,9 @@ import { HiOutlineGiftTop } from "react-icons/hi2";
 import { MdOutlineLocalActivity, MdOutlineDeleteOutline } from "react-icons/md";
 import { TbPokeball } from "react-icons/tb";
 
+// Axios
+import api from "@/utils/api";
+
 // Imagens
 import Logo from "../../public/logo.png";
 import imageProfile from "../../public/Kon.jpg";
@@ -47,6 +52,39 @@ function Navbar() {
 	const { userAuthenticated, logout } = useContext(Context);
 	const { cart, setCart, subtotal, setSubtotal } =
 		useContext(CheckoutContext);
+	const [token] = useState(localStorage.getItem("token") || "");
+	const [user, setUser] = useState({});
+	const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+	// useEffect(() => {
+	// 	api.get("/otakuprime/check-user", {
+	// 		headers: {
+	// 			Authorization: `Bearer ${JSON.parse(token)}`,
+	// 		},
+	// 	}).then((response) => {
+	// 		setUser(response.data);
+	// 	});
+	// }, [token]);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			api.get("/otakuprime/check-user", {
+				headers: {
+					Authorization: `Bearer ${JSON.parse(token)}`,
+				},
+			})
+				.then((response) => {
+					setUser(response.data);
+					setIsImageLoaded(false);
+				})
+				.catch((error) => {
+					console.error("Error fetching user data:", error);
+					setIsImageLoaded(false);
+				});
+		}, 2000); // 2000ms = 2 segundos de atraso
+
+		return () => clearTimeout(timer); // Limpa o timer ao desmontar o componente
+	}, [token]);
 
 	useEffect(() => {
 		// Recupera os produtos do carrinho do localStorage
@@ -96,8 +134,9 @@ function Navbar() {
 						<div className="flex-1 ml-10 select-none pointer-events-none">
 							<Image
 								src={Logo}
-								width={200}
-								alt=""
+								width={450}
+								height={450}
+								alt="Profile Image"
 								unoptimized
 								priority
 							/>
@@ -110,7 +149,8 @@ function Navbar() {
 										href="/"
 										className="btn btn-ghost normal-case flex flex-row items-center text-white">
 										<BiHomeSmile size={18} />
-										Home
+										Home{" "}
+										<div className="custom-skeleton skeleton h-32 w-32 rounded-md"></div>
 									</Link>
 								</li>
 
@@ -379,7 +419,29 @@ function Navbar() {
 									tabIndex={0}
 									className="btn btn-ghost btn-circle avatar ring ring-success ring-offset-base-100">
 									<div className="w-10 rounded-full">
-										<Image src={imageProfile} alt="" />
+										{user && (
+											<>
+												{!isImageLoaded && (
+													<div className="custom-skeleton h-32 w-32 rounded-md"></div>
+												)}
+												<Image
+													src={`http://localhost:5000/images/partners/${user.profileImage}`}
+													width={450}
+													height={450}
+													alt="Profile Image"
+													unoptimized
+													priority
+													onLoadingComplete={() =>
+														setIsImageLoaded(true)
+													} // Atualiza o estado quando a imagem é carregada
+													style={{
+														display: isImageLoaded
+															? "block"
+															: "none",
+													}} // Esconde a imagem até ser carregada
+												/>
+											</>
+										)}
 									</div>
 								</label>
 								<ul
@@ -457,9 +519,10 @@ function Navbar() {
 					<div className="navbar bg-primary shadow-md">
 						<div className="flex-1 ml-10">
 							<Image
-								src={Logo}
-								width={200}
-								alt=""
+								src={`http://localhost:5000/images/partners/${user.profileImage}`}
+								width={450}
+								height={450}
+								alt="Profile Image"
 								unoptimized
 								priority
 							/>

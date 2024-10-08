@@ -12,8 +12,10 @@ const storageTypes: {
 		destination: (req, file, cb) => {
 			let folder = "";
 
-			if (req.baseUrl.includes("users")) {
-				folder = "users";
+			if (req.baseUrl.includes("customers")) {
+				folder = "customers";
+			} else if (req.baseUrl.includes("partners")) {
+				folder = "partners";
 			} else if (req.baseUrl.includes("products")) {
 				folder = "products";
 			} else if (req.baseUrl.includes("reviews")) {
