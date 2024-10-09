@@ -6,7 +6,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { MdOutlineArrowBackIosNew } from "react-icons/md";
 import { MdOutlineArrowForwardIos } from "react-icons/md";
 
-const ThumbnailCarousel = ({
+const ImageCarouselComponent = ({
 	product,
 	handleThumbnailClick,
 	selectedImage,
@@ -86,4 +86,4 @@ const ThumbnailCarousel = ({
 	);
 };
 
-export { ThumbnailCarousel };
+export { ImageCarouselComponent };

@@ -36,6 +36,7 @@ function MySaleByIDPage() {
 	const [mysale, setMysale] = useState([]);
 	const [trackingCode, setTrackingCode] = useState("");
 	const [trackingLoading, setTrackingLoading] = useState(false);
+	const [packedLoading, setPackedLoading] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 
 	const dateCreatedOrder = mysale.createdAt
@@ -66,8 +67,8 @@ function MySaleByIDPage() {
 
 	async function handleTracking(e) {
 		e.preventDefault();
+		setTrackingLoading(true);
 		try {
-			setTrackingLoading(true);
 			const response = await api.patch(
 				`/orders/update-trackingcode/${id}`,
 				{ trackingCode },
@@ -75,13 +76,25 @@ function MySaleByIDPage() {
 			);
 			console.log("Response:", response); // Verifique se esta linha é executada
 
-			setTrackingLoading(false);
 			toast.success(response.data.message);
 		} catch (error) {
-			setTrackingLoading(false);
 			toast.error(error.response.data.message);
 			console.error("Erro ao atualizar o código de rastreamento:", error);
 		}
+		setTrackingLoading(false);
+	}
+
+	async function handlePacked() {
+		setPackedLoading(true);
+		try {
+			const response = await api.patch(`/orders/mark-packed/${id}`);
+
+			toast.success(response.data.message);
+		} catch (error: any) {
+			console.log(error);
+			toast.error(error.response.data.message);
+		}
+		setPackedLoading(false);
 	}
 
 	// Função para Descriptografar dados sensíveis no Banco de Dados
@@ -474,64 +487,82 @@ function MySaleByIDPage() {
 								<h2>Status: {mysale.statusShipping}</h2>
 							</div>
 
-							{mysale.trackingCode === "" ? (
+							{mysale.statusShipping === "Embalado" ? (
 								<>
-									<form onSubmit={handleTracking}>
-										<label className="form-control w-full max-w-xs mb-4">
-											<select className="select select-primary w-full max-w-xs mb-2">
-												<option disabled selected>
-													Qual é o operador logístico?
-												</option>
-												<option>Kangu</option>
-												<option>Correios</option>
-												<option>Japan Post</option>
-												<option>DHL</option>
-												<option>FedEx</option>
-											</select>
-											<input
-												type="text"
-												placeholder="Insira o código de Rastreio"
-												className="input input-bordered input-primary w-full"
-												value={trackingCode}
-												onChange={(e) =>
-													setTrackingCode(
-														e.target.value
-													)
-												}
-											/>
-											<div className="label">
-												<span className="label-text-alt text-error">
-													Msg de erro a ser exibida
-												</span>
-											</div>
-										</label>
-										<div>
-											{trackingLoading ? (
+									{mysale.statusShipping === "Pendente" &&
+									mysale.trackingCode === "" ? (
+										<div className="mb-2">
+											{packedLoading ? (
 												<button className="btn btn-primary w-full">
 													<span className="loading loading-spinner loading-sm"></span>
-													<span>Processando...</span>
 												</button>
 											) : (
 												<button
-													type="submit"
-													className="btn btn-primary w-full shadow-md">
-													Enviar Código de Rastreio
-													<GrMapLocation size={20} />
+													onClick={handlePacked}
+													className="btn btn-primary w-full">
+													<span>
+														Marcar como embalado
+													</span>
+													<LuPackageCheck size={20} />
 												</button>
 											)}
 										</div>
-									</form>
-									{mysale.trackingCode === "" ? (
-										<></>
 									) : (
-										<div className="mb-2">
-											<button className="btn btn-primary w-full">
-												<span>
-													Marcar como embalado
-												</span>
-												<LuPackageCheck size={20} />
-											</button>
+										<div className="bg-red-500">
+											Marcado como Embalado
 										</div>
+									)}
+
+									{mysale.trackingCode === "" && (
+										<form onSubmit={handleTracking}>
+											<label className="form-control w-full max-w-xs mb-4">
+												<select className="select select-primary w-full max-w-xs mb-2">
+													<option disabled selected>
+														Qual é o operador
+														logístico?
+													</option>
+													<option>Kangu</option>
+													<option>Correios</option>
+													<option>Japan Post</option>
+													<option>DHL</option>
+													<option>FedEx</option>
+												</select>
+												<input
+													type="text"
+													placeholder="Insira o código de Rastreio"
+													className="input input-bordered input-primary w-full"
+													value={trackingCode}
+													onChange={(e) =>
+														setTrackingCode(
+															e.target.value
+														)
+													}
+												/>
+												<div className="label">
+													<span className="label-text-alt text-error">
+														Msg de erro a ser
+														exibida
+													</span>
+												</div>
+											</label>
+											<div>
+												{trackingLoading ? (
+													<button className="btn btn-primary w-full">
+														<span className="loading loading-spinner loading-sm"></span>
+													</button>
+												) : (
+													<button
+														type="submit"
+														className="btn btn-primary w-full shadow-md">
+														Enviar Código de
+														Rastreio
+														<GrMapLocation
+															size={20}
+														/>
+													</button>
+												)}
+											</div>
+										</form>
 									)}
 								</>
 							) : (

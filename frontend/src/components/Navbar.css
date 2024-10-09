@@ -1,20 +1,21 @@
 @keyframes loading {
 	0% {
-		background-position: 0% 0; /* Começa na posição inicial */
+		background-position: 0% 0%; /* Começa no canto superior esquerdo */
 	}
 	100% {
-		background-position: 100% 0; /* Termina na posição final */
+		background-position: 100% 100%; /* Termina no canto inferior direito */
 	}
 }
 
 .custom-skeleton {
-	background-color: #fbcfe8; /* Cor de fundo rosa do skeleton */
+	background-color: #fbcfe8; /* Cor de fundo rosa */
 	background-image: linear-gradient(
-		45deg,
-		/* Ângulo do gradiente */ rgba(255, 255, 255, 0.1) 25%,
+		135deg,
+		/* Ângulo ajustado para combinar com o movimento */
+			rgba(255, 255, 255, 0.1) 25%,
 		/* Transparente */ rgba(249, 168, 212, 0.8) 50%,
 		/* Rosa escuro */ rgba(255, 255, 255, 0.1) 75% /* Transparente */
 	);
-	background-size: 200% 100%; /* O background deve ser 200% para suavizar a animação */
+	background-size: 200% 200%; /* O background deve cobrir toda a área */
 	animation: loading 1.5s infinite linear; /* Animação contínua */
 }

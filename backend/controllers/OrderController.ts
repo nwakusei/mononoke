@@ -888,9 +888,79 @@ class OrderController {
 		}
 	}
 
+	static async markPacked(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(422).json({
+				message: "O ID do pedido é obrigatório!",
+			});
+			return;
+		}
+
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({
+				message: "Usuário não encontrado!",
+			});
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message:
+					"Você não possuo autorização para realizar essa requsição!",
+			});
+			return;
+		}
+
+		try {
+			const order = await OrderModel.findById(id);
+
+			if (!order) {
+				res.status(422).json({
+					message: "Pedido não encontrado!",
+				});
+				return;
+			}
+
+			if (order.statusShipping === "Embalado") {
+				res.status(422).json({
+					message: "Pedido já marcado como embalado!",
+				});
+				return;
+			}
+
+			if (order.statusShipping !== "Pendente") {
+				res.status(422).json({
+					message: "O Pedido não pode ser marcado como embalado!",
+				});
+				return;
+			}
+
+			order.statusShipping = "Embalado";
+
+			await order.save(); // Salva as alterações no banco de dados
+
+			res.status(200).json({
+				message: "Pedido marcado como embalado com sucesso!",
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ message: "Erro ao marcado como embalado!" });
+		}
+	}
+
 	static async updateTrackingCode(req: Request, res: Response) {
 		const { id } = req.params;
 		const { trackingCode } = req.body;
+
+		if (!id) {
+			res.status(422).json({ message: "O ID do pedido é obrigatório!" });
+			return;
+		}
 
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
@@ -934,6 +1004,13 @@ class OrderController {
 				return;
 			}
 
+			if (order.statusShipping !== "Embalado") {
+				res.status(422).json({
+					message: "O Pedido não pode ser marcado como enviado!",
+				});
+				return;
+			}
+
 			order.statusOrder = "Enviado";
 			order.statusShipping = "Enviado";
 			order.trackingCode = trackingCode;
@@ -944,7 +1021,7 @@ class OrderController {
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({
-				message: "Erro ao atualizar o código de rastreamento.",
+				message: "Erro ao atualizar o código de rastreamento!",
 			});
 		}
 	}

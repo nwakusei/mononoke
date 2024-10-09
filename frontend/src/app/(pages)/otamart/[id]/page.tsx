@@ -11,8 +11,8 @@ import { format } from "date-fns";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
-import { CarouselComponent } from "@/components/CarouselComponent";
-import { ThumbnailCarousel } from "@/components/ThumbnailComponent";
+import { MainImageProductAdComponent } from "@/components/MainImageProductAdComponent";
+import { ImageCarouselComponent } from "@/components/ImageCarouselComponent";
 
 import "./otamartId.css";
 
@@ -309,7 +309,7 @@ function ProductPage() {
 			<div className="flex flex-col bg-white p-4 rounded-md shadow-md col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
 				<div className="flex flex-row justify-between">
 					{/* Componente para a imagem principal */}
-					<CarouselComponent
+					<MainImageProductAdComponent
 						selectedImage={selectedImage}
 						product={product}
 					/>
@@ -466,7 +466,7 @@ function ProductPage() {
 					<SideComponent />
 				</div>
 				{/* Componente para as miniaturas */}
-				<ThumbnailCarousel
+				<ImageCarouselComponent
 					product={product}
 					handleThumbnailClick={handleThumbnailClick}
 					selectedImage={selectedImage}

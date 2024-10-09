@@ -64,19 +64,19 @@ const createUserFormSchema = z
 					})
 					.join(" ");
 			}),
-		cpf: z
-			.string()
-			.min(1, { message: "※ O CPF é obrigatório!" })
-			.trim()
-			.refine(
-				(val) => val === undefined || val === "" || !isNaN(Number(val)),
-				{
-					message: "※ O CPF deve ser um número válido!",
-				}
-			)
-			.refine((val) => val === undefined || val.length === 11, {
-				message: "※ O CPF deve ter 11 dígitos.",
-			}),
+		// cpf: z
+		// 	.string()
+		// 	.min(1, { message: "※ O CPF é obrigatório!" })
+		// 	.trim()
+		// 	.refine(
+		// 		(val) => val === undefined || val === "" || !isNaN(Number(val)),
+		// 		{
+		// 			message: "※ O CPF deve ser um número válido!",
+		// 		}
+		// 	)
+		// 	.refine((val) => val === undefined || val.length === 11, {
+		// 		message: "※ O CPF deve ter 11 dígitos.",
+		// 	}),
 		email: z
 			.string()
 			.min(1, "※ Informe um email válido!")
@@ -162,7 +162,7 @@ function RegisterPage() {
 
 	return (
 		<section className="bg-gray-300 flex min-h-screen flex-col items-center justify-center p-24">
-			<div className="flex flex-col items-center justify-center bg-primary w-[500px] h-[960px] rounded-md shadow-md m-4">
+			<div className="flex flex-col items-center justify-center bg-primary w-[500px] h-[820px] rounded-md shadow-md m-4">
 				<Image src={Logo} width={200} alt="logo" unoptimized />
 				<h1 className="text-center text-2xl mt-2 mb-4">Cadastre-se</h1>
 				<form onSubmit={handleSubmit(createUser)}>
@@ -210,14 +210,14 @@ function RegisterPage() {
 						register={register}
 						errors={errors}
 					/>
-					<InputUserForm
+					{/* <InputUserForm
 						htmlFor="cpf"
 						labelTitle="CPF ou CNPJ"
 						type="text"
 						inputName="cpf"
 						register={register}
 						errors={errors}
-					/>
+					/> */}
 					<InputUserForm
 						htmlFor="email"
 						labelTitle="Email"

@@ -4,7 +4,12 @@ import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+// Style Sheet CSS
 import "./Navbar.css";
+
+// Skeleton
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 // Icons
 import {
@@ -57,6 +62,8 @@ function Navbar() {
 	const [isImageLoaded, setIsImageLoaded] = useState(false);
 
 	// useEffect(() => {
+	// 	if (!token) return;
+
 	// 	api.get("/otakuprime/check-user", {
 	// 		headers: {
 	// 			Authorization: `Bearer ${JSON.parse(token)}`,
@@ -67,6 +74,8 @@ function Navbar() {
 	// }, [token]);
 
 	useEffect(() => {
+		if (!token) return;
+
 		const timer = setTimeout(() => {
 			api.get("/otakuprime/check-user", {
 				headers: {
@@ -149,8 +158,7 @@ function Navbar() {
 										href="/"
 										className="btn btn-ghost normal-case flex flex-row items-center text-white">
 										<BiHomeSmile size={18} />
-										Home{" "}
-										<div className="custom-skeleton skeleton h-32 w-32 rounded-md"></div>
+										Home
 									</Link>
 								</li>
 
@@ -418,11 +426,19 @@ function Navbar() {
 								<label
 									tabIndex={0}
 									className="btn btn-ghost btn-circle avatar ring ring-success ring-offset-base-100">
-									<div className="w-10 rounded-full">
+									<div className="w-[40px] rounded-full">
 										{user && (
 											<>
 												{!isImageLoaded && (
-													<div className="custom-skeleton h-32 w-32 rounded-md"></div>
+													<SkeletonTheme
+														baseColor="#202020"
+														highlightColor="#444">
+														<Skeleton
+															circle={true}
+															height={40}
+															width={40}
+														/>
+													</SkeletonTheme>
 												)}
 												<Image
 													src={`http://localhost:5000/images/partners/${user.profileImage}`}
@@ -519,7 +535,7 @@ function Navbar() {
 					<div className="navbar bg-primary shadow-md">
 						<div className="flex-1 ml-10">
 							<Image
-								src={`http://localhost:5000/images/partners/${user.profileImage}`}
+								src={Logo}
 								width={450}
 								height={450}
 								alt="Profile Image"

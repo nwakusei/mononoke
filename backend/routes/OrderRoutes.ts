@@ -37,6 +37,8 @@ router.patch(
 	OrderController.confirmReceiptCustomerOrder
 );
 
+router.patch("/mark-packed/:id", verifyToken, OrderController.markPacked);
+
 router.patch(
 	"/update-trackingcode/:id",
 	verifyToken,
