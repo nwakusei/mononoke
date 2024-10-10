@@ -142,8 +142,9 @@ class TrackingController {
 				return;
 			}
 
+			const tokenKangu =
+				"b98aa429dc3a01ac33f7982f1da926c699c0768e39c3a20992cb59e129d43694";
 			const kanguApiUrl = `https://portal.kangu.com.br/tms/transporte/rastrear/${trackingCode}`;
-			const tokenKangu = "8bdcdd65ac61c68aa615f3da4a3754b4";
 
 			const response = await fetch(kanguApiUrl, {
 				method: "GET",

@@ -955,7 +955,7 @@ class OrderController {
 
 	static async updateTrackingCode(req: Request, res: Response) {
 		const { id } = req.params;
-		const { trackingCode } = req.body;
+		const { logisticOperator, trackingCode } = req.body;
 
 		if (!id) {
 			res.status(422).json({ message: "O ID do pedido é obrigatório!" });
@@ -976,6 +976,13 @@ class OrderController {
 			res.status(422).json({
 				message:
 					"Você não possuo autorização para realizar essa requsição!",
+			});
+			return;
+		}
+
+		if (!logisticOperator) {
+			res.status(422).json({
+				message: "O Operador Logístico é obrigatório!",
 			});
 			return;
 		}
@@ -1013,6 +1020,7 @@ class OrderController {
 
 			order.statusOrder = "Enviado";
 			order.statusShipping = "Enviado";
+			order.logisticOperator = logisticOperator;
 			order.trackingCode = trackingCode;
 
 			await order.save(); // Salva as alterações no banco de dados

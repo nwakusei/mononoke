@@ -8,20 +8,58 @@ import { format } from "date-fns";
 import { toast } from "react-toastify";
 import crypto from "crypto";
 
+// Axios
+import api from "@/utils/api";
+
 const secretKey = "chaveSuperSecretaDe32charsdgklot";
+
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
 import { LoadingPage } from "@/components/LoadingPageComponent";
-
-// Axios
-import api from "@/utils/api";
 
 // icons
 import { GrMapLocation } from "react-icons/gr";
 import { PiNoteBold } from "react-icons/pi";
 import { BsBoxSeam } from "react-icons/bs";
 import { LuPackageCheck } from "react-icons/lu";
+
+// React Hook Form, Zod e ZodResolver
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { register } from "module";
+
+const updateTrackingForm = z.object({
+	logisticOperator: z
+		.string()
+		.min(1, "※ O operador logístico é obrigatório!")
+		.trim()
+		.refine((value) => value !== "", {
+			message: "※ Item obrigatório!",
+		}),
+	trackingCode: z
+		.string()
+		.min(1, "※ O código de rastreio é obrigatório!")
+		.trim()
+		.toUpperCase()
+		.refine(
+			(tCode) => {
+				const sanitized = DOMPurify.sanitize(tCode);
+
+				const isValid = /^[A-Za-z0-9]+$/.test(sanitized); // Verificar se é alfanumérico
+
+				return isValid;
+			},
+			{
+				message: "※ O código possui caracteres inválidos!",
+			}
+		),
+});
+
+type TUpdateTrackingForm = z.infer<typeof updateTrackingForm>;
 
 function MySaleByIDPage() {
 	const { id } = useParams();
@@ -42,6 +80,14 @@ function MySaleByIDPage() {
 	const dateCreatedOrder = mysale.createdAt
 		? `${format(new Date(mysale.createdAt), "dd/MM - HH:mm")} hs`
 		: "";
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<TUpdateTrackingForm>({
+		resolver: zodResolver(updateTrackingForm),
+	});
 
 	useEffect(() => {
 		const fetchOrder = async () => {
@@ -65,16 +111,24 @@ function MySaleByIDPage() {
 		fetchOrder();
 	}, [token, id]);
 
-	async function handleTracking(e) {
-		e.preventDefault();
+	async function handleTracking(data) {
+		const logisticOperator = data.logisticOperator;
+		const trackingCode = data.trackingCode;
+
 		setTrackingLoading(true);
 		try {
 			const response = await api.patch(
 				`/orders/update-trackingcode/${id}`,
-				{ trackingCode },
+				{ logisticOperator, trackingCode },
 				{ headers: { Authorization: `Bearer ${JSON.parse(token)}` } }
 			);
-			console.log("Response:", response); // Verifique se esta linha é executada
+
+			// Atualiza o estado local do pedido
+			setMysale((prevMysale) => ({
+				...prevMysale,
+				statusShipping: "Enviado",
+				trackingCode: trackingCode, // Certifique-se de que está sendo atualizado corretamente
+			}));
 
 			toast.success(response.data.message);
 		} catch (error) {
@@ -88,6 +142,12 @@ function MySaleByIDPage() {
 		setPackedLoading(true);
 		try {
 			const response = await api.patch(`/orders/mark-packed/${id}`);
+
+			// Atualizar o estado localmente para refletir a mudança no status
+			setMysale((prevMysale) => ({
+				...prevMysale,
+				statusShipping: "Embalado", // Alteração do status local
+			}));
 
 			toast.success(response.data.message);
 		} catch (error: any) {
@@ -136,14 +196,14 @@ function MySaleByIDPage() {
 				<div className="flex flex-row justify-between items-center gap-4 bg-white w-[1200px] p-6 rounded-md shadow-md mt-4 mr-4">
 					<div className="flex flex-col">
 						<h1 className="text-lg text-black">
-							{`ID do Pedido: ${mysale.orderID}`}
+							{`ID do Pedido: ${mysale?.orderID}`}
 						</h1>
 						<h2 className="text-black">
 							Data do Pagamento: {dateCreatedOrder}
 						</h2>
 					</div>
 					<div>
-						{mysale.statusShipping === "Enviado" ? (
+						{mysale?.statusShipping === "Enviado" ? (
 							<></>
 						) : (
 							<button className="btn btn-error text-white shadow-md">
@@ -185,9 +245,9 @@ function MySaleByIDPage() {
 									</thead>
 									<tbody>
 										{/* row 1 */}
-										{Array.isArray(mysale.itemsList) &&
-											mysale.itemsList.length > 0 &&
-											mysale.itemsList.map(
+										{Array.isArray(mysale?.itemsList) &&
+											mysale?.itemsList.length > 0 &&
+											mysale?.itemsList.map(
 												(item, index) => (
 													<tr key={index}>
 														<td>
@@ -285,12 +345,12 @@ function MySaleByIDPage() {
 										<tr>
 											<td>
 												{Array.isArray(
-													mysale.itemsList
+													mysale?.itemsList
 												) &&
-													mysale.itemsList.length >
+													mysale?.itemsList.length >
 														0 && (
 														<div>
-															{mysale.itemsList
+															{mysale?.itemsList
 																.reduce(
 																	(
 																		total,
@@ -313,9 +373,9 @@ function MySaleByIDPage() {
 											</td>
 											<td>
 												<div>
-													{mysale.shippingCostTotal >
+													{mysale?.shippingCostTotal >
 													0
-														? mysale.shippingCostTotal.toLocaleString(
+														? mysale?.shippingCostTotal.toLocaleString(
 																"pt-BR",
 																{
 																	style: "currency",
@@ -329,14 +389,14 @@ function MySaleByIDPage() {
 
 											<td>
 												{Array.isArray(
-													mysale.itemsList
+													mysale?.itemsList
 												) &&
-													mysale.itemsList.length >
+													mysale?.itemsList.length >
 														0 && (
 														<div>
 															{(() => {
 																const productTotal =
-																	mysale.itemsList.reduce(
+																	mysale?.itemsList.reduce(
 																		(
 																			total,
 																			item
@@ -347,10 +407,10 @@ function MySaleByIDPage() {
 																	);
 																const totalWithShipping =
 																	productTotal +
-																	mysale.shippingCostTotal;
+																	mysale?.shippingCostTotal;
 																const discount =
 																	totalWithShipping -
-																	mysale.customerOrderCostTotal;
+																	mysale?.customerOrderCostTotal;
 
 																// Formata o desconto para o formato de moeda brasileira (BRL)
 																const formattedDiscount =
@@ -375,9 +435,9 @@ function MySaleByIDPage() {
 
 											<td>
 												<div>
-													{mysale.customerOrderCostTotal >
+													{mysale?.customerOrderCostTotal >
 														0 &&
-														mysale.customerOrderCostTotal.toLocaleString(
+														mysale?.customerOrderCostTotal.toLocaleString(
 															"pt-BR",
 															{
 																style: "currency",
@@ -410,7 +470,7 @@ function MySaleByIDPage() {
 											<td>
 												<div>
 													{decrypt(
-														mysale.partnerCommissionOtamart
+														mysale?.partnerCommissionOtamart
 													)?.toLocaleString("pt-BR", {
 														style: "currency",
 														currency: "BRL",
@@ -420,9 +480,9 @@ function MySaleByIDPage() {
 
 											<td>
 												{(
-													mysale.customerOrderCostTotal -
+													mysale?.customerOrderCostTotal -
 													decrypt(
-														mysale.partnerCommissionOtamart
+														mysale?.partnerCommissionOtamart
 													)
 												)?.toLocaleString("pt-BR", {
 													style: "currency",
@@ -439,14 +499,14 @@ function MySaleByIDPage() {
 					{/* Gadget 3 */}
 					<div className="flex flex-col">
 						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4 text-black">
-							<h1 className="text-lg">{mysale.customerName}</h1>
-							<h2>CPF: {mysale.customerCPF}</h2>
+							<h1 className="text-lg">{mysale?.customerName}</h1>
+							<h2>CPF: {mysale?.customerCPF}</h2>
 
 							<div className="divider before:border-t-[1px] after:border-t-[1px] before:bg-black after:bg-black"></div>
 
-							{mysale.customerAddress &&
-								mysale.customerAddress.length > 0 &&
-								mysale.customerAddress.map((end) => (
+							{mysale?.customerAddress &&
+								mysale?.customerAddress.length > 0 &&
+								mysale?.customerAddress.map((end) => (
 									<div key={end._id}>
 										<div className="text-lg mb-3">
 											Endereço de entrega
@@ -461,7 +521,7 @@ function MySaleByIDPage() {
 										</div>
 										<div>Bairro: {end.neighborhood}</div>
 										<div>
-											Cidade/UF: {end.city}/{end.uf}
+											Cidade/UF: {end.city}/{end.state}
 										</div>
 										<div>CEP: {end.postalCode}</div>
 									</div>
@@ -471,11 +531,11 @@ function MySaleByIDPage() {
 						{/* Gadget 4 */}
 						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4">
 							<div className="mb-4 text-black">
-								<h1>Tranportadora: {mysale.shippingMethod}</h1>
+								<h1>Tranportadora: {mysale?.shippingMethod}</h1>
 								<h2>
 									Valor:{" "}
-									{mysale.shippingCostTotal > 0
-										? mysale.shippingCostTotal.toLocaleString(
+									{mysale?.shippingCostTotal > 0
+										? mysale?.shippingCostTotal.toLocaleString(
 												"pt-BR",
 												{
 													style: "currency",
@@ -484,97 +544,131 @@ function MySaleByIDPage() {
 										  )
 										: "R$ 0,00"}
 								</h2>
-								<h2>Status: {mysale.statusShipping}</h2>
+								<h2>Status: {mysale?.statusShipping}</h2>
 							</div>
 
-							{mysale.statusShipping === "Embalado" ? (
-								<>
-									{mysale.statusShipping === "Pendente" &&
-									mysale.trackingCode === "" ? (
-										<div className="mb-2">
-											{packedLoading ? (
-												<button className="btn btn-primary w-full">
-													<span className="loading loading-spinner loading-sm"></span>
-												</button>
-											) : (
-												<button
-													onClick={handlePacked}
-													className="btn btn-primary w-full">
-													<span>
-														Marcar como embalado
-													</span>
-													<LuPackageCheck size={20} />
-												</button>
-											)}
-										</div>
+							{mysale?.statusShipping === "Pendente" &&
+							mysale?.trackingCode === "" ? (
+								<div className="mb-2">
+									{packedLoading ? (
+										<button className="btn btn-primary w-full">
+											<span className="loading loading-spinner loading-sm"></span>
+										</button>
 									) : (
-										<div className="bg-red-500">
-											Marcado como Embalado
-										</div>
+										<button
+											onClick={handlePacked}
+											className="btn btn-primary w-full">
+											<span>Marcar como embalado</span>
+											<LuPackageCheck size={20} />
+										</button>
 									)}
-
-									{mysale.trackingCode === "" && (
-										<form onSubmit={handleTracking}>
-											<label className="form-control w-full max-w-xs mb-4">
-												<select className="select select-primary w-full max-w-xs mb-2">
-													<option disabled selected>
-														Qual é o operador
-														logístico?
-													</option>
-													<option>Kangu</option>
-													<option>Correios</option>
-													<option>Japan Post</option>
-													<option>DHL</option>
-													<option>FedEx</option>
-												</select>
-												<input
-													type="text"
-													placeholder="Insira o código de Rastreio"
-													className="input input-bordered input-primary w-full"
-													value={trackingCode}
-													onChange={(e) =>
-														setTrackingCode(
-															e.target.value
-														)
-													}
-												/>
-												<div className="label">
-													<span className="label-text-alt text-error">
-														Msg de erro a ser
-														exibida
-													</span>
-												</div>
-											</label>
-											<div>
-												{trackingLoading ? (
-													<button className="btn btn-primary w-full">
-														<span className="loading loading-spinner loading-sm"></span>
-													</button>
-												) : (
-													<button
-														type="submit"
-														className="btn btn-primary w-full shadow-md">
-														Enviar Código de
-														Rastreio
-														<GrMapLocation
-															size={20}
-														/>
-													</button>
-												)}
-											</div>
-										</form>
-									)}
-								</>
+								</div>
 							) : (
+								<></>
+							)}
+
+							{mysale?.trackingCode !== "" ? (
 								<div className="flex flex-row gap-2">
 									<div className="text-black">
 										Cod. de Rastreio:
 									</div>
 									<div className="bg-primary rounded shadow-md px-2">
-										{mysale.trackingCode}
+										{mysale?.trackingCode}
 									</div>
 								</div>
+							) : (
+								<></>
 							)}
+
+							{mysale?.statusShipping === "Embalado" &&
+								mysale?.trackingCode === "" && (
+									<form
+										onSubmit={handleSubmit(handleTracking)}>
+										<label className="form-control w-full max-w-xs mb-1">
+											<select
+												className={`select ${
+													errors.logisticOperator
+														? `select-error`
+														: `select-success`
+												} w-full max-w-xs`}
+												{...register(
+													"logisticOperator"
+												)} // Registrar o select
+											>
+												<option
+													value=""
+													disabled
+													selected>
+													Qual é o operador logístico?
+												</option>
+												<option value="Kangu">
+													Kangu
+												</option>
+												<option value="Correios">
+													Correios
+												</option>
+												<option value="Japan Post">
+													Japan Post
+												</option>
+												<option value="DHL">DHL</option>
+												<option value="FedEx">
+													FedEx
+												</option>
+											</select>
+											<div className="label">
+												{errors.trackingCode && (
+													<span className="label-text-alt text-error">
+														{
+															errors.trackingCode
+																.message
+														}
+													</span>
+												)}
+											</div>
+										</label>
+
+										<label className="form-control w-full max-w-xs mb-2">
+											{/* Input para código de rastreamento */}
+											<input
+												className={`input input-bordered ${
+													errors.trackingCode
+														? `input-error`
+														: `input-success`
+												} w-full`}
+												type="text"
+												placeholder="Insira o código de Rastreio"
+												{...register("trackingCode")} // Registrar o input
+											/>
+
+											{/* Exibir erro de validação do código de rastreamento */}
+											<div className="label">
+												{errors.trackingCode && (
+													<span className="label-text-alt text-error">
+														{
+															errors.trackingCode
+																.message
+														}
+													</span>
+												)}
+											</div>
+										</label>
+
+										<div>
+											{trackingLoading ? (
+												<button className="btn btn-primary w-full">
+													<span className="loading loading-spinner loading-sm"></span>
+												</button>
+											) : (
+												<button
+													type="submit"
+													className="btn btn-primary w-full shadow-md">
+													Enviar Código de Rastreio
+													<GrMapLocation size={20} />
+												</button>
+											)}
+										</div>
+									</form>
+								)}
 						</div>
 					</div>
 				</div>
@@ -586,8 +680,8 @@ function MySaleByIDPage() {
 					</div>
 					<div>
 						<p>
-							{mysale.orderNote
-								? mysale.orderNote
+							{mysale?.orderNote
+								? mysale?.orderNote
 								: `Nenhuma nota adicionada...`}
 						</p>
 					</div>

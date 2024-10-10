@@ -643,7 +643,7 @@ function MyOrderByIDPage() {
 								<></>
 							)}
 
-							{(myorder?.statusOrder === "Confirmado" ||
+							{/* {(myorder?.statusOrder === "Confirmado" ||
 								myorder?.statusShipping === "Embalado" ||
 								myorder?.statusShipping === "Enviado" ||
 								myorder?.statusOrder === "Entregue" ||
@@ -693,7 +693,7 @@ function MyOrderByIDPage() {
 								</li>
 							) : (
 								<></>
-							)}
+							)} */}
 
 							{/* Renderizar o X se não houver Código de Rastreio */}
 							{myorder?.trackingCode === "" && (
@@ -704,7 +704,62 @@ function MyOrderByIDPage() {
 								</li>
 							)}
 
-							{/* Renderizar o histórico Kangu */}
+							{/* {(myorder?.statusOrder === "Confirmado" ||
+										myorder?.statusShipping ===
+											"Embalado" ||
+										myorder?.statusShipping === "Enviado" ||
+										myorder?.statusOrder === "Entregue" ||
+										myorder?.statusOrder ===
+											"Concluído") && (
+										<li
+											data-content="✓"
+											className="step step-primary h-[180px]">
+											<div className="flex flex-col gap-1">
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													Pagamento Confirmado
+												</span>
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													{format(
+														new Date(
+															myorder?.createdAt
+														),
+														"dd/MM - HH:mm"
+													)}{" "}
+													hs
+												</span>
+
+												<span className="bg-primary py-1 px-2 rounded shadow-md">
+													A loja começará a preparar
+													seu pedido
+												</span>
+											</div>
+										</li>
+									)}
+
+									{myorder?.statusShipping === "Embalado" ||
+									myorder?.statusShipping === "Enviado" ||
+									myorder?.statusOrder === "Entregue" ||
+									myorder?.statusOrder === "Concluído" ? (
+										<li
+											data-content="✓"
+											className="step step-primary h-[180px]">
+											<div className="flex flex-col gap-1">
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													Embalado
+												</span>
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													10/04 - 16:00 hs
+												</span>
+
+												<span className="bg-primary py-1 px-2 rounded shadow-md">
+													Seu pedido será enviado em
+													breve
+												</span>
+											</div>
+										</li>
+									) : (
+										<></>
+									)}
 							{tracking?.historico &&
 								Object.values(tracking?.historico)
 									// Ordenar o histórico pela data e horário
@@ -737,37 +792,124 @@ function MyOrderByIDPage() {
 												</span>
 											</div>
 										</li>
-									))}
+									))} */}
+
+							{/* Renderizar o histórico Kangu */}
+							{tracking?.historico && (
+								<>
+									{[
+										// Adiciona os itens do histórico de tracking ao array
+										...(tracking?.historico
+											? Object.values(
+													tracking?.historico
+											  ).map((item) => ({
+													...item, // Mantém os valores originais
+													type: "tracking", // Adiciona um indicador para diferenciar
+													dateTime: new Date(
+														item?.dataHora
+													),
+											  }))
+											: []),
+										// Adiciona as etapas de status ao array, se as condições forem atendidas
+										...(myorder?.statusOrder ===
+											"Confirmado" ||
+										myorder?.statusShipping ===
+											"Embalado" ||
+										myorder?.statusShipping === "Enviado" ||
+										myorder?.statusOrder === "Entregue" ||
+										myorder?.statusOrder === "Concluído"
+											? [
+													{
+														ocorrencia:
+															"Pagamento Confirmado",
+														observacao:
+															"A loja começará a preparar seu pedido",
+														dateTime: new Date(
+															myorder?.createdAt
+														),
+														type: "status",
+													},
+											  ]
+											: []),
+										...(myorder?.statusShipping ===
+											"Embalado" ||
+										myorder?.statusShipping === "Enviado" ||
+										myorder?.statusOrder === "Entregue" ||
+										myorder?.statusOrder === "Concluído"
+											? [
+													{
+														ocorrencia: "Embalado",
+														observacao:
+															"Seu pedido será enviado em breve",
+														dateTime: new Date(
+															"2024-10-10T16:00:00"
+														), // Exemplo de data
+														type: "status",
+													},
+											  ]
+											: []),
+									]
+
+										// Ordena por data/hora
+										.sort((a, b) => a.dateTime - b.dateTime)
+										// Mapeia os itens para exibir
+										.map((item, index) => (
+											<li
+												key={index}
+												data-content="✓"
+												className="step step-primary h-[180px]">
+												<div className="flex flex-col gap-1">
+													<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+														{item?.ocorrencia}
+													</span>
+													<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+														{format(
+															item.dateTime,
+															"dd/MM - HH:mm"
+														)}{" "}
+														hs
+													</span>
+													<span className="bg-primary py-1 px-2 rounded shadow-md">
+														{item?.observacao}
+													</span>
+												</div>
+											</li>
+										))}
+								</>
+							)}
 							{tracking?.situacao && (
 								<>
 									{/* Renderizar somente se for entregue */}
-									{myorder?.statusShipping ===
-										"Concluído" && (
-										<li
-											data-content="✓"
-											className="step step-primary">
-											<div className="flex flex-col gap-1">
-												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-													Concluído
-												</span>
-												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-													{format(
-														new Date(
-															myorder?.updatedAt
-														),
-														"dd/MM - HH:mm"
-													)}{" "}
-													hs
-												</span>
-												<span className="bg-primary py-1 px-2 rounded shadow-md">
-													Pedido finalizado
-												</span>
-											</div>
-										</li>
-									)}
+									{myorder?.statusShipping === "Concluído" &&
+										myorder?.statusOrder ===
+											"Concluído" && (
+											<li
+												data-content="✓"
+												className="step step-primary">
+												<div className="flex flex-col gap-1">
+													<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+														Concluído
+													</span>
+													<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+														{format(
+															new Date(
+																myorder?.updatedAt
+															),
+															"dd/MM - HH:mm"
+														)}{" "}
+														hs
+													</span>
+													<span className="bg-primary py-1 px-2 rounded shadow-md">
+														Pedido finalizado
+													</span>
+												</div>
+											</li>
+										)}
 									{/* Renderizar o X se o pedido não estiver Concluído */}
 									{myorder?.trackingCode !== "" &&
 										myorder?.statusShipping !==
+											"Concluído" &&
+										myorder?.statusOrder !==
 											"Concluído" && (
 											<li
 												data-content="✕"
@@ -913,6 +1055,7 @@ function MyOrderByIDPage() {
 									</div>
 								</li>
 							)}
+
 							{/* Renderizar o histórico Kangu */}
 							{myorder?.trackingCode !== "" &&
 								myorder?.statusShipping !== "Concluído" && (

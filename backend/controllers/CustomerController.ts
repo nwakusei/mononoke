@@ -607,8 +607,10 @@ class CustomerController {
 			postalCode,
 		} = req.body;
 
-		// Upload de imagem de Perfil
-		const profileImage = req.file as Express.Multer.File;
+		// Upload de imagens de Perfil Logo da Loja
+		const files = req.files as { [key: string]: Express.Multer.File[] };
+		const profileImage = files?.profileImage?.[0];
+		const logoImage = files?.logoImage?.[0];
 
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);

@@ -377,16 +377,24 @@ function MyProfilePage() {
 
 	useEffect(() => {
 		if (user) {
-			setImagemSelecionadaProfile(
-				user?.profileImage
-					? `http://localhost:5000/images/partners/${user.profileImage}`
-					: ""
-			);
-			setImagemSelecionadaLogo(
-				user?.logoImage
-					? `http://localhost:5000/images/partners/${user.logoImage}`
-					: ""
-			);
+			if (user.accountType === "partner") {
+				setImagemSelecionadaProfile(
+					user?.profileImage
+						? `http://localhost:5000/images/partners/${user.profileImage}`
+						: ""
+				);
+				setImagemSelecionadaLogo(
+					user?.logoImage
+						? `http://localhost:5000/images/partners/${user.logoImage}`
+						: ""
+				);
+			} else {
+				setImagemSelecionadaProfile(
+					user?.profileImage
+						? `http://localhost:5000/images/customers/${user.profileImage}`
+						: ""
+				);
+			}
 		}
 	}, [user]); // Atualiza a imagem quando o usuário muda
 
@@ -987,7 +995,75 @@ function MyProfilePage() {
 
 									{user &&
 									user?.accountType === "customer" ? (
-										<></>
+										<>
+											<label className="form-control hidden">
+												<div className="label">
+													<span className="label-text text-black">
+														Logo da Loja
+													</span>
+												</div>
+												<div
+													className={`text-black hover:text-white flex flex-col justify-center items-center w-[300px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+													{imagemSelecionadaLogo ? (
+														<Image
+															className="object-contain w-full h-full rounded"
+															src={
+																imagemSelecionadaLogo
+															}
+															alt="Imagem selecionada"
+															width={300}
+															height={150}
+															unoptimized
+														/>
+													) : (
+														<div
+															className="flex flex-col justify-center items-center"
+															onChange={(event) =>
+																handleImagemSelecionada(
+																	event,
+																	setImagemSelecionadaLogo
+																)
+															}>
+															<h2 className="text-xs mb-2">
+																Add Imagem
+															</h2>
+															<AddPicture
+																size={20}
+															/>
+															<input
+																className="hidden"
+																type="file"
+																accept="image/*"
+																{...register(
+																	"logoImage"
+																)}
+															/>
+														</div>
+													)}
+												</div>
+												<div className="label">
+													<span className="label-text-alt text-red-500">
+														{errors.logoImage ? (
+															<span>
+																{
+																	errors
+																		.logoImage
+																		.message
+																}
+															</span>
+														) : (
+															<span className="text-black">
+																T. máx. 900x450p
+																(mantenha a
+																proporção para
+																não distorcer a
+																imagem)
+															</span>
+														)}
+													</span>
+												</div>
+											</label>
+										</>
 									) : (
 										<>
 											{/* Add Imagens */}

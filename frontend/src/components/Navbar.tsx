@@ -143,9 +143,9 @@ function Navbar() {
 						<div className="flex-1 ml-10 select-none pointer-events-none">
 							<Image
 								src={Logo}
-								width={450}
-								height={450}
-								alt="Profile Image"
+								width={200}
+								height={50}
+								alt="Logo Image"
 								unoptimized
 								priority
 							/>
@@ -440,22 +440,48 @@ function Navbar() {
 														/>
 													</SkeletonTheme>
 												)}
-												<Image
-													src={`http://localhost:5000/images/partners/${user.profileImage}`}
-													width={450}
-													height={450}
-													alt="Profile Image"
-													unoptimized
-													priority
-													onLoadingComplete={() =>
-														setIsImageLoaded(true)
-													} // Atualiza o estado quando a imagem é carregada
-													style={{
-														display: isImageLoaded
-															? "block"
-															: "none",
-													}} // Esconde a imagem até ser carregada
-												/>
+												{user.accountType ===
+												"partner" ? (
+													<Image
+														src={`http://localhost:5000/images/partners/${user.profileImage}`}
+														width={450}
+														height={450}
+														alt="Profile Image"
+														unoptimized
+														priority
+														onLoadingComplete={() =>
+															setIsImageLoaded(
+																true
+															)
+														} // Atualiza o estado quando a imagem é carregada
+														style={{
+															display:
+																isImageLoaded
+																	? "block"
+																	: "none",
+														}} // Esconde a imagem até ser carregada
+													/>
+												) : (
+													<Image
+														src={`http://localhost:5000/images/customers/${user.profileImage}`}
+														width={450}
+														height={450}
+														alt="Profile Image"
+														unoptimized
+														priority
+														onLoadingComplete={() =>
+															setIsImageLoaded(
+																true
+															)
+														} // Atualiza o estado quando a imagem é carregada
+														style={{
+															display:
+																isImageLoaded
+																	? "block"
+																	: "none",
+														}} // Esconde a imagem até ser carregada
+													/>
+												)}
 											</>
 										)}
 									</div>
@@ -536,9 +562,9 @@ function Navbar() {
 						<div className="flex-1 ml-10">
 							<Image
 								src={Logo}
-								width={450}
-								height={450}
-								alt="Profile Image"
+								width={200}
+								height={50}
+								alt="Logo Image"
 								unoptimized
 								priority
 							/>
