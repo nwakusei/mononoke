@@ -8,10 +8,10 @@ const MainImageProductAdComponent = ({ selectedImage, product }) => {
 				{product?.imagesProduct &&
 					product?.imagesProduct.length > 0 && (
 						<Image
-							className="object-contain h-full"
+							className="object-contain w-full h-full"
 							src={`http://localhost:5000/images/products/${product?.imagesProduct[selectedImage]}`}
 							alt={product?.productTitle}
-							width={280}
+							width={10}
 							height={10}
 							unoptimized
 						/>

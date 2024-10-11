@@ -133,9 +133,14 @@ function MyRafflesTicketsPage() {
 													</td>
 													<td className="text-black">
 														<div>
-															{`${myTicket?.raffleCost.toLocaleString(
-																"pt-BR"
-															)} OP`}
+															{`${
+																myTicket?.raffleCost >
+																0
+																	? myTicket?.raffleCost.toLocaleString(
+																			"pt-BR"
+																	  )
+																	: `0,00`
+															} OP`}
 														</div>
 														<span className="badge badge-info badge-sm text-white py-2">
 															Otaku Point

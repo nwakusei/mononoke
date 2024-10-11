@@ -420,10 +420,23 @@ function CreateProductPage() {
 	};
 
 	async function handleCreateProduct(productData: { [key: string]: any }) {
+		// Sanitiza os dados antes de usá-los
+		const sanitizedData = Object.fromEntries(
+			Object.entries(productData).map(([key, value]) => {
+				// Verifica se o valor é uma string (ou outro tipo que precise de sanitização)
+				if (typeof value === "string") {
+					return [key, DOMPurify.sanitize(value)];
+				}
+				return [key, value]; // Retorna o valor original se não for uma string
+			})
+		);
+
+		console.log(sanitizedData);
+
 		const formData = new FormData();
 
 		// Itera sobre os campos de texto e adiciona ao FormData
-		Object.entries(productData).forEach(([key, value]) => {
+		Object.entries(sanitizedData).forEach(([key, value]) => {
 			if (key !== "imagesProduct") {
 				formData.append(key, value);
 			}

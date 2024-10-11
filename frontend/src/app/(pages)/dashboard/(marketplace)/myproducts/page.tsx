@@ -47,7 +47,7 @@ function MyProductsPage() {
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
-				<div className="h-screen flex flex-col gap-4 mb-8">
+				<div className="flex flex-col gap-4 mb-8">
 					{/* Gadget 1 */}
 					<div className="bg-white w-[1200px] p-6 rounded-md mt-4 mr-4">
 						{/* Adicionar Porduto */}
@@ -57,7 +57,7 @@ function MyProductsPage() {
 							</h1>
 
 							{/* Produtos em Catálogo */}
-							<div className="overflow-x-auto">
+							<div className="overflow-y-auto flex-1">
 								<table className="table">
 									{/* head */}
 									<thead>

@@ -517,103 +517,100 @@ function MyOrderByIDPage() {
 						{format(new Date(tracking.dtPrevEnt), "dd/MM")}
 					</h2> */}
 
-					{tracking &&
-						Object.keys(tracking).length <= 0 &&
-						tracking2 &&
-						Object.keys(tracking2).length <= 0 && (
-							<ul className="steps steps-vertical mb-8">
-								{/* Renderizar uma li vazia antes do histórico */}
-								{myorder?.statusOrder === "Realizado" ? (
-									<li
-										data-content="✓"
-										className="step step-primary h-[180px]">
-										<div className="flex flex-col gap-1">
-											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-												Pedido Realizado
-											</span>
-											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-												{format(
-													new Date(
-														myorder?.createdAt
-													),
-													"dd/MM - HH:mm"
-												)}{" "}
-												hs
-											</span>
+					{
+						// Se tracking ou tracking2 forem undefined ou contiverem um erro
+						(!tracking ||
+							tracking.error ||
+							Object.keys(tracking).length === 0) &&
+							tracking2?.length === undefined && (
+								<ul className="steps steps-vertical mb-8">
+									{/* Exibe "Pedido Realizado" se o statusOrder for "Realizado" */}
+									{myorder?.statusOrder === "Realizado" ? (
+										<li
+											data-content="✓"
+											className="step step-primary h-[180px]">
+											<div className="flex flex-col gap-1">
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													Pedido Realizado
+												</span>
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													{format(
+														new Date(
+															myorder?.createdAt
+														),
+														"dd/MM - HH:mm"
+													)}{" "}
+													hs
+												</span>
+												<span className="bg-primary py-1 px-2 rounded shadow-md">
+													Pagamento Pendente
+												</span>
+											</div>
+										</li>
+									) : null}
 
-											<span className="bg-primary py-1 px-2 rounded shadow-md">
-												Pagamento Pendente
-											</span>
-										</div>
-									</li>
-								) : (
-									<></>
-								)}
+									{/* Exibe "Pagamento Confirmado" se statusOrder for "Confirmado" */}
+									{myorder?.statusOrder === "Confirmado" && (
+										<li
+											data-content="✓"
+											className="step step-primary h-[180px]">
+											<div className="flex flex-col gap-1">
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													Pagamento Confirmado
+												</span>
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													{format(
+														new Date(
+															myorder?.createdAt
+														),
+														"dd/MM - HH:mm"
+													)}{" "}
+													hs
+												</span>
+												<span className="bg-primary py-1 px-2 rounded shadow-md">
+													A loja começará a preparar
+													seu pedido
+												</span>
+											</div>
+										</li>
+									)}
 
-								{(myorder?.statusOrder === "Confirmado" ||
-									myorder?.statusShipping === "Embalado" ||
-									myorder?.statusShipping === "Enviado" ||
-									myorder?.statusOrder === "Entregue" ||
-									myorder?.statusOrder === "Concluído") && (
-									<li
-										data-content="✓"
-										className="step step-primary h-[180px]">
-										<div className="flex flex-col gap-1">
-											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-												Pagamento Confirmado
-											</span>
-											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-												{format(
-													new Date(
-														myorder?.createdAt
-													),
-													"dd/MM - HH:mm"
-												)}{" "}
-												hs
-											</span>
-
-											<span className="bg-primary py-1 px-2 rounded shadow-md">
-												A loja começará a preparar seu
-												pedido
-											</span>
-										</div>
-									</li>
-								)}
-
-								{myorder?.statusShipping === "Embalado" ||
-								myorder?.statusShipping === "Enviado" ||
-								myorder?.statusOrder === "Entregue" ||
-								myorder?.statusOrder === "Concluído" ? (
-									<li
-										data-content="✓"
-										className="step step-primary h-[180px]">
-										<div className="flex flex-col gap-1">
-											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-												Embalado
-											</span>
-											<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-												10/04 - 16:00 hs
-											</span>
-
-											<span className="bg-primary py-1 px-2 rounded shadow-md">
-												Seu pedido será enviado em breve
-											</span>
-										</div>
-									</li>
-								) : (
-									<></>
-								)}
-
-								{/* Renderizar o X se não houver Código de Rastreio */}
-								{myorder?.trackingCode === "" && (
-									<li data-content="✕" className="step">
-										<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
-											—
-										</div>
-									</li>
-								)}
-							</ul>
-						)}
+									{/* Exibe "Embalado" se statusShipping for "Embalado" */}
+									{myorder?.statusShipping === "Embalado" && (
+										<li
+											data-content="✓"
+											className="step step-primary h-[180px]">
+											<div className="flex flex-col gap-1">
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													Embalado
+												</span>
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													Seu pedido será enviado em
+													breve
+												</span>
+												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
+													{format(
+														new Date(
+															myorder?.dateMarkedPacked
+														),
+														"dd/MM - HH:mm"
+													)}{" "}
+													hs
+												</span>
+											</div>
+										</li>
+									)}
+									{/* Se o trackingCode for vazio, exibe um "X" */}
+									{myorder?.trackingCode === "" && (
+										<li data-content="✕" className="step">
+											<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
+												—
+											</div>
+										</li>
+									)}
+								</ul>
+							)
+					}
 
 					{tracking && Object.keys(tracking).length > 0 && (
 						<ul className="steps steps-vertical mb-8">
@@ -631,7 +628,7 @@ function MyOrderByIDPage() {
 												new Date(myorder?.createdAt),
 												"dd/MM - HH:mm"
 											)}{" "}
-											hs
+											hs myorder?.dateMarkedPacked
 										</span>
 
 										<span className="bg-primary py-1 px-2 rounded shadow-md">
@@ -643,156 +640,14 @@ function MyOrderByIDPage() {
 								<></>
 							)}
 
-							{/* {(myorder?.statusOrder === "Confirmado" ||
-								myorder?.statusShipping === "Embalado" ||
-								myorder?.statusShipping === "Enviado" ||
-								myorder?.statusOrder === "Entregue" ||
-								myorder?.statusOrder === "Concluído") && (
-								<li
-									data-content="✓"
-									className="step step-primary h-[180px]">
-									<div className="flex flex-col gap-1">
-										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-											Pagamento Confirmado
-										</span>
-										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-											{format(
-												new Date(myorder?.createdAt),
-												"dd/MM - HH:mm"
-											)}{" "}
-											hs
-										</span>
-
-										<span className="bg-primary py-1 px-2 rounded shadow-md">
-											A loja começará a preparar seu
-											pedido
-										</span>
-									</div>
-								</li>
-							)}
-
-							{myorder?.statusShipping === "Embalado" ||
-							myorder?.statusShipping === "Enviado" ||
-							myorder?.statusOrder === "Entregue" ||
-							myorder?.statusOrder === "Concluído" ? (
-								<li
-									data-content="✓"
-									className="step step-primary h-[180px]">
-									<div className="flex flex-col gap-1">
-										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-											Embalado
-										</span>
-										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-											10/04 - 16:00 hs
-										</span>
-
-										<span className="bg-primary py-1 px-2 rounded shadow-md">
-											Seu pedido será enviado em breve
-										</span>
-									</div>
-								</li>
-							) : (
-								<></>
-							)} */}
-
 							{/* Renderizar o X se não houver Código de Rastreio */}
-							{myorder?.trackingCode === "" && (
+							{/* {myorder?.trackingCode === "" && (
 								<li data-content="✕" className="step">
 									<div className="flex flex-col gap-1 bg-black py-1 px-2 rounded shadow-md">
 										—
 									</div>
 								</li>
-							)}
-
-							{/* {(myorder?.statusOrder === "Confirmado" ||
-										myorder?.statusShipping ===
-											"Embalado" ||
-										myorder?.statusShipping === "Enviado" ||
-										myorder?.statusOrder === "Entregue" ||
-										myorder?.statusOrder ===
-											"Concluído") && (
-										<li
-											data-content="✓"
-											className="step step-primary h-[180px]">
-											<div className="flex flex-col gap-1">
-												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-													Pagamento Confirmado
-												</span>
-												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-													{format(
-														new Date(
-															myorder?.createdAt
-														),
-														"dd/MM - HH:mm"
-													)}{" "}
-													hs
-												</span>
-
-												<span className="bg-primary py-1 px-2 rounded shadow-md">
-													A loja começará a preparar
-													seu pedido
-												</span>
-											</div>
-										</li>
-									)}
-
-									{myorder?.statusShipping === "Embalado" ||
-									myorder?.statusShipping === "Enviado" ||
-									myorder?.statusOrder === "Entregue" ||
-									myorder?.statusOrder === "Concluído" ? (
-										<li
-											data-content="✓"
-											className="step step-primary h-[180px]">
-											<div className="flex flex-col gap-1">
-												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-													Embalado
-												</span>
-												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-													10/04 - 16:00 hs
-												</span>
-
-												<span className="bg-primary py-1 px-2 rounded shadow-md">
-													Seu pedido será enviado em
-													breve
-												</span>
-											</div>
-										</li>
-									) : (
-										<></>
-									)}
-							{tracking?.historico &&
-								Object.values(tracking?.historico)
-									// Ordenar o histórico pela data e horário
-									.sort((a, b) => {
-										const dateA = new Date(a.dataHora);
-										const dateB = new Date(b.dataHora);
-										return dateA - dateB;
-									})
-									// Mapear cada item do histórico
-									.map((item, index) => (
-										<li
-											key={index}
-											data-content="✓"
-											className="step step-primary h-[180px]">
-											<div className="flex flex-col gap-1">
-												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-													{item?.ocorrencia}
-												</span>
-												<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-													{format(
-														new Date(
-															item?.dataHora
-														),
-														"dd/MM - HH:mm"
-													)}{" "}
-													hs
-												</span>
-												<span className="bg-primary py-1 px-2 rounded shadow-md">
-													{item?.observacao}
-												</span>
-											</div>
-										</li>
-									))} */}
+							)} */}
 
 							{/* Renderizar o histórico Kangu */}
 							{tracking?.historico && (
@@ -842,7 +697,7 @@ function MyOrderByIDPage() {
 														observacao:
 															"Seu pedido será enviado em breve",
 														dateTime: new Date(
-															"2024-10-10T16:00:00"
+															myorder?.dateMarkedPacked
 														), // Exemplo de data
 														type: "status",
 													},
@@ -923,6 +778,7 @@ function MyOrderByIDPage() {
 							)}
 						</ul>
 					)}
+
 					{/* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
 					{tracking2 && Object.keys(tracking2).length > 0 && (
 						<ul className="steps steps-vertical mb-8">
@@ -992,7 +848,13 @@ function MyOrderByIDPage() {
 											Embalado
 										</span>
 										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-											10/04 - 16:00 hs
+											{format(
+												new Date(
+													myorder?.dateMarkedPacked
+												),
+												"dd/MM - HH:mm"
+											)}{" "}
+											hs
 										</span>
 
 										<span className="bg-primary py-1 px-2 rounded shadow-md">
@@ -1042,12 +904,11 @@ function MyOrderByIDPage() {
 											Concluído
 										</span>
 										<span className="bg-primary py-1 px-2 rounded shadow-md mb-2">
-											{myorder?.updatedAt}
-											{/* {format(
-													new Date(myorder.updatedAt),
-													"dd/MM - HH:mm"
-												)}{" "}
-												hs */}
+											{format(
+												new Date(myorder.updatedAt),
+												"dd/MM - HH:mm"
+											)}{" "}
+											hs
 										</span>
 										<span className="bg-primary py-1 px-2 rounded shadow-md">
 											Pedido finalizado

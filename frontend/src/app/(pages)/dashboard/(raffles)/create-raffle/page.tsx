@@ -43,7 +43,7 @@ const createCouponFormSchema = z.object({
 			(rPrize) => {
 				const sanitized = DOMPurify.sanitize(rPrize);
 
-				const isValid = /^[A-Za-zÀ-ÿ\s\.,—\-0-9\[\]\(\)]+$/.test(
+				const isValid = /^[A-Za-zÀ-ÿ\s\.,—~\-0-9\[\]\(\)]+$/.test(
 					sanitized
 				);
 
@@ -268,8 +268,6 @@ function CreateRafflePage() {
 	};
 
 	async function handleCreateRaffle(CouponData: { [key: string]: any }) {
-		console.log(CouponData);
-
 		const formData = new FormData();
 
 		console.log(formData);

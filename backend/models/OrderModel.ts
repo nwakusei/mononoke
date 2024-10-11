@@ -40,6 +40,7 @@ interface IOrder {
 	customerAddress: ICustomerAddress[];
 	shippingMethod: string;
 	statusShipping: string;
+	dateMarkedPacked: Date;
 	trackingCode: string;
 	logisticOperator: string;
 	discountsApplied: number;
@@ -140,6 +141,9 @@ const orderSchema = new Schema<IOrder>(
 		},
 		statusShipping: {
 			type: String,
+		},
+		dateMarkedPacked: {
+			type: Date,
 		},
 		trackingCode: {
 			type: String,

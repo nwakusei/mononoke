@@ -90,14 +90,6 @@ function MyCouponsPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th>
-												<label>
-													<input
-														type="checkbox"
-														className="checkbox"
-													/>
-												</label>
-											</th>
 											<th className="text-sm text-black">
 												Código do Cupom
 											</th>
@@ -117,12 +109,6 @@ function MyCouponsPage() {
 										{/* rows */}
 										{coupons?.map((coupon) => (
 											<tr key={coupon?._id}>
-												<td>
-													<input
-														type="checkbox"
-														className="checkbox"
-													/>
-												</td>
 												<td>
 													<div className="font-bold text-black">
 														{coupon?.couponCode}

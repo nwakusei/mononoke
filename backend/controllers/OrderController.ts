@@ -941,6 +941,7 @@ class OrderController {
 			}
 
 			order.statusShipping = "Embalado";
+			order.dateMarkedPacked = new Date(); // Aqui você insere a data atual
 
 			await order.save(); // Salva as alterações no banco de dados
 
