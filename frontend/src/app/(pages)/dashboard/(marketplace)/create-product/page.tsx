@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,7 +28,7 @@ import { GiWeight } from "react-icons/gi";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // React Hook Form, Zod e ZodResolver
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -137,6 +137,23 @@ const createProductFormSchema = z.object({
 				message: "※ A descrição precisa ter no mínimo 100 caracteres!",
 			}
 		),
+	// productVariations: z.array(
+	// 	z.object({
+	// 		title: z.string().min(1, "O nome da variação é obrigatório!"),
+	// 		options: z.array(
+	// 			z.object({
+	// 				name: z.string().min(1, "O nome da opção é obrigatório!"),
+	// 				imageUrl: z.string().url("A URL da imagem deve ser válida"),
+	// 			})
+	// 		),
+	// 	})
+	// ),
+	techs: z.array(
+		z.object({
+			title: z.string().min(1, "O título da tecnologia é obrigatória!"),
+			knowledge: z.coerce.number().min(1).max(100),
+		})
+	),
 	category: z.string().min(1, "※ A categoria do produto é obrigatória!"),
 	originalPrice: z
 		.string()
@@ -270,10 +287,20 @@ function CreateProductPage() {
 		setValue,
 		setError,
 		clearErrors,
+		control,
 	} = useForm<TCreateProductFormData>({
 		resolver: zodResolver(createProductFormSchema),
 		mode: "onBlur",
 	});
+
+	const { fields, append, remove } = useFieldArray({
+		control,
+		name: "techs",
+	});
+
+	function addNewTech() {
+		append({ title: "", knowledge: 0 });
+	}
 
 	const handleFreeShippingChange = (event) => {
 		const value = event.target.value;
@@ -391,35 +418,54 @@ function CreateProductPage() {
 
 	const router = useRouter();
 
-	const handleAddVariation = () => {
-		setVariations([...variations, { id: variations.length, types: [""] }]);
-	};
+	// // Função para adicionar uma nova variação
+	// const handleAddVariation = () => {
+	// 	setVariations([
+	// 		...variations,
+	// 		{ id: variations.length, name: "", types: [""] },
+	// 	]);
+	// };
 
-	const handleAddType = (variationId) => {
-		const updatedVariations = variations.map((variation) =>
-			variation.id === variationId
-				? { ...variation, types: [...variation.types, ""] }
-				: variation
-		);
-		setVariations(updatedVariations);
-	};
+	// // Função para adicionar um novo tipo a uma variação existente
+	// const handleAddType = (variationId) => {
+	// 	const updatedVariations = variations.map((variation) =>
+	// 		variation.id === variationId
+	// 			? { ...variation, types: [...variation.types, ""] }
+	// 			: variation
+	// 	);
+	// 	setVariations(updatedVariations);
+	// };
 
-	const handleTypeChange = (variationId, typeId, event) => {
-		const { value } = event.target;
-		const updatedVariations = variations.map((variation) =>
-			variation.id === variationId
-				? {
-						...variation,
-						types: variation.types.map((type, index) =>
-							index === typeId ? value : type
-						),
-				  }
-				: variation
-		);
-		setVariations(updatedVariations);
-	};
+	// // Função para atualizar o valor do nome da variação
+	// const handleNameChange = (variationId, value) => {
+	// 	const updatedVariations = variations.map((variation) =>
+	// 		variation.id === variationId
+	// 			? { ...variation, name: value }
+	// 			: variation
+	// 	);
+	// 	setVariations(updatedVariations);
+	// };
+
+	// // Função para atualizar o valor de um tipo
+	// const handleTypeChange = (variationId, typeId, value) => {
+	// 	const updatedVariations = variations.map((variation) =>
+	// 		variation.id === variationId
+	// 			? {
+	// 					...variation,
+	// 					types: variation.types.map((type, index) =>
+	// 						index === typeId ? value : type
+	// 					),
+	// 			  }
+	// 			: variation
+	// 	);
+	// 	setVariations(updatedVariations);
+	// };
+
+	const [output, setOutput] = useState("");
 
 	async function handleCreateProduct(productData: { [key: string]: any }) {
+		setOutput(JSON.stringify(productData, null, 2));
+
 		// Sanitiza os dados antes de usá-los
 		const sanitizedData = Object.fromEntries(
 			Object.entries(productData).map(([key, value]) => {
@@ -784,7 +830,7 @@ function CreateProductPage() {
 								<h1 className="text-2xl font-semibold text-black mb-3">
 									Variações
 								</h1>
-								{variations.map((variation) => (
+								{/* {variations.map((variation) => (
 									<div key={variation.id}>
 										<label className="form-control w-full max-w-3xl">
 											<div className="label">
@@ -792,16 +838,28 @@ function CreateProductPage() {
 													Título da Variação
 												</span>
 											</div>
-											<input
-												type="text"
-												className="input input-bordered input-success w-80"
-												value={variation.name}
-												onChange={(event) =>
-													handleNameChange(
-														variation.id,
-														event
-													)
-												}
+											<Controller
+												name={`variations[${variation.id}].name`}
+												control={control}
+												defaultValue={variation.name}
+												render={({ field }) => (
+													<input
+														type="text"
+														className="input input-bordered input-success w-80"
+														{...field}
+														onChange={(event) => {
+															handleNameChange(
+																variation.id,
+																event.target
+																	.value
+															);
+															field.onChange(
+																event.target
+																	.value
+															); // Atualiza o valor no React Hook Form
+														}}
+													/>
+												)}
 											/>
 											<div className="label">
 												<span className="label-text-alt text-black">
@@ -810,40 +868,55 @@ function CreateProductPage() {
 											</div>
 										</label>
 										<div className="flex flex-row gap-2">
-											{variation.types &&
-												variation.types.map(
-													(type, index) => (
-														<label
-															key={index}
-															className="form-control w-full max-w-3xl mb-4">
-															<div className="label">
-																<span className="label-text text-black">
-																	Opção
-																</span>
-															</div>
-															<input
-																type="text"
-																className="input input-bordered input-success w-80"
-																value={type}
-																onChange={(
-																	event
-																) =>
-																	handleTypeChange(
-																		variation.id,
-																		index,
+											{variation.types.map(
+												(type, index) => (
+													<label
+														key={index}
+														className="form-control w-full max-w-3xl mb-4">
+														<div className="label">
+															<span className="label-text text-black">
+																Opção
+															</span>
+														</div>
+														<Controller
+															name={`variations[${variation.id}].types[${index}]`}
+															control={control}
+															defaultValue={type}
+															render={({
+																field,
+															}) => (
+																<input
+																	type="text"
+																	className="input input-bordered input-success w-80"
+																	{...field}
+																	onChange={(
 																		event
-																	)
-																}
-															/>
-															<div className="label">
-																<span className="label-text-alt text-black">
-																	Ex: Azul,
-																	Grande, etc.
-																</span>
-															</div>
-														</label>
-													)
-												)}
+																	) => {
+																		handleTypeChange(
+																			variation.id,
+																			index,
+																			event
+																				.target
+																				.value
+																		);
+																		field.onChange(
+																			event
+																				.target
+																				.value
+																		); // Atualiza o valor no React Hook Form
+																	}}
+																/>
+															)}
+														/>
+														<div className="label">
+															<span className="label-text-alt text-black">
+																Ex: Azul,
+																Grande, etc.
+															</span>
+														</div>
+													</label>
+												)
+											)}
 										</div>
 
 										<div
@@ -865,6 +938,74 @@ function CreateProductPage() {
 									<h2 className="text-base">
 										Adicionar Variação
 									</h2>
+								</div> */}
+
+								<div className="flex flex-col gap-1">
+									<label
+										htmlFor=""
+										className="flex items-center gap-8">
+										Tecnologias
+										<button
+											type="button"
+											onClick={addNewTech}
+											className="text-emerald-500 text-sm">
+											Adicionar
+										</button>
+									</label>
+									{fields.map((field, index) => {
+										return (
+											<div
+												key={field.id}
+												className="flex flex-row gap-4">
+												<div className="flex flex-col gap-1">
+													<input
+														type="text"
+														className={`${
+															errors.originalPrice &&
+															`input-error`
+														} input input-bordered input-success join-item`}
+														{...register(
+															`techs.${index}.title`
+														)}
+													/>
+													{errors.techs?.[index]
+														?.title && (
+														<span>
+															{
+																errors.techs?.[
+																	index
+																]?.title.message
+															}
+														</span>
+													)}
+												</div>
+
+												<div className="flex flex-col gap-1">
+													<input
+														type="number"
+														className={`${
+															errors.originalPrice &&
+															`input-error`
+														} input input-bordered input-success join-item`}
+														{...register(
+															`techs.${index}.knowledge`
+														)}
+													/>
+													{errors.techs?.[index]
+														?.knowledge && (
+														<span>
+															{
+																errors.techs?.[
+																	index
+																]?.knowledge
+																	.message
+															}
+														</span>
+													)}
+												</div>
+											</div>
+										);
+									})}
 								</div>
 							</div>
 						</div>
@@ -1511,6 +1652,7 @@ function CreateProductPage() {
 							</div>
 						</div>
 					</form>
+					<pre>{output}</pre>
 					<br />
 				</div>
 			</div>

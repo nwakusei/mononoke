@@ -182,6 +182,32 @@ function SideComponent() {
 	};
 
 	function handleAddProductInCart(quantity, product, selectedTransportadora) {
+		const selectedVariations = JSON.parse(
+			localStorage.getItem("selectedVariations") || "{}"
+		);
+
+		console.log(product.productVariations);
+
+		// Verifica se o produto possui variações
+		const hasVariations = product.productVariations.length > 0;
+
+		// Se o produto tiver variações, verifica se todas foram selecionadas
+		if (hasVariations) {
+			const variationKeys = product.productVariations.map(
+				(option) => Object.keys(option)[0]
+			);
+			const isVariationSelected = variationKeys.every(
+				(key) => selectedVariations[key]
+			);
+
+			if (!isVariationSelected) {
+				toast.info(
+					"Selecione uma variação antes de adicionar ao carrinho."
+				);
+				return;
+			}
+		}
+
 		// Verifica se alguma transportadora foi selecionada
 		const transportadoraSelecionada =
 			selectedTransportadora &&
@@ -223,7 +249,9 @@ function SideComponent() {
 
 		// Verifica se o produto já está no carrinho pelo ID
 		const existingProduct = productsInCart.find(
-			(p) => p.productID === product._id
+			(p) =>
+				p.productID === product._id &&
+				p.productVariations === productVariations
 		);
 
 		if (existingProduct) {
@@ -266,7 +294,12 @@ function SideComponent() {
 				transportadora: transportadoraSelecionada
 					? selectedTransportadora
 					: transpFreeShipping,
+				productVariations:
+					Object.keys(selectedVariations).length > 0
+						? selectedVariations
+						: null,
 			};
+
 			console.log(newProduct);
 			productsInCart.push(newProduct);
 		}
@@ -352,15 +385,15 @@ function SideComponent() {
 		}
 	};
 
-	const handleBuyNow = () => {
-		if (!selectedTransportadora && !product.freeShipping) {
-			toast.info("Selecione uma opção de frete antes de comprar!");
-			return;
-		}
+	// const handleBuyNow = () => {
+	// 	if (!selectedTransportadora && !product.freeShipping) {
+	// 		toast.info("Selecione uma opção de frete antes de comprar!");
+	// 		return;
+	// 	}
 
-		// Redireciona para a página de checkout
-		router.push("/checkout/delivery");
-	};
+	// 	// Redireciona para a página de checkout
+	// 	router.push("/checkout/delivery");
+	// };
 
 	return (
 		<div>

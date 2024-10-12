@@ -52,6 +52,8 @@ function ProductPage() {
 
 	const [loadingButtonId, setLoadingButtonId] = useState(null);
 
+	console.log(product?.productVariations);
+
 	const router = useRouter();
 
 	const [selectedImage, setSelectedImage] = useState(0);
@@ -460,7 +462,9 @@ function ProductPage() {
 						)}
 
 						{/* Variações */}
-						<ProductVariation />
+						<ProductVariation
+							variations={product?.productVariations}
+						/>
 					</div>
 					{/* Componente Lateral D. */}
 					<SideComponent />
