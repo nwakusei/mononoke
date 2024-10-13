@@ -28,7 +28,7 @@ import { GiWeight } from "react-icons/gi";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // React Hook Form, Zod e ZodResolver
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -137,17 +137,17 @@ const createProductFormSchema = z.object({
 				message: "※ A descrição precisa ter no mínimo 100 caracteres!",
 			}
 		),
-	// productVariations: z.array(
-	// 	z.object({
-	// 		title: z.string().min(1, "O nome da variação é obrigatório!"),
-	// 		options: z.array(
-	// 			z.object({
-	// 				name: z.string().min(1, "O nome da opção é obrigatório!"),
-	// 				imageUrl: z.string().url("A URL da imagem deve ser válida"),
-	// 			})
-	// 		),
-	// 	})
-	// ),
+	productVariations: z.array(
+		z.object({
+			title: z.string().min(1, "O nome da variação é obrigatório!"),
+			options: z.array(
+				z.object({
+					name: z.string().min(1, "O nome da opção é obrigatório!"),
+					imageUrl: z.string().url("A URL da imagem deve ser válida"),
+				})
+			),
+		})
+	),
 	techs: z.array(
 		z.object({
 			title: z.string().min(1, "O título da tecnologia é obrigatória!"),
@@ -271,14 +271,42 @@ const createProductFormSchema = z.object({
 type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
 
 function CreateProductPage() {
-	const [variations, setVariations] = useState([]);
 	const [imagensSelecionadas, setImagensSelecionadas] = useState<File[]>([]);
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [isLoading, setIsLoading] = useState(true);
 
 	const [offerFreeShipping, setOfferFreeShipping] = useState("");
 
-	console.log(imagensSelecionadas);
+	const [variations, setVariations] = useState([]);
+
+	const handleAddVariation = () => {
+		// Adiciona uma nova variação com um campo vazio
+		setVariations([
+			...variations,
+			{ title: "", options: [{ name: "", imageUrl: "" }] },
+		]);
+	};
+
+	const handleOptionChange = (variationIndex, optionIndex, field, value) => {
+		const newVariations = [...variations];
+		newVariations[variationIndex].options[optionIndex][field] = value;
+		setVariations(newVariations);
+	};
+
+	const handleAddOption = (variationIndex) => {
+		const newVariations = [...variations];
+		newVariations[variationIndex].options.push({
+			name: "",
+			imageUrl: "",
+		});
+		setVariations(newVariations);
+	};
+
+	const handleVariationChange = (index, value) => {
+		const newVariations = [...variations];
+		newVariations[index].title = value;
+		setVariations(newVariations);
+	};
 
 	const {
 		register,
@@ -483,7 +511,25 @@ function CreateProductPage() {
 
 		// Itera sobre os campos de texto e adiciona ao FormData
 		Object.entries(sanitizedData).forEach(([key, value]) => {
-			if (key !== "imagesProduct") {
+			if (key === "productVariations") {
+				// Adiciona diretamente como um array
+				value.forEach((variation, index) => {
+					formData.append(
+						`productVariations[${index}][title]`,
+						variation.title
+					);
+					variation.options.forEach((option, optionIndex) => {
+						formData.append(
+							`productVariations[${index}][options][${optionIndex}][name]`,
+							option.name
+						);
+						formData.append(
+							`productVariations[${index}][options][${optionIndex}][imageUrl]`,
+							option.imageUrl
+						);
+					});
+				});
+			} else if (key !== "imagesProduct") {
 				formData.append(key, value);
 			}
 		});
@@ -506,6 +552,8 @@ function CreateProductPage() {
 		imagensSelecionadas.forEach((image) => {
 			formData.append("imagesProduct", image);
 		});
+
+		console.log(formData);
 
 		try {
 			const response = await api.post("/products/create", formData, {
@@ -830,183 +878,286 @@ function CreateProductPage() {
 								<h1 className="text-2xl font-semibold text-black mb-3">
 									Variações
 								</h1>
-								{/* {variations.map((variation) => (
-									<div key={variation.id}>
-										<label className="form-control w-full max-w-3xl">
-											<div className="label">
-												<span className="label-text text-black">
-													Título da Variação
-												</span>
-											</div>
-											<Controller
-												name={`variations[${variation.id}].name`}
-												control={control}
-												defaultValue={variation.name}
-												render={({ field }) => (
-													<input
-														type="text"
-														className="input input-bordered input-success w-80"
-														{...field}
-														onChange={(event) => {
-															handleNameChange(
-																variation.id,
-																event.target
-																	.value
-															);
-															field.onChange(
-																event.target
-																	.value
-															); // Atualiza o valor no React Hook Form
-														}}
-													/>
-												)}
-											/>
-											<div className="label">
-												<span className="label-text-alt text-black">
-													Ex: Cor, Tamanho, etc.
-												</span>
-											</div>
-										</label>
-										<div className="flex flex-row gap-2">
-											{variation.types.map(
-												(type, index) => (
-													<label
-														key={index}
-														className="form-control w-full max-w-3xl mb-4">
-														<div className="label">
-															<span className="label-text text-black">
-																Opção
-															</span>
-														</div>
-														<Controller
-															name={`variations[${variation.id}].types[${index}]`}
-															control={control}
-															defaultValue={type}
-															render={({
-																field,
-															}) => (
+
+								<Controller
+									name="productVariations"
+									control={control}
+									defaultValue={[
+										{
+											title: "",
+											options: [
+												{ name: "", imageUrl: "" },
+											],
+										},
+									]} // Valor padrão
+									render={({
+										field: { onChange, value },
+									}) => (
+										<>
+											{Array.isArray(value) &&
+												value.map(
+													(
+														variation,
+														variationIndex
+													) => (
+														<div
+															className="flex flex-col gap-4"
+															key={
+																variationIndex
+															}>
+															<h3>
+																Variação{" "}
+																{variationIndex +
+																	1}
+															</h3>
+
+															<div className="flex flex-col">
 																<input
+																	className={`input input-bordered ${
+																		errors
+																			.productVariations?.[
+																			variationIndex
+																		]?.title
+																			? `input-error`
+																			: `input-success`
+																	}`}
 																	type="text"
-																	className="input input-bordered input-success w-80"
-																	{...field}
-																	onChange={(
-																		event
-																	) => {
-																		handleTypeChange(
-																			variation.id,
-																			index,
-																			event
-																				.target
-																				.value
-																		);
-																		field.onChange(
-																			event
-																				.target
-																				.value
-																		); // Atualiza o valor no React Hook Form
-																	}}
+																	placeholder="Nome da variação"
+																	{...register(
+																		`productVariations.${variationIndex}.title`
+																	)}
+																	defaultValue={
+																		variation.title
+																	}
 																/>
+																<div>
+																	{errors
+																		.productVariations?.[
+																		variationIndex
+																	]
+																		?.title && (
+																		<span className="text-red-500">
+																			{
+																				errors
+																					.productVariations?.[
+																					variationIndex
+																				]
+																					?.title
+																					.message
+																			}
+																		</span>
+																	)}
+																</div>
+															</div>
+															{variation.options.map(
+																(
+																	option,
+																	optionIndex
+																) => (
+																	<div
+																		className="flex flex-row gap-2"
+																		key={
+																			optionIndex
+																		}>
+																		<div
+																			className={`${
+																				errors
+																					.productVariations?.[
+																					variationIndex
+																				]
+																					?.options?.[
+																					optionIndex
+																				]
+																					?.imageUrl &&
+																				`border-error`
+																			} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+																			{/* <span className="text-xs">
+																				Add
+																				Imagem
+																			</span> */}
+																			<AddPicture
+																				size={
+																					20
+																				}
+																			/>
+																			<input
+																				type="file"
+																				accept="image/*"
+																				multiple
+																				className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
+																				{...register(
+																					`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
+																				)} // Conecta o input ao react-hook-form
+																				onChange={
+																					handleImagemSelecionada
+																				} // Manuseia arquivos selecionados
+																			/>
+																		</div>
+
+																		<div className="flex flex-col">
+																			<input
+																				className={`input input-bordered ${
+																					errors
+																						.productVariations?.[
+																						variationIndex
+																					]
+																						?.options?.[
+																						optionIndex
+																					]
+																						?.imageUrl
+																						? `input-error`
+																						: `input-success`
+																				} w-[300px]`}
+																				type="text"
+																				placeholder="URL da imagem"
+																				{...register(
+																					`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
+																				)}
+																				defaultValue={
+																					option.imageUrl
+																				}
+																			/>
+																			<div>
+																				{errors
+																					.productVariations?.[
+																					variationIndex
+																				]
+																					?.options?.[
+																					optionIndex
+																				]
+																					?.imageUrl && (
+																					<span className="text-red-500">
+																						{
+																							errors
+																								.productVariations?.[
+																								variationIndex
+																							]
+																								?.options?.[
+																								optionIndex
+																							]
+																								?.imageUrl
+																								.message
+																						}
+																					</span>
+																				)}
+																			</div>
+																		</div>
+																		<div className="flex flex-col">
+																			<input
+																				className={`input input-bordered ${
+																					errors
+																						.productVariations?.[
+																						variationIndex
+																					]
+																						?.options?.[
+																						optionIndex
+																					]
+																						?.name
+																						? `input-error`
+																						: `input-success`
+																				} w-[300px]`}
+																				type="text"
+																				placeholder="Nome da opção"
+																				{...register(
+																					`productVariations.${variationIndex}.options.${optionIndex}.name`
+																				)}
+																				defaultValue={
+																					option.name
+																				}
+																			/>
+																			<div>
+																				{errors
+																					.productVariations?.[
+																					variationIndex
+																				]
+																					?.options?.[
+																					optionIndex
+																				]
+																					?.name && (
+																					<span className="text-red-500">
+																						{
+																							errors
+																								.productVariations?.[
+																								variationIndex
+																							]
+																								?.options?.[
+																								optionIndex
+																							]
+																								?.name
+																								.message
+																						}
+																					</span>
+																				)}
+																			</div>
+																		</div>
+																	</div>
+																)
 															)}
-														/>
-														<div className="label">
-															<span className="label-text-alt text-black">
-																Ex: Azul,
-																Grande, etc.
-															</span>
+															<button
+																className="border-dashed border-[1px] border-primary hover:bg-primary transition-all ease-in duration-200 py-3 rounded-md w-[200px]"
+																type="button"
+																onClick={() => {
+																	const newOptions =
+																		[
+																			...variation.options,
+																			{
+																				name: "",
+																				imageUrl:
+																					"",
+																			},
+																		];
+																	onChange(
+																		value.map(
+																			(
+																				v,
+																				i
+																			) =>
+																				i ===
+																				variationIndex
+																					? {
+																							...v,
+																							options:
+																								newOptions,
+																					  }
+																					: v
+																		)
+																	);
+																}}>
+																+ Adicionar
+																Opção
+															</button>
 														</div>
-													</label>
-												)
-											)}
-										</div>
-
-										<div
-											className="text-black hover:text-white flex flex-row justify-center items-center w-60 h-14 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 gap-2 mb-4 cursor-pointer"
-											onClick={() =>
-												handleAddType(variation.id)
-											}>
-											<FaPlus size={16} />
-											<h2 className="text-base">
-												Adicionar Opção
-											</h2>
-										</div>
-									</div>
-								))}
-								<div
-									className="text-black hover:text-white flex flex-row justify-center items-center w-60 h-14 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 gap-2 cursor-pointer"
-									onClick={handleAddVariation}>
-									<FaPlus size={16} />
-									<h2 className="text-base">
-										Adicionar Variação
-									</h2>
-								</div> */}
-
-								<div className="flex flex-col gap-1">
-									<label
-										htmlFor=""
-										className="flex items-center gap-8">
-										Tecnologias
-										<button
-											type="button"
-											onClick={addNewTech}
-											className="text-emerald-500 text-sm">
-											Adicionar
-										</button>
-									</label>
-									{fields.map((field, index) => {
-										return (
-											<div
-												key={field.id}
-												className="flex flex-row gap-4">
-												<div className="flex flex-col gap-1">
-													<input
-														type="text"
-														className={`${
-															errors.originalPrice &&
-															`input-error`
-														} input input-bordered input-success join-item`}
-														{...register(
-															`techs.${index}.title`
-														)}
-													/>
-													{errors.techs?.[index]
-														?.title && (
-														<span>
-															{
-																errors.techs?.[
-																	index
-																]?.title.message
-															}
-														</span>
-													)}
-												</div>
-
-												<div className="flex flex-col gap-1">
-													<input
-														type="number"
-														className={`${
-															errors.originalPrice &&
-															`input-error`
-														} input input-bordered input-success join-item`}
-														{...register(
-															`techs.${index}.knowledge`
-														)}
-													/>
-													{errors.techs?.[index]
-														?.knowledge && (
-														<span>
-															{
-																errors.techs?.[
-																	index
-																]?.knowledge
-																	.message
-															}
-														</span>
-													)}
-												</div>
-											</div>
-										);
-									})}
-								</div>
+													)
+												)}
+											<button
+												className="border-dashed border-[1px] border-primary hover:bg-primary transition-all ease-in duration-200 py-3 rounded-md w-[200px]"
+												type="button"
+												onClick={() => {
+													// Garante que value é sempre um array
+													const newVariations =
+														Array.isArray(value)
+															? [
+																	...value,
+																	{
+																		title: "",
+																		options:
+																			[
+																				{
+																					name: "",
+																					imageUrl:
+																						"",
+																				},
+																			],
+																	},
+															  ]
+															: [];
+													onChange(newVariations);
+												}}>
+												Adicionar Variação
+											</button>
+										</>
+									)}
+								/>
 							</div>
 						</div>
 

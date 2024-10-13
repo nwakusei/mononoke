@@ -31,7 +31,8 @@ interface IOrder {
 	customerOtakuPointsEarned: string;
 	partnerOtakuPointsPaid: string;
 	itemsList: IOrderItem[];
-	orderDetail: string;
+	productsVariations: object;
+	orderNote: string;
 	partnerID: object;
 	partnerName: string;
 	customerID: object;
@@ -44,7 +45,6 @@ interface IOrder {
 	trackingCode: string;
 	logisticOperator: string;
 	discountsApplied: number;
-	orderNote: string;
 }
 
 // Schema que corresponda a Interface
@@ -100,7 +100,10 @@ const orderSchema = new Schema<IOrder>(
 				// },
 			},
 		],
-		orderDetail: {
+		productsVariations: {
+			type: Object,
+		},
+		orderNote: {
 			type: String,
 		},
 		partnerID: Object,
@@ -153,9 +156,6 @@ const orderSchema = new Schema<IOrder>(
 		},
 		discountsApplied: {
 			type: Number,
-		},
-		orderNote: {
-			type: String,
 		},
 	},
 	{ timestamps: true }

@@ -1,11 +1,23 @@
 import mainDB from "../db/mainconn.js";
 import { Schema, model } from "mongoose";
 
+// Interface para a estrutura das variações do produto
+interface IVariationOption {
+	name: string; // Nome da opção (ex: "rosa")
+	imageUrl?: string; // URL da imagem associada (opcional)
+}
+
+interface IProductVariation {
+	title: string; // Título da variação (ex: "Cor")
+	options: IVariationOption[]; // Opções para essa variação (ex: [{ name: "rosa", imageUrl: "url_da_imagem" }, { name: "preto", imageUrl: "url_da_imagem" }])
+}
+
 // Interface para a estrutura de um objeto de revisão
 interface IProduct {
 	productTitle: string;
 	imagesProduct: string[];
 	description: string;
+	productVariations: IProductVariation[];
 	originalPrice: number;
 	promocionalPrice: number;
 	stock: number;
@@ -36,6 +48,29 @@ const productSchema = new Schema<IProduct>(
 		},
 		description: {
 			type: String,
+		},
+		productVariations: {
+			type: [
+				{
+					title: {
+						type: String,
+						required: true, // Título da variação é obrigatório
+					},
+					options: [
+						{
+							name: {
+								type: String,
+								required: true, // Nome da opção é obrigatório
+							},
+							imageUrl: {
+								type: String,
+								required: false, // URL da imagem é opcional
+							},
+						},
+					],
+				},
+			],
+			default: [], // Valor padrão como array vazio
 		},
 		originalPrice: {
 			type: Number,

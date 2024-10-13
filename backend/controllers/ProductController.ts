@@ -15,6 +15,7 @@ class ProductController {
 		const {
 			productTitle,
 			description,
+			productVariations,
 			originalPrice,
 			promocionalPrice,
 			stock,
@@ -175,6 +176,7 @@ class ProductController {
 		const product = new ProductModel({
 			productTitle: productTitle,
 			description: description,
+			productVariations: productVariations,
 			originalPrice: originalPrice,
 			promocionalPrice: promocionalPrice || 0.0,
 			stock: stock,
