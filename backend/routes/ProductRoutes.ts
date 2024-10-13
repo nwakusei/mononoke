@@ -10,7 +10,10 @@ import { imageUpload } from "../helpers/image-upload.js";
 router.post(
 	"/create",
 	verifyToken,
-	imageUpload.array("imagesProduct"),
+	imageUpload.fields([
+		{ name: "imagesProduct", maxCount: 10 },
+		{ name: "productVariations[*].options[*].imageUrl", maxCount: 10 },
+	]),
 	ProductController.create
 );
 

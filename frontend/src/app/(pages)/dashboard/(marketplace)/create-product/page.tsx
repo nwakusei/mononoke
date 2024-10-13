@@ -143,7 +143,42 @@ const createProductFormSchema = z.object({
 			options: z.array(
 				z.object({
 					name: z.string().min(1, "O nome da opção é obrigatório!"),
-					imageUrl: z.string().url("A URL da imagem deve ser válida"),
+					imageUrl: z
+						.instanceof(FileList)
+						.transform((list) => {
+							const files = [];
+							for (let i = 0; i < list.length; i++) {
+								files.push(list.item(i));
+							}
+							return files;
+						})
+						.refine((files) => files !== null && files.length > 0, {
+							message: "※ Insira pelo menos 1 imagem!",
+						})
+						.refine(
+							(files) =>
+								files.every(
+									(file) =>
+										file === null ||
+										file.size <= 2 * 1024 * 1024
+								),
+							{
+								message:
+									"※ Cada arquivo precisa ter no máximo 2Mb!",
+							}
+						)
+						.refine(
+							(files) =>
+								files.every(
+									(file) =>
+										file === null ||
+										/\.(jpg|jpeg|png)$/i.test(file.name)
+								),
+							{
+								message:
+									"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+							}
+						),
 				})
 			),
 		})
@@ -277,36 +312,36 @@ function CreateProductPage() {
 
 	const [offerFreeShipping, setOfferFreeShipping] = useState("");
 
-	const [variations, setVariations] = useState([]);
+	// const [variations, setVariations] = useState([]);
 
-	const handleAddVariation = () => {
-		// Adiciona uma nova variação com um campo vazio
-		setVariations([
-			...variations,
-			{ title: "", options: [{ name: "", imageUrl: "" }] },
-		]);
-	};
+	// const handleAddVariation = () => {
+	// 	// Adiciona uma nova variação com um campo vazio
+	// 	setVariations([
+	// 		...variations,
+	// 		{ title: "", options: [{ name: "", imageUrl: "" }] },
+	// 	]);
+	// };
 
-	const handleOptionChange = (variationIndex, optionIndex, field, value) => {
-		const newVariations = [...variations];
-		newVariations[variationIndex].options[optionIndex][field] = value;
-		setVariations(newVariations);
-	};
+	// const handleOptionChange = (variationIndex, optionIndex, field, value) => {
+	// 	const newVariations = [...variations];
+	// 	newVariations[variationIndex].options[optionIndex][field] = value;
+	// 	setVariations(newVariations);
+	// };
 
-	const handleAddOption = (variationIndex) => {
-		const newVariations = [...variations];
-		newVariations[variationIndex].options.push({
-			name: "",
-			imageUrl: "",
-		});
-		setVariations(newVariations);
-	};
+	// const handleAddOption = (variationIndex) => {
+	// 	const newVariations = [...variations];
+	// 	newVariations[variationIndex].options.push({
+	// 		name: "",
+	// 		imageUrl: "",
+	// 	});
+	// 	setVariations(newVariations);
+	// };
 
-	const handleVariationChange = (index, value) => {
-		const newVariations = [...variations];
-		newVariations[index].title = value;
-		setVariations(newVariations);
-	};
+	// const handleVariationChange = (index, value) => {
+	// 	const newVariations = [...variations];
+	// 	newVariations[index].title = value;
+	// 	setVariations(newVariations);
+	// };
 
 	const {
 		register,
@@ -325,10 +360,6 @@ function CreateProductPage() {
 		control,
 		name: "techs",
 	});
-
-	function addNewTech() {
-		append({ title: "", knowledge: 0 });
-	}
 
 	const handleFreeShippingChange = (event) => {
 		const value = event.target.value;
@@ -494,6 +525,8 @@ function CreateProductPage() {
 	async function handleCreateProduct(productData: { [key: string]: any }) {
 		setOutput(JSON.stringify(productData, null, 2));
 
+		console.log(productData.productVariations);
+
 		// Sanitiza os dados antes de usá-los
 		const sanitizedData = Object.fromEntries(
 			Object.entries(productData).map(([key, value]) => {
@@ -512,34 +545,12 @@ function CreateProductPage() {
 		// Itera sobre os campos de texto e adiciona ao FormData
 		Object.entries(sanitizedData).forEach(([key, value]) => {
 			if (key === "productVariations") {
-				// Adiciona diretamente como um array
-				value.forEach((variation, index) => {
-					formData.append(
-						`productVariations[${index}][title]`,
-						variation.title
-					);
-					variation.options.forEach((option, optionIndex) => {
-						formData.append(
-							`productVariations[${index}][options][${optionIndex}][name]`,
-							option.name
-						);
-						formData.append(
-							`productVariations[${index}][options][${optionIndex}][imageUrl]`,
-							option.imageUrl
-						);
-					});
-				});
+				// Converte productVariations para uma string JSON
+				formData.append(key, JSON.stringify(value));
 			} else if (key !== "imagesProduct") {
 				formData.append(key, value);
 			}
 		});
-
-		// // Itera sobre as imagens e adiciona ao FormData
-		// if (productData.imagesProduct) {
-		// 	productData.imagesProduct.forEach((image: File) => {
-		// 		formData.append(`imagesProduct`, image);
-		// 	});
-		// }
 
 		// Adiciona as imagens ao FormData
 		if (imagensSelecionadas.length === 0) {
@@ -889,7 +900,7 @@ function CreateProductPage() {
 												{ name: "", imageUrl: "" },
 											],
 										},
-									]} // Valor padrão
+									]}
 									render={({
 										field: { onChange, value },
 									}) => (
@@ -988,34 +999,9 @@ function CreateProductPage() {
 																				{...register(
 																					`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
 																				)} // Conecta o input ao react-hook-form
-																				onChange={
-																					handleImagemSelecionada
-																				} // Manuseia arquivos selecionados
-																			/>
-																		</div>
-
-																		<div className="flex flex-col">
-																			<input
-																				className={`input input-bordered ${
-																					errors
-																						.productVariations?.[
-																						variationIndex
-																					]
-																						?.options?.[
-																						optionIndex
-																					]
-																						?.imageUrl
-																						? `input-error`
-																						: `input-success`
-																				} w-[300px]`}
-																				type="text"
-																				placeholder="URL da imagem"
-																				{...register(
-																					`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
-																				)}
-																				defaultValue={
-																					option.imageUrl
-																				}
+																				// onChange={
+																				// 	handleImagemSelecionada
+																				// }
 																			/>
 																			<div>
 																				{errors
@@ -1042,6 +1028,7 @@ function CreateProductPage() {
 																				)}
 																			</div>
 																		</div>
+
 																		<div className="flex flex-col">
 																			<input
 																				className={`input input-bordered ${

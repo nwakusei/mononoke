@@ -31,8 +31,14 @@ class ProductController {
 			freeShippingRegion,
 		} = req.body;
 
+		console.log("Dados do Frontend:", req.body);
+
 		// Upload de imagens
-		const imagesProduct = req.files as Express.Multer.File[];
+		// const imagesProduct = req.files as Express.Multer.File[];
+		const files = req.files as { [key: string]: Express.Multer.File[] };
+		const imagesProduct = files.imagesProduct || []; // Captura as imagens do produto
+		const variationImages =
+			files["productVariations[*].options[*].imageUrl"] || []; // Captura as imagens das variações
 
 		// Validações
 		if (!productTitle) {
