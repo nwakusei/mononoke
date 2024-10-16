@@ -31,14 +31,70 @@ class ProductController {
 			freeShippingRegion,
 		} = req.body;
 
-		console.log("Dados do Frontend:", req.body);
+		console.log(productVariations);
 
-		// Upload de imagens
+		// // Upload de imagens
 		// const imagesProduct = req.files as Express.Multer.File[];
-		const files = req.files as { [key: string]: Express.Multer.File[] };
-		const imagesProduct = files.imagesProduct || []; // Captura as imagens do produto
-		const variationImages =
-			files["productVariations[*].options[*].imageUrl"] || []; // Captura as imagens das variações
+
+		const files = req.files as {
+			[fieldname: string]: Express.Multer.File[];
+		};
+
+		const imagesProduct = files.imagesProduct || []; // Garante que seja um array
+
+		// Acessar as imagens das variações
+		const variationImages = req.files as {
+			[key: string]: Express.Multer.File[];
+		};
+
+		console.log("Variation Images:", variationImages); // Debug para verificar a estrutura
+
+		// Processar variações de produtos
+		const processedVariations = productVariations.map(
+			(variation: any, index: number) => {
+				const options = variation.options.map(
+					(option: any, optionIndex: number) => {
+						const imageUrlField = `productVariations[${index}][options][${optionIndex}][imageUrl]`;
+						const imageUrls = variationImages[imageUrlField] || []; // Use um array para múltiplas imagens
+
+						// Processar as imagens das variações
+						let imageUrl = ""; // Mude de array para string
+
+						if (imageUrls.length > 0) {
+							const image = imageUrls[0]; // Pegue apenas a primeira imagem
+							if (image) {
+								if ("key" in image) {
+									// Estamos usando o armazenamento na AWS S3
+									if (typeof image.key === "string") {
+										imageUrl = image.key;
+									}
+								} else {
+									// Estamos usando o armazenamento em ambiente local (Desenvolvimento)
+									if (typeof image.filename === "string") {
+										imageUrl = image.filename;
+									}
+								}
+							}
+						}
+
+						return {
+							name: option.name,
+							imageUrl: imageUrl, // Mantenha apenas uma string
+						};
+					}
+				);
+
+				return {
+					title: variation.title,
+					options: options,
+				};
+			}
+		);
+
+		console.log(
+			"Variação que sera armazenada: ",
+			JSON.stringify(processedVariations, null, 2)
+		);
 
 		// Validações
 		if (!productTitle) {
@@ -182,7 +238,7 @@ class ProductController {
 		const product = new ProductModel({
 			productTitle: productTitle,
 			description: description,
-			productVariations: productVariations,
+			productVariations: processedVariations,
 			originalPrice: originalPrice,
 			promocionalPrice: promocionalPrice || 0.0,
 			stock: stock,

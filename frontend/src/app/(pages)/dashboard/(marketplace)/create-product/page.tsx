@@ -522,49 +522,134 @@ function CreateProductPage() {
 
 	const [output, setOutput] = useState("");
 
+	// // REQUISIÇÃO ATUAL QUE FUNCIONA PARA CRIAÇÃO DO PRODUTO
+	// async function handleCreateProduct(productData: { [key: string]: any }) {
+	// 	setOutput(JSON.stringify(productData, null, 2));
+
+	// 	console.log(productData);
+
+	// 	// Sanitiza os dados antes de usá-los
+	// 	const sanitizedData = Object.fromEntries(
+	// 		Object.entries(productData).map(([key, value]) => {
+	// 			// Verifica se o valor é uma string (ou outro tipo que precise de sanitização)
+	// 			if (typeof value === "string") {
+	// 				return [key, DOMPurify.sanitize(value)];
+	// 			}
+	// 			return [key, value]; // Retorna o valor original se não for uma string
+	// 		})
+	// 	);
+
+	// 	console.log(sanitizedData);
+
+	// 	const formData = new FormData();
+
+	// 	// Itera sobre os campos de texto e adiciona ao FormData
+	// 	Object.entries(sanitizedData).forEach(([key, value]) => {
+	// 		if (key === "productVariations") {
+	// 			// Converte productVariations para uma string JSON
+	// 			formData.append(key, JSON.stringify(value));
+	// 		} else if (key !== "imagesProduct") {
+	// 			formData.append(key, value);
+	// 		}
+	// 	});
+
+	// 	// Adiciona as imagens ao FormData
+	// 	if (imagensSelecionadas.length === 0) {
+	// 		setError("imagesProduct", {
+	// 			message: "※ Insira pelo menos 1 imagem!",
+	// 		});
+	// 		return; // Se não houver imagens, retorna
+	// 	}
+
+	// 	imagensSelecionadas.forEach((image) => {
+	// 		formData.append("imagesProduct", image);
+	// 	});
+
+	// 	console.log(formData);
+
+	// 	try {
+	// 		const response = await api.post("/products/create", formData, {
+	// 			headers: {
+	// 				Authorization: `Bearer ${JSON.parse(token)}`,
+	// 			},
+	// 		});
+	// 		// Exibe toast de sucesso
+	// 		toast.success(response.data.message);
+
+	// 		router.push("/dashboard/myproducts");
+	// 		return response.data;
+	// 	} catch (error: any) {
+	// 		toast.error(error.response.data.message);
+	// 		return error.response.data;
+	// 	}
+	// }
+
 	async function handleCreateProduct(productData: { [key: string]: any }) {
 		setOutput(JSON.stringify(productData, null, 2));
-
-		console.log(productData.productVariations);
+		console.log("Dados do produto:", productData);
 
 		// Sanitiza os dados antes de usá-los
 		const sanitizedData = Object.fromEntries(
 			Object.entries(productData).map(([key, value]) => {
-				// Verifica se o valor é uma string (ou outro tipo que precise de sanitização)
 				if (typeof value === "string") {
 					return [key, DOMPurify.sanitize(value)];
 				}
-				return [key, value]; // Retorna o valor original se não for uma string
+				return [key, value];
 			})
 		);
 
-		console.log(sanitizedData);
+		console.log("Dados sanitizados:", sanitizedData);
 
 		const formData = new FormData();
 
 		// Itera sobre os campos de texto e adiciona ao FormData
 		Object.entries(sanitizedData).forEach(([key, value]) => {
 			if (key === "productVariations") {
-				// Converte productVariations para uma string JSON
-				formData.append(key, JSON.stringify(value));
+				const variations = value as Array<any>;
+				variations.forEach((variation, index) => {
+					// Adiciona os dados da variação
+					formData.append(
+						`productVariations[${index}][title]`,
+						variation.title
+					);
+
+					variation.options.forEach((option, optionIndex) => {
+						formData.append(
+							`productVariations[${index}][options][${optionIndex}][name]`,
+							option.name
+						);
+
+						// Adicionar imagem da variação se existir
+						if (option.imageUrl && option.imageUrl[0]) {
+							formData.append(
+								`productVariations[${index}][options][${optionIndex}][imageUrl]`,
+								option.imageUrl[0]
+							);
+						}
+					});
+				});
 			} else if (key !== "imagesProduct") {
 				formData.append(key, value);
 			}
 		});
 
-		// Adiciona as imagens ao FormData
+		// Adiciona as imagens do produto principal ao FormData
 		if (imagensSelecionadas.length === 0) {
 			setError("imagesProduct", {
 				message: "※ Insira pelo menos 1 imagem!",
 			});
-			return; // Se não houver imagens, retorna
+			return;
 		}
 
 		imagensSelecionadas.forEach((image) => {
 			formData.append("imagesProduct", image);
 		});
 
-		console.log(formData);
+		// Debugando o FormData
+		console.log("Conteúdo do FormData:");
+		for (let [key, value] of formData.entries()) {
+			console.log(`${key}:`, value);
+		}
 
 		try {
 			const response = await api.post("/products/create", formData, {
@@ -572,9 +657,7 @@ function CreateProductPage() {
 					Authorization: `Bearer ${JSON.parse(token)}`,
 				},
 			});
-			// Exibe toast de sucesso
 			toast.success(response.data.message);
-
 			router.push("/dashboard/myproducts");
 			return response.data;
 		} catch (error: any) {
