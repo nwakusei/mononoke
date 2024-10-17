@@ -86,12 +86,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
-function ProductVariation({ variations }) {
+interface VariationOption {
+	name: string;
+	imageUrl: string;
+	_id: string;
+}
+
+interface Variation {
+	title: string;
+	options: VariationOption[];
+	_id: string;
+}
+
+interface ProductVariationProps {
+	variations: Variation[];
+}
+
+function ProductVariation({ variations, handleVariationClick }) {
 	// Recupera as variações selecionadas do localStorage, ou um objeto vazio se não houver
 	const [variation, setVariation] = useState<{ [key: string]: string }>(() =>
 		JSON.parse(localStorage.getItem("selectedVariations") || "{}")
 	);
+
+	console.log(variation);
 
 	// Atualiza o localStorage sempre que as variações mudarem
 	useEffect(() => {
@@ -114,27 +133,39 @@ function ProductVariation({ variations }) {
 	return (
 		<div>
 			{variations.map((variationOption) => {
-				// A chave deve ser o nome da propriedade, ex: "cor"
-				const variationKey = Object.keys(variationOption)[0];
-				const values = variationOption[variationKey]; // Obtém as variações para a chave
+				const variationKey = variationOption._id; // Usando o ID como chave única
+				const values = variationOption.options; // Obtém as opções para a variação
 
 				return (
 					<div key={variationKey} className="mb-4">
-						<h2 className="mb-1">Escolha o(a) {variationKey}:</h2>
+						<h2 className="mb-2">{variationOption.title}</h2>
 						<div className="flex flex-row flex-wrap gap-2 w-[350px]">
 							{Array.isArray(values) && values.length > 0 ? (
-								values.map((value, index) => (
+								values.map((option, index) => (
 									<div
-										key={index}
-										onClick={() =>
-											handleVariation(variationKey, value)
-										}
+										key={option._id}
+										onClick={() => {
+											handleVariation(
+												variationKey,
+												option.name
+											);
+											handleVariationClick(index); // Passando o índice
+										}}
 										className={`${
-											variation[variationKey] === value
+											variation[variationKey] ===
+											option.name
 												? "bg-secondary text-white border-solid shadow-md"
 												: "border-dashed"
-										} hover:bg-secondary hover:text-white transition-all ease-in duration-150 py-2 px-4 hover:border-solid border-[1px] border-primary rounded-md hover:shadow-md cursor-pointer`}>
-										<span>{value}</span>
+										} hover:bg-secondary hover:text-white transition-all ease-in duration-150 p-2 hover:border-solid border-[1px] border-primary rounded-md hover:shadow-md cursor-pointer flex items-center gap-2`}>
+										<Image
+											className="w-6 rounded-sms"
+											src={`http://localhost:5000/images/products/${option.imageUrl}`}
+											alt={option.name}
+											width={10}
+											height={10}
+											unoptimized
+										/>
+										<span>{option.name}</span>
 									</div>
 								))
 							) : (

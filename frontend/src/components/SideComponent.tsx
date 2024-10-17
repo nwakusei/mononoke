@@ -47,6 +47,8 @@ function SideComponent() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 
+	const [selectedImage, setSelectedImage] = useState(0); // Adicione o estado para a imagem selecionada
+
 	const partnerStateAddress =
 		partner && partner.address.length > 0 ? partner.address[0].state : "";
 	const userStateAddress =
@@ -186,23 +188,18 @@ function SideComponent() {
 			localStorage.getItem("selectedVariations") || "{}"
 		);
 
-		console.log(product.productVariations);
-
 		// Verifica se o produto possui variações
 		const hasVariations = product.productVariations.length > 0;
 
-		// Se o produto tiver variações, verifica se todas foram selecionadas
+		// Se o produto tiver variações, verificar se pelo menos uma foi selecionada
 		if (hasVariations) {
-			const variationKeys = product.productVariations.map(
-				(option) => Object.keys(option)[0]
-			);
-			const isVariationSelected = variationKeys.every(
-				(key) => selectedVariations[key]
+			const isVariationSelected = product.productVariations.every(
+				(variation) => selectedVariations[variation._id]
 			);
 
 			if (!isVariationSelected) {
 				toast.info(
-					"Selecione uma variação antes de adicionar ao carrinho."
+					"Selecione uma variação antes de adicionar ao carrinho!"
 				);
 				return;
 			}

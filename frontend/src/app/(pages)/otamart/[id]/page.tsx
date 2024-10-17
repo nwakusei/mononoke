@@ -11,9 +11,6 @@ import { format } from "date-fns";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
-import { MainImageProductAdComponent } from "@/components/MainImageProductAdComponent";
-import { ImageCarouselComponent } from "@/components/ImageCarouselComponent";
-
 import "./otamartId.css";
 
 // Axios
@@ -23,6 +20,8 @@ import api from "@/utils/api";
 import { Context } from "@/context/UserContext";
 
 // Components
+import { MainImageProductAdComponent } from "@/components/MainImageProductAdComponent";
+import { ImageCarouselComponent } from "@/components/ImageCarouselComponent";
 import { ProductVariation } from "@/components/ProductVariation";
 import { SideComponent } from "@/components/SideComponent";
 import { LoadingPage } from "@/components/LoadingPageComponent";
@@ -60,6 +59,10 @@ function ProductPage() {
 
 	// Função para alterar a imagem ao clicar em uma miniatura
 	const handleThumbnailClick = (index) => {
+		setSelectedImage(index);
+	};
+
+	const handleVariationClick = (index) => {
 		setSelectedImage(index);
 	};
 
@@ -464,6 +467,8 @@ function ProductPage() {
 						{/* Variações */}
 						<ProductVariation
 							variations={product?.productVariations}
+							handleVariationClick={handleVariationClick}
+							// selectedImage={selectedImage}
 						/>
 					</div>
 					{/* Componente Lateral D. */}
