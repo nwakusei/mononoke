@@ -132,52 +132,53 @@ function ProductVariation({ variations, handleVariationClick }) {
 
 	return (
 		<div>
-			{variations.map((variationOption) => {
-				const variationKey = variationOption._id; // Usando o ID como chave única
-				const values = variationOption.options; // Obtém as opções para a variação
+			{variations &&
+				variations.map((variationOption) => {
+					const variationKey = variationOption._id; // Usando o ID como chave única
+					const values = variationOption.options; // Obtém as opções para a variação
 
-				return (
-					<div key={variationKey} className="mb-4">
-						<h2 className="mb-2">{variationOption.title}</h2>
-						<div className="flex flex-row flex-wrap gap-2 w-[350px]">
-							{Array.isArray(values) && values.length > 0 ? (
-								values.map((option, index) => (
-									<div
-										key={option._id}
-										onClick={() => {
-											handleVariation(
-												variationKey,
+					return (
+						<div key={variationKey} className="mb-4">
+							<h2 className="mb-2">{variationOption.title}</h2>
+							<div className="flex flex-row flex-wrap gap-2 w-[350px]">
+								{Array.isArray(values) && values.length > 0 ? (
+									values.map((option, index) => (
+										<div
+											key={option._id}
+											onClick={() => {
+												handleVariation(
+													variationKey,
+													option.name
+												);
+												handleVariationClick(index); // Passando o índice
+											}}
+											className={`${
+												variation[variationKey] ===
 												option.name
-											);
-											handleVariationClick(index); // Passando o índice
-										}}
-										className={`${
-											variation[variationKey] ===
-											option.name
-												? "bg-secondary text-white border-solid shadow-md"
-												: "border-dashed"
-										} hover:bg-secondary hover:text-white transition-all ease-in duration-150 p-2 hover:border-solid border-[1px] border-primary rounded-md hover:shadow-md cursor-pointer flex items-center gap-2`}>
-										<Image
-											className="w-6 rounded-sms"
-											src={`http://localhost:5000/images/products/${option.imageUrl}`}
-											alt={option.name}
-											width={10}
-											height={10}
-											unoptimized
-										/>
-										<span>{option.name}</span>
-									</div>
-								))
-							) : (
-								<p>
-									Este produto não possui variações
-									disponíveis.
-								</p>
-							)}
+													? "bg-secondary text-white border-solid shadow-md"
+													: "border-dashed"
+											} hover:bg-secondary hover:text-white transition-all ease-in duration-150 p-2 hover:border-solid border-[1px] border-primary rounded-md hover:shadow-md cursor-pointer flex items-center gap-2`}>
+											<Image
+												className="w-6 rounded-sms"
+												src={`http://localhost:5000/images/products/${option.imageUrl}`}
+												alt={option.name}
+												width={10}
+												height={10}
+												unoptimized
+											/>
+											<span>{option.name}</span>
+										</div>
+									))
+								) : (
+									<p>
+										Este produto não possui variações
+										disponíveis.
+									</p>
+								)}
+							</div>
 						</div>
-					</div>
-				);
-			})}
+					);
+				})}
 		</div>
 	);
 }

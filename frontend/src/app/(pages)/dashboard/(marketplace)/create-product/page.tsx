@@ -75,6 +75,10 @@ const createProductFormSchema = z.object({
 	productTitle: z
 		.string()
 		.min(1, "※ O título do Produto é obrigatório!")
+		.max(
+			120,
+			"※ O título do Produto precisa conter no máximo 120 caracteres!"
+		)
 		.trim()
 		.refine(
 			(pName) => {
@@ -139,54 +143,70 @@ const createProductFormSchema = z.object({
 		),
 	productVariations: z.array(
 		z.object({
-			title: z.string().min(1, "O nome da variação é obrigatório!"),
+			title: z
+				.string()
+				.min(1, "※ O nome da variação é obrigatório!")
+				.max(
+					30,
+					"※ O nome da variação precisa conter no máximo 30 caracteres!"
+				)
+				.trim(),
 			options: z.array(
 				z.object({
-					name: z.string().min(1, "O nome da opção é obrigatório!"),
+					name: z
+						.string()
+						.min(1, "※ O nome da opção é obrigatório!")
+						.max(
+							30,
+							"※ O nome da opção precisa conter no máximo 30 caracteres!"
+						)
+						.trim(),
 					imageUrl: z
 						.instanceof(FileList)
-						.transform((list) => {
-							const files = [];
-							for (let i = 0; i < list.length; i++) {
-								files.push(list.item(i));
-							}
-							return files;
-						})
-						.refine((files) => files !== null && files.length > 0, {
-							message: "※ Insira pelo menos 1 imagem!",
-						})
+						.transform((list) => list.item(0))
 						.refine(
-							(files) =>
-								files.every(
-									(file) =>
-										file === null ||
-										file.size <= 2 * 1024 * 1024
-								),
+							(file) =>
+								file !== null && file.size <= 2 * 1024 * 1024,
 							{
-								message:
-									"※ Cada arquivo precisa ter no máximo 2Mb!",
-							}
-						)
-						.refine(
-							(files) =>
-								files.every(
-									(file) =>
-										file === null ||
-										/\.(jpg|jpeg|png)$/i.test(file.name)
-								),
-							{
-								message:
-									"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+								message: "O arquivo deve ter no máximo 2MB.",
 							}
 						),
+					// .transform((list) => {
+					// 	const files = [];
+					// 	for (let i = 0; i < list.length; i++) {
+					// 		files.push(list.item(i));
+					// 	}
+					// 	return files;
+					// })
+					// .refine((files) => files !== null && files.length > 0, {
+					// 	message: "※ Insira pelo menos 1 imagem!",
+					// })
+					// .refine(
+					// 	(files) =>
+					// 		files.every(
+					// 			(file) =>
+					// 				file === null ||
+					// 				file.size <= 2 * 1024 * 1024
+					// 		),
+					// 	{
+					// 		message:
+					// 			"※ Cada arquivo precisa ter no máximo 2Mb!",
+					// 	}
+					// )
+					// .refine(
+					// 	(files) =>
+					// 		files.every(
+					// 			(file) =>
+					// 				file === null ||
+					// 				/\.(jpg|jpeg|png)$/i.test(file.name)
+					// 		),
+					// 	{
+					// 		message:
+					// 			"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+					// 	}
+					// ),
 				})
 			),
-		})
-	),
-	techs: z.array(
-		z.object({
-			title: z.string().min(1, "O título da tecnologia é obrigatória!"),
-			knowledge: z.coerce.number().min(1).max(100),
 		})
 	),
 	category: z.string().min(1, "※ A categoria do produto é obrigatória!"),
@@ -307,6 +327,9 @@ type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
 
 function CreateProductPage() {
 	const [imagensSelecionadas, setImagensSelecionadas] = useState<File[]>([]);
+	const [imagensSelecionadas2, setImagensSelecionadas2] = useState<File[]>(
+		[]
+	);
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -475,6 +498,59 @@ function CreateProductPage() {
 		}
 	};
 
+	const handleImagemSelecionada2 = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		const files = event.target.files;
+
+		if (files) {
+			const fileArray = Array.from(files); // Converte o FileList em um array
+
+			// Filtra as imagens válidas
+			const validFiles = fileArray.filter((file) => {
+				const isValidSize = file.size <= 2 * 1024 * 1024; // Tamanho menor que 2MB
+				const isValidFormat = /\.(jpg|jpeg|png)$/i.test(file.name); // Extensão válida
+
+				// Define os erros conforme a validade
+				if (!isValidSize) {
+					setError("imagesProduct", {
+						message: "※ Cada arquivo precisa ter no máximo 2Mb!",
+					});
+				}
+
+				if (!isValidFormat) {
+					setError("imagesProduct", {
+						message:
+							"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+					});
+				}
+
+				return isValidSize && isValidFormat; // Retorna apenas arquivos válidos
+			});
+
+			// Verifica se há imagens válidas
+			if (validFiles.length > 0) {
+				// Se houver imagens válidas, atualiza o estado
+				setImagensSelecionadas2((prev) => [...prev, ...validFiles]);
+				clearErrors("imagesProduct"); // Limpa os erros anteriores
+			} else {
+				// Caso não haja imagens válidas, define uma mensagem de erro
+				setError("imagesProduct", {
+					message: errors.imagesProduct
+						? errors.imagesProduct.message
+						: "Nenhuma imagem válida selecionada!",
+				});
+			}
+
+			// // Adiciona a validação para garantir que pelo menos uma imagem foi selecionada
+			// if (validFiles.length === 0) {
+			// 	setError("imagesProduct", {
+			// 		message: "※ Insira pelo menos 1 imagem!",
+			// 	});
+			// }
+		}
+	};
+
 	const router = useRouter();
 
 	// // Função para adicionar uma nova variação
@@ -619,13 +695,21 @@ function CreateProductPage() {
 							option.name
 						);
 
-						// Adicionar imagem da variação se existir
-						if (option.imageUrl && option.imageUrl[0]) {
+						// Adicionar imagem da variação se existir (para 1 único File)
+						if (option.imageUrl) {
 							formData.append(
 								`productVariations[${index}][options][${optionIndex}][imageUrl]`,
-								option.imageUrl[0]
+								option.imageUrl
 							);
 						}
+
+						// // Adicionar imagem da variação se existir (para array de File)
+						// if (option.imageUrl && option.imageUrl[0]) {
+						// 	formData.append(
+						// 		`productVariations[${index}][options][${optionIndex}][imageUrl]`,
+						// 		option.imageUrl[0]
+						// 	);
+						// }
 					});
 				});
 			} else if (key !== "imagesProduct") {
@@ -658,7 +742,7 @@ function CreateProductPage() {
 				},
 			});
 			toast.success(response.data.message);
-			router.push("/dashboard/myproducts");
+			// router.push("/dashboard/myproducts");
 			return response.data;
 		} catch (error: any) {
 			toast.error(error.response.data.message);
@@ -1007,7 +1091,7 @@ function CreateProductPage() {
 
 															<div className="flex flex-col">
 																<input
-																	className={`input input-bordered ${
+																	className={`w-[360px] input input-bordered ${
 																		errors
 																			.productVariations?.[
 																			variationIndex
@@ -1049,72 +1133,13 @@ function CreateProductPage() {
 																	optionIndex
 																) => (
 																	<div
-																		className="flex flex-row gap-2"
+																		className=""
 																		key={
 																			optionIndex
 																		}>
-																		<div
-																			className={`${
-																				errors
-																					.productVariations?.[
-																					variationIndex
-																				]
-																					?.options?.[
-																					optionIndex
-																				]
-																					?.imageUrl &&
-																				`border-error`
-																			} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-																			{/* <span className="text-xs">
-																				Add
-																				Imagem
-																			</span> */}
-																			<AddPicture
-																				size={
-																					20
-																				}
-																			/>
-																			<input
-																				type="file"
-																				accept="image/*"
-																				multiple
-																				className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
-																				{...register(
-																					`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
-																				)} // Conecta o input ao react-hook-form
-																				// onChange={
-																				// 	handleImagemSelecionada
-																				// }
-																			/>
-																			<div>
-																				{errors
-																					.productVariations?.[
-																					variationIndex
-																				]
-																					?.options?.[
-																					optionIndex
-																				]
-																					?.imageUrl && (
-																					<span className="text-red-500">
-																						{
-																							errors
-																								.productVariations?.[
-																								variationIndex
-																							]
-																								?.options?.[
-																								optionIndex
-																							]
-																								?.imageUrl
-																								.message
-																						}
-																					</span>
-																				)}
-																			</div>
-																		</div>
-
-																		<div className="flex flex-col">
-																			<input
-																				className={`input input-bordered ${
+																		<div className="flex flex-row gap-2">
+																			<div
+																				className={`${
 																					errors
 																						.productVariations?.[
 																						variationIndex
@@ -1122,43 +1147,105 @@ function CreateProductPage() {
 																						?.options?.[
 																						optionIndex
 																					]
-																						?.name
-																						? `input-error`
-																						: `input-success`
-																				} w-[300px]`}
-																				type="text"
-																				placeholder="Nome da opção"
-																				{...register(
-																					`productVariations.${variationIndex}.options.${optionIndex}.name`
-																				)}
-																				defaultValue={
-																					option.name
-																				}
-																			/>
-																			<div>
-																				{errors
-																					.productVariations?.[
-																					variationIndex
-																				]
-																					?.options?.[
-																					optionIndex
-																				]
-																					?.name && (
-																					<span className="text-red-500">
-																						{
-																							errors
-																								.productVariations?.[
-																								variationIndex
-																							]
-																								?.options?.[
-																								optionIndex
-																							]
-																								?.name
-																								.message
-																						}
-																					</span>
-																				)}
+																						?.imageUrl
+																						? `border-error`
+																						: `border-success`
+																				} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+																				{/* <span className="text-xs">
+																				Add
+																				Imagem
+																			</span> */}
+																				<AddPicture
+																					size={
+																						20
+																					}
+																				/>
+																				<input
+																					type="file"
+																					accept="image/*"
+																					multiple
+																					className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
+																					{...register(
+																						`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
+																					)} // Conecta o input ao react-hook-form
+																					// onChange={
+																					// 	handleImagemSelecionada
+																					// }
+																				/>
 																			</div>
+
+																			<div className="flex flex-col">
+																				<input
+																					className={`input input-bordered ${
+																						errors
+																							.productVariations?.[
+																							variationIndex
+																						]
+																							?.options?.[
+																							optionIndex
+																						]
+																							?.name
+																							? `input-error`
+																							: `input-success`
+																					} w-[300px]`}
+																					type="text"
+																					placeholder="Nome da opção"
+																					{...register(
+																						`productVariations.${variationIndex}.options.${optionIndex}.name`
+																					)}
+																					defaultValue={
+																						option.name
+																					}
+																				/>
+																			</div>
+																		</div>
+																		<div>
+																			{errors
+																				.productVariations?.[
+																				variationIndex
+																			]
+																				?.options?.[
+																				optionIndex
+																			]
+																				?.imageUrl && (
+																				<span className="text-red-500">
+																					{
+																						errors
+																							.productVariations?.[
+																							variationIndex
+																						]
+																							?.options?.[
+																							optionIndex
+																						]
+																							?.imageUrl
+																							.message
+																					}
+																				</span>
+																			)}
+																		</div>
+																		<div>
+																			{errors
+																				.productVariations?.[
+																				variationIndex
+																			]
+																				?.options?.[
+																				optionIndex
+																			]
+																				?.name && (
+																				<span className="text-red-500">
+																					{
+																						errors
+																							.productVariations?.[
+																							variationIndex
+																						]
+																							?.options?.[
+																							optionIndex
+																						]
+																							?.name
+																							.message
+																					}
+																				</span>
+																			)}
 																		</div>
 																	</div>
 																)

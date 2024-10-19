@@ -46,7 +46,6 @@ function ProductPage() {
 	const [buttonLoading, setbuttonLoading] = useState(false);
 
 	const [token] = useState(() => localStorage.getItem("token") || "");
-	const [alreadyfollowsStores, setAlreadyfollowsStores] = useState([]);
 	const [followedStores, setFollowedStores] = useState([]);
 
 	const [loadingButtonId, setLoadingButtonId] = useState(null);
