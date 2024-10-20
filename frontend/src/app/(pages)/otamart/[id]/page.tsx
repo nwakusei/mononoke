@@ -55,8 +55,9 @@ function ProductPage() {
 	const router = useRouter();
 
 	const [selectedImage, setSelectedImage] = useState({
-		type: "carousel",
-		index: 0,
+		type: "product", // 'product' ou 'variation'
+		variationIndex: 0, // Índice da variação (por exemplo, cor ou tamanho)
+		index: 0, // Índice da opção dentro da variação
 	});
 
 	// Função para alterar a imagem ao clicar em uma miniatura
@@ -64,9 +65,10 @@ function ProductPage() {
 		setSelectedImage({ type: "carousel", index });
 	};
 
-	const handleVariationClick = (variationIndex) => {
-		setSelectedImage({ type: "variation", index: variationIndex });
+	const handleVariationClick = (variationIndex, index) => {
+		setSelectedImage({ type: "variation", variationIndex, index });
 	};
+
 	// Função para buscar a lista de lojas seguidas
 	const fetchFollowedStores = async () => {
 		if (!token) return;
@@ -320,65 +322,6 @@ function ProductPage() {
 						product={product}
 					/>
 
-					{/* <div className="flex flex-col">
-					<div className="bg-white w-[402px] border-black border-solid border-[1px] border-opacity-20 rounded-md relative shadow-lg mb-2">
-						<div className="h-[402px] flex items-center justify-center mx-3 my-2">
-							{product?.imagesProduct &&
-								product?.imagesProduct.length > 0 && (
-									<Image
-										className="object-contain h-full"
-										src={`http://localhost:5000/images/products/${product?.imagesProduct[0]}`}
-										alt={product?.productTitle}
-										width={280}
-										height={10}
-										unoptimized
-									/>
-								)}
-						</div>
-					</div>
-					<div className="flex flex-row gap-2">
-						{product?.imagesProduct &&
-							product?.imagesProduct.length > 0 &&
-							product?.imagesProduct.map((image, id) => (
-								<div className="bg-white border-black border-solid border-[1px] border-opacity-20 w-[74px] rounded relative shadow-md">
-									<div
-										key={id}
-										className="h-[74px] flex items-center justify-center">
-										<Image
-											className="object-contain h-full cursor-pointer"
-											src={`http://localhost:5000/images/products/${image}`}
-											alt="Shoes"
-											onClick={() =>
-												handleOpenImagesProduct(image)
-											}
-											width={50}
-											height={10}
-										/>
-									</div>
-								</div>
-							))}
-					</div>
-
-					{maximizedImageProduct && (
-						<div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center">
-							<div className="relative max-w-full max-h-full">
-								<Image
-									className="object-contain max-w-full max-h-full rounded-md"
-									src={`http://localhost:5000/images/products/${maximizedImageProduct}`}
-									alt="Maximized Image"
-									width={400}
-									height={200}
-									unoptimized
-								/>
-								<button
-									className="absolute top-4 right-4 bg-error px-3 py-1 rounded shadow-md text-white"
-									onClick={handleCloseImagesProduct}>
-									✕
-								</button>
-							</div>
-						</div>
-					)}
-				</div> */}
 					{/* Componente intermediário */}
 					<div className="flex flex-col w-[350px]">
 						{/* Título */}
