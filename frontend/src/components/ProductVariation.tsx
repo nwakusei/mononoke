@@ -150,7 +150,7 @@ function ProductVariation({ variations, handleVariationClick }) {
 													variationKey,
 													option.name
 												);
-												handleVariationClick(index); // Passando o índice
+												handleVariationClick(index); // Agora é mais claro que estamos lidando com uma variação
 											}}
 											className={`${
 												variation[variationKey] ===

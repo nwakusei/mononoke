@@ -2,14 +2,24 @@ import React from "react";
 import Image from "next/image";
 
 const MainImageProductAdComponent = ({ selectedImage, product }) => {
-	// Verifica se o índice selecionado é válido para imagesProduct
-	const isValidImageIndex =
-		product?.imagesProduct?.[selectedImage] !== undefined;
+	let imageUrl = "";
 
-	// Obtém a URL da imagem da imagem principal ou da variação
-	const imageUrl = isValidImageIndex
-		? product.imagesProduct[selectedImage]
-		: product?.productVariations?.[0]?.options?.[selectedImage]?.imageUrl; // Busca a imagem com base no índice de selectedImage das opções de variação
+	if (
+		selectedImage.type === "carousel" &&
+		product?.imagesProduct?.[selectedImage.index]
+	) {
+		imageUrl = product.imagesProduct[selectedImage.index];
+	} else if (
+		selectedImage.type === "variation" &&
+		product?.productVariations
+	) {
+		const variationOption = product.productVariations
+			.flatMap((v) => v.options)
+			.find((_, index) => index === selectedImage.index);
+		if (variationOption) {
+			imageUrl = variationOption.imageUrl;
+		}
+	}
 
 	return (
 		<div className="bg-white w-[402px] border-black border-solid border-[1px] border-opacity-20 rounded-md relative shadow-lg mb-2">

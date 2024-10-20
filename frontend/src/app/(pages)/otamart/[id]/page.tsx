@@ -54,17 +54,19 @@ function ProductPage() {
 
 	const router = useRouter();
 
-	const [selectedImage, setSelectedImage] = useState(0);
+	const [selectedImage, setSelectedImage] = useState({
+		type: "carousel",
+		index: 0,
+	});
 
 	// Função para alterar a imagem ao clicar em uma miniatura
 	const handleThumbnailClick = (index) => {
-		setSelectedImage(index);
+		setSelectedImage({ type: "carousel", index });
 	};
 
-	const handleVariationClick = (index) => {
-		setSelectedImage(index);
+	const handleVariationClick = (variationIndex) => {
+		setSelectedImage({ type: "variation", index: variationIndex });
 	};
-
 	// Função para buscar a lista de lojas seguidas
 	const fetchFollowedStores = async () => {
 		if (!token) return;
