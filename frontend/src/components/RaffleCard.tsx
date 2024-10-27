@@ -1,7 +1,7 @@
-"use client";
-
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Icons
 import { LuCalendarRange } from "react-icons/lu";
@@ -15,6 +15,17 @@ function RaffleCard({
 	raffleOrganizer,
 	linkRafflePage,
 }) {
+	const [loadingButton, setLoadingButton] = useState(false);
+	const router = useRouter();
+
+	function handleclick() {
+		setLoadingButton(true);
+
+		setTimeout(() => {
+			router.push(linkRafflePage);
+		}, 1000);
+	}
+
 	return (
 		<div className="bg-white w-[254px] flex flex-col rounded-md relative pb-2 shadow-md text-black">
 			<div className="flex flex-col items-center justify-center h-[220px] mx-3 mt-2 -mb-3 pointer-events-none">
@@ -61,9 +72,19 @@ function RaffleCard({
 						<div>{raffleOrganizer}</div>
 					</h2>
 				</div>
-				<button className="btn btn-primary w-full mb-2 shadow-md">
-					<Link href={linkRafflePage}>+ Detalhes</Link>
-				</button>
+				{loadingButton ? (
+					<button
+						onClick={handleclick}
+						className="btn btn-primary w-full mb-2 shadow-md">
+						<span className="loading loading-dots loading-md"></span>
+					</button>
+				) : (
+					<button
+						onClick={handleclick}
+						className="btn btn-primary w-full mb-2 shadow-md">
+						+ Detalhes
+					</button>
+				)}
 			</div>
 		</div>
 	);

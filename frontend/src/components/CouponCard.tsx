@@ -18,7 +18,7 @@ function CouponCard({
 }) {
 	const [copied, setCopied] = useState(false);
 
-	const handleCupom = (cupomCode: string) => {
+	const handleCopyCupom = (cupomCode: string) => {
 		navigator.clipboard.writeText(cupomCode);
 		setCopied(true);
 		setTimeout(() => setCopied(false), 5000); // Reset após 5 segundos
@@ -62,7 +62,7 @@ function CouponCard({
 				<div className="tooltip w-full" data-tip={tipText}>
 					<button
 						className="btn btn-primary text-xl w-[230px] shadow-md"
-						onClick={() => handleCupom(`${coupon}`)}>
+						onClick={() => handleCopyCupom(`${coupon}`)}>
 						{coupon}
 					</button>
 				</div>

@@ -73,7 +73,7 @@ const MainImageProductAdComponent = ({ selectedImage, product }) => {
 
 	return (
 		<div className="bg-white w-[402px] border-black border-solid border-[1px] border-opacity-20 rounded-md relative shadow-lg mb-2">
-			<div className="h-[402px] flex items-center justify-center mx-3 my-2">
+			<div className="h-[402px] flex items-center justify-center mx-3 my-2 pointer-events-none select-none">
 				{imageUrl && (
 					<Image
 						className="object-contain w-full h-full"

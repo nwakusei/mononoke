@@ -50,8 +50,6 @@ function ProductPage() {
 
 	const [loadingButtonId, setLoadingButtonId] = useState(null);
 
-	console.log(product?.productVariations);
-
 	const router = useRouter();
 
 	const [selectedImage, setSelectedImage] = useState({
@@ -96,21 +94,21 @@ function ProductPage() {
 		(partner) => partner._id === product.partnerID
 	);
 
-	const handleOpenImagesProduct = (image) => {
-		setMaximizedImageProduct(image);
-	};
+	// const handleOpenImagesProduct = (image) => {
+	// 	setMaximizedImageProduct(image);
+	// };
 
-	const handleCloseImagesProduct = () => {
-		setMaximizedImageProduct(null);
-	};
+	// const handleCloseImagesProduct = () => {
+	// 	setMaximizedImageProduct(null);
+	// };
 
-	const handleOpen = (image) => {
-		setMaximizedImage(image);
-	};
+	// const handleOpen = (image) => {
+	// 	setMaximizedImage(image);
+	// };
 
-	const handleClose = () => {
-		setMaximizedImage(null);
-	};
+	// const handleClose = () => {
+	// 	setMaximizedImage(null);
+	// };
 
 	// Calcular a porcentagem de desconto
 	const calculateDiscountPercentage = () => {
@@ -324,6 +322,7 @@ function ProductPage() {
 
 					{/* Componente intermediário */}
 					<div className="flex flex-col w-[350px]">
+						{/* <span className="text-sm">{product?.condition}</span> */}
 						{/* Título */}
 						<h1 className="text-xl font-semibold text-black mb-1">
 							{product?.productTitle}

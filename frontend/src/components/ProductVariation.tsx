@@ -3,26 +3,38 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-interface VariationOption {
+interface IVariationOption {
 	name: string;
 	imageUrl: string;
 	_id: string;
 }
 
-interface Variation {
+interface IVariation {
 	title: string;
-	options: VariationOption[];
+	options: IVariationOption[];
 	_id: string;
 }
 
-interface ProductVariationProps {
-	variations: Variation[];
+interface IProductVariationProps {
+	variations: IVariation[];
 }
 
 function ProductVariation({ variations, handleVariationClick }) {
-	// Recupera as variações selecionadas do localStorage, ou um objeto vazio se não houver
-	const [variation, setVariation] = useState<{ [key: string]: string }>(() =>
-		JSON.parse(localStorage.getItem("selectedVariations") || "{}")
+	// // Recupera as variações selecionadas do localStorage, ou um objeto vazio se não houver (State anterior que funciona, se precisar voltar basta ativar)
+	// const [variation, setVariation] = useState<{ [key: string]: string }>(() =>
+	// 	JSON.parse(localStorage.getItem("selectedVariations") || "{}")
+	// );
+
+	// Recupera as variações selecionadas do localStorage, mas ignora strings vazias
+	const initialVariations = JSON.parse(
+		localStorage.getItem("selectedVariations") || "{}"
+	);
+	const filteredVariations = Object.fromEntries(
+		Object.entries(initialVariations).filter(([, value]) => value !== "")
+	);
+
+	const [variation, setVariation] = useState<{ [key: string]: string }>(
+		filteredVariations
 	);
 
 	console.log(variation);
@@ -41,6 +53,12 @@ function ProductVariation({ variations, handleVariationClick }) {
 						? ""
 						: selectedValue,
 			};
+
+			// Remove a variação do localStorage se a seleção for desfeita
+			if (prevState[variationKey] === selectedValue) {
+				delete updatedVariation[variationKey];
+			}
+
 			return updatedVariation;
 		});
 	}
@@ -74,11 +92,11 @@ function ProductVariation({ variations, handleVariationClick }) {
 												variation[variationKey] ===
 												option.name
 													? "bg-secondary text-white border-solid shadow-md"
-													: "border-dashed"
+													: "border-dashed select-none"
 											} hover:bg-secondary hover:text-white transition-all ease-in duration-150 py-[4px] px-[6px] hover:border-solid border-[1px] border-primary rounded hover:shadow-md cursor-pointer flex items-center gap-[5px]`}>
 											{option.imageUrl ? (
 												<Image
-													className="w-6 rounded-sms"
+													className="w-6 rounded-sms pointer-events-none select-none"
 													src={`http://localhost:5000/images/products/${option.imageUrl}`}
 													alt={option.name}
 													width={10}
@@ -88,7 +106,9 @@ function ProductVariation({ variations, handleVariationClick }) {
 											) : (
 												<></> // Se a imageUrl for vazia, não renderiza nada
 											)}
-											<span>{option.name}</span>
+											<span className="select-none">
+												{option.name}
+											</span>
 										</div>
 									))
 								) : (
