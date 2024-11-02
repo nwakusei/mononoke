@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+// Imagens
+import Otakuyasan from "../../public/otakuyasan.png";
+
 // Icons
 import { Currency } from "@icon-park/react";
 import { GoLinkExternal } from "react-icons/go";
@@ -37,7 +40,11 @@ function CouponCard({
 			<div className="h-[130px] mx-3 mt-2 -mb-3 flex items-center justify-center">
 				<Image
 					className="object-contain w-full h-full pointer-events-none"
-					src={partnerLogo}
+					src={
+						partnerLogo
+							? `http://localhost:5000/images/partners/${partnerLogo}`
+							: Otakuyasan
+					}
 					alt="Logo Partner"
 					width={260}
 					height={130}

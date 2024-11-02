@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 // Imagens
+import Otakuyasan from "../../public/otakuyasan.png";
 
 function CashbackCard({
 	partnerID,
@@ -27,7 +28,11 @@ function CashbackCard({
 			<div className="h-[130px] mx-3 mt-2 -mb-3 flex items-center justify-center">
 				<Image
 					className="object-contain w-full h-full pointer-events-none"
-					src={partnerLogo}
+					src={
+						partnerLogo
+							? `http://localhost:5000/images/partners/${partnerLogo}`
+							: Otakuyasan
+					}
 					alt="Partner Logo"
 					width={260}
 					height={130}

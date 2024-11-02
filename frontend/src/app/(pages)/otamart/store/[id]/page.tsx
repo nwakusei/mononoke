@@ -33,6 +33,7 @@ function StorePage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const { id } = useParams();
 	const [searchText, setSearchText] = useState("");
+	const [searchedText, setSearchedText] = useState("");
 	const [returnedProducts, setReturnedProducts] = useState([]);
 	const [noResults, setNoResults] = useState(false); // Nova variável de estado
 
@@ -93,6 +94,9 @@ function StorePage() {
 
 		setIsLoading(true);
 		setNoResults(false);
+
+		// Atualiza searchedText imediatamente
+		setSearchedText(searchText);
 
 		const fetchReturnedProduct = async () => {
 			try {
@@ -289,13 +293,15 @@ function StorePage() {
 				</div>
 
 				<div className="flex felx-row items-center justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mb-4 rounded-md shadow-md select-none">
-					{returnedProducts?.length === 0 ? (
-						<span>Produtos da Loja</span>
+					{!searchedText ? (
+						<h1>Produtos da Loja</h1>
 					) : (
-						<>
+						<span className="flex flex-row items-center gap-2 px-6 w-full">
 							<FiInfo className="mt-[2px]" size={20} />
-							<span>Resultado da pesquisa para ''</span>
-						</>
+							<h1 className="truncate flex-1">
+								Resultado da pesquisa para {`'${searchedText}'`}
+							</h1>
+						</span>
 					)}
 				</div>
 				<div>
@@ -327,7 +333,7 @@ function StorePage() {
 					{noResults ? (
 						<div className="min-h-screen">
 							<p className="text-black text-center bg-white p-4 w-[500px] rounded-md shadow-md">
-								Produto não encontrado!
+								Nenhum produto encontrado!
 							</p>
 						</div>
 					) : returnedProducts.length > 0 ? (

@@ -7,9 +7,6 @@ import api from "@/utils/api";
 
 import { Context } from "@/context/UserContext";
 
-// Importe suas imagens e ícones aqui
-import Otakuyasan from "../../../../public/otakuyasan.png";
-
 // Components
 import { CouponCard } from "@/components/CouponCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
@@ -61,11 +58,7 @@ function CoupomPage() {
 							return (
 								<CouponCard
 									key={coupon?._id}
-									partnerLogo={
-										partner?.logoImage
-											? partner?.logoImage
-											: Otakuyasan
-									}
+									partnerLogo={partner?.logoImage}
 									partnerName={coupon?.partnerName}
 									siteLink={partner ? partner?.site : null}
 									discount={coupon?.discountPercentage}

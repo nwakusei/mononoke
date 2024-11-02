@@ -628,7 +628,8 @@ function ProductPage() {
 
 										{loadingButtonId === partner._id ? (
 											<button className="flex items-center justify-center text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 w-[150px] h-[36px] px-10 py-1 rounded-md hover:shadow-md">
-												<span className="loading loading-spinner loading-md"></span>
+												{/* <span className="loading loading-spinner loading-md"></span> */}
+												<span className="loading loading-dots loading-md"></span>
 											</button>
 										) : (
 											<button

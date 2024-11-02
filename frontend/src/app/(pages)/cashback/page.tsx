@@ -8,9 +8,6 @@ import api from "@/utils/api";
 // Context
 import { Context } from "@/context/UserContext";
 
-// Imagens
-import Otakuyasan from "../../../../public/otakuyasan.png";
-
 // Components
 import { CashbackCard } from "@/components/CashbackCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
@@ -60,11 +57,7 @@ function CashbackPage() {
 							<CashbackCard
 								key={partner._id}
 								partnerName={partner.name}
-								partnerLogo={
-									partner.logoImage
-										? partner.logoImage
-										: Otakuyasan
-								}
+								partnerLogo={partner.logoImage}
 								cashback={partner.cashback}
 								couponInfo={
 									associatedCoupon
