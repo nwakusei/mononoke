@@ -9,12 +9,12 @@ import Otakuyasan from "../../public/otakuyasan.png";
 
 // Icons
 import { Currency } from "@icon-park/react";
-import { GoLinkExternal } from "react-icons/go";
+import { PiCursorClickBold } from "react-icons/pi";
 
 function CouponCard({
 	partnerLogo,
 	partnerName,
-	siteLink,
+	partnerID,
 	discount,
 	cashback,
 	coupon,
@@ -29,11 +29,11 @@ function CouponCard({
 
 	const tipText = copied ? "Código Copiado" : "Clique para copiar o código";
 
-	// Verificar se o siteLink já tem protocolo, se não, adicionar 'https://'
-	const formattedSiteLink =
-		siteLink?.startsWith("http://") || siteLink?.startsWith("https://")
-			? siteLink
-			: `https://${siteLink}`;
+	// // Verificar se o siteLink já tem protocolo, se não, adicionar 'https://'
+	// const formattedSiteLink =
+	// 	siteLink?.startsWith("http://") || siteLink?.startsWith("https://")
+	// 		? siteLink
+	// 		: `https://${siteLink}`;
 
 	return (
 		<div className="bg-white w-[260px] flex flex-col rounded-md relative shadow-md select-none">
@@ -53,7 +53,11 @@ function CouponCard({
 			</div>
 
 			<div className="divider before:bg-black after:bg-black text-black mx-2">
-				{partnerName}
+				<Link
+					className="flex felx-row items-center text-primary transition-all ease-in duration-200 hover:text-secondary gap-2"
+					href={`/otamart/store/${partnerID}`}>
+					<span>{partnerName}</span> <PiCursorClickBold size={20} />
+				</Link>
 			</div>
 			<div className="h-[150px] flex flex-col items-center justify-center mx-4 -mt-4">
 				<h2 className="text-center font-semibold text-xl text-black">

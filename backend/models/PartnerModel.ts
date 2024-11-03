@@ -26,7 +26,6 @@ interface IPartner {
 	cpfCnpj: number;
 	description: string;
 	address: IAddress[];
-	// site: string;
 	shippingConfiguration: IShippingConfig[];
 	cashback: number;
 	followers: number;
@@ -73,9 +72,6 @@ const partnerSchema = new Schema<IPartner>(
 		address: {
 			type: [{}],
 		},
-		// site: {
-		// 	type: String,
-		// },
 		shippingConfiguration: {
 			type: [{}],
 		},

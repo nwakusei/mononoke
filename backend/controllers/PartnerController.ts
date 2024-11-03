@@ -348,6 +348,10 @@ class PartnerController {
 			return;
 		}
 
+		const partnerOtakupay = await OtakupayModel.findById(
+			partner.otakupayID
+		);
+
 		try {
 			// Verifique se o partner é de fato um parceiro e não um cliente
 			if (partner instanceof PartnerModel) {
@@ -418,6 +422,12 @@ class PartnerController {
 				}
 
 				await partner.save();
+
+				// Atualizar cashback no OtakupayModel
+				if (partnerOtakupay) {
+					partnerOtakupay.cashback = cashback;
+					await partnerOtakupay.save();
+				}
 
 				const updatedUser = await PartnerModel.findById(
 					partner._id

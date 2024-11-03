@@ -49,6 +49,8 @@ function StorePage() {
 	const totalProducts = products.length;
 	const followers = partner?.followers;
 
+	const productsSold = partner?.productsSold;
+
 	// Função para buscar a lista de lojas seguidas
 	const fetchFollowedStores = async () => {
 		if (!token) return;
@@ -247,6 +249,12 @@ function StorePage() {
 									<BsStar size={18} />
 								</span>
 								<h1>Avaliações: {rating}</h1>
+							</div>
+							<div className="flex flex-row items-center gap-2 mb-2">
+								<span>
+									<BsStar size={18} />
+								</span>
+								<h1>Produtos vendidos: {productsSold}</h1>
 							</div>
 							<div className="mt-1">
 								{buttonLoading ? (

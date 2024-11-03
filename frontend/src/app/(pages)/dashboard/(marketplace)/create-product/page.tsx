@@ -141,74 +141,78 @@ const createProductFormSchema = z.object({
 				message: "※ A descrição precisa ter no mínimo 100 caracteres!",
 			}
 		),
-	productVariations: z.array(
-		z.object({
-			title: z
-				.string()
-				.min(1, "※ O nome da variação é obrigatório!")
-				.max(
-					30,
-					"※ O nome da variação precisa conter no máximo 30 caracteres!"
-				)
-				.trim(),
-			options: z.array(
-				z.object({
-					name: z
-						.string()
-						.min(1, "※ O nome da opção é obrigatório!")
-						.max(
-							30,
-							"※ O nome da opção precisa conter no máximo 30 caracteres!"
-						)
-						.trim(),
-					imageUrl: z
-						.instanceof(FileList)
-						.transform((list) => list.item(0))
-						.refine(
-							(file) =>
-								file !== null && file.size <= 2 * 1024 * 1024,
-							{
-								message: "O arquivo deve ter no máximo 2MB.",
-							}
-						),
-					// .transform((list) => {
-					// 	const files = [];
-					// 	for (let i = 0; i < list.length; i++) {
-					// 		files.push(list.item(i));
-					// 	}
-					// 	return files;
-					// })
-					// .refine((files) => files !== null && files.length > 0, {
-					// 	message: "※ Insira pelo menos 1 imagem!",
-					// })
-					// .refine(
-					// 	(files) =>
-					// 		files.every(
-					// 			(file) =>
-					// 				file === null ||
-					// 				file.size <= 2 * 1024 * 1024
-					// 		),
-					// 	{
-					// 		message:
-					// 			"※ Cada arquivo precisa ter no máximo 2Mb!",
-					// 	}
-					// )
-					// .refine(
-					// 	(files) =>
-					// 		files.every(
-					// 			(file) =>
-					// 				file === null ||
-					// 				/\.(jpg|jpeg|png)$/i.test(file.name)
-					// 		),
-					// 	{
-					// 		message:
-					// 			"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
-					// 	}
-					// ),
-				})
-			),
-		})
-	),
+	productVariations: z
+		.array(
+			z.object({
+				title: z
+					.string()
+					.min(1, "※ O nome da variação é obrigatório!")
+					.max(
+						30,
+						"※ O nome da variação precisa conter no máximo 30 caracteres!"
+					)
+					.trim(),
+				options: z.array(
+					z.object({
+						name: z
+							.string()
+							.min(1, "※ O nome da opção é obrigatório!")
+							.max(
+								30,
+								"※ O nome da opção precisa conter no máximo 30 caracteres!"
+							)
+							.trim(),
+						imageUrl: z
+							.instanceof(FileList)
+							.transform((list) => list.item(0))
+							.refine(
+								(file) =>
+									file !== null &&
+									file.size <= 2 * 1024 * 1024,
+								{
+									message:
+										"O arquivo deve ter no máximo 2MB.",
+								}
+							),
+						// .transform((list) => {
+						// 	const files = [];
+						// 	for (let i = 0; i < list.length; i++) {
+						// 		files.push(list.item(i));
+						// 	}
+						// 	return files;
+						// })
+						// .refine((files) => files !== null && files.length > 0, {
+						// 	message: "※ Insira pelo menos 1 imagem!",
+						// })
+						// .refine(
+						// 	(files) =>
+						// 		files.every(
+						// 			(file) =>
+						// 				file === null ||
+						// 				file.size <= 2 * 1024 * 1024
+						// 		),
+						// 	{
+						// 		message:
+						// 			"※ Cada arquivo precisa ter no máximo 2Mb!",
+						// 	}
+						// )
+						// .refine(
+						// 	(files) =>
+						// 		files.every(
+						// 			(file) =>
+						// 				file === null ||
+						// 				/\.(jpg|jpeg|png)$/i.test(file.name)
+						// 		),
+						// 	{
+						// 		message:
+						// 			"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+						// 	}
+						// ),
+					})
+				),
+			})
+		)
+		.optional(),
 	category: z.string().min(1, "※ A categoria do produto é obrigatória!"),
 	originalPrice: z
 		.string()

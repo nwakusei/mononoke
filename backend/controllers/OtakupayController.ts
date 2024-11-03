@@ -855,8 +855,8 @@ class OtakupayController {
 
 			// Iterar sobre cada parceiro para calcular a comissão
 			for (const partnerCost of partnersTotalCost) {
-				// Calcular a comissão de 10% em cima do total dos produtos transacionados por parceiro
-				const commissionAmount = partnerCost.totalCost * 0.1;
+				// Calcular a comissão de 9% em cima do total dos produtos transacionados por parceiro || O VALOR PRECISARÁ SER DEFINIDO PELO DOTENV
+				const commissionAmount = partnerCost.totalCost * 0.09;
 
 				// Buscar o parceiro pelo ID
 				const partner = await PartnerModel.findById(
@@ -2014,8 +2014,8 @@ class OtakupayController {
 
 			// Iterar sobre cada parceiro para calcular a comissão
 			for (const partnerCost of partnersTotalCost) {
-				// Calcular a comissão de 10% em cima do total dos produtos transacionados por parceiro
-				const commissionAmount = partnerCost.totalCost * 0.1;
+				// Calcular a comissão de 9% em cima do total dos produtos transacionados por parceiro || O VALOR PRECISARÁ SER DEFINIDO PELO DOTENV
+				const commissionAmount = partnerCost.totalCost * 0.09;
 
 				// Buscar o parceiro pelo ID
 				const partner = await PartnerModel.findById(
@@ -3481,9 +3481,9 @@ class OtakupayController {
 
 									// Iterar sobre cada parceiro para calcular a comissão
 									for (const partnerCost of partnersTotalCost) {
-										// Calcular a comissão de 10% em cima do total dos produtos transacionados por parceiro
+										// Calcular a comissão de 9% em cima do total dos produtos transacionados por parceiro || O VALOR PRECISARÁ SER DEFINIDO PELO DOTENV
 										const commissionAmount =
-											partnerCost.totalCost * 0.1;
+											partnerCost.totalCost * 0.09;
 
 										// Buscar o parceiro pelo ID
 										const partner =

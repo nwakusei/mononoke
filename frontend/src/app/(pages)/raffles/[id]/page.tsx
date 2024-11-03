@@ -18,6 +18,7 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 import { LuCalendarRange } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
 import { BsPersonFill, BsPeopleFill } from "react-icons/bs";
+import { Peoples } from "@icon-park/react";
 import { Coupon } from "@icon-park/react";
 import Link from "next/link";
 
@@ -178,7 +179,7 @@ function RafflePage() {
 								</span>
 							</div>
 							<div className="flex flex-row items-center gap-2">
-								<BsPersonFill size={17} />
+								<Peoples size={17} />
 								<span>
 									{`Mínimo de Participantes: ${raffle?.minNumberParticipants}`}
 								</span>
