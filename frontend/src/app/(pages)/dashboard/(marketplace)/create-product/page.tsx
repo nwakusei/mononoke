@@ -32,300 +32,353 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const createProductFormSchema = z.object({
-	imagesProduct: z
-		.instanceof(FileList)
-		.transform((list) => {
-			const files = [];
-			for (let i = 0; i < list.length; i++) {
-				files.push(list.item(i));
-			}
-			return files;
-		})
-		// .refine(
-		// 	(files) => {
-		// 		return files !== null && files.length > 0;
-		// 	},
-		// 	{
-		// 		message: "※ Insira pelo menos 1 imagem!",
-		// 	}
-		// )
-		.refine(
-			(files) => {
-				return files.every(
-					(file) => file === null || file.size <= 2 * 1024 * 1024
-				);
-			},
-			{
-				message: "※ Cada arquivo precisa ter no máximo 2Mb!",
-			}
-		)
-		.refine(
-			(files) => {
-				return files.every(
-					(file) =>
-						file === null || /\.(jpg|jpeg|png)$/i.test(file.name)
-				);
-			},
-			{
-				message:
-					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
-			}
-		),
-	productTitle: z
-		.string()
-		.min(1, "※ O título do Produto é obrigatório!")
-		.max(
-			120,
-			"※ O título do Produto precisa conter no máximo 120 caracteres!"
-		)
-		.trim()
-		.refine(
-			(pName) => {
-				const sanitized = DOMPurify.sanitize(pName);
-
-				const isValid = /^[A-Za-zÀ-ÿ\s\.,—~\-0-9\[\]\(\)]+$/.test(
-					sanitized
-				);
-
-				return isValid;
-			},
-			{
-				message: "※ O título possui caracteres inválidos!",
-			}
-		),
-	description: z
-		.string()
-		.min(1, "※ A descrição é obrigatoria!")
-		.trim()
-		.refine(
-			(desc) => {
-				// Lista de tags HTML permitidas para formatação básica
-				const allowedTags = [
-					"b",
-					"i",
-					"u",
-					"strong",
-					"em",
-					"p",
-					"ul",
-					"ol",
-					"li",
-					"br",
-					"a",
-					"span",
-				];
-
-				// Sanitizar a descrição, permitindo apenas as tags especificadas
-				const sanitized = DOMPurify.sanitize(desc, {
-					ALLOWED_TAGS: allowedTags,
-				});
-
-				// Checar se a descrição contém algum conteúdo não permitido (tags ilegais já são removidas pelo DOMPurify)
-				const isValid = sanitized.length > 0;
-
-				return isValid;
-			},
-			{
-				message: "※ A descrição possui caracteres inválidos!",
-			}
-		)
-		.refine(
-			(value) => {
-				if (value === undefined || value === "") {
-					return true;
+const createProductFormSchema = z
+	.object({
+		imagesProduct: z
+			.instanceof(FileList)
+			.transform((list) => {
+				const files = [];
+				for (let i = 0; i < list.length; i++) {
+					files.push(list.item(i));
 				}
-				return value.length >= 100;
-			},
-			{
-				message: "※ A descrição precisa ter no mínimo 100 caracteres!",
-			}
-		),
-	productVariations: z
-		.array(
-			z.object({
-				title: z
-					.string()
-					.min(1, "※ O nome da variação é obrigatório!")
-					.max(
-						30,
-						"※ O nome da variação precisa conter no máximo 30 caracteres!"
-					)
-					.trim(),
-				options: z.array(
-					z.object({
-						name: z
-							.string()
-							.min(1, "※ O nome da opção é obrigatório!")
-							.max(
-								30,
-								"※ O nome da opção precisa conter no máximo 30 caracteres!"
-							)
-							.trim(),
-						imageUrl: z
-							.instanceof(FileList)
-							.transform((list) => list.item(0))
-							.refine(
-								(file) =>
-									file !== null &&
-									file.size <= 2 * 1024 * 1024,
-								{
-									message:
-										"O arquivo deve ter no máximo 2MB.",
-								}
-							),
-						// .transform((list) => {
-						// 	const files = [];
-						// 	for (let i = 0; i < list.length; i++) {
-						// 		files.push(list.item(i));
-						// 	}
-						// 	return files;
-						// })
-						// .refine((files) => files !== null && files.length > 0, {
-						// 	message: "※ Insira pelo menos 1 imagem!",
-						// })
-						// .refine(
-						// 	(files) =>
-						// 		files.every(
-						// 			(file) =>
-						// 				file === null ||
-						// 				file.size <= 2 * 1024 * 1024
-						// 		),
-						// 	{
-						// 		message:
-						// 			"※ Cada arquivo precisa ter no máximo 2Mb!",
-						// 	}
-						// )
-						// .refine(
-						// 	(files) =>
-						// 		files.every(
-						// 			(file) =>
-						// 				file === null ||
-						// 				/\.(jpg|jpeg|png)$/i.test(file.name)
-						// 		),
-						// 	{
-						// 		message:
-						// 			"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
-						// 	}
-						// ),
-					})
-				),
+				return files;
 			})
-		)
-		.optional(),
-	category: z.string().min(1, "※ A categoria do produto é obrigatória!"),
-	originalPrice: z
-		.string()
-		.min(1, "※ O valor do produto é obrigatório!")
-		.trim()
-		.refine((value) => /^\d+,\d{2}$/.test(value), {
-			message: "※ Insira um valor válido no formato 0,00!",
-		})
-		.transform((value) => parseFloat(value.replace(",", "."))),
-	promocionalPrice: z
-		.string()
-		.trim()
-		.optional()
-		.refine((value) => /^\d+,\d{2}$/.test(value), {
-			message: "※ Insira um valor válido no formato 0,00!",
-		})
-		.transform((value) => parseFloat(value.replace(",", "."))),
-	stock: z
-		.string()
-		.min(1, "※ A quantidade em estoque é obrigatória!")
-		.trim()
-		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ Insira um número válido!",
-		})
-		.refine(
-			(value) => {
-				// Verifica se o valor é um número, não é undefined e é um inteiro
-				const numberValue = Number(value);
-				return !isNaN(numberValue) && Number.isInteger(numberValue);
-			},
-			{
-				message: "※ Insira somente números inteiros!",
-			}
-		),
-	condition: z.string().min(1, "※ item obrigatório!"),
-	preOrder: z.string().min(1, "※ item obrigatório!"),
-	daysShipping: z
-		.string()
-		.min(1, "※ item obrigatório!")
-		.trim()
-		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ Insira um número válido!",
-		})
-		.refine(
-			(value) => {
-				const numberValue = Number(value);
-				return !isNaN(numberValue); // Verifica se é um número
-			},
-			{
+			// .refine(
+			// 	(files) => {
+			// 		return files !== null && files.length > 0;
+			// 	},
+			// 	{
+			// 		message: "※ Insira pelo menos 1 imagem!",
+			// 	}
+			// )
+			.refine(
+				(files) => {
+					return files.every(
+						(file) => file === null || file.size <= 2 * 1024 * 1024
+					);
+				},
+				{
+					message: "※ Cada arquivo precisa ter no máximo 2Mb!",
+				}
+			)
+			.refine(
+				(files) => {
+					return files.every(
+						(file) =>
+							file === null ||
+							/\.(jpg|jpeg|png)$/i.test(file.name)
+					);
+				},
+				{
+					message:
+						"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+				}
+			),
+		productTitle: z
+			.string()
+			.min(1, "※ O título do Produto é obrigatório!")
+			.max(
+				120,
+				"※ O título do Produto precisa conter no máximo 120 caracteres!"
+			)
+			.trim()
+			.refine(
+				(pName) => {
+					const sanitized = DOMPurify.sanitize(pName);
+
+					const isValid = /^[A-Za-zÀ-ÿ\s\.,—~\-0-9\[\]\(\)]+$/.test(
+						sanitized
+					);
+
+					return isValid;
+				},
+				{
+					message: "※ O título possui caracteres inválidos!",
+				}
+			),
+		description: z
+			.string()
+			.min(1, "※ A descrição é obrigatoria!")
+			.trim()
+			.refine(
+				(desc) => {
+					// Lista de tags HTML permitidas para formatação básica
+					const allowedTags = [
+						"b",
+						"i",
+						"u",
+						"strong",
+						"em",
+						"p",
+						"ul",
+						"ol",
+						"li",
+						"br",
+						"a",
+						"span",
+					];
+
+					// Sanitizar a descrição, permitindo apenas as tags especificadas
+					const sanitized = DOMPurify.sanitize(desc, {
+						ALLOWED_TAGS: allowedTags,
+					});
+
+					// Checar se a descrição contém algum conteúdo não permitido (tags ilegais já são removidas pelo DOMPurify)
+					const isValid = sanitized.length > 0;
+
+					return isValid;
+				},
+				{
+					message: "※ A descrição possui caracteres inválidos!",
+				}
+			)
+			.refine(
+				(value) => {
+					if (value === undefined || value === "") {
+						return true;
+					}
+					return value.length >= 100;
+				},
+				{
+					message:
+						"※ A descrição precisa ter no mínimo 100 caracteres!",
+				}
+			),
+		category: z.string().min(1, "※ A categoria do produto é obrigatória!"),
+		productVariations: z
+			.array(
+				z.object({
+					title: z.string().trim(),
+					options: z.array(
+						z.object({
+							name: z.string().trim(),
+							imageUrl: z
+								.instanceof(FileList)
+								.transform((list) => list.item(0)),
+							// .refine(
+							// 	(file) =>
+							// 		file !== null &&
+							// 		file.size <= 2 * 1024 * 1024,
+							// 	{
+							// 		message:
+							// 			"O arquivo deve ter no máximo 2MB.",
+							// 	}
+							// ),
+							// .transform((list) => {
+							// 	const files = [];
+							// 	for (let i = 0; i < list.length; i++) {
+							// 		files.push(list.item(i));
+							// 	}
+							// 	return files;
+							// })
+							// .refine((files) => files !== null && files.length > 0, {
+							// 	message: "※ Insira pelo menos 1 imagem!",
+							// })
+							// .refine(
+							// 	(files) =>
+							// 		files.every(
+							// 			(file) =>
+							// 				file === null ||
+							// 				file.size <= 2 * 1024 * 1024
+							// 		),
+							// 	{
+							// 		message:
+							// 			"※ Cada arquivo precisa ter no máximo 2Mb!",
+							// 	}
+							// )
+							// .refine(
+							// 	(files) =>
+							// 		files.every(
+							// 			(file) =>
+							// 				file === null ||
+							// 				/\.(jpg|jpeg|png)$/i.test(file.name)
+							// 		),
+							// 	{
+							// 		message:
+							// 			"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+							// 	}
+							// ),
+						})
+					),
+				})
+			)
+			.optional(),
+		originalPrice: z
+			.string()
+			.trim()
+			.optional()
+			.refine(
+				(value) => {
+					if (!value) return true; // Permitir valor vazio (opcional)
+					return /^\d+,\d{2}$/.test(value); // Validar formato somente se houver um valor
+				},
+				{
+					message: "※ Insira um valor válido no formato 0,00!",
+				}
+			)
+			.transform((value) =>
+				value ? parseFloat(value.replace(",", ".")) : undefined
+			),
+		promocionalPrice: z
+			.string()
+			.trim()
+			.optional()
+			.refine((value) => !value || /^\d+,\d{2}$/.test(value), {
+				message: "※ Insira um valor válido no formato 0,00!",
+			})
+			.transform((value) =>
+				value ? parseFloat(value.replace(",", ".")) : undefined
+			),
+		stock: z
+			.string()
+			.min(1, "※ A quantidade em estoque é obrigatória!")
+			.trim()
+			.refine((value) => /^\d+(\.\d+)?$/.test(value), {
 				message: "※ Insira um número válido!",
-			}
-		)
-		.refine(
-			(value) => {
-				const numberValue = Number(value);
-				return Number.isInteger(numberValue); // Verifica se é um inteiro e maior que 0
-			},
-			{
-				message: "※ Insira somente números inteiros!",
-			}
-		)
-		.refine(
-			(value) => {
-				const numberValue = Number(value);
-				return Number.isInteger(numberValue) && numberValue > 0; // Verifica se é um inteiro e maior que 0
-			},
-			{
-				message: "※ Insira um número maior do que 0!",
-			}
-		),
-	weight: z
-		.string()
-		.min(1, "※ O peso do produto é obrigatório!")
-		.trim()
-		.transform((value) => value.replace(",", "."))
-		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ Insira um valor válido!",
-		})
-		.transform((value) => parseFloat(value)),
-	length: z
-		.string()
-		.min(1, "※ O comprimento é obrigatório!")
-		.trim()
-		.transform((value) => value.replace(",", "."))
-		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ Insira um valor válido!",
-		})
-		.transform((value) => parseFloat(value)),
-	width: z
-		.string()
-		.min(1, "※ A largura é obrigatória!")
-		.trim()
-		.transform((value) => value.replace(",", "."))
-		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "※ Insira um valor válido!",
-		})
-		.transform((value) => parseFloat(value)),
-	height: z
-		.string()
-		.min(1, "※ A altura é obrigatória!")
-		.trim()
-		.transform((value) => value.replace(",", "."))
-		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-			message: "Insira um valor válido!",
-		})
-		.transform((value) => parseFloat(value)),
-	freeShipping: z.string().refine((value) => value !== "", {
-		message: "※ Item obrigatório!",
-	}),
-	freeShippingRegion: z.string().refine((value) => value !== "", {
-		message: "※ Item obrigatório!",
-	}),
-});
+			})
+			.refine(
+				(value) => {
+					// Verifica se o valor é um número, não é undefined e é um inteiro
+					const numberValue = Number(value);
+					return !isNaN(numberValue) && Number.isInteger(numberValue);
+				},
+				{
+					message: "※ Insira somente números inteiros!",
+				}
+			),
+		condition: z.string().min(1, "※ item obrigatório!"),
+		preOrder: z.string().min(1, "※ item obrigatório!"),
+		daysShipping: z
+			.string()
+			.min(1, "※ item obrigatório!")
+			.trim()
+			.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+				message: "※ Insira um número válido!",
+			})
+			.refine(
+				(value) => {
+					const numberValue = Number(value);
+					return !isNaN(numberValue); // Verifica se é um número
+				},
+				{
+					message: "※ Insira um número válido!",
+				}
+			)
+			.refine(
+				(value) => {
+					const numberValue = Number(value);
+					return Number.isInteger(numberValue); // Verifica se é um inteiro e maior que 0
+				},
+				{
+					message: "※ Insira somente números inteiros!",
+				}
+			)
+			.refine(
+				(value) => {
+					const numberValue = Number(value);
+					return Number.isInteger(numberValue) && numberValue > 0; // Verifica se é um inteiro e maior que 0
+				},
+				{
+					message: "※ Insira um número maior do que 0!",
+				}
+			),
+		weight: z
+			.string()
+			.min(1, "※ O peso do produto é obrigatório!")
+			.trim()
+			.transform((value) => value.replace(",", "."))
+			.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+				message: "※ Insira um valor válido!",
+			})
+			.transform((value) => parseFloat(value)),
+		length: z
+			.string()
+			.min(1, "※ O comprimento é obrigatório!")
+			.trim()
+			.transform((value) => value.replace(",", "."))
+			.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+				message: "※ Insira um valor válido!",
+			})
+			.transform((value) => parseFloat(value)),
+		width: z
+			.string()
+			.min(1, "※ A largura é obrigatória!")
+			.trim()
+			.transform((value) => value.replace(",", "."))
+			.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+				message: "※ Insira um valor válido!",
+			})
+			.transform((value) => parseFloat(value)),
+		height: z
+			.string()
+			.min(1, "※ A altura é obrigatória!")
+			.trim()
+			.transform((value) => value.replace(",", "."))
+			.refine((value) => /^\d+(\.\d+)?$/.test(value), {
+				message: "Insira um valor válido!",
+			})
+			.transform((value) => parseFloat(value)),
+		freeShipping: z.string().refine((value) => value !== "", {
+			message: "※ Item obrigatório!",
+		}),
+		freeShippingRegion: z.string().refine((value) => value !== "", {
+			message: "※ Item obrigatório!",
+		}),
+	})
+	.refine(
+		(data) => {
+			const hasOriginalPrice = !!data.originalPrice;
+			const hasVariations =
+				Array.isArray(data.productVariations) &&
+				data.productVariations.some(
+					(variation) =>
+						variation.title.trim() !== "" ||
+						variation.options?.some((opt) => opt.name.trim() !== "")
+				);
+
+			// Garantir que pelo menos um campo esteja preenchido, e não ambos
+			return (
+				(hasOriginalPrice || hasVariations) &&
+				!(hasOriginalPrice && hasVariations)
+			);
+		},
+		{
+			message:
+				"※ Você deve preencher ao menos o preço original ou as variações do produto, mas não ambos ao mesmo tempo!",
+		}
+	)
+	.refine(
+		(data) => {
+			// Garantir que pelo menos um campo esteja preenchido
+			const hasOriginalPrice = !!data.originalPrice;
+			const hasVariations =
+				Array.isArray(data.productVariations) &&
+				data.productVariations.some(
+					(variation) =>
+						variation.title.trim() !== "" ||
+						variation.options?.some((opt) => opt.name.trim() !== "")
+				);
+
+			return hasOriginalPrice || hasVariations;
+		},
+		{
+			message:
+				"※ Você deve preencher ao menos o preço original ou as variações do produto!",
+		}
+	);
+// .refine(
+// 	(data) => {
+// 		const hasOriginalPrice = !!data.originalPrice;
+// 		const hasVariations =
+// 			!!data.productVariations && data.productVariations.length > 0;
+// 		// Se um dos campos for preenchido, o outro não pode ser
+// 		return !(hasOriginalPrice && hasVariations);
+// 	},
+// 	{
+// 		message:
+// 			"※ Não é permitido preencher tanto o preço original quanto as variações do produto!",
+// 	}
+// );
 
 type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
 
@@ -381,11 +434,6 @@ function CreateProductPage() {
 	} = useForm<TCreateProductFormData>({
 		resolver: zodResolver(createProductFormSchema),
 		mode: "onBlur",
-	});
-
-	const { fields, append, remove } = useFieldArray({
-		control,
-		name: "techs",
 	});
 
 	const handleFreeShippingChange = (event) => {
@@ -684,7 +732,14 @@ function CreateProductPage() {
 
 		// Itera sobre os campos de texto e adiciona ao FormData
 		Object.entries(sanitizedData).forEach(([key, value]) => {
-			if (key === "productVariations") {
+			if (key === "promocionalPrice" || key === "originalPrice") {
+				// Atribui 0 se o valor estiver vazio ou undefined
+				const numericValue = value ? parseFloat(value) : 0;
+				formData.append(
+					key,
+					isNaN(numericValue) ? "0" : numericValue.toString()
+				);
+			} else if (key === "productVariations") {
 				const variations = value as Array<any>;
 				variations.forEach((variation, index) => {
 					// Adiciona os dados da variação

@@ -95,7 +95,6 @@ const updateUserFormSchema = z
 			.refine((val) => val === undefined || val.length === 11, {
 				message: "※ O CPF deve ter 11 dígitos.",
 			}),
-
 		cpfCnpj: z
 			.string()
 			.trim()
