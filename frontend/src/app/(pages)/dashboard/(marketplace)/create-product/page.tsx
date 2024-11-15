@@ -336,20 +336,25 @@ const createProductFormSchema = z
 						variation.options?.some((opt) => opt.name.trim() !== "")
 				);
 
-			// Garantir que pelo menos um campo esteja preenchido, e não ambos
-			return (
-				(hasOriginalPrice || hasVariations) &&
-				!(hasOriginalPrice && hasVariations)
-			);
+			// Caso nenhum esteja preenchido
+			if (!hasOriginalPrice && !hasVariations) {
+				return false; // Nenhum preenchido, invalida
+			}
+
+			// Caso ambos estejam preenchidos, também invalida
+			if (hasOriginalPrice && hasVariations) {
+				return false; // Ambos preenchidos, invalida
+			}
+
+			return true; // Validação passou
 		},
 		{
-			message:
-				"※ Você deve preencher ao menos o preço original ou as variações do produto, mas não ambos ao mesmo tempo!",
+			message: "※ Insira o preço do produto!",
+			path: ["originalPrice"], // Associando o erro aos dois campos
 		}
 	)
 	.refine(
 		(data) => {
-			// Garantir que pelo menos um campo esteja preenchido
 			const hasOriginalPrice = !!data.originalPrice;
 			const hasVariations =
 				Array.isArray(data.productVariations) &&
@@ -359,24 +364,165 @@ const createProductFormSchema = z
 						variation.options?.some((opt) => opt.name.trim() !== "")
 				);
 
-			return hasOriginalPrice || hasVariations;
+			// Caso nenhum esteja preenchido
+			if (!hasOriginalPrice && !hasVariations) {
+				return false; // Nenhum preenchido, invalida
+			}
+
+			// Caso ambos estejam preenchidos, também invalida
+			if (hasOriginalPrice && hasVariations) {
+				return false; // Ambos preenchidos, invalida
+			}
+
+			return true; // Validação passou
 		},
 		{
-			message:
-				"※ Você deve preencher ao menos o preço original ou as variações do produto!",
+			message: "※ O título da Variação é obrigatório!",
+			// Validação para cada variação individualmente
+			path: ["productVariations", 0, "title"], // Associando o erro ao título da primeira variação
+		}
+	)
+	.refine(
+		(data) => {
+			const hasOriginalPrice = !!data.originalPrice;
+			const hasVariations =
+				Array.isArray(data.productVariations) &&
+				data.productVariations.some(
+					(variation) =>
+						variation.title.trim() !== "" ||
+						variation.options?.some((opt) => opt.name.trim() !== "")
+				);
+
+			// Caso nenhum esteja preenchido
+			if (!hasOriginalPrice && !hasVariations) {
+				return false; // Nenhum preenchido, invalida
+			}
+
+			// Caso ambos estejam preenchidos, também invalida
+			if (hasOriginalPrice && hasVariations) {
+				return false; // Ambos preenchidos, invalida
+			}
+
+			// Validação para garantir que todas as opções têm o nome preenchido
+			const allValidOptions = data.productVariations.every((variation) =>
+				variation.options?.every(
+					(opt) => opt.name.trim() !== "" // Verifica se o nome da opção não está vazio
+				)
+			);
+
+			if (!allValidOptions) {
+				return false; // Se alguma opção tiver nome vazio, invalida
+			}
+
+			return true; // Validação passou
+		},
+		{
+			message: "※ O nome da opção é obrigatório!",
+			// Validação para o nome de todas as opções de todas as variações
+			path: ["productVariations", 0, "options", 0, "name"], // Vai gerar um erro para qualquer opção vazia
 		}
 	);
+
+/////////////////////////////////////////////// Opção que funciona exibindo os erros, mas problemas em focar em cada opção ///////////////////////////////////////////////////////////
 // .refine(
 // 	(data) => {
 // 		const hasOriginalPrice = !!data.originalPrice;
 // 		const hasVariations =
-// 			!!data.productVariations && data.productVariations.length > 0;
-// 		// Se um dos campos for preenchido, o outro não pode ser
-// 		return !(hasOriginalPrice && hasVariations);
+// 			Array.isArray(data.productVariations) &&
+// 			data.productVariations.some(
+// 				(variation) =>
+// 					variation.title.trim() !== "" ||
+// 					variation.options?.some((opt) => opt.name.trim() !== "")
+// 			);
+
+// 		// Caso nenhum esteja preenchido
+// 		if (!hasOriginalPrice && !hasVariations) {
+// 			return false; // Nenhum preenchido, invalida
+// 		}
+
+// 		// Caso ambos estejam preenchidos, também invalida
+// 		if (hasOriginalPrice && hasVariations) {
+// 			return false; // Ambos preenchidos, invalida
+// 		}
+
+// 		return true; // Validação passou
+// 	},
+// 	{
+// 		message: "※ O título da Variação é orbigatório!",
+// 		// Validação para cada variação individualmente
+// 		path: ["productVariations", 0, "title"], // Associando o erro ao título da primeira variação
+// 	}
+// )
+// 	.refine(
+// 		(data) => {
+// 			const hasOriginalPrice = !!data.originalPrice;
+// 			const hasVariations =
+// 				Array.isArray(data.productVariations) &&
+// 				data.productVariations.some(
+// 					(variation) =>
+// 						variation.title.trim() !== "" ||
+// 						variation.options?.some((opt) => opt.name.trim() !== "")
+// 				);
+
+// 			// Caso nenhum esteja preenchido
+// 			if (!hasOriginalPrice && !hasVariations) {
+// 				return false; // Nenhum preenchido, invalida
+// 			}
+
+// 			// Caso ambos estejam preenchidos, também invalida
+// 			if (hasOriginalPrice && hasVariations) {
+// 				return false; // Ambos preenchidos, invalida
+// 			}
+
+// 			return true; // Validação passou
+// 		},
+// 		{
+// 			message: "※ O nome da opção é obrogatório!",
+// 			// Validação para o nome da primeira opção da primeira variação
+// 			path: ["productVariations", 0, "options", 0, "name"],
+// 		}
+// );
+
+/////////////////////////////////////////////// Opção que funciona, mas sem exbir erros ///////////////////////////////////////////////////////////
+// .refine(
+// 	(data) => {
+// 		const hasOriginalPrice = !!data.originalPrice;
+// 		const hasVariations =
+// 			Array.isArray(data.productVariations) &&
+// 			data.productVariations.some(
+// 				(variation) =>
+// 					variation.title.trim() !== "" ||
+// 					variation.options?.some((opt) => opt.name.trim() !== "")
+// 			);
+
+// 		// Garantir que pelo menos um campo esteja preenchido, e não ambos
+// 		return (
+// 			(hasOriginalPrice || hasVariations) &&
+// 			!(hasOriginalPrice && hasVariations)
+// 		);
 // 	},
 // 	{
 // 		message:
-// 			"※ Não é permitido preencher tanto o preço original quanto as variações do produto!",
+// 			"※ Você deve preencher ao menos o preço original ou as variações do produto, mas não ambos ao mesmo tempo!",
+// 	}
+// )
+// .refine(
+// 	(data) => {
+// 		// Garantir que pelo menos um campo esteja preenchido
+// 		const hasOriginalPrice = !!data.originalPrice;
+// 		const hasVariations =
+// 			Array.isArray(data.productVariations) &&
+// 			data.productVariations.some(
+// 				(variation) =>
+// 					variation.title.trim() !== "" ||
+// 					variation.options?.some((opt) => opt.name.trim() !== "")
+// 			);
+
+// 		return hasOriginalPrice || hasVariations;
+// 	},
+// 	{
+// 		message:
+// 			"※ Você deve preencher ao menos o preço original ou as variações do produto!",
 // 	}
 // );
 
@@ -1186,6 +1332,7 @@ function CreateProductPage() {
 																	)}
 																</div>
 															</div>
+
 															{variation.options.map(
 																(
 																	option,
@@ -1210,10 +1357,6 @@ function CreateProductPage() {
 																						? `border-error`
 																						: `border-success`
 																				} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-																				{/* <span className="text-xs">
-																				Add
-																				Imagem
-																			</span> */}
 																				<AddPicture
 																					size={
 																						20
@@ -1226,10 +1369,7 @@ function CreateProductPage() {
 																					className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
 																					{...register(
 																						`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
-																					)} // Conecta o input ao react-hook-form
-																					// onChange={
-																					// 	handleImagemSelecionada
-																					// }
+																					)}
 																				/>
 																			</div>
 
