@@ -125,12 +125,13 @@ class ProductController {
 		// 	return;
 		// }
 
-		if (!stock) {
-			res.status(422).json({
-				message: "A quantidade de produtos em estoque é obrigatória!",
-			});
-			return;
-		}
+		// // Revisar lógica, precisa ter ou o estoque principal ou o estoque da variação
+		// if (!stock) {
+		// 	res.status(422).json({
+		// 		message: "A quantidade de produtos em estoque é obrigatória!",
+		// 	});
+		// 	return;
+		// }
 
 		if (!category) {
 			res.status(422).json({

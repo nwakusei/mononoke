@@ -231,11 +231,11 @@ const createProductFormSchema = z
 			),
 		stock: z
 			.string()
-			.min(1, "※ A quantidade em estoque é obrigatória!")
 			.trim()
-			.refine((value) => /^\d+(\.\d+)?$/.test(value), {
-				message: "※ Insira um número válido!",
-			})
+			.optional()
+			// .refine((value) => /^\d+(\.\d+)?$/.test(value), {
+			// 	message: "※ Insira um número válido!",
+			// })
 			.refine(
 				(value) => {
 					// Verifica se o valor é um número, não é undefined e é um inteiro
@@ -341,9 +341,14 @@ const createProductFormSchema = z
 				return false; // Nenhum preenchido, invalida
 			}
 
-			// Caso ambos estejam preenchidos, também invalida
+			// Caso originalPrice e stock estejam preenchidos, productVariations deve estar vazio
 			if (hasOriginalPrice && hasVariations) {
-				return false; // Ambos preenchidos, invalida
+				return false; // Ambos originalPrice e stock preenchidos e productVariations preenchido, invalida
+			}
+
+			// Caso originalPrice ou stock estejam preenchidos, productVariations deve estar vazio
+			if (hasOriginalPrice && hasVariations) {
+				return false; // Caso originalPrice ou stock preenchidos, mas productVariations preenchido, invalida
 			}
 
 			return true; // Validação passou
@@ -355,7 +360,7 @@ const createProductFormSchema = z
 	)
 	.refine(
 		(data) => {
-			const hasOriginalPrice = !!data.originalPrice;
+			const hasStock = !!data.stock; // Verifica se o stock está preenchido
 			const hasVariations =
 				Array.isArray(data.productVariations) &&
 				data.productVariations.some(
@@ -365,21 +370,25 @@ const createProductFormSchema = z
 				);
 
 			// Caso nenhum esteja preenchido
-			if (!hasOriginalPrice && !hasVariations) {
+			if (!hasStock && !hasVariations) {
 				return false; // Nenhum preenchido, invalida
 			}
 
-			// Caso ambos estejam preenchidos, também invalida
-			if (hasOriginalPrice && hasVariations) {
-				return false; // Ambos preenchidos, invalida
+			// Caso originalPrice e stock estejam preenchidos, productVariations deve estar vazio
+			if (hasStock && hasVariations) {
+				return false; // Ambos originalPrice e stock preenchidos e productVariations preenchido, invalida
+			}
+
+			// Caso originalPrice ou stock estejam preenchidos, productVariations deve estar vazio
+			if (hasStock && hasVariations) {
+				return false; // Caso originalPrice ou stock preenchidos, mas productVariations preenchido, invalida
 			}
 
 			return true; // Validação passou
 		},
 		{
-			message: "※ O título da Variação é obrigatório!",
-			// Validação para cada variação individualmente
-			path: ["productVariations", 0, "title"], // Associando o erro ao título da primeira variação
+			message: "※ A quantidade em estoque é obrigatória!",
+			path: ["stock"], // Associando o erro aos dois campos
 		}
 	)
 	.refine(
@@ -392,36 +401,128 @@ const createProductFormSchema = z
 						variation.title.trim() !== "" ||
 						variation.options?.some((opt) => opt.name.trim() !== "")
 				);
+			const hasStock = !!data.stock; // Verifica se o stock está preenchido
 
 			// Caso nenhum esteja preenchido
-			if (!hasOriginalPrice && !hasVariations) {
+			if (!hasOriginalPrice && !hasVariations && !hasStock) {
 				return false; // Nenhum preenchido, invalida
 			}
 
-			// Caso ambos estejam preenchidos, também invalida
-			if (hasOriginalPrice && hasVariations) {
-				return false; // Ambos preenchidos, invalida
+			// Caso originalPrice e stock estejam preenchidos, productVariations deve estar vazio
+			if (hasOriginalPrice && hasStock && hasVariations) {
+				return false; // Ambos originalPrice e stock preenchidos e productVariations preenchido, invalida
 			}
 
-			// Validação para garantir que todas as opções têm o nome preenchido
-			const allValidOptions = data.productVariations.every((variation) =>
-				variation.options?.every(
-					(opt) => opt.name.trim() !== "" // Verifica se o nome da opção não está vazio
-				)
-			);
-
-			if (!allValidOptions) {
-				return false; // Se alguma opção tiver nome vazio, invalida
+			// Caso originalPrice ou stock estejam preenchidos, productVariations deve estar vazio
+			if ((hasOriginalPrice || hasStock) && hasVariations) {
+				return false; // Caso originalPrice ou stock preenchidos, mas productVariations preenchido, invalida
 			}
 
 			return true; // Validação passou
 		},
 		{
-			message: "※ O nome da opção é obrigatório!",
-			// Validação para o nome de todas as opções de todas as variações
-			path: ["productVariations", 0, "options", 0, "name"], // Vai gerar um erro para qualquer opção vazia
+			message: "※ O título da Variação é obrigatório!",
 		}
-	);
+	)
+	.superRefine((data, ctx) => {
+		// Se o originalPrice estiver preenchido, a validação das variações não é necessária
+		if (data.originalPrice && data.stock) {
+			return; // Não realiza a validação das variações se o originalPrice e stock estiverem preenchidos
+		}
+
+		// Validação para garantir que o título de cada variação não está vazio
+		data.productVariations.forEach((variation, variationIndex) => {
+			if (variation.title.trim() === "") {
+				// Adiciona o erro com o path dinâmico para o título da variação
+				ctx.addIssue({
+					code: "custom",
+					message: "※ O título da Variação é obrigatório!",
+					path: ["productVariations", variationIndex, "title"], // Path dinâmico
+				});
+			}
+		});
+	})
+	.refine(
+		(data) => {
+			const hasOriginalPrice = !!data.originalPrice;
+			const hasVariations =
+				Array.isArray(data.productVariations) &&
+				data.productVariations.some(
+					(variation) =>
+						variation.title.trim() !== "" ||
+						variation.options?.some((opt) => opt.name.trim() !== "")
+				);
+			const hasStock = !!data.stock; // Verifica se o stock está preenchido
+
+			// Caso nenhum esteja preenchido
+			if (!hasOriginalPrice && !hasVariations && !hasStock) {
+				return false; // Nenhum preenchido, invalida
+			}
+
+			// Caso originalPrice e stock estejam preenchidos, productVariations deve estar vazio
+			if (hasOriginalPrice && hasStock && hasVariations) {
+				return false; // Ambos originalPrice e stock preenchidos e productVariations preenchido, invalida
+			}
+
+			// Caso originalPrice ou stock estejam preenchidos, productVariations deve estar vazio
+			if ((hasOriginalPrice || hasStock) && hasVariations) {
+				return false; // Caso originalPrice ou stock preenchidos, mas productVariations preenchido, invalida
+			}
+
+			return true;
+		},
+		{
+			message: "※ O nome da opção é obrigatório!",
+		}
+	)
+	.superRefine((data, ctx) => {
+		// Se o originalPrice estiver preenchido, a validação das variações não é necessária
+		if (data.originalPrice && data.stock) {
+			return; // Não realiza a validação das variações se o originalPrice estiver preenchido
+		}
+
+		// Validação para garantir que as opções não tenham nome vazio
+		data.productVariations.forEach((variation, variationIndex) => {
+			variation.options?.forEach((option, optionIndex) => {
+				if (option.name.trim() === "") {
+					// Adiciona o erro com o path dinâmico
+					ctx.addIssue({
+						code: "custom",
+						message: "※ O nome da opção é obrigatório!",
+						path: [
+							"productVariations",
+							variationIndex,
+							"options",
+							optionIndex,
+							"name",
+						], // Path dinâmico
+					});
+				}
+			});
+		});
+	});
+
+// .superRefine((data, ctx) => {
+// 	// Validação para garantir que todas as opções têm o nome preenchido
+// 	data.productVariations?.forEach((variation, variationIndex) => {
+// 		variation.options?.forEach((option, optionIndex) => {
+// 			if (option.name?.trim() === "") {
+// 				ctx.addIssue({
+// 					code: z.ZodIssueCode.custom,
+// 					message: "※ O nome da opção é obrigatório!",
+// 					// Caminho dinâmico para cada variação e opção
+// 					path: [
+// 						"productVariations",
+// 						variationIndex,
+// 						"options",
+// 						optionIndex,
+// 						"name",
+// 					],
+// 				});
+// 			}
+// 		});
+// 	});
+// });
 
 /////////////////////////////////////////////// Opção que funciona exibindo os erros, mas problemas em focar em cada opção ///////////////////////////////////////////////////////////
 // .refine(
