@@ -43,14 +43,14 @@ const createProductFormSchema = z
 				}
 				return files;
 			})
-			// .refine(
-			// 	(files) => {
-			// 		return files !== null && files.length > 0;
-			// 	},
-			// 	{
-			// 		message: "※ Insira pelo menos 1 imagem!",
-			// 	}
-			// )
+			.refine(
+				(files) => {
+					return files !== null && files.length > 0;
+				},
+				{
+					message: "※ Insira pelo menos 1 imagem!",
+				}
+			)
 			.refine(
 				(files) => {
 					return files.every(
@@ -152,52 +152,54 @@ const createProductFormSchema = z
 					options: z.array(
 						z.object({
 							name: z.string().trim(),
+							//// Essa é a solução que funcionava, mas dava o erro de Image not instance of Filelist
+							// imageUrl: z
+							// 	.instanceof(FileList)
+							// 	.transform((list) => list.item(0))
+							// 	.refine(
+							// 		(file) =>
+							// 			file === null ||
+							// 			file!.size <= 2 * 1024 * 1024, // Verifica se é null ou se o tamanho está dentro do limite
+							// 		"※ O arquivo precisa ter no máximo 2Mb!"
+							// 	)
+							// 	.refine(
+							// 		(file) =>
+							// 			file === null ||
+							// 			/\.(jpg|jpeg|png)$/i.test(file!.name), // Verifica se a extensão é JPG, JPEG ou PNG
+							// 		"※ O arquivo precisa ser do tipo JPG, JPEG ou PNG!"
+							// 	),imageUrl: z
 							imageUrl: z
-								.instanceof(FileList)
-								.transform((list) => list.item(0)),
-							// .refine(
-							// 	(file) =>
-							// 		file !== null &&
-							// 		file.size <= 2 * 1024 * 1024,
-							// 	{
-							// 		message:
-							// 			"O arquivo deve ter no máximo 2MB.",
-							// 	}
-							// ),
-							// .transform((list) => {
-							// 	const files = [];
-							// 	for (let i = 0; i < list.length; i++) {
-							// 		files.push(list.item(i));
-							// 	}
-							// 	return files;
-							// })
-							// .refine((files) => files !== null && files.length > 0, {
-							// 	message: "※ Insira pelo menos 1 imagem!",
-							// })
-							// .refine(
-							// 	(files) =>
-							// 		files.every(
-							// 			(file) =>
-							// 				file === null ||
-							// 				file.size <= 2 * 1024 * 1024
-							// 		),
-							// 	{
-							// 		message:
-							// 			"※ Cada arquivo precisa ter no máximo 2Mb!",
-							// 	}
-							// )
-							// .refine(
-							// 	(files) =>
-							// 		files.every(
-							// 			(file) =>
-							// 				file === null ||
-							// 				/\.(jpg|jpeg|png)$/i.test(file.name)
-							// 		),
-							// 	{
-							// 		message:
-							// 			"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
-							// 	}
-							// ),
+								.any()
+								.refine(
+									(value) =>
+										value === null ||
+										value instanceof FileList,
+									{
+										message:
+											"O campo de imagem deve ser um arquivo de imagem.",
+									}
+								)
+								.transform((value) => {
+									// Se for um FileList, pega o primeiro arquivo ou retorna null
+									if (value instanceof FileList) {
+										return value.length > 0
+											? value.item(0)
+											: null;
+									}
+									return null; // Retorna null caso não seja um FileList
+								})
+								.refine(
+									(file) =>
+										file === null ||
+										file.size <= 2 * 1024 * 1024, // Verifica o tamanho
+									"O arquivo precisa ter no máximo 2MB!"
+								)
+								.refine(
+									(file) =>
+										file === null ||
+										/\.(jpg|jpeg|png)$/i.test(file.name), // Verifica a extensão
+									"O arquivo precisa ser do tipo JPG, JPEG ou PNG!"
+								),
 						})
 					),
 				})
@@ -475,17 +477,43 @@ const createProductFormSchema = z
 			message: "※ O nome da opção é obrigatório!",
 		}
 	)
+	// .superRefine((data, ctx) => {
+	// 	// Se o originalPrice estiver preenchido, a validação das variações não é necessária
+	// 	if (data.originalPrice && data.stock) {
+	// 		return; // Não realiza a validação das variações se o originalPrice estiver preenchido
+	// 	}
+
+	// 	// Validação para garantir que as opções não tenham nome vazio
+	// 	data.productVariations.forEach((variation, variationIndex) => {
+	// 		variation.options?.forEach((option, optionIndex) => {
+	// 			if (option.name.trim() === "") {
+	// 				// Adiciona o erro com o path dinâmico
+	// 				ctx.addIssue({
+	// 					code: "custom",
+	// 					message: "※ O nome da opção é obrigatório!",
+	// 					path: [
+	// 						"productVariations",
+	// 						variationIndex,
+	// 						"options",
+	// 						optionIndex,
+	// 						"name",
+	// 					], // Path dinâmico
+	// 				});
+	// 			}
+	// 		});
+	// 	});
+	// })
 	.superRefine((data, ctx) => {
 		// Se o originalPrice estiver preenchido, a validação das variações não é necessária
 		if (data.originalPrice && data.stock) {
 			return; // Não realiza a validação das variações se o originalPrice estiver preenchido
 		}
 
-		// Validação para garantir que as opções não tenham nome vazio
+		// Validação para garantir que as opções não tenham campos inválidos
 		data.productVariations.forEach((variation, variationIndex) => {
 			variation.options?.forEach((option, optionIndex) => {
+				// Verifica se o nome está vazio
 				if (option.name.trim() === "") {
-					// Adiciona o erro com o path dinâmico
 					ctx.addIssue({
 						code: "custom",
 						message: "※ O nome da opção é obrigatório!",
@@ -498,134 +526,24 @@ const createProductFormSchema = z
 						], // Path dinâmico
 					});
 				}
+
+				// Verifica se a imagem está vazia
+				if (!option.imageUrl) {
+					ctx.addIssue({
+						code: "custom",
+						message: "※ Insira pelo menos 1 imagem!",
+						path: [
+							"productVariations",
+							variationIndex,
+							"options",
+							optionIndex,
+							"imageUrl",
+						], // Path dinâmico
+					});
+				}
 			});
 		});
 	});
-
-// .superRefine((data, ctx) => {
-// 	// Validação para garantir que todas as opções têm o nome preenchido
-// 	data.productVariations?.forEach((variation, variationIndex) => {
-// 		variation.options?.forEach((option, optionIndex) => {
-// 			if (option.name?.trim() === "") {
-// 				ctx.addIssue({
-// 					code: z.ZodIssueCode.custom,
-// 					message: "※ O nome da opção é obrigatório!",
-// 					// Caminho dinâmico para cada variação e opção
-// 					path: [
-// 						"productVariations",
-// 						variationIndex,
-// 						"options",
-// 						optionIndex,
-// 						"name",
-// 					],
-// 				});
-// 			}
-// 		});
-// 	});
-// });
-
-/////////////////////////////////////////////// Opção que funciona exibindo os erros, mas problemas em focar em cada opção ///////////////////////////////////////////////////////////
-// .refine(
-// 	(data) => {
-// 		const hasOriginalPrice = !!data.originalPrice;
-// 		const hasVariations =
-// 			Array.isArray(data.productVariations) &&
-// 			data.productVariations.some(
-// 				(variation) =>
-// 					variation.title.trim() !== "" ||
-// 					variation.options?.some((opt) => opt.name.trim() !== "")
-// 			);
-
-// 		// Caso nenhum esteja preenchido
-// 		if (!hasOriginalPrice && !hasVariations) {
-// 			return false; // Nenhum preenchido, invalida
-// 		}
-
-// 		// Caso ambos estejam preenchidos, também invalida
-// 		if (hasOriginalPrice && hasVariations) {
-// 			return false; // Ambos preenchidos, invalida
-// 		}
-
-// 		return true; // Validação passou
-// 	},
-// 	{
-// 		message: "※ O título da Variação é orbigatório!",
-// 		// Validação para cada variação individualmente
-// 		path: ["productVariations", 0, "title"], // Associando o erro ao título da primeira variação
-// 	}
-// )
-// 	.refine(
-// 		(data) => {
-// 			const hasOriginalPrice = !!data.originalPrice;
-// 			const hasVariations =
-// 				Array.isArray(data.productVariations) &&
-// 				data.productVariations.some(
-// 					(variation) =>
-// 						variation.title.trim() !== "" ||
-// 						variation.options?.some((opt) => opt.name.trim() !== "")
-// 				);
-
-// 			// Caso nenhum esteja preenchido
-// 			if (!hasOriginalPrice && !hasVariations) {
-// 				return false; // Nenhum preenchido, invalida
-// 			}
-
-// 			// Caso ambos estejam preenchidos, também invalida
-// 			if (hasOriginalPrice && hasVariations) {
-// 				return false; // Ambos preenchidos, invalida
-// 			}
-
-// 			return true; // Validação passou
-// 		},
-// 		{
-// 			message: "※ O nome da opção é obrogatório!",
-// 			// Validação para o nome da primeira opção da primeira variação
-// 			path: ["productVariations", 0, "options", 0, "name"],
-// 		}
-// );
-
-/////////////////////////////////////////////// Opção que funciona, mas sem exbir erros ///////////////////////////////////////////////////////////
-// .refine(
-// 	(data) => {
-// 		const hasOriginalPrice = !!data.originalPrice;
-// 		const hasVariations =
-// 			Array.isArray(data.productVariations) &&
-// 			data.productVariations.some(
-// 				(variation) =>
-// 					variation.title.trim() !== "" ||
-// 					variation.options?.some((opt) => opt.name.trim() !== "")
-// 			);
-
-// 		// Garantir que pelo menos um campo esteja preenchido, e não ambos
-// 		return (
-// 			(hasOriginalPrice || hasVariations) &&
-// 			!(hasOriginalPrice && hasVariations)
-// 		);
-// 	},
-// 	{
-// 		message:
-// 			"※ Você deve preencher ao menos o preço original ou as variações do produto, mas não ambos ao mesmo tempo!",
-// 	}
-// )
-// .refine(
-// 	(data) => {
-// 		// Garantir que pelo menos um campo esteja preenchido
-// 		const hasOriginalPrice = !!data.originalPrice;
-// 		const hasVariations =
-// 			Array.isArray(data.productVariations) &&
-// 			data.productVariations.some(
-// 				(variation) =>
-// 					variation.title.trim() !== "" ||
-// 					variation.options?.some((opt) => opt.name.trim() !== "")
-// 			);
-
-// 		return hasOriginalPrice || hasVariations;
-// 	},
-// 	{
-// 		message:
-// 			"※ Você deve preencher ao menos o preço original ou as variações do produto!",
-// 	}
-// );
 
 type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
 
@@ -1370,7 +1288,7 @@ function CreateProductPage() {
 										{
 											title: "",
 											options: [
-												{ name: "", imageUrl: "" },
+												{ name: "", imageUrl: null },
 											],
 										},
 									]}
@@ -1420,7 +1338,7 @@ function CreateProductPage() {
 																		variationIndex
 																	]
 																		?.title && (
-																		<span className="text-red-500">
+																		<span className="text-red-500 text-xs">
 																			{
 																				errors
 																					.productVariations?.[
@@ -1433,6 +1351,11 @@ function CreateProductPage() {
 																	)}
 																</div>
 															</div>
+
+															{variation.options
+																.length > 0 && (
+																<h4>Opções</h4>
+															)}
 
 															{variation.options.map(
 																(
@@ -1508,7 +1431,7 @@ function CreateProductPage() {
 																				optionIndex
 																			]
 																				?.imageUrl && (
-																				<span className="text-red-500">
+																				<span className="text-red-500 text-xs">
 																					{
 																						errors
 																							.productVariations?.[
@@ -1532,7 +1455,7 @@ function CreateProductPage() {
 																				optionIndex
 																			]
 																				?.name && (
-																				<span className="text-red-500">
+																				<span className="text-red-500 text-xs">
 																					{
 																						errors
 																							.productVariations?.[
