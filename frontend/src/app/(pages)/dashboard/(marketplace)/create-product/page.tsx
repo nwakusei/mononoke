@@ -427,23 +427,45 @@ const createProductFormSchema = z
 		}
 	)
 	.superRefine((data, ctx) => {
-		// Se o originalPrice estiver preenchido, a validação das variações não é necessária
+		// Se o preço original e estoque estão preenchidos, pula validação das variações
 		if (data.originalPrice && data.stock) {
-			return; // Não realiza a validação das variações se o originalPrice e stock estiverem preenchidos
+			return;
 		}
 
-		// Validação para garantir que o título de cada variação não está vazio
-		data.productVariations.forEach((variation, variationIndex) => {
-			if (variation.title.trim() === "") {
-				// Adiciona o erro com o path dinâmico para o título da variação
+		// Garante que productVariations é um array antes de usar forEach
+		const productVariations = Array.isArray(data.productVariations)
+			? data.productVariations
+			: [];
+
+		// Validação do título das variações
+		productVariations.forEach((variation, variationIndex) => {
+			if (!variation.title || variation.title.trim() === "") {
 				ctx.addIssue({
 					code: "custom",
 					message: "※ O título da Variação é obrigatório!",
-					path: ["productVariations", variationIndex, "title"], // Path dinâmico
+					path: ["productVariations", variationIndex, "title"],
 				});
 			}
 		});
 	})
+	// .superRefine((data, ctx) => {
+	// 	// Se o originalPrice estiver preenchido, a validação das variações não é necessária
+	// 	if (data.originalPrice && data.stock) {
+	// 		return; // Não realiza a validação das variações se o originalPrice e stock estiverem preenchidos
+	// 	}
+
+	// 	// Validação para garantir que o título de cada variação não está vazio
+	// 	data.productVariations.forEach((variation, variationIndex) => {
+	// 		if (variation.title.trim() === "") {
+	// 			// Adiciona o erro com o path dinâmico para o título da variação
+	// 			ctx.addIssue({
+	// 				code: "custom",
+	// 				message: "※ O título da Variação é obrigatório!",
+	// 				path: ["productVariations", variationIndex, "title"], // Path dinâmico
+	// 			});
+	// 		}
+	// 	});
+	// })
 	.refine(
 		(data) => {
 			const hasOriginalPrice = !!data.originalPrice;
@@ -503,17 +525,67 @@ const createProductFormSchema = z
 	// 		});
 	// 	});
 	// })
+	// .superRefine((data, ctx) => {
+	// 	// Se o originalPrice estiver preenchido, a validação das variações não é necessária
+	// 	if (data.originalPrice && data.stock) {
+	// 		return; // Não realiza a validação das variações se o originalPrice estiver preenchido
+	// 	}
+
+	// 	// Validação para garantir que as opções não tenham campos inválidos
+	// 	data.productVariations.forEach((variation, variationIndex) => {
+	// 		variation.options?.forEach((option, optionIndex) => {
+	// 			// Verifica se o nome está vazio
+	// 			if (option.name.trim() === "") {
+	// 				ctx.addIssue({
+	// 					code: "custom",
+	// 					message: "※ O nome da opção é obrigatório!",
+	// 					path: [
+	// 						"productVariations",
+	// 						variationIndex,
+	// 						"options",
+	// 						optionIndex,
+	// 						"name",
+	// 					], // Path dinâmico
+	// 				});
+	// 			}
+
+	// 			// Verifica se a imagem está vazia
+	// 			if (!option.imageUrl) {
+	// 				ctx.addIssue({
+	// 					code: "custom",
+	// 					message: "※ Insira pelo menos 1 imagem!",
+	// 					path: [
+	// 						"productVariations",
+	// 						variationIndex,
+	// 						"options",
+	// 						optionIndex,
+	// 						"imageUrl",
+	// 					], // Path dinâmico
+	// 				});
+	// 			}
+	// 		});
+	// 	});
+	// })
 	.superRefine((data, ctx) => {
-		// Se o originalPrice estiver preenchido, a validação das variações não é necessária
+		// Se o preço original e estoque estão preenchidos, pula a validação das variações
 		if (data.originalPrice && data.stock) {
-			return; // Não realiza a validação das variações se o originalPrice estiver preenchido
+			return;
 		}
 
-		// Validação para garantir que as opções não tenham campos inválidos
-		data.productVariations.forEach((variation, variationIndex) => {
-			variation.options?.forEach((option, optionIndex) => {
-				// Verifica se o nome está vazio
-				if (option.name.trim() === "") {
+		// Garante que productVariations é um array antes de usar forEach
+		const productVariations = Array.isArray(data.productVariations)
+			? data.productVariations
+			: [];
+
+		// Validação das opções dentro das variações
+		productVariations.forEach((variation, variationIndex) => {
+			const options = Array.isArray(variation.options)
+				? variation.options
+				: [];
+
+			options.forEach((option, optionIndex) => {
+				// Verifica se o nome da opção está vazio
+				if (!option.name || option.name.trim() === "") {
 					ctx.addIssue({
 						code: "custom",
 						message: "※ O nome da opção é obrigatório!",
@@ -523,11 +595,11 @@ const createProductFormSchema = z
 							"options",
 							optionIndex,
 							"name",
-						], // Path dinâmico
+						],
 					});
 				}
 
-				// Verifica se a imagem está vazia
+				// Verifica se a imagem da opção está vazia
 				if (!option.imageUrl) {
 					ctx.addIssue({
 						code: "custom",
@@ -538,7 +610,7 @@ const createProductFormSchema = z
 							"options",
 							optionIndex,
 							"imageUrl",
-						], // Path dinâmico
+						],
 					});
 				}
 			});
@@ -556,6 +628,8 @@ function CreateProductPage() {
 	const [isLoading, setIsLoading] = useState(true);
 
 	const [offerFreeShipping, setOfferFreeShipping] = useState("");
+
+	const [displayVariations, setDiisplayVariations] = useState(false);
 
 	// const [variations, setVariations] = useState([]);
 
@@ -1091,73 +1165,22 @@ function CreateProductPage() {
 
 						{/* Gadget 2 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
-							{/* Adicionar Porduto */}
+							{/* Adicionar Produto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
 									Imagens do Produto
 								</h1>
-								{/* Add Imagens */}
-								{/* <label className="form-control w-full max-w-3xl">
-									<div className="label">
-										<span className="label-text text-black">
-											Imagem Principal
-										</span>
-									</div>
-									<div
-										className={`${
-											errors.imagesProduct &&
-											`border-error`
-										} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-										{imagemSelecionada ? (
-											<img
-												src={imagemSelecionada}
-												alt="Imagem selecionada"
-												className="object-contain w-full h-full rounded-sm"
-											/>
-										) : (
-											<div
-												className="flex flex-col justify-center items-center "
-												onChange={
-													handleImagemSelecionada
-												}>
-												<h2 className="text-xs mb-2">
-													Add Imagem
-												</h2>
-												<AddPicture size={20} />
-												<input
-													className="hidden"
-													type="file"
-													accept="image/*"
-													multiple
-													{...register(
-														"imagesProduct"
-													)}
-												/>
-											</div>
-										)}
-									</div>
-									<div className="label">
-										{errors.imagesProduct && (
-											<span className="label-text-alt text-red-500">
-												{errors.imagesProduct.message}
-											</span>
-										)}
-									</div>
-								</label> */}
 
+								{/* Add Imagens */}
 								<div className="label">
 									<span className="label-text text-black">
 										Imagem Principal
 									</span>
 								</div>
 
-								<label className="form-control w-24">
-									{/* <div className="label">
-										<span className="label-text text-black">
-											Imagem Principal
-										</span>
-									</div> */}
-									<div className="flex flex-row items-center flex-wrap">
+								<label className="form-control w-full">
+									{/* Container das imagens */}
+									<div className="flex flex-wrap items-center gap-2">
 										{imagensSelecionadas.map(
 											(imagem, index) => {
 												const imageUrl =
@@ -1165,7 +1188,7 @@ function CreateProductPage() {
 												return (
 													<div
 														key={index}
-														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded m-1">
+														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded overflow-hidden">
 														<img
 															src={imageUrl}
 															alt={`Imagem selecionada ${
@@ -1177,12 +1200,13 @@ function CreateProductPage() {
 												);
 											}
 										)}
+
 										{/* Adiciona um input para selecionar novas imagens */}
 										<div
 											className={`${
 												errors.imagesProduct &&
 												`border-error`
-											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md cursor-pointer relative`}>
 											<span className="text-xs">
 												Add Imagem
 											</span>
@@ -1200,6 +1224,7 @@ function CreateProductPage() {
 										</div>
 									</div>
 								</label>
+
 								<div className="label">
 									{errors.imagesProduct && (
 										<span className="label-text-alt text-red-500">
@@ -1207,232 +1232,113 @@ function CreateProductPage() {
 										</span>
 									)}
 								</div>
-
-								{/* <label className="form-control w-full max-w-3xl">
-									<div className="label">
-										<span className="label-text text-black">
-											Imagem Principal
-										</span>
-									</div>
-									<div className="flex flex-row items-center flex-wrap">
-										{imagensSelecionadas.map(
-											(imagem, index) => {
-												const imageUrl =
-													URL.createObjectURL(imagem); // Cria a URL para a imagem
-												return (
-													<div
-														key={index}
-														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded m-1">
-														<img
-															src={imageUrl}
-															alt={`Imagem selecionada ${
-																index + 1
-															}`}
-															className="object-contain w-full h-full rounded-sm"
-														/>
-														<input
-															type="file"
-															accept="image/*"
-															className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
-															onChange={
-																handleImagemSelecionada
-															}
-														/>
-													</div>
-												);
-											}
-										)}
-										
-										<div
-											className={`${
-												errors.imagesProduct &&
-												`border-error`
-											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-											<span className="text-xs">
-												Add Imagem
-											</span>
-											<AddPicture size={20} />
-											<input
-												type="file"
-												accept="image/*"
-												multiple
-												className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
-												onChange={
-													handleImagemSelecionada
-												}
-											/>
-										</div>
-									</div>
-									<div className="label">
-										{errors.imagesProduct && (
-											<span className="label-text-alt text-red-500">
-												{errors.imagesProduct.message}
-											</span>
-										)}
-									</div>
-								</label> */}
 							</div>
 						</div>
 
-						{/* Gadget 2 */}
-						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
-							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold text-black mb-3">
-									Variações
-								</h1>
+						{displayVariations ? (
+							<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
+								<div className="flex flex-col gap-2 ml-6 mb-6">
+									<h1 className="text-2xl font-semibold text-black mb-3">
+										Variações
+									</h1>
 
-								<Controller
-									name="productVariations"
-									control={control}
-									defaultValue={[
-										{
-											title: "",
-											options: [
-												{ name: "", imageUrl: null },
-											],
-										},
-									]}
-									render={({
-										field: { onChange, value },
-									}) => (
-										<>
-											{Array.isArray(value) &&
-												value.map(
-													(
-														variation,
-														variationIndex
-													) => (
-														<div
-															className="flex flex-col gap-4"
-															key={
-																variationIndex
-															}>
-															<h3>
-																Variação{" "}
-																{variationIndex +
-																	1}
-															</h3>
+									<Controller
+										name="productVariations"
+										control={control}
+										defaultValue={[
+											{
+												title: "",
+												options: [
+													{
+														name: "",
+														imageUrl: null,
+													},
+												],
+											},
+										]}
+										render={({
+											field: { onChange, value },
+										}) => (
+											<>
+												{Array.isArray(value) &&
+													value.map(
+														(
+															variation,
+															variationIndex
+														) => (
+															<div
+																className="flex flex-col gap-4"
+																key={
+																	variationIndex
+																}>
+																<h3>
+																	Variação{" "}
+																	{variationIndex +
+																		1}
+																</h3>
 
-															<div className="flex flex-col">
-																<input
-																	className={`w-[360px] input input-bordered ${
-																		errors
+																<div className="flex flex-col">
+																	<input
+																		className={`w-[360px] input input-bordered ${
+																			errors
+																				.productVariations?.[
+																				variationIndex
+																			]
+																				?.title
+																				? `input-error`
+																				: `input-success`
+																		}`}
+																		type="text"
+																		placeholder="Nome da variação"
+																		{...register(
+																			`productVariations.${variationIndex}.title`
+																		)}
+																		defaultValue={
+																			variation.title
+																		}
+																	/>
+																	<div>
+																		{errors
 																			.productVariations?.[
 																			variationIndex
-																		]?.title
-																			? `input-error`
-																			: `input-success`
-																	}`}
-																	type="text"
-																	placeholder="Nome da variação"
-																	{...register(
-																		`productVariations.${variationIndex}.title`
-																	)}
-																	defaultValue={
-																		variation.title
-																	}
-																/>
-																<div>
-																	{errors
-																		.productVariations?.[
-																		variationIndex
-																	]
-																		?.title && (
-																		<span className="text-red-500 text-xs">
-																			{
-																				errors
-																					.productVariations?.[
-																					variationIndex
-																				]
-																					?.title
-																					.message
-																			}
-																		</span>
-																	)}
-																</div>
-															</div>
-
-															{variation.options
-																.length > 0 && (
-																<h4>Opções</h4>
-															)}
-
-															{variation.options.map(
-																(
-																	option,
-																	optionIndex
-																) => (
-																	<div
-																		className=""
-																		key={
-																			optionIndex
-																		}>
-																		<div className="flex flex-row gap-2">
-																			<div
-																				className={`${
+																		]
+																			?.title && (
+																			<span className="text-red-500 text-xs">
+																				{
 																					errors
 																						.productVariations?.[
 																						variationIndex
 																					]
-																						?.options?.[
-																						optionIndex
-																					]
-																						?.imageUrl
-																						? `border-error`
-																						: `border-success`
-																				} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-																				<AddPicture
-																					size={
-																						20
-																					}
-																				/>
-																				<input
-																					type="file"
-																					accept="image/*"
-																					multiple
-																					className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
-																					{...register(
-																						`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
-																					)}
-																				/>
-																			</div>
+																						?.title
+																						.message
+																				}
+																			</span>
+																		)}
+																	</div>
+																</div>
 
-																			<div className="flex flex-col">
-																				<input
-																					className={`input input-bordered ${
-																						errors
-																							.productVariations?.[
-																							variationIndex
-																						]
-																							?.options?.[
-																							optionIndex
-																						]
-																							?.name
-																							? `input-error`
-																							: `input-success`
-																					} w-[300px]`}
-																					type="text"
-																					placeholder="Nome da opção"
-																					{...register(
-																						`productVariations.${variationIndex}.options.${optionIndex}.name`
-																					)}
-																					defaultValue={
-																						option.name
-																					}
-																				/>
-																			</div>
-																		</div>
-																		<div>
-																			{errors
-																				.productVariations?.[
-																				variationIndex
-																			]
-																				?.options?.[
+																{variation
+																	.options
+																	.length >
+																	0 && (
+																	<h4>
+																		Opções
+																	</h4>
+																)}
+
+																{variation.options.map(
+																	(
+																		option,
+																		optionIndex
+																	) => (
+																		<div
+																			className=""
+																			key={
 																				optionIndex
-																			]
-																				?.imageUrl && (
-																				<span className="text-red-500 text-xs">
-																					{
+																			}>
+																			<div className="flex flex-row gap-2">
+																				<div
+																					className={`${
 																						errors
 																							.productVariations?.[
 																							variationIndex
@@ -1441,250 +1347,326 @@ function CreateProductPage() {
 																							optionIndex
 																						]
 																							?.imageUrl
-																							.message
-																					}
-																				</span>
-																			)}
+																							? `border-error`
+																							: `border-success`
+																					} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+																					<AddPicture
+																						size={
+																							20
+																						}
+																					/>
+																					<input
+																						type="file"
+																						accept="image/*"
+																						multiple
+																						className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
+																						{...register(
+																							`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
+																						)}
+																					/>
+																				</div>
+
+																				<div className="flex flex-col">
+																					<input
+																						className={`input input-bordered ${
+																							errors
+																								.productVariations?.[
+																								variationIndex
+																							]
+																								?.options?.[
+																								optionIndex
+																							]
+																								?.name
+																								? `input-error`
+																								: `input-success`
+																						} w-[300px]`}
+																						type="text"
+																						placeholder="Nome da opção"
+																						{...register(
+																							`productVariations.${variationIndex}.options.${optionIndex}.name`
+																						)}
+																						defaultValue={
+																							option.name
+																						}
+																					/>
+																				</div>
+																			</div>
+																			<div>
+																				{errors
+																					.productVariations?.[
+																					variationIndex
+																				]
+																					?.options?.[
+																					optionIndex
+																				]
+																					?.imageUrl && (
+																					<span className="text-red-500 text-xs">
+																						{
+																							errors
+																								.productVariations?.[
+																								variationIndex
+																							]
+																								?.options?.[
+																								optionIndex
+																							]
+																								?.imageUrl
+																								.message
+																						}
+																					</span>
+																				)}
+																			</div>
+																			<div>
+																				{errors
+																					.productVariations?.[
+																					variationIndex
+																				]
+																					?.options?.[
+																					optionIndex
+																				]
+																					?.name && (
+																					<span className="text-red-500 text-xs">
+																						{
+																							errors
+																								.productVariations?.[
+																								variationIndex
+																							]
+																								?.options?.[
+																								optionIndex
+																							]
+																								?.name
+																								.message
+																						}
+																					</span>
+																				)}
+																			</div>
 																		</div>
-																		<div>
-																			{errors
-																				.productVariations?.[
-																				variationIndex
-																			]
-																				?.options?.[
-																				optionIndex
-																			]
-																				?.name && (
-																				<span className="text-red-500 text-xs">
-																					{
-																						errors
-																							.productVariations?.[
-																							variationIndex
-																						]
-																							?.options?.[
-																							optionIndex
-																						]
-																							?.name
-																							.message
-																					}
-																				</span>
-																			)}
-																		</div>
-																	</div>
-																)
-															)}
-															<button
-																className="border-dashed border-[1px] border-primary hover:bg-primary transition-all ease-in duration-200 py-3 rounded-md w-[200px]"
-																type="button"
-																onClick={() => {
-																	const newOptions =
-																		[
-																			...variation.options,
-																			{
-																				name: "",
-																				imageUrl:
-																					"",
-																			},
-																		];
-																	onChange(
-																		value.map(
-																			(
-																				v,
-																				i
-																			) =>
-																				i ===
-																				variationIndex
-																					? {
-																							...v,
-																							options:
-																								newOptions,
-																					  }
-																					: v
-																		)
-																	);
-																}}>
-																+ Adicionar
-																Opção
-															</button>
-														</div>
-													)
-												)}
-											<button
-												className="border-dashed border-[1px] border-primary hover:bg-primary transition-all ease-in duration-200 py-3 rounded-md w-[200px]"
-												type="button"
-												onClick={() => {
-													// Garante que value é sempre um array
-													const newVariations =
-														Array.isArray(value)
-															? [
-																	...value,
-																	{
-																		title: "",
-																		options:
+																	)
+																)}
+																<button
+																	className="border-dashed border-[1px] border-primary hover:bg-primary transition-all ease-in duration-200 py-3 rounded-md w-[200px]"
+																	type="button"
+																	onClick={() => {
+																		const newOptions =
 																			[
+																				...variation.options,
 																				{
 																					name: "",
 																					imageUrl:
 																						"",
 																				},
-																			],
-																	},
-															  ]
-															: [];
-													onChange(newVariations);
-												}}>
-												Adicionar Variação
-											</button>
-										</>
-									)}
-								/>
-							</div>
-						</div>
-
-						{/* Gadget 2 */}
-						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
-							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold text-black">
-									Preço e Quantidade
-								</h1>
-								<div className="flex flex-row items-center">
-									{/* Nome e Descrição */}
-									<label className="form-control w-full max-w-2xl">
-										<div className="label">
-											<span className="label-text text-black">
-												Preço original
-											</span>
-										</div>
-										<div className="join">
-											<div className="indicator">
+																			];
+																		onChange(
+																			value.map(
+																				(
+																					v,
+																					i
+																				) =>
+																					i ===
+																					variationIndex
+																						? {
+																								...v,
+																								options:
+																									newOptions,
+																						  }
+																						: v
+																			)
+																		);
+																	}}>
+																	+ Adicionar
+																	Opção
+																</button>
+															</div>
+														)
+													)}
 												<button
+													className="border-dashed border-[1px] border-primary hover:bg-primary transition-all ease-in duration-200 py-3 rounded-md w-[200px]"
 													type="button"
-													className="btn join-item flex flex-row items-center">
-													<TbCurrencyReal size={20} />
+													onClick={() => {
+														// Garante que value é sempre um array
+														const newVariations =
+															Array.isArray(value)
+																? [
+																		...value,
+																		{
+																			title: "",
+																			options:
+																				[
+																					{
+																						name: "",
+																						imageUrl:
+																							"",
+																					},
+																				],
+																		},
+																  ]
+																: [];
+														onChange(newVariations);
+													}}>
+													Adicionar Variação
 												</button>
-											</div>
-											<div>
-												<div>
-													<input
-														className={`${
-															errors.originalPrice &&
-															`input-error`
-														} input input-bordered input-success join-item`}
-														placeholder="0,00"
-														{...register(
-															"originalPrice"
-														)}
-													/>
-												</div>
-											</div>
-										</div>
-										<div className="label">
-											{errors.originalPrice ? (
-												<span className="label-text-alt text-red-500">
-													{
-														errors.originalPrice
-															.message
-													}
-												</span>
-											) : (
-												<span className="label-text-alt text-black">
-													Ex.: R$ 2,00
-												</span>
-											)}
-										</div>
-									</label>
-
-									{/* Nome e Descrição */}
-									<label className="form-control w-full max-w-2xl">
-										<div className="label">
-											<span className="label-text text-black">
-												Preço promocional
-											</span>
-										</div>
-										<div className="join">
-											<div className="indicator">
-												<button
-													type="button"
-													className="btn join-item flex flex-row items-center">
-													<TbCurrencyReal size={20} />
-												</button>
-											</div>
-											<div>
-												<div>
-													<input
-														className={`input input-bordered ${
-															errors.promocionalPrice
-																? `input-error`
-																: `input-success`
-														} join-item`}
-														placeholder="0,00"
-														{...register(
-															"promocionalPrice"
-														)}
-													/>
-												</div>
-											</div>
-										</div>
-										<div className="label">
-											{errors.promocionalPrice ? (
-												<span className="label-text-alt text-red-500">
-													{
-														errors.promocionalPrice
-															.message
-													}
-												</span>
-											) : (
-												<span className="label-text-alt text-black">
-													Ex.: R$ 1,00
-												</span>
-											)}
-										</div>
-									</label>
-
-									{/* Nome e Descrição */}
-									<label className="form-control w-full max-w-2xl">
-										<div className="label">
-											<span className="label-text text-black">
-												Estoque
-											</span>
-										</div>
-										<div className="join">
-											<div>
-												<div>
-													<input
-														className={`${
-															errors.stock &&
-															`input-error`
-														} input input-bordered input-success join-item`}
-														placeholder="0"
-														{...register("stock")}
-													/>
-												</div>
-											</div>
-											<div className="indicator">
-												<button
-													type="button"
-													className="btn join-item flex flex-row items-center">
-													Un
-												</button>
-											</div>
-										</div>
-										<div className="label">
-											{errors.stock ? (
-												<span className="label-text-alt text-red-500">
-													{errors.stock.message}
-												</span>
-											) : (
-												<span className="label-text-alt text-black">
-													Ex.: 10 un
-												</span>
-											)}
-										</div>
-									</label>
+											</>
+										)}
+									/>
 								</div>
 							</div>
-						</div>
+						) : (
+							<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
+								<div className="flex flex-col gap-2 ml-6 mb-6">
+									<h1 className="text-2xl font-semibold text-black">
+										Preço e Quantidade
+									</h1>
+									<div className="flex flex-row items-center">
+										{/* Nome e Descrição */}
+										<label className="form-control w-full max-w-2xl">
+											<div className="label">
+												<span className="label-text text-black">
+													Preço original
+												</span>
+											</div>
+											<div className="join">
+												<div className="indicator">
+													<button
+														type="button"
+														className="btn join-item flex flex-row items-center">
+														<TbCurrencyReal
+															size={20}
+														/>
+													</button>
+												</div>
+												<div>
+													<div>
+														<input
+															className={`${
+																errors.originalPrice &&
+																`input-error`
+															} input input-bordered input-success join-item`}
+															placeholder="0,00"
+															{...register(
+																"originalPrice"
+															)}
+														/>
+													</div>
+												</div>
+											</div>
+											<div className="label">
+												{errors.originalPrice ? (
+													<span className="label-text-alt text-red-500">
+														{
+															errors.originalPrice
+																.message
+														}
+													</span>
+												) : (
+													<span className="label-text-alt text-black">
+														Ex.: R$ 2,00
+													</span>
+												)}
+											</div>
+										</label>
 
+										{/* Nome e Descrição */}
+										<label className="form-control w-full max-w-2xl">
+											<div className="label">
+												<span className="label-text text-black">
+													Preço promocional
+												</span>
+											</div>
+											<div className="join">
+												<div className="indicator">
+													<button
+														type="button"
+														className="btn join-item flex flex-row items-center">
+														<TbCurrencyReal
+															size={20}
+														/>
+													</button>
+												</div>
+												<div>
+													<div>
+														<input
+															className={`input input-bordered ${
+																errors.promocionalPrice
+																	? `input-error`
+																	: `input-success`
+															} join-item`}
+															placeholder="0,00"
+															{...register(
+																"promocionalPrice"
+															)}
+														/>
+													</div>
+												</div>
+											</div>
+											<div className="label">
+												{errors.promocionalPrice ? (
+													<span className="label-text-alt text-red-500">
+														{
+															errors
+																.promocionalPrice
+																.message
+														}
+													</span>
+												) : (
+													<span className="label-text-alt text-black">
+														Ex.: R$ 1,00
+													</span>
+												)}
+											</div>
+										</label>
+
+										{/* Nome e Descrição */}
+										<label className="form-control w-full max-w-2xl">
+											<div className="label">
+												<span className="label-text text-black">
+													Estoque
+												</span>
+											</div>
+											<div className="join">
+												<div>
+													<div>
+														<input
+															className={`${
+																errors.stock &&
+																`input-error`
+															} input input-bordered input-success join-item`}
+															placeholder="0"
+															{...register(
+																"stock"
+															)}
+														/>
+													</div>
+												</div>
+												<div className="indicator">
+													<button
+														type="button"
+														className="btn join-item flex flex-row items-center">
+														Un
+													</button>
+												</div>
+											</div>
+											<div className="label">
+												{errors.stock ? (
+													<span className="label-text-alt text-red-500">
+														{errors.stock.message}
+													</span>
+												) : (
+													<span className="label-text-alt text-black">
+														Ex.: 10 un
+													</span>
+												)}
+											</div>
+										</label>
+									</div>
+									<button
+										onClick={() =>
+											setDiisplayVariations(true)
+										}
+										className="btn btn-primary mt-4">
+										Criar Variações
+									</button>
+								</div>
+							</div>
+						)}
 						{/* Gadget 3 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
@@ -2157,7 +2139,6 @@ function CreateProductPage() {
 								</div>
 							</div>
 						</div>
-
 						{/* Gadget 2 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mr-4">
 							{/* Adicionar Porduto */}

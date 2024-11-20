@@ -50,46 +50,96 @@ class ProductController {
 		console.log("Variation Images:", variationImages); // Debug para verificar a estrutura
 
 		// Processar variações de produtos
-		const processedVariations = productVariations.map(
-			(variation: any, index: number) => {
-				const options = variation.options.map(
-					(option: any, optionIndex: number) => {
-						const imageUrlField = `productVariations[${index}][options][${optionIndex}][imageUrl]`;
-						const imageUrls = variationImages[imageUrlField] || []; // Use um array para múltiplas imagens
+		// const processedVariations = productVariations.map(
+		// 	(variation: any, index: number) => {
+		// 		const options = variation.options.map(
+		// 			(option: any, optionIndex: number) => {
+		// 				const imageUrlField = `productVariations[${index}][options][${optionIndex}][imageUrl]`;
+		// 				const imageUrls = variationImages[imageUrlField] || []; // Use um array para múltiplas imagens
 
-						// Processar as imagens das variações
-						let imageUrl = ""; // Mude de array para string
+		// 				// Processar as imagens das variações
+		// 				let imageUrl = ""; // Mude de array para string
 
-						if (imageUrls.length > 0) {
-							const image = imageUrls[0]; // Pegue apenas a primeira imagem
-							if (image) {
-								if ("key" in image) {
-									// Estamos usando o armazenamento na AWS S3
-									if (typeof image.key === "string") {
-										imageUrl = image.key;
+		// 				if (imageUrls.length > 0) {
+		// 					const image = imageUrls[0]; // Pegue apenas a primeira imagem
+		// 					if (image) {
+		// 						if ("key" in image) {
+		// 							// Estamos usando o armazenamento na AWS S3
+		// 							if (typeof image.key === "string") {
+		// 								imageUrl = image.key;
+		// 							}
+		// 						} else {
+		// 							// Estamos usando o armazenamento em ambiente local (Desenvolvimento)
+		// 							if (typeof image.filename === "string") {
+		// 								imageUrl = image.filename;
+		// 							}
+		// 						}
+		// 					}
+		// 				}
+
+		// 				return {
+		// 					name: option.name,
+		// 					imageUrl: imageUrl, // Mantenha apenas uma string
+		// 				};
+		// 			}
+		// 		);
+
+		// 		return {
+		// 			title: variation.title,
+		// 			options: options,
+		// 		};
+		// 	}
+		// );
+
+		const processedVariations = Array.isArray(productVariations)
+			? productVariations.map((variation: any, index: number) => {
+					const options = Array.isArray(variation.options)
+						? variation.options.map(
+								(option: any, optionIndex: number) => {
+									const imageUrlField = `productVariations[${index}][options][${optionIndex}][imageUrl]`;
+									const imageUrls =
+										variationImages[imageUrlField] || []; // Use um array para múltiplas imagens
+
+									// Processar as imagens das variações
+									let imageUrl = ""; // Mude de array para string
+
+									if (imageUrls.length > 0) {
+										const image = imageUrls[0]; // Pegue apenas a primeira imagem
+										if (image) {
+											if ("key" in image) {
+												// Estamos usando o armazenamento na AWS S3
+												if (
+													typeof image.key ===
+													"string"
+												) {
+													imageUrl = image.key;
+												}
+											} else {
+												// Estamos usando o armazenamento em ambiente local (Desenvolvimento)
+												if (
+													typeof image.filename ===
+													"string"
+												) {
+													imageUrl = image.filename;
+												}
+											}
+										}
 									}
-								} else {
-									// Estamos usando o armazenamento em ambiente local (Desenvolvimento)
-									if (typeof image.filename === "string") {
-										imageUrl = image.filename;
-									}
+
+									return {
+										name: option.name,
+										imageUrl: imageUrl, // Mantenha apenas uma string
+									};
 								}
-							}
-						}
+						  )
+						: [];
 
-						return {
-							name: option.name,
-							imageUrl: imageUrl, // Mantenha apenas uma string
-						};
-					}
-				);
-
-				return {
-					title: variation.title,
-					options: options,
-				};
-			}
-		);
+					return {
+						title: variation.title,
+						options: options,
+					};
+			  })
+			: []; // Se não for um array, retorna um array vazio
 
 		console.log(
 			"Variação que sera armazenada: ",
