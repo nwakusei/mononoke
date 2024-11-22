@@ -5,8 +5,9 @@ import { Schema, model } from "mongoose";
 interface IVariationOption {
 	name: string; // Nome da opção (ex: "rosa")
 	imageUrl?: string; // URL da imagem associada (opcional)
-	// originalPrice: number;
+	originalPrice: number;
 	// promocionalPrice: number;
+	// stock: number;
 }
 
 interface IProductVariation {
@@ -68,10 +69,10 @@ const productSchema = new Schema<IProduct>(
 								type: String,
 								// required: false, // URL da imagem é opcional
 							},
-							// originalPrice: {
-							// 	type: Number,
-							// 	required: true,
-							// },
+							originalPrice: {
+								type: Number,
+								// required: false,
+							},
 							// promocionalPrice: {
 							// 	type: Number,
 							// 	required: true,

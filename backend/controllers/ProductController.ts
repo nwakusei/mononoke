@@ -128,6 +128,7 @@ class ProductController {
 
 									return {
 										name: option.name,
+										originalPrice: option.originalPrice,
 										imageUrl: imageUrl, // Mantenha apenas uma string
 									};
 								}

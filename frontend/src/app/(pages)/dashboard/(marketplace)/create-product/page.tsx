@@ -152,6 +152,42 @@ const createProductFormSchema = z
 					options: z.array(
 						z.object({
 							name: z.string().trim(),
+							originalPrice: z
+								.string()
+								.trim()
+								.refine(
+									(value) => {
+										if (!value) return true; // Permitir valor vazio (opcional)
+										return /^\d+,\d{2}$/.test(value); // Validar formato somente se houver um valor
+									},
+									{
+										message:
+											"※ Insira um valor válido no formato 0,00!",
+									}
+								)
+								.transform((value) =>
+									value
+										? parseFloat(value.replace(",", "."))
+										: undefined
+								),
+							promocionalPrice: z.string().trim(),
+							stock: z
+								.string()
+								.trim()
+								.refine(
+									(value) => {
+										// Verifica se o valor é um número, não é undefined e é um inteiro
+										const numberValue = Number(value);
+										return (
+											!isNaN(numberValue) &&
+											Number.isInteger(numberValue)
+										);
+									},
+									{
+										message:
+											"※ Insira somente números inteiros!",
+									}
+								),
 							//// Essa é a solução que funcionava, mas dava o erro de Image not instance of Filelist
 							// imageUrl: z
 							// 	.instanceof(FileList)
@@ -599,6 +635,40 @@ const createProductFormSchema = z
 					});
 				}
 
+				if (
+					option.originalPrice == null || // Verifica null ou undefined
+					typeof option.originalPrice !== "number" || // Certifica que é um número
+					isNaN(option.originalPrice) || // Valida que não seja NaN
+					option.originalPrice <= 0 // Garante que seja maior que 0
+				) {
+					ctx.addIssue({
+						code: "custom",
+						message:
+							"※ O preço deve ser um número válido e maior que 0!",
+						path: [
+							"productVariations",
+							variationIndex,
+							"options",
+							optionIndex,
+							"originalPrice",
+						],
+					});
+				}
+
+				if (!option.stock || option.stock.trim() === "") {
+					ctx.addIssue({
+						code: "custom",
+						message: "※ A quantidade em estoque é obrigatória!",
+						path: [
+							"productVariations",
+							variationIndex,
+							"options",
+							optionIndex,
+							"stock",
+						],
+					});
+				}
+
 				// Verifica se a imagem da opção está vazia
 				if (!option.imageUrl) {
 					ctx.addIssue({
@@ -993,6 +1063,11 @@ function CreateProductPage() {
 							option.name
 						);
 
+						formData.append(
+							`productVariations[${index}][options][${optionIndex}][originalPrice]`,
+							option.originalPrice
+						);
+
 						// Adicionar imagem da variação se existir (para 1 único File)
 						if (option.imageUrl) {
 							formData.append(
@@ -1289,7 +1364,7 @@ function CreateProductPage() {
 																				: `input-success`
 																		}`}
 																		type="text"
-																		placeholder="Nome da variação"
+																		placeholder="Ex.: Cores"
 																		{...register(
 																			`productVariations.${variationIndex}.title`
 																		)}
@@ -1337,36 +1412,126 @@ function CreateProductPage() {
 																				optionIndex
 																			}>
 																			<div className="flex flex-row gap-2">
-																				<div
-																					className={`${
-																						errors
+																				<div className="flex flex-col">
+																					<div className="label">
+																						<span className="label-text text-black">
+																							Imagem
+																						</span>
+																					</div>
+																					{/* <h1 className="text-black text-sm mb-2">
+																						Imagem
+																					</h1> */}
+																					<div
+																						className={`${
+																							errors
+																								.productVariations?.[
+																								variationIndex
+																							]
+																								?.options?.[
+																								optionIndex
+																							]
+																								?.imageUrl
+																								? `border-error`
+																								: `border-success`
+																						} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+																						<AddPicture
+																							size={
+																								20
+																							}
+																						/>
+																						<input
+																							type="file"
+																							accept="image/*"
+																							multiple
+																							className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
+																							{...register(
+																								`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
+																							)}
+																						/>
+																					</div>
+																				</div>
+
+																				<label className="form-control">
+																					<div className="label">
+																						<span className="label-text text-black">
+																							Nome
+																							da
+																							Opção
+																						</span>
+																					</div>
+																					<div className="join">
+																						{/* <div className="indicator">
+																							<button
+																								type="button"
+																								className="btn join-item flex flex-row items-center">
+																								<TbCurrencyReal
+																									size={
+																										20
+																									}
+																								/>
+																							</button>
+																						</div> */}
+																						<div>
+																							<div>
+																								<input
+																									className={`input input-bordered ${
+																										errors
+																											.productVariations?.[
+																											variationIndex
+																										]
+																											?.options?.[
+																											optionIndex
+																										]
+																											?.name
+																											? `input-error`
+																											: `input-success`
+																									} w-[400px] join-item`}
+																									type="text"
+																									placeholder="Ex.: Preto"
+																									{...register(
+																										`productVariations.${variationIndex}.options.${optionIndex}.name`
+																									)}
+																									defaultValue={
+																										option.name
+																									}
+																								/>
+																							</div>
+																						</div>
+																					</div>
+																					<div className="label">
+																						{errors
 																							.productVariations?.[
 																							variationIndex
 																						]
 																							?.options?.[
 																							optionIndex
 																						]
-																							?.imageUrl
-																							? `border-error`
-																							: `border-success`
-																					} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-																					<AddPicture
-																						size={
-																							20
-																						}
-																					/>
-																					<input
-																						type="file"
-																						accept="image/*"
-																						multiple
-																						className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
-																						{...register(
-																							`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
+																							?.name && (
+																							<span className="text-red-500 text-xs">
+																								{
+																									errors
+																										.productVariations?.[
+																										variationIndex
+																									]
+																										?.options?.[
+																										optionIndex
+																									]
+																										?.name
+																										.message
+																								}
+																							</span>
 																						)}
-																					/>
-																				</div>
+																					</div>
+																				</label>
 
-																				<div className="flex flex-col">
+																				{/* <div className="flex flex-col">
+																					<div className="label">
+																						<span className="label-text text-black">
+																							Nome
+																							da
+																							Opção
+																						</span>
+																					</div>
 																					<input
 																						className={`input input-bordered ${
 																							errors
@@ -1379,7 +1544,7 @@ function CreateProductPage() {
 																								?.name
 																								? `input-error`
 																								: `input-success`
-																						} w-[300px]`}
+																						} w-[400px]`}
 																						type="text"
 																						placeholder="Nome da opção"
 																						{...register(
@@ -1389,7 +1554,211 @@ function CreateProductPage() {
 																							option.name
 																						}
 																					/>
-																				</div>
+																				</div> */}
+
+																				<label className="form-control">
+																					<div className="label">
+																						<span className="label-text text-black">
+																							Preço
+																							original
+																						</span>
+																					</div>
+																					<div className="join">
+																						<div className="indicator">
+																							<button
+																								type="button"
+																								className="btn join-item flex flex-row items-center">
+																								<TbCurrencyReal
+																									size={
+																										20
+																									}
+																								/>
+																							</button>
+																						</div>
+																						<div>
+																							<div>
+																								<input
+																									className={`input input-bordered ${
+																										errors
+																											.productVariations?.[
+																											variationIndex
+																										]
+																											?.options?.[
+																											optionIndex
+																										]
+																											?.originalPrice
+																											? `input-error`
+																											: `input-success`
+																									} w-[150px] join-item`}
+																									type="text"
+																									placeholder="0,00"
+																									{...register(
+																										`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`
+																									)}
+																									defaultValue={
+																										option.originalPrice
+																									}
+																								/>
+																							</div>
+																						</div>
+																					</div>
+																					<div className="label">
+																						{errors
+																							.productVariations?.[
+																							variationIndex
+																						]
+																							?.options?.[
+																							optionIndex
+																						]
+																							?.originalPrice && (
+																							<span className="text-red-500 text-xs">
+																								{
+																									errors
+																										.productVariations?.[
+																										variationIndex
+																									]
+																										?.options?.[
+																										optionIndex
+																									]
+																										?.originalPrice
+																										.message
+																								}
+																							</span>
+																						)}
+																					</div>
+																				</label>
+
+																				<label className="form-control">
+																					<div className="label">
+																						<span className="label-text text-black">
+																							Preço
+																							promocional
+																						</span>
+																					</div>
+																					<div className="join">
+																						<div className="indicator">
+																							<button
+																								type="button"
+																								className="btn join-item flex flex-row items-center">
+																								<TbCurrencyReal
+																									size={
+																										20
+																									}
+																								/>
+																							</button>
+																						</div>
+																						<div>
+																							<div>
+																								<input
+																									className={`input input-bordered ${
+																										errors
+																											.productVariations?.[
+																											variationIndex
+																										]
+																											?.options?.[
+																											optionIndex
+																										]
+																											?.promocionalPrice
+																											? `input-error`
+																											: `input-success`
+																									} w-[150px] join-item`}
+																									type="text"
+																									placeholder="0,00"
+																									{...register(
+																										`productVariations.${variationIndex}.options.${optionIndex}.promocionalPrice`
+																									)}
+																									defaultValue={
+																										option.promocionalPrice
+																									}
+																								/>
+																							</div>
+																						</div>
+																					</div>
+																					{/* <div className="label">
+																						{errors.originalPrice ? (
+																							<span className="label-text-alt text-red-500">
+																								{
+																									errors
+																										.originalPrice
+																										.message
+																								}
+																							</span>
+																						) : (
+																							<span className="label-text-alt text-black">
+																								Ex.:
+																								R$
+																								1,00
+																							</span>
+																						)}
+																					</div> */}
+																				</label>
+
+																				<label className="form-control">
+																					<div className="label">
+																						<span className="label-text text-black">
+																							Estoque
+																						</span>
+																					</div>
+																					<div className="join">
+																						<div>
+																							<div>
+																								<input
+																									className={`input input-bordered ${
+																										errors
+																											.productVariations?.[
+																											variationIndex
+																										]
+																											?.options?.[
+																											optionIndex
+																										]
+																											?.stock
+																											? `input-error`
+																											: `input-success`
+																									} w-[130px] join-item`}
+																									type="text"
+																									placeholder="0"
+																									{...register(
+																										`productVariations.${variationIndex}.options.${optionIndex}.stock`
+																									)}
+																									defaultValue={
+																										option.stock
+																									}
+																								/>
+																							</div>
+																						</div>
+																						<div className="indicator">
+																							<button
+																								type="button"
+																								className="btn join-item flex flex-row items-center">
+																								Un
+																							</button>
+																						</div>
+																					</div>
+																					<div className="label">
+																						{errors
+																							.productVariations?.[
+																							variationIndex
+																						]
+																							?.options?.[
+																							optionIndex
+																						]
+																							?.stock && (
+																							<span className="text-red-500 text-xs">
+																								{
+																									errors
+																										.productVariations?.[
+																										variationIndex
+																									]
+																										?.options?.[
+																										optionIndex
+																									]
+																										?.stock
+																										.message
+																								}
+																							</span>
+																						)}
+																					</div>
+																				</label>
 																			</div>
 																			<div>
 																				{errors
@@ -1410,30 +1779,6 @@ function CreateProductPage() {
 																								optionIndex
 																							]
 																								?.imageUrl
-																								.message
-																						}
-																					</span>
-																				)}
-																			</div>
-																			<div>
-																				{errors
-																					.productVariations?.[
-																					variationIndex
-																				]
-																					?.options?.[
-																					optionIndex
-																				]
-																					?.name && (
-																					<span className="text-red-500 text-xs">
-																						{
-																							errors
-																								.productVariations?.[
-																								variationIndex
-																							]
-																								?.options?.[
-																								optionIndex
-																							]
-																								?.name
 																								.message
 																						}
 																					</span>
