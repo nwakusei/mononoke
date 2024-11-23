@@ -3,11 +3,11 @@ import { Schema, model } from "mongoose";
 
 // Interface para a estrutura das variações do produto
 interface IVariationOption {
-	name: string; // Nome da opção (ex: "rosa")
 	imageUrl?: string; // URL da imagem associada (opcional)
+	name: string; // Nome da opção (ex: "rosa")
 	originalPrice: number;
-	// promocionalPrice: number;
-	// stock: number;
+	promocionalPrice: number;
+	stock: number;
 }
 
 interface IProductVariation {
@@ -61,22 +61,26 @@ const productSchema = new Schema<IProduct>(
 					},
 					options: [
 						{
-							name: {
-								type: String,
-								// required: true, // Nome da opção é obrigatório
-							},
 							imageUrl: {
 								type: String,
 								// required: false, // URL da imagem é opcional
+							},
+							name: {
+								type: String,
+								// required: true, // Nome da opção é obrigatório
 							},
 							originalPrice: {
 								type: Number,
 								// required: false,
 							},
-							// promocionalPrice: {
-							// 	type: Number,
-							// 	required: true,
-							// },
+							promocionalPrice: {
+								type: Number,
+								// 	required: true,
+							},
+							stock: {
+								type: Number,
+								// required: false,
+							},
 						},
 					],
 				},

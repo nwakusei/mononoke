@@ -170,7 +170,23 @@ const createProductFormSchema = z
 										? parseFloat(value.replace(",", "."))
 										: undefined
 								),
-							promocionalPrice: z.string().trim(),
+							promocionalPrice: z
+								.string()
+								.trim()
+								.optional()
+								.refine(
+									(value) =>
+										!value || /^\d+,\d{2}$/.test(value),
+									{
+										message:
+											"※ Insira um valor válido no formato 0,00!",
+									}
+								)
+								.transform((value) =>
+									value
+										? parseFloat(value.replace(",", "."))
+										: undefined
+								),
 							stock: z
 								.string()
 								.trim()
@@ -636,10 +652,8 @@ const createProductFormSchema = z
 				}
 
 				if (
-					option.originalPrice == null || // Verifica null ou undefined
-					typeof option.originalPrice !== "number" || // Certifica que é um número
-					isNaN(option.originalPrice) || // Valida que não seja NaN
-					option.originalPrice <= 0 // Garante que seja maior que 0
+					!option.originalPrice ||
+					Number(option.originalPrice) <= 0
 				) {
 					ctx.addIssue({
 						code: "custom",
@@ -655,10 +669,10 @@ const createProductFormSchema = z
 					});
 				}
 
-				if (!option.stock || option.stock.trim() === "") {
+				if (!option.stock || option.stock === "") {
 					ctx.addIssue({
 						code: "custom",
-						message: "※ A quantidade em estoque é obrigatória!",
+						message: "※ O estoque é obrigatório!",
 						path: [
 							"productVariations",
 							variationIndex,
@@ -1041,7 +1055,11 @@ function CreateProductPage() {
 
 		// Itera sobre os campos de texto e adiciona ao FormData
 		Object.entries(sanitizedData).forEach(([key, value]) => {
-			if (key === "promocionalPrice" || key === "originalPrice") {
+			if (
+				key === "promocionalPrice" ||
+				key === "originalPrice" ||
+				key === "stock"
+			) {
 				// Atribui 0 se o valor estiver vazio ou undefined
 				const numericValue = value ? parseFloat(value) : 0;
 				formData.append(
@@ -1066,6 +1084,16 @@ function CreateProductPage() {
 						formData.append(
 							`productVariations[${index}][options][${optionIndex}][originalPrice]`,
 							option.originalPrice
+						);
+
+						formData.append(
+							`productVariations[${index}][options][${optionIndex}][promocionalPrice]`,
+							option.promocionalPrice
+						);
+
+						formData.append(
+							`productVariations[${index}][options][${optionIndex}][stock]`,
+							option.stock
 						);
 
 						// Adicionar imagem da variação se existir (para 1 único File)

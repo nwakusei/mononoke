@@ -127,9 +127,12 @@ class ProductController {
 									}
 
 									return {
+										imageUrl: imageUrl, // Mantenha apenas uma string
 										name: option.name,
 										originalPrice: option.originalPrice,
-										imageUrl: imageUrl, // Mantenha apenas uma string
+										promocionalPrice:
+											option.promocionalPrice,
+										stock: option.stock,
 									};
 								}
 						  )
