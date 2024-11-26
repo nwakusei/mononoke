@@ -58,6 +58,8 @@ function ProductPage() {
 		index: 0, // Índice da opção dentro da variação
 	});
 
+	const [selectedVariation, setSelectedVariation] = useState(0);
+
 	// Função para alterar a imagem ao clicar em uma miniatura
 	const handleThumbnailClick = (index) => {
 		setSelectedImage({ type: "carousel", index });
@@ -65,6 +67,13 @@ function ProductPage() {
 
 	const handleVariationClick = (variationIndex, index) => {
 		setSelectedImage({ type: "variation", variationIndex, index });
+
+		// Obtém a variação e opção selecionada com todos os dados, incluindo o preço
+		const selectedVariation =
+			product?.productVariations[variationIndex].options[index];
+
+		// Atualiza o estado com a variação completa
+		setSelectedVariation(selectedVariation); // Agora armazena a variação completa
 	};
 
 	// Função para buscar a lista de lojas seguidas
@@ -112,11 +121,11 @@ function ProductPage() {
 
 	// Calcular a porcentagem de desconto
 	const calculateDiscountPercentage = () => {
-		if (product.originalPrice === 0 || product.promocionalPrice === 0) {
+		if (product.originalPrice === 0 || product.promotionalPrice === 0) {
 			return 0;
 		}
 		const discountPercentage =
-			((product.originalPrice - product.promocionalPrice) /
+			((product.originalPrice - product.promotionalPrice) /
 				product.originalPrice) *
 			100;
 		return Math.round(discountPercentage);
@@ -357,12 +366,12 @@ function ProductPage() {
 						</div>
 
 						{/* Preço */}
-						{product?.promocionalPrice > 0 ? (
+						{product?.promotionalPrice > 0 ? (
 							<div>
 								{/* Preço promocional */}
 								<h2 className="text-2xl text-primary font-semibold">
 									{Number(
-										product?.promocionalPrice
+										product?.promotionalPrice
 									).toLocaleString("pt-BR", {
 										style: "currency",
 										currency: "BRL",
@@ -415,7 +424,7 @@ function ProductPage() {
 						/>
 					</div>
 					{/* Componente Lateral D. */}
-					<SideComponent />
+					<SideComponent selectedVariation={selectedVariation} />
 				</div>
 				{/* Componente para as miniaturas */}
 				<ImageCarouselComponent
@@ -827,14 +836,14 @@ function ProductPage() {
 										originalPrice={Number(
 											recommendedProduct.originalPrice
 										)}
-										promocionalPrice={Number(
-											recommendedProduct.promocionalPrice
+										promotionalPrice={Number(
+											recommendedProduct.promotionalPrice
 										)}
 										price={Number(
 											recommendedProduct.originalPrice
 										)}
 										promoPrice={Number(
-											recommendedProduct.promocionalPrice
+											recommendedProduct.promotionalPrice
 										)}
 										cashback={cashback} // Passar o cashback para o componente ProductAdCard
 										rating={recommendedProduct.rating}

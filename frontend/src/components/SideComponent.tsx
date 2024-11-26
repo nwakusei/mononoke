@@ -27,7 +27,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-function SideComponent() {
+function SideComponent({ selectedVariation }) {
 	const { id } = useParams();
 	const [product, setProduct] = useState({});
 	const [transportadoras, setTransportadoras] = useState([]);
@@ -37,6 +37,8 @@ function SideComponent() {
 		[key: string]: boolean;
 	}>({});
 	const stock = product.stock;
+
+	console.log(localStorage.getItem("selectedVariations"));
 
 	const { partners } = useContext(Context);
 	const { setCart, setSubtotal } = useContext(CheckoutContext);
@@ -81,8 +83,8 @@ function SideComponent() {
 
 	// Valor a ser Exibido no Anúncio (Preço Original ou Promocional)
 	const value =
-		Number(product.promocionalPrice) > 0
-			? Number(product.promocionalPrice)
+		Number(product.promotionalPrice) > 0
+			? Number(product.promotionalPrice)
 			: Number(product.originalPrice);
 
 	// Função para selecionar variações
@@ -132,55 +134,130 @@ function SideComponent() {
 	const [isQuantityAtLimit, setIsQuantityAtLimit] = useState(false);
 	const [totalOrder, setTotalOrder] = useState(value);
 
+	// Função para calculo do Subtotal dos produtos
+	const renderPrice = () => {
+		// Verifica se existem variações
+		if (product?.productVariations?.length > 0) {
+			// Se a variação foi selecionada e a variação de preço está disponível
+			if (selectedVariation) {
+				const price =
+					selectedVariation.promotionalPrice > 0
+						? selectedVariation.promotionalPrice
+						: selectedVariation.originalPrice;
+
+				// Verifica se o preço é válido
+				if (price && !isNaN(price) && price >= 0) {
+					return price.toLocaleString("pt-BR", {
+						style: "currency",
+						currency: "BRL",
+					});
+				} else {
+					return ""; // Retorna vazio se o preço da variação não for válido
+				}
+			}
+
+			// Se não houver variação selecionada, exibe o menor preço entre todas as variações
+			const minVariationPrice = Math.min(
+				...product.productVariations.flatMap((variation) =>
+					variation.options.map((option) => {
+						const price =
+							option.promotionalPrice > 0
+								? option.promotionalPrice
+								: option.originalPrice;
+						return !isNaN(price) && price >= 0 ? price : Infinity; // Ignorar preços inválidos
+					})
+				)
+			);
+
+			// Exibe o menor preço entre as variações
+			if (minVariationPrice !== Infinity) {
+				return minVariationPrice.toLocaleString("pt-BR", {
+					style: "currency",
+					currency: "BRL",
+				});
+			} else {
+				return ""; // Retorna vazio se o preço das variações não for válido
+			}
+		}
+
+		// Se não houver variações, exibe o preço original ou promocional do produto
+		const priceToRender =
+			Number(product.promotionalPrice) > 0
+				? product.promotionalPrice
+				: product?.originalPrice;
+
+		// Verifica se o preço do produto é válido
+		if (priceToRender && !isNaN(priceToRender) && priceToRender >= 0) {
+			return priceToRender.toLocaleString("pt-BR", {
+				style: "currency",
+				currency: "BRL",
+			});
+		} else {
+			return ""; // Retorna vazio se o preço não for válido
+		}
+	};
+
 	// Etapa 2: Funções para lidar com incremento e decremento
 	const updateTotalOrder = (newQuantity: number) => {
-		setTotalOrder(value);
-
 		setQuantity(newQuantity);
 
+		// Verifica se a quantidade é 1 ou menos
 		if (newQuantity <= 1) {
 			setIsQuantityOneOrLess(true);
 		} else {
 			setIsQuantityOneOrLess(false);
 		}
 
-		if (newQuantity === stock) {
+		// Verifica se a quantidade chegou ao limite de estoque
+		const estoque =
+			product?.productVariations?.length > 0
+				? selectedVariation?.stock // Usando estoque da variação selecionada
+				: product?.stock; // Usando estoque do produto principal
+
+		if (newQuantity === estoque) {
 			setIsQuantityAtLimit(true);
 		} else {
 			setIsQuantityAtLimit(false);
 		}
 
-		// Multiplicando o novo valor da quantidade pelo valor do produto
-		setTotalOrder(newQuantity * value);
+		// Verifica o valor a ser usado no cálculo (variação ou produto principal)
+		const priceToUse =
+			product?.productVariations?.length > 0
+				? selectedVariation?.promotionalPrice > 0
+					? selectedVariation?.promotionalPrice
+					: selectedVariation?.originalPrice
+				: product?.promotionalPrice > 0
+				? product?.promotionalPrice
+				: product?.originalPrice;
+
+		// Multiplicando a nova quantidade pelo valor correto
+		setTotalOrder(newQuantity * (priceToUse || 0));
 	};
 
 	// Incremento de Quantidade (+1)
 	const incrementarQuantidade = () => {
-		if (quantity < stock) {
+		// Se o produto tem variações, usa o estoque da variação selecionada
+		const estoque =
+			product?.productVariations?.length > 0
+				? selectedVariation?.stock // Se tiver variação selecionada, usa o estoque da variação
+				: product?.stock; // Se não, usa o estoque geral do produto
+
+		if (quantity < estoque) {
 			updateTotalOrder(quantity + 1);
 		}
 	};
 
 	// Decremento de Quantidade (-1)
 	const decrementarQuantidade = () => {
+		// Se o produto tem variações, usa o estoque da variação selecionada
+		const estoque =
+			product?.productVariations?.length > 0
+				? selectedVariation?.stock // Se tiver variação selecionada, usa o estoque da variação
+				: product?.stock; // Se não, usa o estoque geral do produto
+
 		if (quantity > 1) {
 			updateTotalOrder(quantity - 1);
 		}
-	};
-
-	// Função para calculo do Subtotal dos produtos
-	const renderPrice = () => {
-		const priceToRender =
-			Number(product.promocionalPrice) > 0
-				? Number(product.promocionalPrice).toLocaleString("pt-BR", {
-						style: "currency",
-						currency: "BRL",
-				  })
-				: Number(product.originalPrice).toLocaleString("pt-BR", {
-						style: "currency",
-						currency: "BRL",
-				  });
-		return priceToRender;
 	};
 
 	function handleAddProductInCart(quantity, product, selectedTransportadora) {
@@ -234,8 +311,8 @@ function SideComponent() {
 		// Calcula o preço do produto
 		let productPrice;
 
-		if (product.promocionalPrice && Number(product.promocionalPrice) > 0) {
-			productPrice = Number(product.promocionalPrice);
+		if (product.promotionalPrice && Number(product.promotionalPrice) > 0) {
+			productPrice = Number(product.promotionalPrice);
 		} else if (product.originalPrice && Number(product.originalPrice) > 0) {
 			productPrice = Number(product.originalPrice);
 		} else {
@@ -334,9 +411,9 @@ function SideComponent() {
 
 		let productPrice;
 
-		if (product.promocionalPrice && Number(product.promocionalPrice) > 0) {
+		if (product.promotionalPrice && Number(product.promotionalPrice) > 0) {
 			// Se houver um preço promocional válido, use-o como preço do produto
-			productPrice = Number(product.promocionalPrice);
+			productPrice = Number(product.promotionalPrice);
 		} else if (product.originalPrice && Number(product.originalPrice) > 0) {
 			// Se não houver preço promocional válido, mas houver um preço original válido, use-o como preço do produto
 			productPrice = Number(product.originalPrice);
@@ -429,9 +506,23 @@ function SideComponent() {
 								</div>
 							</div>
 							<div className="text-sm text-black">
-								{`${stock} un disponíveis`}
+								{product &&
+									product.productVariations?.length > 0 &&
+									`${
+										selectedVariation?.stock !== undefined
+											? `${selectedVariation.stock} un disponíveis`
+											: `∞ un disponíveis`
+									}`}
+
+								{product &&
+									product.productVariations?.length <= 0 &&
+									`${stock} un disponíveis`}
 							</div>
 						</div>
+
+						{/* <div>
+							<h3>Estoque: {selectedVariation}</h3>
+						</div> */}
 
 						<div className="flex flex-row justify-between mb-2">
 							<div className="font-semibold text-black">

@@ -361,14 +361,14 @@ function StorePage() {
 									originalPrice={Number(
 										returnedProduct.originalPrice
 									)}
-									promocionalPrice={Number(
-										returnedProduct.promocionalPrice
+									promotionalPrice={Number(
+										returnedProduct.promotionalPrice
 									)}
 									price={Number(
 										returnedProduct.originalPrice
 									)}
 									promoPrice={Number(
-										returnedProduct.promocionalPrice
+										returnedProduct.promotionalPrice
 									)}
 									cashback={cashback}
 									rating={returnedProduct.rating}
@@ -399,12 +399,12 @@ function StorePage() {
 									originalPrice={Number(
 										product.originalPrice
 									)}
-									promocionalPrice={Number(
-										product.promocionalPrice
+									promotionalPrice={Number(
+										product.promotionalPrice
 									)}
 									price={Number(product.originalPrice)}
 									promoPrice={Number(
-										product.promocionalPrice
+										product.promotionalPrice
 									)}
 									cashback={cashback}
 									rating={product.rating}

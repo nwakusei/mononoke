@@ -17,7 +17,7 @@ class ProductController {
 			description,
 			productVariations,
 			originalPrice,
-			promocionalPrice,
+			promotionalPrice,
 			stock,
 			category,
 			weight,
@@ -130,8 +130,8 @@ class ProductController {
 										imageUrl: imageUrl, // Mantenha apenas uma string
 										name: option.name,
 										originalPrice: option.originalPrice,
-										promocionalPrice:
-											option.promocionalPrice,
+										promotionalPrice:
+											option.promotionalPrice,
 										stock: option.stock,
 									};
 								}
@@ -172,7 +172,7 @@ class ProductController {
 			return;
 		}
 
-		// if (!promocionalPrice) {
+		// if (!promotionalPrice) {
 		// 	res.status(422).json({
 		// 		message: "O título do produto é obrigatório!",
 		// 	});
@@ -295,7 +295,7 @@ class ProductController {
 			description: description,
 			productVariations: processedVariations,
 			originalPrice: originalPrice,
-			promocionalPrice: promocionalPrice || 0.0,
+			promotionalPrice: promotionalPrice || 0.0,
 			stock: stock,
 			category: category,
 			weight: weight,

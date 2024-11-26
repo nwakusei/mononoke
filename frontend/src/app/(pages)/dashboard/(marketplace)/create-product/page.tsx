@@ -170,7 +170,7 @@ const createProductFormSchema = z
 										? parseFloat(value.replace(",", "."))
 										: undefined
 								),
-							promocionalPrice: z
+							promotionalPrice: z
 								.string()
 								.trim()
 								.optional()
@@ -273,7 +273,7 @@ const createProductFormSchema = z
 			.transform((value) =>
 				value ? parseFloat(value.replace(",", ".")) : undefined
 			),
-		promocionalPrice: z
+		promotionalPrice: z
 			.string()
 			.trim()
 			.optional()
@@ -1056,7 +1056,7 @@ function CreateProductPage() {
 		// Itera sobre os campos de texto e adiciona ao FormData
 		Object.entries(sanitizedData).forEach(([key, value]) => {
 			if (
-				key === "promocionalPrice" ||
+				key === "promotionalPrice" ||
 				key === "originalPrice" ||
 				key === "stock"
 			) {
@@ -1086,9 +1086,17 @@ function CreateProductPage() {
 							option.originalPrice
 						);
 
+						const promotionalPrice =
+							option.promotionalPrice &&
+							option.promotionalPrice !== ""
+								? parseFloat(option.promotionalPrice)
+								: 0;
+
 						formData.append(
-							`productVariations[${index}][options][${optionIndex}][promocionalPrice]`,
-							option.promocionalPrice
+							`productVariations[${index}][options][${optionIndex}][promotionalPrice]`,
+							isNaN(promotionalPrice)
+								? "0"
+								: promotionalPrice.toString()
 						);
 
 						formData.append(
@@ -1686,39 +1694,46 @@ function CreateProductPage() {
 																											?.options?.[
 																											optionIndex
 																										]
-																											?.promocionalPrice
+																											?.promotionalPrice
 																											? `input-error`
 																											: `input-success`
 																									} w-[150px] join-item`}
 																									type="text"
 																									placeholder="0,00"
 																									{...register(
-																										`productVariations.${variationIndex}.options.${optionIndex}.promocionalPrice`
+																										`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`
 																									)}
 																									defaultValue={
-																										option.promocionalPrice
+																										option.promotionalPrice
 																									}
 																								/>
 																							</div>
 																						</div>
 																					</div>
-																					{/* <div className="label">
-																						{errors.originalPrice ? (
-																							<span className="label-text-alt text-red-500">
+																					<div className="label">
+																						{errors
+																							.productVariations?.[
+																							variationIndex
+																						]
+																							?.options?.[
+																							optionIndex
+																						]
+																							?.promotionalPrice && (
+																							<span className="text-red-500 text-xs">
 																								{
 																									errors
-																										.originalPrice
+																										.productVariations?.[
+																										variationIndex
+																									]
+																										?.options?.[
+																										optionIndex
+																									]
+																										?.promotionalPrice
 																										.message
 																								}
 																							</span>
-																						) : (
-																							<span className="label-text-alt text-black">
-																								Ex.:
-																								R$
-																								1,00
-																							</span>
 																						)}
-																					</div> */}
+																					</div>
 																				</label>
 
 																				<label className="form-control">
@@ -1958,24 +1973,24 @@ function CreateProductPage() {
 													<div>
 														<input
 															className={`input input-bordered ${
-																errors.promocionalPrice
+																errors.promotionalPrice
 																	? `input-error`
 																	: `input-success`
 															} join-item`}
 															placeholder="0,00"
 															{...register(
-																"promocionalPrice"
+																"promotionalPrice"
 															)}
 														/>
 													</div>
 												</div>
 											</div>
 											<div className="label">
-												{errors.promocionalPrice ? (
+												{errors.promotionalPrice ? (
 													<span className="label-text-alt text-red-500">
 														{
 															errors
-																.promocionalPrice
+																.promotionalPrice
 																.message
 														}
 													</span>

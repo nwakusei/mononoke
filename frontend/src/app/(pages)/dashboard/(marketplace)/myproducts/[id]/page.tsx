@@ -47,7 +47,7 @@ const createProductFormSchema = z.object({
 			message: "※ O valor do produto deve ser um número válido",
 		})
 		.transform((value) => parseFloat(value.replace(",", "."))),
-	promocionalPrice: z
+	promotionalPrice: z
 		.string()
 		.optional()
 		.refine((value) => /^\d+(\.\d+)?$/.test(value.replace(",", ".")), {
@@ -617,8 +617,8 @@ function MyProductPage() {
 														className="input input-bordered input-success join-item"
 														placeholder="0,00"
 														defaultValue={
-															product?.promocionalPrice
-																? product.promocionalPrice.toLocaleString(
+															product?.promotionalPrice
+																? product.promotionalPrice.toLocaleString(
 																		"pt-BR",
 																		{
 																			minimumFractionDigits: 2,
@@ -628,7 +628,7 @@ function MyProductPage() {
 																: ""
 														}
 														{...register(
-															"promocionalPrice"
+															"promotionalPrice"
 														)}
 													/>
 												</div>

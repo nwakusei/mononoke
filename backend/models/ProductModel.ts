@@ -6,7 +6,7 @@ interface IVariationOption {
 	imageUrl?: string; // URL da imagem associada (opcional)
 	name: string; // Nome da opção (ex: "rosa")
 	originalPrice: number;
-	promocionalPrice: number;
+	promotionalPrice: number;
 	stock: number;
 }
 
@@ -22,7 +22,7 @@ interface IProduct {
 	description: string;
 	productVariations: IProductVariation[];
 	originalPrice: number;
-	promocionalPrice: number;
+	promotionalPrice: number;
 	stock: number;
 	category: string;
 	weight: number;
@@ -73,7 +73,7 @@ const productSchema = new Schema<IProduct>(
 								type: Number,
 								// required: false,
 							},
-							promocionalPrice: {
+							promotionalPrice: {
 								type: Number,
 								// 	required: true,
 							},
@@ -90,7 +90,7 @@ const productSchema = new Schema<IProduct>(
 		originalPrice: {
 			type: Number,
 		},
-		promocionalPrice: {
+		promotionalPrice: {
 			type: Number,
 		},
 		stock: {

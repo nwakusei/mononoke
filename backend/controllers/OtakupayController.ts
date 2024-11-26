@@ -315,8 +315,8 @@ class OtakupayController {
 
 				// Calcular o custo total do produto levando em consideração a quantidade
 				const productCost =
-					productFromDB.promocionalPrice > 0
-						? productFromDB.promocionalPrice
+					productFromDB.promotionalPrice > 0
+						? productFromDB.promotionalPrice
 						: productFromDB.originalPrice;
 				const totalProductCost = productCost * product.productQuantity;
 
@@ -406,8 +406,8 @@ class OtakupayController {
 
 				// Calcular o custo total do produto levando em consideração a quantidade
 				const productCost =
-					productFromDB.promocionalPrice > 0
-						? productFromDB.promocionalPrice
+					productFromDB.promotionalPrice > 0
+						? productFromDB.promotionalPrice
 						: productFromDB.originalPrice;
 				return productCost * product.productQuantity;
 			}
@@ -1065,8 +1065,8 @@ class OtakupayController {
 
 							// Calcular o custo total do produto levando em consideração a quantidade
 							const productCost =
-								productFromDB.promocionalPrice > 0
-									? productFromDB.promocionalPrice
+								productFromDB.promotionalPrice > 0
+									? productFromDB.promotionalPrice
 									: productFromDB.originalPrice;
 
 							// Adicionar o item ao pedido
@@ -1474,8 +1474,8 @@ class OtakupayController {
 
 				// Calcular o custo total do produto levando em consideração a quantidade
 				const productCost =
-					productFromDB.promocionalPrice > 0
-						? productFromDB.promocionalPrice
+					productFromDB.promotionalPrice > 0
+						? productFromDB.promotionalPrice
 						: productFromDB.originalPrice;
 				const totalProductCost = productCost * product.productQuantity;
 
@@ -1565,8 +1565,8 @@ class OtakupayController {
 
 				// Calcular o custo total do produto levando em consideração a quantidade
 				const productCost =
-					productFromDB.promocionalPrice > 0
-						? productFromDB.promocionalPrice
+					productFromDB.promotionalPrice > 0
+						? productFromDB.promotionalPrice
 						: productFromDB.originalPrice;
 				return productCost * product.productQuantity;
 			}
@@ -2225,8 +2225,8 @@ class OtakupayController {
 
 							// Calcular o custo total do produto levando em consideração a quantidade
 							const productCost =
-								productFromDB.promocionalPrice > 0
-									? productFromDB.promocionalPrice
+								productFromDB.promotionalPrice > 0
+									? productFromDB.promotionalPrice
 									: productFromDB.originalPrice;
 
 							// Adicionar o item ao pedido
@@ -2861,8 +2861,8 @@ class OtakupayController {
 
 										// Calcular o custo total do produto levando em consideração a quantidade
 										const productCost =
-											productFromDB.promocionalPrice > 0
-												? productFromDB.promocionalPrice
+											productFromDB.promotionalPrice > 0
+												? productFromDB.promotionalPrice
 												: productFromDB.originalPrice;
 										const totalProductCost =
 											productCost *
@@ -2973,8 +2973,8 @@ class OtakupayController {
 
 										// Calcular o custo total do produto levando em consideração a quantidade
 										const productCost =
-											productFromDB.promocionalPrice > 0
-												? productFromDB.promocionalPrice
+											productFromDB.promotionalPrice > 0
+												? productFromDB.promotionalPrice
 												: productFromDB.originalPrice;
 										return (
 											productCost *
@@ -3749,9 +3749,9 @@ class OtakupayController {
 
 													// Calcular o custo total do produto levando em consideração a quantidade
 													const productCost =
-														productFromDB.promocionalPrice >
+														productFromDB.promotionalPrice >
 														0
-															? productFromDB.promocionalPrice
+															? productFromDB.promotionalPrice
 															: productFromDB.originalPrice;
 
 													// Adicionar o item ao pedido

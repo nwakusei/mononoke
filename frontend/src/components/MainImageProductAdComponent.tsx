@@ -3,34 +3,6 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 const MainImageProductAdComponent = ({ selectedImage, product }) => {
-	// let imageUrl = "";
-
-	// // Define a imagem padrão como a primeira imagem do produto
-	// if (product?.imagesProduct?.length > 0) {
-	// 	imageUrl = product.imagesProduct[0]; // Renderiza a primeira imagem por padrão
-	// }
-
-	// // Verifica se o tipo é 'carousel' e pega a imagem do array de imagens do produto
-	// if (
-	// 	selectedImage.type === "carousel" &&
-	// 	product?.imagesProduct?.[selectedImage.index]
-	// ) {
-	// 	imageUrl = product.imagesProduct[selectedImage.index];
-	// }
-	// // Verifica se o tipo é 'variation' e pega a imagem correta baseado nos índices fornecidos
-	// else if (
-	// 	selectedImage.type === "variation" &&
-	// 	product?.productVariations?.[selectedImage.variationIndex]
-	// ) {
-	// 	const variationOption =
-	// 		product.productVariations[selectedImage.variationIndex].options[
-	// 			selectedImage.index
-	// 		];
-	// 	if (variationOption) {
-	// 		imageUrl = variationOption.imageUrl;
-	// 	}
-	// }
-
 	// Inicializa o estado com a imagem padrão
 	const [imageUrl, setImageUrl] = useState(product?.imagesProduct?.[0] || ""); // Inicia com a primeira imagem se disponível
 

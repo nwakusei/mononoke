@@ -13,7 +13,7 @@ function ProductAdCard({
 	productImage,
 	title,
 	originalPrice,
-	promocionalPrice,
+	promotionalPrice,
 	price,
 	promoPrice,
 	cashback,
@@ -23,11 +23,11 @@ function ProductAdCard({
 }) {
 	// Calcular a porcentagem de desconto
 	const calculateDiscountPercentage = () => {
-		if (originalPrice === 0 || promocionalPrice === 0) {
+		if (originalPrice === 0 || promotionalPrice === 0) {
 			return 0;
 		}
 		const discountPercentage =
-			((originalPrice - promocionalPrice) / originalPrice) * 100;
+			((originalPrice - promotionalPrice) / originalPrice) * 100;
 		return Math.round(discountPercentage);
 	};
 
@@ -131,7 +131,7 @@ function ProductAdCard({
 				</div>
 				<div>
 					<h1 className="text-base text-black">
-						{promocionalPrice === 0 ? (
+						{promotionalPrice === 0 ? (
 							<span className="text-primary">
 								{price.toLocaleString("pt-BR", {
 									style: "currency",

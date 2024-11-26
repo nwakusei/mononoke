@@ -111,7 +111,7 @@ function MyProductsPage() {
 														</div>
 													</td>
 													<td className="text-black">
-														{product.promocionalPrice >
+														{product.promotionalPrice >
 														0 ? (
 															<div className="flex flex-col">
 																<div className="flex flex-row items-center gap-2 mb-2">
@@ -129,7 +129,7 @@ function MyProductsPage() {
 																	</span>
 																	<span>
 																		{Number(
-																			product.promocionalPrice
+																			product.promotionalPrice
 																		).toLocaleString(
 																			"pt-BR",
 																			{
