@@ -133,16 +133,18 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface IVariationOption {
-	name: string;
-	imageUrl: string;
 	_id: string;
+	imageUrl: string;
+	name: string;
+	originalPrice: number;
+	promotionalPrice: number;
 	stock: number; // Inclui o estoque na interface da opção
 }
 
 interface IVariation {
+	_id: string;
 	title: string;
 	options: IVariationOption[];
-	_id: string;
 }
 
 interface IProductVariationProps {
@@ -186,7 +188,12 @@ function ProductVariation({
 
 			// Caso contrário, atualiza para incluir apenas a nova variação
 			return {
-				[variationKey]: { name: option.name, stock: option.stock },
+				[variationKey]: {
+					name: option.name,
+					originalPrice: option.originalPrice,
+					promotionalPrice: option.promotionalPrice,
+					stock: option.stock,
+				},
 			};
 		});
 	}

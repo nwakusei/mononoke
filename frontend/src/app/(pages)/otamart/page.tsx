@@ -32,9 +32,7 @@ function OtamartPage() {
 
 	useEffect(() => {
 		api.get("/products/").then((response) => {
-			setProducts(
-				response.data.products.filter((product) => product.stock > 0)
-			);
+			setProducts(response.data.products);
 			setIsLoading(false);
 		});
 	}, []);

@@ -355,9 +355,45 @@ class ProductController {
 
 	// Pegar todos os Produtos
 	static async getAllProducts(req: Request, res: Response) {
-		const products = await ProductModel.find().sort("-createdAt");
+		try {
+			const products = await ProductModel.find({
+				$or: [
+					// Produtos sem variações, mas com stock maior que 0
+					{
+						productVariations: { $size: 0 },
+						stock: { $gt: 0 },
+					},
+					// Produtos com variações onde pelo menos uma opção tem stock maior que 0
+					{
+						productVariations: {
+							$elemMatch: {
+								options: {
+									$elemMatch: { stock: { $gt: 0 } },
+								},
+							},
+						},
+					},
+					// Produtos com variações, mas o estoque principal é maior que 0
+					{
+						stock: { $gt: 0 },
+						productVariations: {
+							$elemMatch: {
+								options: {
+									$not: { $elemMatch: { stock: { $gt: 0 } } },
+								},
+							},
+						},
+					},
+				],
+			}).sort("-createdAt");
 
-		res.status(200).json({ products: products });
+			res.status(200).json({ products });
+		} catch (error) {
+			res.status(500).json({
+				message: "Erro ao buscar os produtos.",
+				error,
+			});
+		}
 	}
 
 	static async getAllProductsPartner(req: Request, res: Response) {

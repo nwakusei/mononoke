@@ -260,7 +260,12 @@ function SideComponent({ selectedVariation }) {
 		}
 	};
 
-	function handleAddProductInCart(quantity, product, selectedTransportadora) {
+	function handleAddProductInCart(
+		quantity,
+		product,
+		selectedTransportadora,
+		selectedVariation
+	) {
 		const selectedVariations = JSON.parse(
 			localStorage.getItem("selectedVariations") || "{}"
 		);
@@ -308,17 +313,50 @@ function SideComponent({ selectedVariation }) {
 			productsInCart = JSON.parse(productsInCart);
 		}
 
-		// Calcula o preço do produto
+		// // Calcula o preço do produto
+		// let productPrice;
+
+		// if (product.promotionalPrice && Number(product.promotionalPrice) > 0) {
+		// 	productPrice = Number(product.promotionalPrice);
+		// } else if (product.originalPrice && Number(product.originalPrice) > 0) {
+		// 	productPrice = Number(product.originalPrice);
+		// } else {
+		// 	// Se não houver nenhum preço válido, retorna um erro ou define como 0
+		// 	console.error("Preço do produto inválido:", product);
+		// 	return;
+		// }
+
 		let productPrice;
 
-		if (product.promotionalPrice && Number(product.promotionalPrice) > 0) {
-			productPrice = Number(product.promotionalPrice);
-		} else if (product.originalPrice && Number(product.originalPrice) > 0) {
-			productPrice = Number(product.originalPrice);
+		// Se houver variações e uma variação selecionada, usa o preço da variação
+		if (selectedVariation) {
+			// Acesse o preço da variação selecionada
+			const variationPrice =
+				selectedVariation.promotionalPrice ||
+				selectedVariation.originalPrice;
+
+			if (variationPrice && Number(variationPrice) > 0) {
+				// Se a variação tiver um preço válido, usa o preço da variação
+				productPrice = Number(variationPrice);
+			} else {
+				// Se não houver preço válido na variação, verifica o preço do produto principal
+				productPrice =
+					product.promotionalPrice &&
+					Number(product.promotionalPrice) > 0
+						? Number(product.promotionalPrice)
+						: product.originalPrice &&
+						  Number(product.originalPrice) > 0
+						? Number(product.originalPrice)
+						: 0;
+			}
 		} else {
-			// Se não houver nenhum preço válido, retorna um erro ou define como 0
-			console.error("Preço do produto inválido:", product);
-			return;
+			// Se não houver variação selecionada ou o produto não tiver variações, usa o preço principal
+			productPrice =
+				product.promotionalPrice && Number(product.promotionalPrice) > 0
+					? Number(product.promotionalPrice)
+					: product.originalPrice && Number(product.originalPrice) > 0
+					? Number(product.originalPrice)
+					: 0;
 		}
 
 		// Verifica se o produto já está no carrinho pelo ID
@@ -406,22 +444,103 @@ function SideComponent({ selectedVariation }) {
 	}
 
 	// Função para Calcular o Frete
+	// async function handleSimulateShipping(cep: number) {
+	// 	console.log(selectedVariation.originalPrice);
+
+	// 	if (product.productVariations.length > 0 && !selectedVariation) {
+	// 		return toast.info("Selecione a variação!");
+	// 	}
+
+	// 	setIsCalculating(true);
+
+	// 	let productPrice;
+
+	// 	if (product.promotionalPrice && Number(product.promotionalPrice) > 0) {
+	// 		// Se houver um preço promocional válido, use-o como preço do produto
+	// 		productPrice = Number(product.promotionalPrice);
+	// 	} else if (product.originalPrice && Number(product.originalPrice) > 0) {
+	// 		// Se não houver preço promocional válido, mas houver um preço original válido, use-o como preço do produto
+	// 		productPrice = Number(product.originalPrice);
+	// 	} else {
+	// 		// Se não houver nenhum preço válido, retorne um erro ou defina o preço como 0
+	// 		console.error("Preço do produto inválido:", product);
+	// 		return;
+	// 	}
+	// 	try {
+	// 		const response = await api.post("/products/simulate-shipping", {
+	// 			productID: product._id,
+	// 			cepDestino: cep,
+	// 			weight: product.weight, // Adicione o peso do produto
+	// 			height: product.height, // Adicione a altura do produto
+	// 			width: product.width, // Adicione a largura do produto
+	// 			length: product.length, // Adicione o comprimento do produto
+	// 			productPrice: productPrice, // Adicione o preço unitário do produto
+	// 			productPriceTotal: productPrice * quantity, // Adicione o preço total do produto
+	// 			quantityThisProduct: quantity, // Adicione a quantidade do produto
+	// 		}); // Passar cep como parte do corpo da solicitação
+	// 		setTransportadoras(response.data);
+	// 		setIsCalculating(false);
+	// 	} catch (error) {
+	// 		console.error("Ocorreu um erro:", error);
+	// 		toast.error(
+	// 			"Ocorreu um erro ao simular o frete. Verifique o CEP e tente novamente!"
+	// 		); // Mostra uma mensagem de erro ao usuário
+	// 	} finally {
+	// 		setIsCalculating(false); // Certifica-se de que o loading seja removido independentemente do sucesso ou erro
+	// 	}
+	// }
+
 	async function handleSimulateShipping(cep: number) {
+		if (product.productVariations.length > 0 && !selectedVariation) {
+			return toast.info("Selecione a variação!");
+		} else if (
+			product.productVariations.length > 0 &&
+			selectedVariation.stock === 0
+		) {
+			return toast.info("Estoque indisponível para essa variação!");
+		}
+
 		setIsCalculating(true);
 
 		let productPrice;
 
-		if (product.promotionalPrice && Number(product.promotionalPrice) > 0) {
-			// Se houver um preço promocional válido, use-o como preço do produto
-			productPrice = Number(product.promotionalPrice);
-		} else if (product.originalPrice && Number(product.originalPrice) > 0) {
-			// Se não houver preço promocional válido, mas houver um preço original válido, use-o como preço do produto
-			productPrice = Number(product.originalPrice);
+		// Se houver variações e uma variação selecionada, usa o preço da variação
+		if (selectedVariation) {
+			// Acesse o preço da variação selecionada
+			const variationPrice =
+				selectedVariation.promotionalPrice ||
+				selectedVariation.originalPrice;
+
+			if (variationPrice && Number(variationPrice) > 0) {
+				// Se a variação tiver um preço válido, usa o preço da variação
+				productPrice = Number(variationPrice);
+			} else {
+				// Se não houver preço válido na variação, verifica o preço do produto principal
+				productPrice =
+					product.promotionalPrice &&
+					Number(product.promotionalPrice) > 0
+						? Number(product.promotionalPrice)
+						: product.originalPrice &&
+						  Number(product.originalPrice) > 0
+						? Number(product.originalPrice)
+						: 0;
+			}
 		} else {
-			// Se não houver nenhum preço válido, retorne um erro ou defina o preço como 0
+			// Se não houver variação selecionada ou o produto não tiver variações, usa o preço principal
+			productPrice =
+				product.promotionalPrice && Number(product.promotionalPrice) > 0
+					? Number(product.promotionalPrice)
+					: product.originalPrice && Number(product.originalPrice) > 0
+					? Number(product.originalPrice)
+					: 0;
+		}
+
+		// Verifique se o preço foi encontrado
+		if (productPrice === 0) {
 			console.error("Preço do produto inválido:", product);
 			return;
 		}
+
 		try {
 			const response = await api.post("/products/simulate-shipping", {
 				productID: product._id,
@@ -433,16 +552,17 @@ function SideComponent({ selectedVariation }) {
 				productPrice: productPrice, // Adicione o preço unitário do produto
 				productPriceTotal: productPrice * quantity, // Adicione o preço total do produto
 				quantityThisProduct: quantity, // Adicione a quantidade do produto
-			}); // Passar cep como parte do corpo da solicitação
+			});
+
 			setTransportadoras(response.data);
 			setIsCalculating(false);
 		} catch (error) {
 			console.error("Ocorreu um erro:", error);
 			toast.error(
 				"Ocorreu um erro ao simular o frete. Verifique o CEP e tente novamente!"
-			); // Mostra uma mensagem de erro ao usuário
+			);
 		} finally {
-			setIsCalculating(false); // Certifica-se de que o loading seja removido independentemente do sucesso ou erro
+			setIsCalculating(false); // Certifique-se de que o loading seja removido independentemente do sucesso ou erro
 		}
 	}
 
