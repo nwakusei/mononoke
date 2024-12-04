@@ -81,11 +81,17 @@ function SideComponent({ selectedVariation }) {
 		fetchProduct();
 	}, [id]);
 
-	// Valor a ser Exibido no Anúncio (Preço Original ou Promocional)
+	// // Valor a ser Exibido no Anúncio (Preço Original ou Promocional)
 	const value =
-		Number(product.promotionalPrice) > 0
+		product?.productVariations?.length > 0
+			? 0 // Inicializa como 0 se houver variações
+			: Number(product.promotionalPrice) > 0
 			? Number(product.promotionalPrice)
-			: Number(product.originalPrice);
+			: Number(product.originalPrice) || 0; // Usa o preço promocional, original ou fallback para 0
+	// const value =
+	// 	Number(product.promotionalPrice) > 0
+	// 		? Number(product.promotionalPrice)
+	// 		: Number(product.originalPrice);
 
 	// Função para selecionar variações
 	function handleSelected(
@@ -129,10 +135,12 @@ function SideComponent({ selectedVariation }) {
 
 	// Lidando com a relação entre Quantidade e Subtotal baseado no valor do produto (Preço Original ou Promocional)
 	// Etapa 1: Adicionando a variável de estado para a quantidade
-	const [quantity, setQuantity] = useState<number>(1);
+	const [quantity, setQuantity] = useState<number>(0);
 	const [isQuantityOneOrLess, setIsQuantityOneOrLess] = useState(true);
 	const [isQuantityAtLimit, setIsQuantityAtLimit] = useState(false);
 	const [totalOrder, setTotalOrder] = useState(value);
+
+	console.log("QUANTIDADE DE PRODUTO:", quantity);
 
 	// Função para calculo do Subtotal dos produtos
 	const renderPrice = () => {
@@ -237,35 +245,30 @@ function SideComponent({ selectedVariation }) {
 	// Incremento de Quantidade (+1)
 	const incrementarQuantidade = () => {
 		// Se o produto tem variações, usa o estoque da variação selecionada
-		const estoque =
+		const productStock =
 			product?.productVariations?.length > 0
 				? selectedVariation?.stock // Se tiver variação selecionada, usa o estoque da variação
 				: product?.stock; // Se não, usa o estoque geral do produto
 
-		if (quantity < estoque) {
+		if (quantity < productStock) {
 			updateTotalOrder(quantity + 1);
 		}
 	};
 
 	// Decremento de Quantidade (-1)
 	const decrementarQuantidade = () => {
-		// Se o produto tem variações, usa o estoque da variação selecionada
-		const estoque =
-			product?.productVariations?.length > 0
-				? selectedVariation?.stock // Se tiver variação selecionada, usa o estoque da variação
-				: product?.stock; // Se não, usa o estoque geral do produto
-
-		if (quantity > 1) {
+		if (quantity > 0) {
 			updateTotalOrder(quantity - 1);
 		}
 	};
 
-	function handleAddProductInCart(
-		quantity,
-		product,
-		selectedTransportadora,
-		selectedVariation
-	) {
+	function handleAddProductInCart(quantity, product, selectedTransportadora) {
+		// Verifica se a quantidade é válida (maior que zero)
+		if (quantity <= 0) {
+			toast.info("A quantidade precisa ser maior que 0!");
+			return;
+		}
+
 		const selectedVariations = JSON.parse(
 			localStorage.getItem("selectedVariations") || "{}"
 		);
@@ -313,89 +316,70 @@ function SideComponent({ selectedVariation }) {
 			productsInCart = JSON.parse(productsInCart);
 		}
 
-		// // Calcula o preço do produto
-		// let productPrice;
-
-		// if (product.promotionalPrice && Number(product.promotionalPrice) > 0) {
-		// 	productPrice = Number(product.promotionalPrice);
-		// } else if (product.originalPrice && Number(product.originalPrice) > 0) {
-		// 	productPrice = Number(product.originalPrice);
-		// } else {
-		// 	// Se não houver nenhum preço válido, retorna um erro ou define como 0
-		// 	console.error("Preço do produto inválido:", product);
-		// 	return;
-		// }
-
 		let productPrice;
+		let stock;
 
-		// Se houver variações e uma variação selecionada, usa o preço da variação
-		if (selectedVariation) {
-			// Acesse o preço da variação selecionada
-			const variationPrice =
-				selectedVariation.promotionalPrice ||
-				selectedVariation.originalPrice;
+		if (hasVariations) {
+			const selectedVariationValues = Object.values(selectedVariations);
 
-			if (variationPrice && Number(variationPrice) > 0) {
-				// Se a variação tiver um preço válido, usa o preço da variação
-				productPrice = Number(variationPrice);
-			} else {
-				// Se não houver preço válido na variação, verifica o preço do produto principal
+			if (selectedVariationValues.length > 0) {
+				const selectedVariation = selectedVariationValues[0]; // Considerando apenas a primeira variação selecionada
+
 				productPrice =
-					product.promotionalPrice &&
-					Number(product.promotionalPrice) > 0
-						? Number(product.promotionalPrice)
-						: product.originalPrice &&
-						  Number(product.originalPrice) > 0
-						? Number(product.originalPrice)
-						: 0;
+					selectedVariation.promotionalPrice > 0
+						? selectedVariation.promotionalPrice
+						: selectedVariation.originalPrice;
+
+				stock = selectedVariation.stock; // Usa o estoque da variação selecionada
+			} else {
+				productPrice =
+					product.promotionalPrice > 0
+						? product.promotionalPrice
+						: product.originalPrice || 0;
+
+				stock = product.stock; // Usa o estoque do produto principal
 			}
 		} else {
-			// Se não houver variação selecionada ou o produto não tiver variações, usa o preço principal
 			productPrice =
-				product.promotionalPrice && Number(product.promotionalPrice) > 0
-					? Number(product.promotionalPrice)
-					: product.originalPrice && Number(product.originalPrice) > 0
-					? Number(product.originalPrice)
-					: 0;
+				product.promotionalPrice > 0
+					? product.promotionalPrice
+					: product.originalPrice || 0;
+
+			stock = product.stock;
 		}
 
-		// Verifica se o produto já está no carrinho pelo ID
 		const existingProduct = productsInCart.find(
 			(p) =>
 				p.productID === product._id &&
-				p.productVariations === productVariations
+				JSON.stringify(p.productVariations) ===
+					JSON.stringify(Object.values(selectedVariations))
 		);
 
 		if (existingProduct) {
-			// Se o produto já estiver no carrinho, apenas atualiza a quantidade, limitando ao estoque disponível
 			const totalQuantity =
 				existingProduct.quantityThisProduct + quantity;
 			existingProduct.quantityThisProduct = Math.min(
 				totalQuantity,
-				product.stock
+				stock
 			);
 
-			// Verifica se a quantidade ultrapassou o estoque
-			if (totalQuantity > product.stock) {
+			if (totalQuantity > stock) {
 				toast.warning(
 					"Você atingiu o limite de estoque para este produto!"
 				);
 			}
 
-			// Atualiza o preço total do produto no carrinho multiplicando a quantidade pelo preço unitário
 			existingProduct.productPriceTotal =
 				existingProduct.quantityThisProduct * productPrice;
 		} else {
-			// Caso contrário, adiciona o novo produto ao array de produtos
 			const newProduct = {
 				partnerID: product.partnerID,
 				productID: product._id,
 				productTitle: product.productTitle,
 				imageProduct: product.imagesProduct[0],
-				quantityThisProduct: Math.min(quantity, product.stock),
+				quantityThisProduct: Math.min(quantity, stock), // Usa o estoque correto
 				productPrice: productPrice,
-				productPriceTotal:
-					Math.min(quantity, product.stock) * productPrice, // Calcula o preço total do produto
+				productPriceTotal: Math.min(quantity, stock) * productPrice,
 				weight: product.weight,
 				length: product.length,
 				width: product.width,
@@ -407,8 +391,8 @@ function SideComponent({ selectedVariation }) {
 					? selectedTransportadora
 					: transpFreeShipping,
 				productVariations:
-					Object.keys(selectedVariations).length > 0
-						? selectedVariations
+					Object.values(selectedVariations).length > 0
+						? Object.values(selectedVariations)
 						: null,
 			};
 

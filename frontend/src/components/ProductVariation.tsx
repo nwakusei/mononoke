@@ -189,6 +189,9 @@ function ProductVariation({
 			// Caso contrário, atualiza para incluir apenas a nova variação
 			return {
 				[variationKey]: {
+					variationID: variationKey,
+					optionID: option._id,
+					imageUrl: option.imageUrl,
 					name: option.name,
 					originalPrice: option.originalPrice,
 					promotionalPrice: option.promotionalPrice,
