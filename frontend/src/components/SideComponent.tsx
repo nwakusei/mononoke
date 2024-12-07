@@ -38,8 +38,6 @@ function SideComponent({ selectedVariation }) {
 	}>({});
 	const stock = product.stock;
 
-	console.log(localStorage.getItem("selectedVariations"));
-
 	const { partners } = useContext(Context);
 	const { setCart, setSubtotal } = useContext(CheckoutContext);
 
@@ -139,8 +137,6 @@ function SideComponent({ selectedVariation }) {
 	const [isQuantityOneOrLess, setIsQuantityOneOrLess] = useState(true);
 	const [isQuantityAtLimit, setIsQuantityAtLimit] = useState(false);
 	const [totalOrder, setTotalOrder] = useState(value);
-
-	console.log("QUANTIDADE DE PRODUTO:", quantity);
 
 	// Função para calculo do Subtotal dos produtos
 	const renderPrice = () => {
@@ -396,7 +392,6 @@ function SideComponent({ selectedVariation }) {
 						: null,
 			};
 
-			console.log(newProduct);
 			productsInCart.push(newProduct);
 		}
 

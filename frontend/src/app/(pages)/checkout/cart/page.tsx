@@ -307,12 +307,17 @@ function CartPage() {
 		}
 	}
 
-	const decreaseQuantity = async (productId) => {
+	const decreaseQuantity = async (productId, optionId) => {
 		try {
+			// Obter os produtos no carrinho do localStorage
 			let productsInCart =
 				JSON.parse(localStorage.getItem("productsInCart")) || [];
+
+			// Encontrar o índice do produto usando productID e optionID
 			const index = productsInCart.findIndex(
-				(item) => item.productID === productId
+				(item) =>
+					item.productID === productId &&
+					item.productVariations?.[0]?.optionID === optionId
 			);
 
 			if (index !== -1) {
@@ -331,6 +336,7 @@ function CartPage() {
 						"productsInCart",
 						JSON.stringify(productsInCart)
 					);
+
 					// Atualizar o estado com os produtos no carrinho
 					setProductsInCart([...productsInCart]);
 
@@ -409,7 +415,19 @@ function CartPage() {
 							console.error("CepDestino não definido.");
 						}
 					}
+				} else {
+					// Se a quantidade for 1, remover o item do carrinho
+					productsInCart.splice(index, 1);
+
+					// Atualizar o localStorage e o estado
+					localStorage.setItem(
+						"productsInCart",
+						JSON.stringify(productsInCart)
+					);
+					setProductsInCart([...productsInCart]);
 				}
+			} else {
+				toast.error("Produto ou variação não encontrados no carrinho.");
 			}
 		} catch (error) {
 			console.log("Erro ao diminuir quantidade do produto", error);
@@ -417,15 +435,17 @@ function CartPage() {
 		}
 	};
 
-	const increaseQuantity = async (productId) => {
+	const increaseQuantity = async (productId, optionId) => {
 		try {
 			// Obter os produtos no carrinho do localStorage
 			let productsInCart =
 				JSON.parse(localStorage.getItem("productsInCart")) || [];
 
-			// Encontrar o índice do produto pelo ID
+			// Encontrar o índice do produto usando productID e optionID
 			const index = productsInCart.findIndex(
-				(item) => item.productID === productId
+				(item) =>
+					item.productID === productId &&
+					item.productVariations?.[0]?.optionID === optionId
 			);
 
 			if (index !== -1) {
@@ -446,6 +466,8 @@ function CartPage() {
 
 				// Atualizar o estado com os produtos no carrinho
 				setProductsInCart([...productsInCart]);
+			} else {
+				toast.error("Produto ou variação não encontrados no carrinho.");
 			}
 
 			// Filtrar os produtos para remover aqueles com frete grátis e cep vazio
@@ -531,12 +553,19 @@ function CartPage() {
 		}
 	};
 
-	const handleRemoveFromCart = async (productId) => {
+	const handleRemoveFromCart = async (productId, optionId) => {
 		try {
+			// Obter os produtos no carrinho do localStorage
 			let productsInCart =
 				JSON.parse(localStorage.getItem("productsInCart")) || [];
+
+			// Filtrar o carrinho para remover o item correspondente
 			const updatedCart = productsInCart.filter(
-				(item) => item.productID !== productId
+				(item) =>
+					!(
+						item.productID === productId &&
+						item.productVariations?.[0]?.optionID === optionId
+					)
 			);
 
 			// Recalcular o frete após a remoção do produto
@@ -549,6 +578,7 @@ function CartPage() {
 				const partnerInfo = {};
 				let cepDestino = null;
 
+				// Processar os produtos restantes para recalcular informações de frete
 				filteredProducts.forEach((product) => {
 					const partnerID = product.partnerID;
 					const weight = product.weight || 0;
@@ -607,10 +637,16 @@ function CartPage() {
 				setTransportadoraInfo({});
 			}
 
+			// Atualizar o localStorage e os estados
 			localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
 			setProductsInCart(updatedCart);
-			setCart(0);
-			setSubtotal(0);
+
+			// Resetar o subtotal e carrinho, caso necessário
+			if (updatedCart.length === 0) {
+				setCart(0);
+				setSubtotal(0);
+			}
+
 			toast.success("Produto removido com sucesso!");
 		} catch (error) {
 			console.log("Erro ao remover produto!", error);
@@ -690,6 +726,171 @@ function CartPage() {
 												}`}>
 												{/* Renderizar informações do produto */}
 												<div className="flex flex-row justify-between items-center gap-4">
+													{productInCart
+														.productVariations
+														?.length > 0 ? (
+														productInCart.productVariations.map(
+															(variation) => (
+																<div
+																	key={
+																		variation.variationID
+																	}
+																	className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
+																	<div
+																		key={
+																			variation.variationID
+																		}
+																		className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
+																		<Image
+																			className="object-contain h-full"
+																			src={`http://localhost:5000/images/products/${variation.imageUrl}`}
+																			alt={
+																				productInCart.productTitle
+																			}
+																			width={
+																				100
+																			}
+																			height={
+																				100
+																			}
+																			unoptimized
+																		/>
+																	</div>
+																</div>
+															)
+														)
+													) : (
+														<Image
+															className="object-contain h-full"
+															src={`http://localhost:5000/images/products/${productInCart.imageProduct}`}
+															alt={
+																productInCart.productTitle
+															}
+															width={100}
+															height={100}
+															unoptimized
+														/>
+													)}
+
+													<div>
+														<h1 className="text-lg text-black">
+															{
+																productInCart.productTitle
+															}
+														</h1>
+														{productInCart
+															.productVariations
+															?.length > 0 ? (
+															productInCart.productVariations.map(
+																(variation) => (
+																	<h2
+																		key={
+																			variation.variationID
+																		}
+																		className="mb-2 text-black">
+																		{
+																			variation.variationName
+																		}
+																		:{" "}
+																		{
+																			variation.name
+																		}
+																	</h2>
+																)
+															)
+														) : (
+															<h2 className="mb-2 text-black">
+																Sem variações
+															</h2>
+														)}
+														<div className="flex flex-row items-center text-black gap-2">
+															<button
+																onClick={() =>
+																	decreaseQuantity(
+																		productInCart.productID,
+																		productInCart
+																			.productVariations[0]
+																			?.optionID // Passe o optionID
+																	)
+																}
+																className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
+																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
+																	-
+																</h1>
+															</button>
+															<input
+																className="text-lg text-center bg-gray-300
+                            w-[60px] h-[32px]
+                            rounded"
+																type="text"
+																value={
+																	productInCart.quantityThisProduct
+																}
+																readOnly
+															/>
+															<button
+																onClick={() =>
+																	increaseQuantity(
+																		productInCart.productID,
+																		productInCart
+																			.productVariations[0]
+																			?.optionID // Passe o optionID da variação
+																	)
+																}
+																className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
+																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
+																	+
+																</h1>
+															</button>
+														</div>
+													</div>
+													<div>
+														<h1 className="text-black">
+															{productInCart.productPrice.toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}{" "}
+															x{" "}
+															{
+																productInCart.quantityThisProduct
+															}
+														</h1>
+													</div>
+													<div>
+														<div
+															onClick={() =>
+																handleRemoveFromCart(
+																	productInCart.productID,
+																	productInCart
+																		.productVariations[0]
+																		?.optionID // Passe o optionID
+																)
+															}
+															className="text-black hover:text-white flex flex-col items-center justify-center border-dashed hover:border-solid border-[1px] border-primary hover:bg-secondary w-10 h-10 transition-all ease-in duration-200 hover:shadow-md active:scale-[.97] rounded cursor-pointer">
+															<MdOutlineDeleteOutline
+																size={25}
+															/>
+														</div>
+													</div>
+												</div>
+											</div>
+										)
+									)}
+									{/* {partnerProducts.map(
+										(productInCart, index) => (
+											<div
+												key={productInCart.productID}
+												className={`flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[672px] min-h-[100px] p-4 rounded-md shadow-md ${
+													index <
+													partnerProducts.length - 1
+														? "mb-2"
+														: ""
+												}`}>
+												<div className="flex flex-row justify-between items-center gap-4">
 													<div className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
 														<Image
 															className="object-contain h-full"
@@ -723,14 +924,6 @@ function CartPage() {
 																	-
 																</h1>
 															</button>
-															{/* <span
-																className="text-lg text-center
-																w-[50px]
-																rounded">
-																{
-																	productInCart.quantityThisProduct
-																}
-															</span> */}
 															<input
 																className="text-lg text-center bg-gray-300
 																w-[60px] h-[32px]
@@ -785,42 +978,6 @@ function CartPage() {
 												</div>
 											</div>
 										)
-									)}
-									{/* Renderizar o total do frete para este parceiro */}
-									{/* {Object.entries(transportadoraInfo).map(
-										([partnerID, info]) => {
-											// Verifica se o partnerID do transporte corresponde ao partnerID atual
-											if (
-												partnerID ===
-												partnerProducts[0].partnerID
-											) {
-												return (
-													<div
-														key={partnerID}
-														className="bg-gray-500 p-4 rounded-md">
-														<div className="">
-															Transportadora:{" "}
-															{info.transpNome}
-														</div>
-														<div className="">
-															Frete da Loja:{" "}
-															{info &&
-															info.vlrFrete
-																? info.vlrFrete.toLocaleString(
-																		"pt-BR",
-																		{
-																			style: "currency",
-																			currency:
-																				"BRL",
-																		}
-																  )
-																: `R$ 0,00`}
-														</div>
-													</div>
-												);
-											}
-											return null; // Retorna null para não renderizar nada se não houver correspondência
-										}
 									)} */}
 									{Object.entries(transportadoraInfo).map(
 										([partnerID, info]) => {

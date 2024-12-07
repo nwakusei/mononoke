@@ -173,6 +173,35 @@ function ProductVariation({
 		localStorage.setItem("selectedVariations", JSON.stringify(variation));
 	}, [variation]);
 
+	// function handleVariation(variationKey: string, option: IVariationOption) {
+	// 	setVariation((prevState) => {
+	// 		// Verifica se a variação já está selecionada
+	// 		const isAlreadySelected =
+	// 			prevState[variationKey]?.name === option.name;
+
+	// 		// Se já está selecionada, remove-a
+	// 		if (isAlreadySelected) {
+	// 			const updatedVariation = { ...prevState };
+	// 			delete updatedVariation[variationKey];
+	// 			return updatedVariation;
+	// 		}
+
+	// 		// Caso contrário, atualiza para incluir apenas a nova variação
+	// 		return {
+	// 			[variationKey]: {
+	// 				variationID: variationKey,
+	// 				variationName: TITULO DA VARIAÇÃO AQUI,
+	// 				optionID: option._id,
+	// 				imageUrl: option.imageUrl,
+	// 				name: option.name,
+	// 				originalPrice: option.originalPrice,
+	// 				promotionalPrice: option.promotionalPrice,
+	// 				stock: option.stock,
+	// 			},
+	// 		};
+	// 	});
+	// }
+
 	function handleVariation(variationKey: string, option: IVariationOption) {
 		setVariation((prevState) => {
 			// Verifica se a variação já está selecionada
@@ -187,9 +216,15 @@ function ProductVariation({
 			}
 
 			// Caso contrário, atualiza para incluir apenas a nova variação
+			const variationTitle = variations.find(
+				(v) => v._id === variationKey
+			)?.title;
+
 			return {
+				...prevState,
 				[variationKey]: {
 					variationID: variationKey,
+					variationName: variationTitle, // Adiciona o título da variação
 					optionID: option._id,
 					imageUrl: option.imageUrl,
 					name: option.name,
