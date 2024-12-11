@@ -55,6 +55,7 @@ function CheckoutBalanceContent({ products, shippingCost, coupons, token }) {
 			// Limpar o localStorage após o pagamento ser aprovado
 			localStorage.removeItem("productsInCart");
 			localStorage.removeItem("transportadoraInfo");
+			localStorage.removeItem("selectedVariations");
 			localStorage.removeItem("coupons");
 
 			setCart(0);

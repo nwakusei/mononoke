@@ -63,7 +63,9 @@ function PaymentPage() {
 		productPrice: product.productPrice,
 		productQuantity: product.quantityThisProduct,
 		partnerID: product.partnerID,
+		productVariations: product.productVariations,
 	}));
+
 	const shippingCost = Object.values(transportadoraInfo).map((info) => ({
 		partnerID: info.partnerID,
 		vlrFrete: info.vlrFrete,

@@ -2,7 +2,7 @@ function Footer() {
 	return (
 		<footer className="flex flex-row justify-center bg-primary py-10 gap-10 text-center">
 			<div>
-				<h1>Imagens</h1>
+				<h1>[ Imagens ]</h1>
 			</div>
 			<div>
 				<h1>Sobre a Amazon</h1>
@@ -17,7 +17,7 @@ function Footer() {
 				<h1>Ajuda e Guia</h1>
 			</div>
 			<div>
-				<h1>Imagens</h1>
+				<h1>[ Imagens ]</h1>
 			</div>
 		</footer>
 	);
