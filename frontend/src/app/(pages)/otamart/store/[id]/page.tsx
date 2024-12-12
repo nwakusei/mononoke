@@ -75,11 +75,7 @@ function StorePage() {
 	useEffect(() => {
 		api.get(`/products/getall-products-store/${id}`)
 			.then((response) => {
-				setProducts(
-					response.data.products.filter(
-						(product) => product.stock > 0
-					)
-				);
+				setProducts(response.data.products);
 				setIsLoading(false);
 			})
 			.catch((error) => {

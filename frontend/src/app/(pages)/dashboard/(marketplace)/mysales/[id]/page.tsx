@@ -357,7 +357,8 @@ function MySaleByIDPage() {
 																		item
 																	) =>
 																		total +
-																		item.productPrice,
+																		item.productPrice *
+																			item.productQuantity, // Multiplica pelo quantity
 																	0
 																)
 																.toLocaleString(
@@ -395,6 +396,7 @@ function MySaleByIDPage() {
 														0 && (
 														<div>
 															{(() => {
+																// Calcula o total dos produtos considerando a quantidade
 																const productTotal =
 																	mysale?.itemsList.reduce(
 																		(
@@ -402,12 +404,17 @@ function MySaleByIDPage() {
 																			item
 																		) =>
 																			total +
-																			item.productPrice,
+																			item.productPrice *
+																				item.productQuantity, // Multiplica pelo quantity
 																		0
 																	);
+
+																// Soma o custo do frete ao total dos produtos
 																const totalWithShipping =
 																	productTotal +
 																	mysale?.shippingCostTotal;
+
+																// Calcula o desconto
 																const discount =
 																	totalWithShipping -
 																	mysale?.customerOrderCostTotal;
@@ -423,7 +430,7 @@ function MySaleByIDPage() {
 																		}
 																	);
 
-																// Adiciona o sinal de menos diretamente ao valor do desconto se necessário
+																// Retorna o valor formatado com um sinal de menos, se necessário
 																return discount >
 																	0
 																	? `- ${formattedDiscount}`

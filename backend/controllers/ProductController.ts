@@ -417,6 +417,34 @@ class ProductController {
 		try {
 			const products = await ProductModel.find({
 				partnerID: partner._id,
+				$or: [
+					// Produtos sem variações, mas com stock maior que 0
+					{
+						productVariations: { $size: 0 },
+						stock: { $gt: 0 },
+					},
+					// Produtos com variações onde pelo menos uma opção tem stock maior que 0
+					{
+						productVariations: {
+							$elemMatch: {
+								options: {
+									$elemMatch: { stock: { $gt: 0 } },
+								},
+							},
+						},
+					},
+					// Produtos com variações, mas o estoque principal é maior que 0
+					{
+						stock: { $gt: 0 },
+						productVariations: {
+							$elemMatch: {
+								options: {
+									$not: { $elemMatch: { stock: { $gt: 0 } } },
+								},
+							},
+						},
+					},
+				],
 			}).sort("-createdAt");
 
 			res.status(200).json({ products: products });

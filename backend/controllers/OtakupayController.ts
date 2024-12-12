@@ -165,8 +165,6 @@ class OtakupayController {
 	static async buyOtamart(req: Request, res: Response) {
 		const { products, shippingCost, coupons } = req.body;
 
-		console.log(shippingCost);
-
 		// Verificar se o array de produtos é válido
 		if (!products || products.length === 0) {
 			res.status(404).json({
@@ -250,8 +248,6 @@ class OtakupayController {
 					missingProductIDs,
 				});
 			}
-
-			console.log("DADOS QUE EU PRECISO:", products);
 
 			// // Verificar se algum dos produtos possui estoque indisponível
 			// const produtoSemEstoque = productsFromDB.find(
@@ -355,11 +351,49 @@ class OtakupayController {
 					continue;
 				}
 
+				let productCost;
+
+				// Verificar se o produto tem variações
+				if (
+					product.productVariations &&
+					product.productVariations.length > 0 &&
+					productFromDB.productVariations &&
+					productFromDB.productVariations.length > 0
+				) {
+					// Encontrar a variação no banco de dados
+					const variation = productFromDB.productVariations.find(
+						(v: any) =>
+							v._id.toString() ===
+							product.productVariations[0].variationID.toString()
+					);
+
+					if (variation) {
+						// Encontrar a opção correspondente dentro da variação
+						const option = variation.options.find(
+							(o: any) =>
+								o._id.toString() ===
+								product.productVariations[0].optionID.toString()
+						);
+
+						if (option) {
+							// Utilizar o preço da opção
+							productCost =
+								option.promotionalPrice > 0
+									? option.promotionalPrice
+									: option.originalPrice;
+						}
+					}
+				}
+
+				// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
+				if (!productCost) {
+					productCost =
+						productFromDB.promotionalPrice > 0
+							? productFromDB.promotionalPrice
+							: productFromDB.originalPrice;
+				}
+
 				// Calcular o custo total do produto levando em consideração a quantidade
-				const productCost =
-					productFromDB.promotionalPrice > 0
-						? productFromDB.promotionalPrice
-						: productFromDB.originalPrice;
 				const totalProductCost = productCost * product.productQuantity;
 
 				// Verificar se já existe um registro para esse parceiro no array
@@ -1105,17 +1139,60 @@ class OtakupayController {
 								continue;
 							}
 
-							// Calcular o custo total do produto levando em consideração a quantidade
-							const productCost =
-								productFromDB.promotionalPrice > 0
-									? productFromDB.promotionalPrice
-									: productFromDB.originalPrice;
+							let productCost;
+							let productImage = product.productImage;
+
+							// Verificar se o produto tem variações
+							if (
+								product.productVariations &&
+								product.productVariations.length > 0 &&
+								productFromDB.productVariations &&
+								productFromDB.productVariations.length > 0
+							) {
+								// Encontrar a variação no banco de dados
+								const variation =
+									productFromDB.productVariations.find(
+										(v: any) =>
+											v._id.toString() ===
+											product.productVariations[0].variationID.toString()
+									);
+
+								if (variation) {
+									// Encontrar a opção correspondente dentro da variação
+									const option = variation.options.find(
+										(o: any) =>
+											o._id.toString() ===
+											product.productVariations[0].optionID.toString()
+									);
+
+									if (option) {
+										// Utilizar o preço da opção
+										productCost =
+											option.promotionalPrice > 0
+												? option.promotionalPrice
+												: option.originalPrice;
+
+										// Atualizar a imagem para a imagem da opção
+										if (option.imageUrl) {
+											productImage = option.imageUrl;
+										}
+									}
+								}
+							}
+
+							// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
+							if (!productCost) {
+								productCost =
+									productFromDB.promotionalPrice > 0
+										? productFromDB.promotionalPrice
+										: productFromDB.originalPrice;
+							}
 
 							// Adicionar o item ao pedido
 							order.itemsList.push({
 								productID: product.productID,
-								productTitle: product.productName,
-								productImage: product.productImage,
+								productTitle: product.productTitle,
+								productImage: productImage,
 								productPrice: productCost,
 								daysShipping:
 									shippingCostForPartner.daysShipping,
@@ -1538,10 +1615,47 @@ class OtakupayController {
 				return;
 			}
 
+			// // Verificar se algum dos produtos possui estoque indisponível
+			// const produtoSemEstoque = productsFromDB.find(
+			// 	(product: any) => product.stock <= 0
+			// );
+			// if (produtoSemEstoque) {
+			// 	return res.status(422).json({
+			// 		message:
+			// 			"Um ou mais produtos encontram-se esgotados, não é possível realizar o pagamento!",
+			// 	});
+			// }
+
 			// Verificar se algum dos produtos possui estoque indisponível
-			const produtoSemEstoque = productsFromDB.find(
-				(product: any) => product.stock <= 0
-			);
+			const produtoSemEstoque = productsFromDB.find((product: any) => {
+				// Se o produto não tiver variações, verifica diretamente o estoque
+				if (
+					!product.productVariations ||
+					product.productVariations.length === 0
+				) {
+					return product.stock <= 0;
+				}
+
+				// Caso tenha variações, verifica se todas as opções dentro das variações estão sem estoque
+				const todasVariacoesSemEstoque =
+					product.productVariations.every((variation: any) => {
+						// Garante que a variação tenha opções
+						if (
+							!variation.options ||
+							variation.options.length === 0
+						) {
+							return true; // Considera a variação sem estoque se não há opções
+						}
+
+						// Verifica se todas as opções dessa variação estão sem estoque
+						return variation.options.every(
+							(option: any) => option.stock <= 0
+						);
+					});
+
+				return todasVariacoesSemEstoque;
+			});
+
 			if (produtoSemEstoque) {
 				return res.status(422).json({
 					message:
@@ -1603,11 +1717,49 @@ class OtakupayController {
 					continue;
 				}
 
+				let productCost;
+
+				// Verificar se o produto tem variações
+				if (
+					product.productVariations &&
+					product.productVariations.length > 0 &&
+					productFromDB.productVariations &&
+					productFromDB.productVariations.length > 0
+				) {
+					// Encontrar a variação no banco de dados
+					const variation = productFromDB.productVariations.find(
+						(v: any) =>
+							v._id.toString() ===
+							product.productVariations[0].variationID.toString()
+					);
+
+					if (variation) {
+						// Encontrar a opção correspondente dentro da variação
+						const option = variation.options.find(
+							(o: any) =>
+								o._id.toString() ===
+								product.productVariations[0].optionID.toString()
+						);
+
+						if (option) {
+							// Utilizar o preço da opção
+							productCost =
+								option.promotionalPrice > 0
+									? option.promotionalPrice
+									: option.originalPrice;
+						}
+					}
+				}
+
+				// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
+				if (!productCost) {
+					productCost =
+						productFromDB.promotionalPrice > 0
+							? productFromDB.promotionalPrice
+							: productFromDB.originalPrice;
+				}
+
 				// Calcular o custo total do produto levando em consideração a quantidade
-				const productCost =
-					productFromDB.promotionalPrice > 0
-						? productFromDB.promotionalPrice
-						: productFromDB.originalPrice;
 				const totalProductCost = productCost * product.productQuantity;
 
 				// Verificar se já existe um registro para esse parceiro no array
@@ -2354,16 +2506,53 @@ class OtakupayController {
 								continue;
 							}
 
-							// Calcular o custo total do produto levando em consideração a quantidade
-							const productCost =
-								productFromDB.promotionalPrice > 0
-									? productFromDB.promotionalPrice
-									: productFromDB.originalPrice;
+							let productCost;
+
+							// Verificar se o produto tem variações
+							if (
+								product.productVariations &&
+								product.productVariations.length > 0 &&
+								productFromDB.productVariations &&
+								productFromDB.productVariations.length > 0
+							) {
+								// Encontrar a variação no banco de dados
+								const variation =
+									productFromDB.productVariations.find(
+										(v: any) =>
+											v._id.toString() ===
+											product.productVariations[0].variationID.toString()
+									);
+
+								if (variation) {
+									// Encontrar a opção correspondente dentro da variação
+									const option = variation.options.find(
+										(o: any) =>
+											o._id.toString() ===
+											product.productVariations[0].optionID.toString()
+									);
+
+									if (option) {
+										// Utilizar o preço da opção
+										productCost =
+											option.promotionalPrice > 0
+												? option.promotionalPrice
+												: option.originalPrice;
+									}
+								}
+							}
+
+							// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
+							if (!productCost) {
+								productCost =
+									productFromDB.promotionalPrice > 0
+										? productFromDB.promotionalPrice
+										: productFromDB.originalPrice;
+							}
 
 							// Adicionar o item ao pedido
 							order.itemsList.push({
 								productID: product.productID,
-								productTitle: product.productName,
+								productTitle: product.productTitle,
 								productImage: product.productImage,
 								productPrice: productCost,
 								daysShipping:
@@ -2387,30 +2576,117 @@ class OtakupayController {
 			// Criar um novo pedido se tudo der certo
 			const savedOrders = await OrderModel.insertMany(orders);
 
-			// Reduzir uma unidade do estoque do Produto
+			// // Reduzir uma unidade do estoque do Produto
+			// for (const product of products) {
+			// 	try {
+			// 		// Encontrar o produto correspondente no banco de dados usando o productID
+			// 		const dbProduct = await ProductModel.findById(
+			// 			product.productID
+			// 		);
+
+			// 		if (!dbProduct) {
+			// 			console.error(
+			// 				`Produto não encontrado para o ID ${product.productID}`
+			// 			);
+			// 			continue; // Pular para o próximo produto
+			// 		}
+
+			// 		// Reduzir a quantidade no estoque
+			// 		dbProduct.stock -= product.productQuantity;
+			// 		await dbProduct.save();
+			// 		console.log(
+			// 			`Estoque do produto ${dbProduct.productTitle} atualizado.`
+			// 		);
+			// 	} catch (error) {
+			// 		console.error(
+			// 			`Erro ao atualizar o estoque do produto ${product.productID}:`,
+			// 			error
+			// 		);
+			// 	}
+			// }
 			for (const product of products) {
 				try {
-					// Encontrar o produto correspondente no banco de dados usando o productID
+					// Encontrar o produto no banco pelo ID
 					const dbProduct = await ProductModel.findById(
 						product.productID
 					);
 
 					if (!dbProduct) {
 						console.error(
-							`Produto não encontrado para o ID ${product.productID}`
+							`Produto não encontrado: ID ${product.productID}`
 						);
 						continue; // Pular para o próximo produto
 					}
 
-					// Reduzir a quantidade no estoque
-					dbProduct.stock -= product.productQuantity;
+					// Verificar se há variações
+					if (
+						product.productVariations &&
+						product.productVariations.length > 0
+					) {
+						for (const variation of product.productVariations) {
+							// Encontrar a variação no banco
+							const dbVariation =
+								dbProduct.productVariations.find(
+									(v) =>
+										String(v._id) ===
+										String(variation.variationID)
+								);
+
+							if (!dbVariation) {
+								console.error(
+									`Variação não encontrada: ID ${variation.variationID}`
+								);
+								continue; // Pular para a próxima variação
+							}
+
+							// Encontrar a opção dentro da variação
+							const dbOption = dbVariation.options.find(
+								(o) =>
+									String(o._id) === String(variation.optionID)
+							);
+
+							if (!dbOption) {
+								console.error(
+									`Opção não encontrada: ID ${variation.optionID}`
+								);
+								continue; // Pular para a próxima opção
+							}
+
+							// Reduzir o estoque da opção
+							dbOption.stock -= product.productQuantity;
+
+							if (dbOption.stock < 0) {
+								console.error(
+									`Estoque insuficiente para a opção: ${dbOption.name}`
+								);
+								dbOption.stock = 0; // Prevenir valores negativos
+							}
+
+							console.log(
+								`Estoque atualizado para a opção "${dbOption.name}" da variação "${dbVariation.title}". Novo estoque: ${dbOption.stock}`
+							);
+						}
+					} else {
+						// Produto sem variação, reduzir o estoque geral
+						dbProduct.stock -= product.productQuantity;
+
+						if (dbProduct.stock < 0) {
+							console.error(
+								`Estoque insuficiente para o produto: ${dbProduct.productTitle}`
+							);
+							dbProduct.stock = 0; // Prevenir valores negativos
+						}
+
+						console.log(
+							`Estoque atualizado para o produto "${dbProduct.productTitle}". Novo estoque: ${dbProduct.stock}`
+						);
+					}
+
+					// Salvar o produto com as alterações
 					await dbProduct.save();
-					console.log(
-						`Estoque do produto ${dbProduct.productTitle} atualizado.`
-					);
 				} catch (error) {
 					console.error(
-						`Erro ao atualizar o estoque do produto ${product.productID}:`,
+						`Erro ao atualizar o estoque do produto ID ${product.productID}:`,
 						error
 					);
 				}
@@ -2913,11 +3189,55 @@ class OtakupayController {
 										return;
 									}
 
+									// // Verificar se algum dos produtos possui estoque indisponível
+									// const produtoSemEstoque =
+									// 	productsFromDB.find(
+									// 		(product: any) => product.stock <= 0
+									// 	);
+									// if (produtoSemEstoque) {
+									// 	return res.status(422).json({
+									// 		message:
+									// 			"Um ou mais produtos encontram-se esgotados, não é possível realizar o pagamento!",
+									// 	});
+									// }
+
 									// Verificar se algum dos produtos possui estoque indisponível
 									const produtoSemEstoque =
-										productsFromDB.find(
-											(product: any) => product.stock <= 0
-										);
+										productsFromDB.find((product: any) => {
+											// Se o produto não tiver variações, verifica diretamente o estoque
+											if (
+												!product.productVariations ||
+												product.productVariations
+													.length === 0
+											) {
+												return product.stock <= 0;
+											}
+
+											// Caso tenha variações, verifica se todas as opções dentro das variações estão sem estoque
+											const todasVariacoesSemEstoque =
+												product.productVariations.every(
+													(variation: any) => {
+														// Garante que a variação tenha opções
+														if (
+															!variation.options ||
+															variation.options
+																.length === 0
+														) {
+															return true; // Considera a variação sem estoque se não há opções
+														}
+
+														// Verifica se todas as opções dessa variação estão sem estoque
+														return variation.options.every(
+															(option: any) =>
+																option.stock <=
+																0
+														);
+													}
+												);
+
+											return todasVariacoesSemEstoque;
+										});
+
 									if (produtoSemEstoque) {
 										return res.status(422).json({
 											message:
@@ -2990,11 +3310,55 @@ class OtakupayController {
 											continue;
 										}
 
+										let productCost;
+
+										// Verificar se o produto tem variações
+										if (
+											product.productVariations &&
+											product.productVariations.length >
+												0 &&
+											productFromDB.productVariations &&
+											productFromDB.productVariations
+												.length > 0
+										) {
+											// Encontrar a variação no banco de dados
+											const variation =
+												productFromDB.productVariations.find(
+													(v: any) =>
+														v._id.toString() ===
+														product.productVariations[0].variationID.toString()
+												);
+
+											if (variation) {
+												// Encontrar a opção correspondente dentro da variação
+												const option =
+													variation.options.find(
+														(o: any) =>
+															o._id.toString() ===
+															product.productVariations[0].optionID.toString()
+													);
+
+												if (option) {
+													// Utilizar o preço da opção
+													productCost =
+														option.promotionalPrice >
+														0
+															? option.promotionalPrice
+															: option.originalPrice;
+												}
+											}
+										}
+
+										// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
+										if (!productCost) {
+											productCost =
+												productFromDB.promotionalPrice >
+												0
+													? productFromDB.promotionalPrice
+													: productFromDB.originalPrice;
+										}
+
 										// Calcular o custo total do produto levando em consideração a quantidade
-										const productCost =
-											productFromDB.promotionalPrice > 0
-												? productFromDB.promotionalPrice
-												: productFromDB.originalPrice;
 										const totalProductCost =
 											productCost *
 											product.productQuantity;
@@ -3878,19 +4242,62 @@ class OtakupayController {
 														continue;
 													}
 
-													// Calcular o custo total do produto levando em consideração a quantidade
-													const productCost =
-														productFromDB.promotionalPrice >
-														0
-															? productFromDB.promotionalPrice
-															: productFromDB.originalPrice;
+													let productCost;
+
+													// Verificar se o produto tem variações
+													if (
+														product.productVariations &&
+														product
+															.productVariations
+															.length > 0 &&
+														productFromDB.productVariations &&
+														productFromDB
+															.productVariations
+															.length > 0
+													) {
+														// Encontrar a variação no banco de dados
+														const variation =
+															productFromDB.productVariations.find(
+																(v: any) =>
+																	v._id.toString() ===
+																	product.productVariations[0].variationID.toString()
+															);
+
+														if (variation) {
+															// Encontrar a opção correspondente dentro da variação
+															const option =
+																variation.options.find(
+																	(o: any) =>
+																		o._id.toString() ===
+																		product.productVariations[0].optionID.toString()
+																);
+
+															if (option) {
+																// Utilizar o preço da opção
+																productCost =
+																	option.promotionalPrice >
+																	0
+																		? option.promotionalPrice
+																		: option.originalPrice;
+															}
+														}
+													}
+
+													// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
+													if (!productCost) {
+														productCost =
+															productFromDB.promotionalPrice >
+															0
+																? productFromDB.promotionalPrice
+																: productFromDB.originalPrice;
+													}
 
 													// Adicionar o item ao pedido
 													order.itemsList.push({
 														productID:
 															product.productID,
 														productTitle:
-															product.productName,
+															product.productTitle,
 														productImage:
 															product.productImage,
 														productPrice:
@@ -3918,10 +4325,40 @@ class OtakupayController {
 									const savedOrders =
 										await OrderModel.insertMany(orders);
 
-									// Reduzir uma unidade do estoque do Produto
+									// // Reduzir uma unidade do estoque do Produto
+									// for (const product of products) {
+									// 	try {
+									// 		// Encontrar o produto correspondente no banco de dados usando o productID
+									// 		const dbProduct =
+									// 			await ProductModel.findById(
+									// 				product.productID
+									// 			);
+
+									// 		if (!dbProduct) {
+									// 			console.error(
+									// 				`Produto não encontrado para o ID ${product.productID}`
+									// 			);
+									// 			continue; // Pular para o próximo produto
+									// 		}
+
+									// 		// Reduzir a quantidade no estoque
+									// 		dbProduct.stock -=
+									// 			product.productQuantity;
+									// 		await dbProduct.save();
+									// 		console.log(
+									// 			`Estoque do produto ${dbProduct.productTitle} atualizado.`
+									// 		);
+									// 	} catch (error) {
+									// 		console.error(
+									// 			`Erro ao atualizar o estoque do produto ${product.productID}:`,
+									// 			error
+									// 		);
+									// 	}
+									// }
+
 									for (const product of products) {
 										try {
-											// Encontrar o produto correspondente no banco de dados usando o productID
+											// Encontrar o produto no banco pelo ID
 											const dbProduct =
 												await ProductModel.findById(
 													product.productID
@@ -3929,21 +4366,93 @@ class OtakupayController {
 
 											if (!dbProduct) {
 												console.error(
-													`Produto não encontrado para o ID ${product.productID}`
+													`Produto não encontrado: ID ${product.productID}`
 												);
 												continue; // Pular para o próximo produto
 											}
 
-											// Reduzir a quantidade no estoque
-											dbProduct.stock -=
-												product.productQuantity;
+											// Verificar se há variações
+											if (
+												product.productVariations &&
+												product.productVariations
+													.length > 0
+											) {
+												for (const variation of product.productVariations) {
+													// Encontrar a variação no banco
+													const dbVariation =
+														dbProduct.productVariations.find(
+															(v) =>
+																String(
+																	v._id
+																) ===
+																String(
+																	variation.variationID
+																)
+														);
+
+													if (!dbVariation) {
+														console.error(
+															`Variação não encontrada: ID ${variation.variationID}`
+														);
+														continue; // Pular para a próxima variação
+													}
+
+													// Encontrar a opção dentro da variação
+													const dbOption =
+														dbVariation.options.find(
+															(o) =>
+																String(
+																	o._id
+																) ===
+																String(
+																	variation.optionID
+																)
+														);
+
+													if (!dbOption) {
+														console.error(
+															`Opção não encontrada: ID ${variation.optionID}`
+														);
+														continue; // Pular para a próxima opção
+													}
+
+													// Reduzir o estoque da opção
+													dbOption.stock -=
+														product.productQuantity;
+
+													if (dbOption.stock < 0) {
+														console.error(
+															`Estoque insuficiente para a opção: ${dbOption.name}`
+														);
+														dbOption.stock = 0; // Prevenir valores negativos
+													}
+
+													console.log(
+														`Estoque atualizado para a opção "${dbOption.name}" da variação "${dbVariation.title}". Novo estoque: ${dbOption.stock}`
+													);
+												}
+											} else {
+												// Produto sem variação, reduzir o estoque geral
+												dbProduct.stock -=
+													product.productQuantity;
+
+												if (dbProduct.stock < 0) {
+													console.error(
+														`Estoque insuficiente para o produto: ${dbProduct.productTitle}`
+													);
+													dbProduct.stock = 0; // Prevenir valores negativos
+												}
+
+												console.log(
+													`Estoque atualizado para o produto "${dbProduct.productTitle}". Novo estoque: ${dbProduct.stock}`
+												);
+											}
+
+											// Salvar o produto com as alterações
 											await dbProduct.save();
-											console.log(
-												`Estoque do produto ${dbProduct.productTitle} atualizado.`
-											);
 										} catch (error) {
 											console.error(
-												`Erro ao atualizar o estoque do produto ${product.productID}:`,
+												`Erro ao atualizar o estoque do produto ID ${product.productID}:`,
 												error
 											);
 										}
