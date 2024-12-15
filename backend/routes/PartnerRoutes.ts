@@ -30,4 +30,6 @@ router.patch(
 	PartnerController.editPartner
 );
 
+router.get("/convert/:slug", PartnerController.convertSlugPartnerToID);
+
 export default router;

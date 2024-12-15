@@ -7,6 +7,8 @@ import { validationResult } from "express-validator";
 import { Multer } from "multer";
 import crypto from "crypto";
 
+import slugify from "slugify";
+
 // Middlewares/Helpers
 import createUserToken from "../helpers/create-user-token.js";
 import getToken from "../helpers/get-token.js";
@@ -152,6 +154,7 @@ class PartnerController {
 				logoImage: "",
 				accountType: accountType,
 				name: name,
+				nickname: "",
 				email: email,
 				password: passwordHash,
 				description: "",
@@ -318,6 +321,7 @@ class PartnerController {
 	static async editPartner(req: Request, res: Response) {
 		const {
 			name,
+			nickname,
 			email,
 			cpfCnpj,
 			description,
@@ -356,6 +360,7 @@ class PartnerController {
 			// Verifique se o partner é de fato um parceiro e não um cliente
 			if (partner instanceof PartnerModel) {
 				partner.name = name;
+				partner.nickname = nickname;
 				partner.email = email;
 				partner.cpfCnpj = cpfCnpj;
 				partner.description = description;
@@ -445,6 +450,20 @@ class PartnerController {
 		} catch (err) {
 			res.status(500).json({ message: err });
 		}
+	}
+
+	static async convertSlugPartnerToID(req: Request, res: Response) {
+		const { slug } = req.params;
+
+		// Verificar se o Produto existe
+		const partner = await PartnerModel.findOne({ nickname: slug });
+
+		if (!partner) {
+			res.status(404).json({ message: "Partner não encontrado!" });
+			return;
+		}
+
+		res.status(200).json({ id: partner._id });
 	}
 
 	// static async getStoreInfo(req: Request, res: Response) {

@@ -18,6 +18,7 @@ interface IProductVariation {
 // Interface para a estrutura de um objeto de revisão
 interface IProduct {
 	productTitle: string;
+	slugTitle: string;
 	imagesProduct: string[];
 	description: string;
 	productVariations: IProductVariation[];
@@ -44,6 +45,9 @@ interface IProduct {
 const productSchema = new Schema<IProduct>(
 	{
 		productTitle: {
+			type: String,
+		},
+		slugTitle: {
 			type: String,
 		},
 		imagesProduct: {

@@ -46,6 +46,7 @@ const updateUserFormSchema = z
 		name: z
 			.string()
 			.min(1, "※ Digite o nome!")
+			.trim()
 			.refine(
 				(name) => {
 					const sanitized = DOMPurify.sanitize(name);
@@ -77,6 +78,24 @@ const updateUserFormSchema = z
 					})
 					.join(" ");
 			}),
+		nickname: z
+			.string()
+			.min(1, "※ Digite o nickname!")
+			.max(15, "※ O nickname deve ter no máximo 15 caracteres!")
+			.toLowerCase()
+			.trim()
+			.refine(
+				(name) => {
+					const sanitized = DOMPurify.sanitize(name);
+
+					// Valida que o nome não contém caracteres não permitidos usando regex
+					const isValid = /^[A-Za-zÀ-ÿ\s.]+$/.test(sanitized); // Permite letras, acentos, espaços e pontos
+					return isValid;
+				},
+				{
+					message: "※ O nickname possui caractere não permitido!",
+				}
+			),
 		email: z
 			.string()
 			.min(1, "※ Informe um email válido!")
@@ -734,6 +753,39 @@ function MyProfilePage() {
 									)}
 								</div>
 								<div className="flex flex-row gap-4">
+									{/* Nickname */}
+									<label className="form-control w-[300px]">
+										<div className="label">
+											<span className="label-text text-black">
+												Nickname
+											</span>
+										</div>
+										<input
+											type="text"
+											// name="email"
+											placeholder={`...`}
+											defaultValue={user?.nickname}
+											className={`input input-bordered ${
+												errors.nickname
+													? `input-error`
+													: `input-success`
+											} w-full max-w-3xl`}
+											{...register("nickname")}
+										/>
+										<div className="label">
+											<span className="label-text-alt text-red-500">
+												{errors.nickname && (
+													<span>
+														{
+															errors.nickname
+																.message
+														}
+													</span>
+												)}
+											</span>
+										</div>
+									</label>
+
 									{/* Email */}
 									<label className="form-control w-full max-w-3xl">
 										<div className="label">

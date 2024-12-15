@@ -452,7 +452,8 @@ class CustomerController {
 
 			if (!user) {
 				res.status(404).json({
-					message: "Faça login para seguir esta loja!",
+					message:
+						"Faça login em uma conta cliente para seguir esta loja!",
 				});
 				return;
 			}

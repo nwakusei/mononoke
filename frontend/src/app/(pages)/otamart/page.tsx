@@ -3,6 +3,8 @@
 import { useState, useEffect, useContext } from "react";
 import api from "@/utils/api";
 
+import slugify from "slugify";
+
 // Context
 import { Context } from "@/context/UserContext";
 
@@ -227,6 +229,7 @@ function OtamartPage() {
 							return (
 								<ProductAdCard
 									key={returnedProduct._id}
+									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
 									title={returnedProduct.productTitle}
@@ -249,7 +252,7 @@ function OtamartPage() {
 											? `${returnedProduct.productsSold} Vendidos`
 											: `${returnedProduct.productsSold} Vendido`
 									}
-									linkProductPage={`/otamart/${returnedProduct._id}`}
+									linkProductPage={`/otamart/${returnedProduct.slugTitle}`}
 								/>
 							);
 						})
@@ -265,6 +268,7 @@ function OtamartPage() {
 							return (
 								<ProductAdCard
 									key={product._id}
+									product={product}
 									freeShipping={product.freeShipping}
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
 									title={product.productTitle}
@@ -285,7 +289,7 @@ function OtamartPage() {
 											? `${product.productsSold} Vendidos`
 											: `${product.productsSold} Vendido`
 									}
-									linkProductPage={`/otamart/${product._id}`}
+									linkProductPage={`/otamart/${product.slugTitle}`}
 								/>
 							);
 						})

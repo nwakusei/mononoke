@@ -28,7 +28,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 function SideComponent({ selectedVariation }) {
-	const { id } = useParams();
+	const { slug } = useParams();
 	const [product, setProduct] = useState({});
 	const [transportadoras, setTransportadoras] = useState([]);
 	const [isCalculating, setIsCalculating] = useState(false);
@@ -68,16 +68,23 @@ function SideComponent({ selectedVariation }) {
 
 	useEffect(() => {
 		const fetchProduct = async () => {
+			if (!slug) return;
+
 			try {
-				const response = await api.get(`/products/${id}`);
-				setProduct(response.data.product);
+				// Faz o lookup para obter o ID correspondente à slug
+				const response = await api.get(`/products/convert/${slug}`);
+
+				const id = response.data.id;
+
+				const responseProduct = await api.get(`/products/${id}`);
+				setProduct(responseProduct.data.product);
 			} catch (error) {
 				console.error("Error fetching product:", error);
 			}
 		};
 
 		fetchProduct();
-	}, [id]);
+	}, [slug]);
 
 	// // Valor a ser Exibido no Anúncio (Preço Original ou Promocional)
 	const value =
@@ -206,7 +213,7 @@ function SideComponent({ selectedVariation }) {
 		setQuantity(newQuantity);
 
 		// Verifica se a quantidade é 1 ou menos
-		if (newQuantity <= 1) {
+		if (newQuantity < 1) {
 			setIsQuantityOneOrLess(true);
 		} else {
 			setIsQuantityOneOrLess(false);

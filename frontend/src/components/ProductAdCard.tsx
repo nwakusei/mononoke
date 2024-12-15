@@ -9,6 +9,7 @@ import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
 import { LiaShippingFastSolid } from "react-icons/lia";
 
 function ProductAdCard({
+	product,
 	freeShipping,
 	productImage,
 	title,
@@ -22,16 +23,101 @@ function ProductAdCard({
 	linkProductPage,
 }) {
 	// Calcular a porcentagem de desconto
-	const calculateDiscountPercentage = () => {
-		if (originalPrice === 0 || promotionalPrice === 0) {
-			return 0;
+	const calculateDiscountPercentage = (product) => {
+		if (!product) {
+			return ""; // Retorna vazio se o produto não estiver definido
 		}
-		const discountPercentage =
-			((originalPrice - promotionalPrice) / originalPrice) * 100;
-		return Math.round(discountPercentage);
+
+		// Função auxiliar para calcular a porcentagem de desconto
+		const calculatePercentage = (original, promotional) => {
+			if (original === 0 || promotional === 0) {
+				return null; // Retorna null se não houver desconto válido
+			}
+			const discountPercentage =
+				((original - promotional) / original) * 100;
+			return Math.round(discountPercentage);
+		};
+
+		if (product.productVariations?.length > 0) {
+			// Extrai os preços das variações
+			const discounts = product.productVariations.flatMap(
+				(variation) =>
+					variation.options
+						.filter((option) => option.promotionalPrice > 0)
+						.map((option) =>
+							calculatePercentage(
+								option.originalPrice,
+								option.promotionalPrice
+							)
+						)
+						.filter((discount) => discount !== null) // Filtra descontos inválidos
+			);
+
+			if (discounts.length === 0) {
+				return ""; // Retorna vazio se nenhuma promoção válida for encontrada
+			}
+
+			const lowestDiscount = Math.min(...discounts);
+			const highestDiscount = Math.max(...discounts);
+
+			// Retorna a faixa de desconto
+			return lowestDiscount === highestDiscount
+				? `${lowestDiscount}%`
+				: `${lowestDiscount}% - ${highestDiscount}%`;
+		}
+
+		// Caso não haja variações, usa os preços principais
+		const discount = calculatePercentage(
+			product.originalPrice,
+			product.promotionalPrice
+		);
+		return discount !== null ? `${discount}%` : ""; // Retorna vazio se não houver desconto
 	};
 
-	const discountPercentage = calculateDiscountPercentage();
+	// const calculateDiscountPercentage = (product) => {
+	// 	if (!product) {
+	// 		return 0; // Retorna 0 se o produto não estiver definido
+	// 	}
+
+	// 	// Função auxiliar para calcular a porcentagem de desconto
+	// 	const calculatePercentage = (original, promotional) => {
+	// 		if (original === 0 || promotional === 0) {
+	// 			return 0;
+	// 		}
+	// 		const discountPercentage =
+	// 			((original - promotional) / original) * 100;
+	// 		return Math.round(discountPercentage);
+	// 	};
+
+	// 	if (product.productVariations?.length > 0) {
+	// 		// Extrai os preços das variações
+	// 		const prices = product.productVariations.flatMap((variation) =>
+	// 			variation.options.map((option) => ({
+	// 				original: option.originalPrice,
+	// 				promotional: option.promotionalPrice,
+	// 			}))
+	// 		);
+
+	// 		// Filtra para encontrar a maior diferença percentual entre os preços
+	// 		const highestDiscount = prices.reduce(
+	// 			(max, { original, promotional }) => {
+	// 				const discount = calculatePercentage(original, promotional);
+	// 				return discount > max ? discount : max;
+	// 			},
+	// 			0
+	// 		);
+
+	// 		return highestDiscount;
+	// 	}
+
+	// 	// Caso não haja variações, usa os preços principais
+	// 	return calculatePercentage(
+	// 		product.originalPrice,
+	// 		product.promotionalPrice
+	// 	);
+	// };
+
+	const discountPercentage = calculateDiscountPercentage(product);
 
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
@@ -84,12 +170,11 @@ function ProductAdCard({
 	return (
 		<div className="bg-white w-[254px] flex flex-col rounded-md relative pb-2 shadow-md select-none">
 			<div className="flex flex-col items-center justify-center h-[220px] mx-3 mt-2 -mb-3">
-				{discountPercentage === 0 ? (
+				{Number(discountPercentage) === 0 ? (
 					<></>
 				) : (
-					// <span className="flex justify-center items-center bg-primary text-center rounded-tr-md rounded-bl-md absolute -right-0 w-[80px] h-[30px] ml-[144px] md:ml-[174px] -mt-[206px] "></span>
-					<span className="flex justify-center items-center bg-primary text-center rounded-tr-md rounded-bl-md absolute -right-0 w-[80px] h-[30px] ml-[144px] md:ml-[174px] -mt-[206px] select-none">
-						{`${discountPercentage}% Off`}
+					<span className="flex justify-center items-center bg-primary text-center rounded-tr-md rounded-bl-md absolute -right-0 min-w-[50px] max-w-[150px] h-[30px] px-4 ml-[144px] md:ml-[174px] -mt-[206px] select-none overflow-hidden text-ellipsis whitespace-nowrap">
+						{`${discountPercentage} Off`}
 					</span>
 				)}
 				{freeShipping === true ? (
@@ -131,7 +216,7 @@ function ProductAdCard({
 				</div>
 				<div>
 					<h1 className="text-base text-black">
-						{promotionalPrice === 0 ? (
+						{/* {promotionalPrice === 0 ? (
 							<span className="text-primary">
 								{price.toLocaleString("pt-BR", {
 									style: "currency",
@@ -153,6 +238,187 @@ function ProductAdCard({
 									})}
 								</span>
 							</>
+						)} */}
+
+						{product?.productVariations?.length > 0 ? (
+							<div>
+								{/* Renderiza as variações */}
+								{product.productVariations.map(
+									(variation, index) => {
+										const prices = variation.options.map(
+											(option) => ({
+												original: option.originalPrice,
+												promo: option.promotionalPrice,
+											})
+										);
+
+										// Calcula valores para exibição e riscado
+										const promotionalPrices = prices
+											.filter((p) => p.promo > 0)
+											.map((p) => p.promo);
+										const originalPricesWithPromo = prices
+											.filter((p) => p.promo > 0)
+											.map((p) => p.original);
+
+										const displayedPrices = prices.map(
+											(p) =>
+												p.promo > 0
+													? p.promo
+													: p.original
+										);
+										const lowestPrice = Math.min(
+											...displayedPrices
+										);
+										const highestPrice = Math.max(
+											...displayedPrices
+										);
+
+										const lowestOriginalPriceWithPromo =
+											Math.min(
+												...originalPricesWithPromo
+											);
+										const highestOriginalPriceWithPromo =
+											Math.max(
+												...originalPricesWithPromo
+											);
+
+										return (
+											<div
+												key={index}
+												className="flex flex-col">
+												{/* Exibição de preços */}
+												<div>
+													{promotionalPrices.length >
+													0 ? (
+														<h2 className="text-base text-primary font-semibold">
+															{`${Number(
+																lowestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)} - ${Number(
+																highestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</h2>
+													) : (
+														<h2 className="text-base text-primary font-semibold">
+															{`${Number(
+																lowestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)} - ${Number(
+																highestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</h2>
+													)}
+												</div>
+												{/* Exibição de valores riscados, só se houver 2 ou mais promoções */}
+												{/* {promotionalPrices.length >
+													1 && (
+													<div className="flex flex-row items-center mb-2">
+														<span className="text-xs text-black line-through mr-2">
+															{`${Number(
+																lowestOriginalPriceWithPromo
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)} - ${Number(
+																highestOriginalPriceWithPromo
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</span>
+													</div>
+												)} */}
+												{/* Exibição de valores riscados, se houver apenas uma promoção */}
+												{promotionalPrices.length ===
+													1 && (
+													<div className="flex flex-row items-center">
+														<span className="text-xs text-black line-through mr-2">
+															{`${Number(
+																originalPricesWithPromo[0]
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</span>
+													</div>
+												)}
+											</div>
+										);
+									}
+								)}
+							</div>
+						) : (
+							<div>
+								{/* Renderiza o preço do produto principal caso não existam variações */}
+								{product?.promotionalPrice > 0 ? (
+									<div className="flex flex-row items-center gap-2">
+										<h2 className="text-base text-primary font-semibold">
+											{Number(
+												product?.promotionalPrice
+											).toLocaleString("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											})}
+										</h2>
+										{/* 
+										<span className="text-xs text-black line-through mr-2">
+											{Number(
+												product?.originalPrice
+											).toLocaleString("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											})}
+										</span> */}
+									</div>
+								) : (
+									<h2 className="text-base text-primary font-semibold">
+										{Number(
+											product?.originalPrice
+										).toLocaleString("pt-BR", {
+											style: "currency",
+											currency: "BRL",
+										})}
+									</h2>
+								)}
+							</div>
 						)}
 					</h1>
 					<h2 className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">

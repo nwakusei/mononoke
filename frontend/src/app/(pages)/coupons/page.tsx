@@ -60,7 +60,7 @@ function CoupomPage() {
 									key={coupon?._id}
 									partnerLogo={partner?.logoImage}
 									partnerName={coupon?.partnerName}
-									partnerID={coupon?.partnerID}
+									partnerNickname={coupon?.partnerNickname}
 									discount={coupon?.discountPercentage}
 									cashback={
 										partner ? partner?.cashback : null

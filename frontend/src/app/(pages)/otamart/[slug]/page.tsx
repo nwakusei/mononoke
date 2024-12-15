@@ -11,6 +11,8 @@ import { format } from "date-fns";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
+import slugify from "slugify";
+
 import "./otamartId.css";
 
 // Axios
@@ -37,7 +39,7 @@ import { MdVerified } from "react-icons/md";
 import { ProductAdCard } from "@/components/ProductAdCard";
 
 function ProductPage() {
-	const { id } = useParams();
+	const { slug } = useParams();
 	const [product, setProduct] = useState({});
 	const [recommendedProducts, setRecommendedProducts] = useState([]);
 	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
@@ -134,10 +136,18 @@ function ProductPage() {
 	const discountPercentage = calculateDiscountPercentage();
 
 	useEffect(() => {
+		if (!slug) return;
+
 		const fetchProduct = async () => {
 			try {
-				const response = await api.get(`/products/${id}`);
-				setProduct(response.data.product);
+				// Faz o lookup para obter o ID correspondente à slug
+				const response = await api.get(`/products/convert/${slug}`);
+
+				const id = response.data.id;
+
+				const responseProduct = await api.get(`/products/${id}`);
+
+				setProduct(responseProduct.data.product);
 			} catch (error) {
 				console.error("Error fetching product:", error);
 			} finally {
@@ -147,19 +157,26 @@ function ProductPage() {
 
 		const fetchRecommendedProducts = async () => {
 			try {
-				const response = await api.get(
+				// Faz o lookup para obter o ID correspondente à slug
+				const response = await api.get(`/products/convert/${slug}`);
+
+				const id = response.data.id;
+
+				const responseRecommendedProduct = await api.get(
 					`/products/recommended-product/${id}`
 				);
-				setRecommendedProducts(response.data.recommendedProducts); // Certifique-se de usar a chave correta
+				setRecommendedProducts(
+					responseRecommendedProduct.data.recommendedProducts
+				); // Certifique-se de usar a chave correta
 			} catch (error) {
 				console.error("Error fetching product:", error);
 			}
 		};
 
-		fetchRecommendedProducts();
-
 		fetchProduct();
-	}, [id]);
+
+		fetchRecommendedProducts();
+	}, [slug]);
 
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
@@ -274,8 +291,16 @@ function ProductPage() {
 	};
 
 	const handleFollow = async () => {
+		if (!slug) return;
+
 		setbuttonLoading(true);
+
 		try {
+			// Faz o lookup para obter o ID correspondente à slug
+			const response = await api.get(`/products/convert/${slug}`);
+
+			const id = response.data.id;
+
 			// Simula a chamada API para seguir a loja
 			await api.post(`/customers/follow-store/${id}`);
 
@@ -292,8 +317,16 @@ function ProductPage() {
 	};
 
 	const handleUnfollow = async () => {
+		if (!slug) return;
+
 		setbuttonLoading(true);
+
 		try {
+			// Faz o lookup para obter o ID correspondente à slug
+			const response = await api.get(`/products/convert/${slug}`);
+
+			const id = response.data.id;
+
 			await api.post(`/customers/unfollow-store/${id}`);
 
 			// Remove a loja da lista de seguidos
@@ -308,11 +341,14 @@ function ProductPage() {
 		}
 	};
 
-	const handleClick = (orderId) => {
-		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
-		setTimeout(() => {
-			router.push(`/otamart/store/${orderId}`);
-		}, 2000); // O tempo pode ser ajustado conforme necessário
+	const handleClick = (slug) => {
+		setLoadingButtonId(slug); // Define o ID do pedido que está carregando
+
+		if (partner.nickname === slug) {
+			setTimeout(() => {
+				router.push(`/otamart/store/${slug}`);
+			}, 2000); // O tempo pode ser ajustado conforme necessário
+		}
 	};
 
 	if (isLoading) {
@@ -366,44 +402,188 @@ function ProductPage() {
 						</div>
 
 						{/* Preço */}
-						{product?.promotionalPrice > 0 ? (
+						{product?.productVariations?.length > 0 ? (
 							<div>
-								{/* Preço promocional */}
-								<h2 className="text-2xl text-primary font-semibold">
-									{Number(
-										product?.promotionalPrice
-									).toLocaleString("pt-BR", {
-										style: "currency",
-										currency: "BRL",
-									})}
-								</h2>
-								{/* Preço antes do desconto */}
-								<div className="flex flex-row items-center mb-2">
-									<span className="text-base text-black line-through mr-2">
+								{/* Renderiza as variações */}
+								{product.productVariations.map(
+									(variation, index) => {
+										const prices = variation.options.map(
+											(option) => ({
+												original: option.originalPrice,
+												promo: option.promotionalPrice,
+											})
+										);
+
+										// Calcula valores para exibição e riscado
+										const promotionalPrices = prices
+											.filter((p) => p.promo > 0)
+											.map((p) => p.promo);
+										const originalPricesWithPromo = prices
+											.filter((p) => p.promo > 0)
+											.map((p) => p.original);
+
+										const displayedPrices = prices.map(
+											(p) =>
+												p.promo > 0
+													? p.promo
+													: p.original
+										);
+										const lowestPrice = Math.min(
+											...displayedPrices
+										);
+										const highestPrice = Math.max(
+											...displayedPrices
+										);
+
+										const lowestOriginalPriceWithPromo =
+											Math.min(
+												...originalPricesWithPromo
+											);
+										const highestOriginalPriceWithPromo =
+											Math.max(
+												...originalPricesWithPromo
+											);
+
+										return (
+											<div
+												key={index}
+												className="flex flex-col my-2">
+												{/* Exibição de preços */}
+												<div>
+													{promotionalPrices.length >
+													0 ? (
+														<h2 className="text-2xl text-primary font-semibold">
+															{`${Number(
+																lowestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)} - ${Number(
+																highestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</h2>
+													) : (
+														<h2 className="text-2xl text-primary font-semibold">
+															{`${Number(
+																lowestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)} - ${Number(
+																highestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</h2>
+													)}
+												</div>
+												{/* Exibição de valores riscados, só se houver 2 ou mais promoções */}
+												{promotionalPrices.length >
+													1 && (
+													<div className="flex flex-row items-center mb-2">
+														<span className="text-base text-black line-through mr-2">
+															{`${Number(
+																lowestOriginalPriceWithPromo
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)} - ${Number(
+																highestOriginalPriceWithPromo
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</span>
+													</div>
+												)}
+												{/* Exibição de valores riscados, se houver apenas uma promoção */}
+												{promotionalPrices.length ===
+													1 && (
+													<div className="flex flex-row items-center mb-2">
+														<span className="text-base text-black line-through mr-2">
+															{`${Number(
+																originalPricesWithPromo[0]
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</span>
+													</div>
+												)}
+											</div>
+										);
+									}
+								)}
+							</div>
+						) : (
+							<div>
+								{/* Renderiza o preço do produto principal caso não existam variações */}
+								{product?.promotionalPrice > 0 ? (
+									<div>
+										<h2 className="text-2xl text-primary font-semibold">
+											{Number(
+												product?.promotionalPrice
+											).toLocaleString("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											})}
+										</h2>
+										<div className="flex flex-row items-center mb-2">
+											<span className="text-base text-black line-through mr-2">
+												{Number(
+													product?.originalPrice
+												).toLocaleString("pt-BR", {
+													style: "currency",
+													currency: "BRL",
+												})}
+											</span>
+										</div>
+									</div>
+								) : (
+									<h2 className="text-2xl text-primary font-semibold">
 										{Number(
 											product?.originalPrice
 										).toLocaleString("pt-BR", {
 											style: "currency",
 											currency: "BRL",
 										})}
-									</span>
-									<span className="bg-primary text-xs px-1 rounded-sm select-none shadow-md">
-										{`${discountPercentage}% Off`}
-									</span>
-								</div>
-							</div>
-						) : (
-							<div>
-								<h2 className="text-2xl text-primary font-semibold">
-									{Number(
-										product?.originalPrice
-									).toLocaleString("pt-BR", {
-										style: "currency",
-										currency: "BRL",
-									})}
-								</h2>
+									</h2>
+								)}
 							</div>
 						)}
+
 						{/* Cashback */}
 						{partner && (
 							<div className="flex flex-row items-center mb-4">
@@ -635,7 +815,8 @@ function ProductPage() {
 											</Link>
 										</button> */}
 
-										{loadingButtonId === partner._id ? (
+										{loadingButtonId ===
+										partner.nickname ? (
 											<button className="flex items-center justify-center text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 w-[150px] h-[36px] px-10 py-1 rounded-md hover:shadow-md">
 												{/* <span className="loading loading-spinner loading-md"></span> */}
 												<span className="loading loading-dots loading-md"></span>
@@ -643,7 +824,9 @@ function ProductPage() {
 										) : (
 											<button
 												onClick={() =>
-													handleClick(partner._id)
+													handleClick(
+														partner.nickname
+													)
 												} // Passa o ID do pedido
 												className="flex items-center justify-center text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 w-[150px] h-[36px] px-10 py-1 rounded-md hover:shadow-md">
 												Ver Loja

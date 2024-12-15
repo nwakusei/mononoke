@@ -6,6 +6,8 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { Multer } from "multer";
 import mongoose, { ObjectId, isValidObjectId } from "mongoose";
 
+import slugify from "slugify";
+
 // Middlewares/Helpers
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
@@ -289,9 +291,23 @@ class ProductController {
 			}
 		}
 
+		// Título do produto no Banco de Dados
+		const rawTitle = productTitle;
+
+		// Substituição de ~ e . por -
+		const processedTitle = rawTitle.replace(/~/g, "-").replace(/\./g, "-");
+
+		// Conversão do título em Slug
+		const slug = slugify(processedTitle, {
+			lower: true,
+			strict: true,
+			replacement: "-", // Substitui espaços e outros separadores por "-"
+		});
+
 		// Criar um novo produto
 		const product = new ProductModel({
 			productTitle: productTitle,
+			slugTitle: slug,
 			description: description,
 			productVariations: processedVariations,
 			originalPrice: originalPrice,
@@ -522,6 +538,20 @@ class ProductController {
 		} catch (error) {
 			console.log(error);
 		}
+	}
+
+	static async convertSlugProductToID(req: Request, res: Response) {
+		const { slug } = req.params;
+
+		// Verificar se o Produto existe
+		const product = await ProductModel.findOne({ slugTitle: slug });
+
+		if (!product) {
+			res.status(404).json({ message: "Produto não encontrado" });
+			return;
+		}
+
+		res.status(200).json({ id: product._id });
 	}
 
 	static async getProductById(req: Request, res: Response) {

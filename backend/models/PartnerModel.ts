@@ -21,6 +21,7 @@ interface IPartner {
 	logoImage: string;
 	accountType: string;
 	name: string;
+	nickname: string;
 	email: string;
 	password: string;
 	cpfCnpj: number;
@@ -51,6 +52,10 @@ const partnerSchema = new Schema<IPartner>(
 		name: {
 			type: String,
 			requered: true,
+		},
+		nickname: {
+			type: String,
+			required: false,
 		},
 		email: {
 			type: String,

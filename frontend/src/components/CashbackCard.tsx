@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Otakuyasan from "../../public/otakuyasan.png";
 
 function CashbackCard({
-	partnerID,
+	partnerNickname,
 	partnerName,
 	partnerLogo,
 	cashback,
@@ -19,7 +19,7 @@ function CashbackCard({
 		setLoadingButton(true);
 
 		setTimeout(() => {
-			router.push(`/otamart/store/${partnerID}`);
+			router.push(`/otamart/store/${partnerNickname}`);
 		}, 1000);
 	}
 

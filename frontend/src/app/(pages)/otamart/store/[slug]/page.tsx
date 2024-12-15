@@ -7,31 +7,33 @@ import Image from "next/image";
 
 import "./storeId.css";
 
-// Importe suas imagens e ícones aqui
-import Amora from "../../../../../../public/amora.jpg";
-import imageProfile from "../../../../../public/Kon.jpg";
-
 // Context
 import { Context } from "@/context/UserContext";
 
 // Icons
 import { MdVerified } from "react-icons/md";
 import { Peoples } from "@icon-park/react";
-import { BsStar, BsStarHalf, BsStarFill, BsBox2Heart } from "react-icons/bs";
+import {
+	BsStar,
+	BsBagHeart,
+	BsBagCheck,
+	BsBox2Heart,
+	BsStarHalf,
+	BsStarFill,
+} from "react-icons/bs";
 import { CgBox } from "react-icons/cg";
 import { FiInfo } from "react-icons/fi";
 
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
-import Swal from "sweetalert2";
-import { set } from "date-fns";
+import { toast } from "react-toastify";
 
 function StorePage() {
 	const [products, setProducts] = useState([]);
 	const { partners } = useContext(Context);
 	const [isLoading, setIsLoading] = useState(true);
-	const { id } = useParams();
+	const { slug } = useParams();
 	const [searchText, setSearchText] = useState("");
 	const [searchedText, setSearchedText] = useState("");
 	const [returnedProducts, setReturnedProducts] = useState([]);
@@ -41,7 +43,80 @@ function StorePage() {
 	const [token] = useState(() => localStorage.getItem("token") || "");
 	const [followedStores, setFollowedStores] = useState([]);
 
-	const partner = partners.find((p) => p._id === id);
+	const [partner, setPartner] = useState({});
+
+	useEffect(() => {
+		// Verifica se `id` já foi definido.
+		if (!slug) return;
+
+		try {
+			const fetchPartner = async () => {
+				// Faz o lookup para obter o ID correspondente à slug
+				const response = await api.get(`/partners/convert/${slug}`);
+
+				const id = response.data.id;
+
+				// Encontra o parceiro com base no slug.
+				const foundPartner = partners.find((p) => p._id === id);
+
+				if (foundPartner) {
+					// Atualiza o estado com o parceiro encontrado.
+					setPartner(foundPartner);
+				} else {
+					console.log("Loja não encontrada!");
+				}
+			};
+
+			const fetchGetAllProductsStore = async () => {
+				// Faz o lookup para obter o ID correspondente à slug
+				const response = await api.get(`/partners/convert/${slug}`);
+
+				const id = response.data.id;
+
+				// Encontra o parceiro com base no slug.
+				const foundPartner = partners.find((p) => p._id === id);
+
+				if (foundPartner) {
+					// Atualiza o estado com o parceiro encontrado
+					setPartner(foundPartner);
+
+					// Verifica se foundPartner._id existe antes de fazer a requisição dos produtos
+					if (foundPartner._id) {
+						const responseGetAllProductsStore = await api.get(
+							`/products/getall-products-store/${foundPartner._id}`
+						);
+						setProducts(responseGetAllProductsStore.data.products);
+						setIsLoading(false);
+					} else {
+						console.log("ID do parceiro não encontrado!");
+					}
+				} else {
+					console.log("Loja não encontrada!");
+				}
+			};
+
+			fetchPartner();
+
+			fetchGetAllProductsStore();
+		} catch (error) {
+			console.error("Erro ao deixaar de seguir a loja:", error);
+		}
+	}, [slug, partners]); // Dependências adequadas: `id` e `partners`.
+
+	// useEffect(() => {
+	// 	api.get(`/products/getall-products-store/${partner._id}`)
+	// 		.then((response) => {
+	// 			setProducts(response.data.products);
+	// 			setIsLoading(false);
+	// 		})
+	// 		.catch((error) => {
+	// 			console.error("Error fetching products:", error);
+	// 			setIsLoading(false); // Pode ser necessário para parar o carregamento em caso de erro
+	// 		});
+	// }, [partner._id]);
+
+	console.log("VERIFICAR O QUE RETORNA:", partner);
+
 	const rating =
 		partner?.rating > 0
 			? `${(partner?.rating).toFixed(1)} (XX Notas)`
@@ -72,18 +147,6 @@ function StorePage() {
 		fetchFollowedStores();
 	}, [token]);
 
-	useEffect(() => {
-		api.get(`/products/getall-products-store/${id}`)
-			.then((response) => {
-				setProducts(response.data.products);
-				setIsLoading(false);
-			})
-			.catch((error) => {
-				console.error("Error fetching products:", error);
-				setIsLoading(false); // Pode ser necessário para parar o carregamento em caso de erro
-			});
-	}, [id]);
-
 	const handleSearch = async () => {
 		// Verifica se há texto na pesquisa antes de fazer a requisição
 		if (!searchText.trim()) {
@@ -99,7 +162,7 @@ function StorePage() {
 		const fetchReturnedProduct = async () => {
 			try {
 				const response = await api.post(
-					`/searches/search-store/${id}`,
+					`/searches/search-store/${partner._id}`,
 					{
 						productTitle: searchText, // Envia o searchText no corpo da requisição
 					}
@@ -134,15 +197,19 @@ function StorePage() {
 		setbuttonLoading(true);
 		try {
 			// Simula a chamada API para seguir a loja
-			await api.post(`/customers/follow-store/${id}`);
+			const response = await api.post(
+				`/customers/follow-store/${partner._id}`
+			);
 
 			// Atualiza o estado local para refletir a nova lista de lojas seguidas
 			setFollowedStores((prevStores) => [
 				...prevStores,
 				{ storeID: partner?._id },
 			]);
-		} catch (error) {
-			console.error("Erro ao seguir a loja:", error);
+			toast.success(response.data.message);
+		} catch (error: any) {
+			toast.error(error.response.data.message);
+			console.error(error.response.data.message);
 		} finally {
 			setbuttonLoading(false);
 		}
@@ -151,7 +218,7 @@ function StorePage() {
 	const handleUnfollow = async () => {
 		setbuttonLoading(true);
 		try {
-			await api.post(`/customers/unfollow-store/${id}`);
+			await api.post(`/customers/unfollow-store/${partner._id}`);
 
 			// Remove a loja da lista de seguidos
 			setFollowedStores(
@@ -173,7 +240,7 @@ function StorePage() {
 		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<div className="flex flex-col justify-center items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-16">
 				<div>
-					<div className="flex flex-row gap-8 bg-white text-black w-[1100px] h-[200px] p-4 mt-8 mb-8 rounded-md shadow-md select-none">
+					<div className="flex flex-row gap-8 bg-white text-black w-[1100px] min-h-[200px] p-4 mt-8 mb-8 rounded-md shadow-md select-none">
 						{/* Card Store Info 1 */}
 						<div className="w-[300px] h-[150px] flex flex-row bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
 							<Image
@@ -248,7 +315,9 @@ function StorePage() {
 							</div>
 							<div className="flex flex-row items-center gap-2 mb-2">
 								<span>
-									<BsStar size={18} />
+									{/* <BsBox2Heart size={18} /> */}
+									<BsBagCheck size={18} />
+									{/* <BsBagHeart size={18} /> */}
 								</span>
 								<h1>Produtos vendidos: {productsSold}</h1>
 							</div>
@@ -373,7 +442,7 @@ function StorePage() {
 											? `${returnedProduct.productsSold} Vendidos`
 											: `${returnedProduct.productsSold} Vendido`
 									}
-									linkProductPage={`/otamart/${returnedProduct._id}`}
+									linkProductPage={`/otamart/${returnedProduct.slugTitle}`}
 								/>
 							);
 						})
@@ -409,7 +478,7 @@ function StorePage() {
 											? `${product.productsSold} Vendidos`
 											: `${product.productsSold} Vendido`
 									}
-									linkProductPage={`/otamart/${product._id}`}
+									linkProductPage={`/otamart/${product.slugTitle}`}
 								/>
 							);
 						})

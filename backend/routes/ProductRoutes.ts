@@ -60,6 +60,8 @@ router.get(
 	ProductController.getAllProductsStoreByID
 );
 
+router.get("/convert/:slug", ProductController.convertSlugProductToID);
+
 router.get("/:id", ProductController.getProductById);
 
 router.delete("/:id", verifyToken, ProductController.removeProductById);
