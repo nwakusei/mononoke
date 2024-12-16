@@ -1011,6 +1011,7 @@ function ProductPage() {
 								return (
 									<ProductAdCard
 										key={recommendedProduct._id}
+										product={recommendedProduct}
 										freeShipping={
 											recommendedProduct.freeShipping
 										}
@@ -1035,7 +1036,7 @@ function ProductPage() {
 												? `${recommendedProduct.productsSold} Vendidos`
 												: `${recommendedProduct.productsSold} Vendido`
 										}
-										linkProductPage={`/otamart/${recommendedProduct._id}`}
+										linkProductPage={`/otamart/${recommendedProduct.slugTitle}`}
 									/>
 								);
 							})}

@@ -291,23 +291,59 @@ class ProductController {
 			}
 		}
 
-		// Título do produto no Banco de Dados
-		const rawTitle = productTitle;
+		// // Título do produto no Banco de Dados
+		// const rawTitle = productTitle;
 
-		// Substituição de ~ e . por -
-		const processedTitle = rawTitle.replace(/~/g, "-").replace(/\./g, "-");
+		// // Substituição de ~ e . por -
+		// const processedTitle = rawTitle.replace(/~/g, "-").replace(/\./g, "-");
 
-		// Conversão do título em Slug
-		const slug = slugify(processedTitle, {
-			lower: true,
-			strict: true,
-			replacement: "-", // Substitui espaços e outros separadores por "-"
-		});
+		// // Conversão do título em Slug
+		// const slug = slugify(processedTitle, {
+		// 	lower: true,
+		// 	strict: true,
+		// 	replacement: "-", // Substitui espaços e outros separadores por "-"
+		// });
+
+		const createSlugWithCode = async (productTitle) => {
+			// Substituição de ~ e . por -
+			const processedTitle = productTitle
+				.replace(/~/g, "-")
+				.replace(/\./g, "-");
+
+			// Conversão do título em Slug
+			const slug = slugify(processedTitle, {
+				lower: true,
+				strict: true,
+				replacement: "-", // Substitui espaços e outros separadores por "-"
+			});
+
+			// Buscar o último produto criado para obter o maior código
+			const lastProduct = await ProductModel.findOne({})
+				.sort({ createdAt: -1 })
+				.exec();
+
+			// Determinar o próximo código
+			let nextCode = "M-0001"; // Default para o primeiro produto
+			if (lastProduct && lastProduct.slugTitle) {
+				const match = lastProduct.slugTitle.match(/M-(\d{4})$/);
+				if (match) {
+					const lastNumber = parseInt(match[1], 10);
+					nextCode = `M-${String(lastNumber + 1).padStart(4, "0")}`;
+				}
+			}
+
+			// Concatenar o código à slug
+			const slugWithCode = `${slug}-${nextCode}`;
+
+			return slugWithCode;
+		};
+
+		const slugWithCode = await createSlugWithCode(productTitle);
 
 		// Criar um novo produto
 		const product = new ProductModel({
 			productTitle: productTitle,
-			slugTitle: slug,
+			slugTitle: slugWithCode,
 			description: description,
 			productVariations: processedVariations,
 			originalPrice: originalPrice,
