@@ -14,11 +14,6 @@ router.get(
 	verifyToken,
 	OrderController.getPartnerOrderByID
 );
-// router.patch(
-// 	"/partner-cancel/:id",
-// 	verifyToken,
-// 	OrderController.partnerCancelOrderByID
-// );
 
 router.get(
 	"/customer-orders",
@@ -43,6 +38,12 @@ router.patch(
 	"/update-trackingcode/:id",
 	verifyToken,
 	OrderController.updateTrackingCode
+);
+
+router.delete(
+	"/partner-cancel-order/:id",
+	verifyToken,
+	OrderController.partnerCancelOrderByID
 );
 
 // router.post("/review-order", verifyToken, OrderController.reviewOrder);

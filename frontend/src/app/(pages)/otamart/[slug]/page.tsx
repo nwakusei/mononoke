@@ -62,6 +62,8 @@ function ProductPage() {
 
 	const [selectedVariation, setSelectedVariation] = useState(0);
 
+	console.log(selectedVariation.originalPrice);
+
 	// Função para alterar a imagem ao clicar em uma miniatura
 	const handleThumbnailClick = (index) => {
 		setSelectedImage({ type: "carousel", index });
@@ -400,11 +402,45 @@ function ProductPage() {
 									: `${product?.productsSold} Vendido`}
 							</div>
 						</div>
-
 						{/* Preço */}
-						{product?.productVariations?.length > 0 ? (
+						{selectedVariation ? (
+							// Renderizar os preços da variação selecionada
 							<div>
-								{/* Renderiza as variações */}
+								{selectedVariation.promotionalPrice > 0 ? (
+									<div>
+										<h2 className="text-2xl text-primary font-semibold">
+											{Number(
+												selectedVariation.promotionalPrice
+											).toLocaleString("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											})}
+										</h2>
+										<div className="flex flex-row items-center mb-2">
+											<span className="text-base text-black line-through mr-2">
+												{Number(
+													selectedVariation.originalPrice
+												).toLocaleString("pt-BR", {
+													style: "currency",
+													currency: "BRL",
+												})}
+											</span>
+										</div>
+									</div>
+								) : (
+									<h2 className="text-2xl text-primary font-semibold mb-2">
+										{Number(
+											selectedVariation.originalPrice
+										).toLocaleString("pt-BR", {
+											style: "currency",
+											currency: "BRL",
+										})}
+									</h2>
+								)}
+							</div>
+						) : product?.productVariations?.length > 0 ? (
+							// Renderizar a lógica existente das variações quando nenhuma variação é selecionada
+							<div>
 								{product.productVariations.map(
 									(variation, index) => {
 										const prices = variation.options.map(
@@ -414,7 +450,6 @@ function ProductPage() {
 											})
 										);
 
-										// Calcula valores para exibição e riscado
 										const promotionalPrices = prices
 											.filter((p) => p.promo > 0)
 											.map((p) => p.promo);
@@ -497,7 +532,7 @@ function ProductPage() {
 														</h2>
 													)}
 												</div>
-												{/* Exibição de valores riscados, só se houver 2 ou mais promoções */}
+												{/* Exibição de valores riscados */}
 												{promotionalPrices.length >
 													1 && (
 													<div className="flex flex-row items-center mb-2">
@@ -524,7 +559,186 @@ function ProductPage() {
 														</span>
 													</div>
 												)}
-												{/* Exibição de valores riscados, se houver apenas uma promoção */}
+												{promotionalPrices.length ===
+													1 && (
+													<div className="flex flex-row items-center mb-2">
+														<span className="text-base text-black line-through mr-2">
+															{`${Number(
+																originalPricesWithPromo[0]
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</span>
+													</div>
+												)}
+											</div>
+										);
+									}
+								)}
+							</div>
+						) : (
+							// Renderizar o preço do produto principal caso não existam variações
+							<div>
+								{product?.promotionalPrice > 0 ? (
+									<div>
+										<h2 className="text-2xl text-primary font-semibold">
+											{Number(
+												product?.promotionalPrice
+											).toLocaleString("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											})}
+										</h2>
+										<div className="flex flex-row items-center mb-2">
+											<span className="text-base text-black line-through mr-2">
+												{Number(
+													product?.originalPrice
+												).toLocaleString("pt-BR", {
+													style: "currency",
+													currency: "BRL",
+												})}
+											</span>
+										</div>
+									</div>
+								) : (
+									<h2 className="text-2xl text-primary font-semibold mb-2">
+										{Number(
+											product?.originalPrice
+										).toLocaleString("pt-BR", {
+											style: "currency",
+											currency: "BRL",
+										})}
+									</h2>
+								)}
+							</div>
+						)}
+
+						{/* {product?.productVariations?.length > 0 ? (
+							<div>
+								{product.productVariations.map(
+									(variation, index) => {
+										const prices = variation.options.map(
+											(option) => ({
+												original: option.originalPrice,
+												promo: option.promotionalPrice,
+											})
+										);
+
+										// Calcula valores para exibição e riscado
+										const promotionalPrices = prices
+											.filter((p) => p.promo > 0)
+											.map((p) => p.promo);
+										const originalPricesWithPromo = prices
+											.filter((p) => p.promo > 0)
+											.map((p) => p.original);
+
+										const displayedPrices = prices.map(
+											(p) =>
+												p.promo > 0
+													? p.promo
+													: p.original
+										);
+										const lowestPrice = Math.min(
+											...displayedPrices
+										);
+										const highestPrice = Math.max(
+											...displayedPrices
+										);
+
+										const lowestOriginalPriceWithPromo =
+											Math.min(
+												...originalPricesWithPromo
+											);
+										const highestOriginalPriceWithPromo =
+											Math.max(
+												...originalPricesWithPromo
+											);
+
+										return (
+											<div
+												key={index}
+												className="flex flex-col my-2">
+												<div>
+													{promotionalPrices.length >
+													0 ? (
+														<h2 className="text-2xl text-primary font-semibold">
+															{`${Number(
+																lowestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)} - ${Number(
+																highestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</h2>
+													) : (
+														<h2 className="text-2xl text-primary font-semibold">
+															{`${Number(
+																lowestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)} - ${Number(
+																highestPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</h2>
+													)}
+												</div>
+
+												{promotionalPrices.length >
+													1 && (
+													<div className="flex flex-row items-center mb-2">
+														<span className="text-base text-black line-through mr-2">
+															{`${Number(
+																lowestOriginalPriceWithPromo
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)} - ${Number(
+																highestOriginalPriceWithPromo
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}`}
+														</span>
+													</div>
+												)}
+
 												{promotionalPrices.length ===
 													1 && (
 													<div className="flex flex-row items-center mb-2">
@@ -549,7 +763,6 @@ function ProductPage() {
 							</div>
 						) : (
 							<div>
-								{/* Renderiza o preço do produto principal caso não existam variações */}
 								{product?.promotionalPrice > 0 ? (
 									<div>
 										<h2 className="text-2xl text-primary font-semibold">
@@ -582,8 +795,7 @@ function ProductPage() {
 									</h2>
 								)}
 							</div>
-						)}
-
+						)} */}
 						{/* Cashback */}
 						{partner && (
 							<div className="flex flex-row items-center mb-4">
@@ -595,7 +807,6 @@ function ProductPage() {
 								</span>
 							</div>
 						)}
-
 						{/* Variações */}
 						<ProductVariation
 							variations={product?.productVariations}

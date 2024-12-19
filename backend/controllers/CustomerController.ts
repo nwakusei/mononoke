@@ -145,6 +145,7 @@ class CustomerController {
 			const customer = new CustomerModel({
 				accountType: accountType,
 				name: name,
+				nickname: "",
 				email: email,
 				password: passwordHash,
 				otakupayID: newOtakupay._id,
@@ -596,6 +597,7 @@ class CustomerController {
 	static async editCustomer(req: Request, res: Response) {
 		const {
 			name,
+			nickname,
 			email,
 			cpf,
 			password,
@@ -628,6 +630,7 @@ class CustomerController {
 			// Verifique se o customer é de fato um parceiro e não um cliente
 			if (customer instanceof CustomerModel) {
 				customer.name = name;
+				customer.nickname = nickname;
 				customer.email = email;
 				customer.cpf = cpf;
 

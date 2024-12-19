@@ -14,6 +14,10 @@ import api from "@/utils/api";
 import { Context } from "@/context/UserContext";
 import { CheckoutContext } from "@/context/CheckoutContext";
 
+// Skeleton
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+
 // Icons
 import { ShoppingCartOne, PaymentMethod } from "@icon-park/react";
 import { LiaShippingFastSolid } from "react-icons/lia";
@@ -51,7 +55,8 @@ function SideComponent({ selectedVariation }) {
 
 	const partnerStateAddress =
 		partner && partner.address.length > 0 ? partner.address[0].state : "";
-	const userStateAddress =
+
+	const customerStateAddress =
 		user.address && user.address.length > 0 ? user.address[0].state : "";
 
 	useEffect(() => {
@@ -83,7 +88,9 @@ function SideComponent({ selectedVariation }) {
 			}
 		};
 
-		fetchProduct();
+		setTimeout(() => {
+			fetchProduct();
+		}, 2000);
 	}, [slug]);
 
 	// // Valor a ser Exibido no Anúncio (Preço Original ou Promocional)
@@ -305,7 +312,14 @@ function SideComponent({ selectedVariation }) {
 			vlrFrete: 0.0,
 		};
 
-		if (!transportadoraSelecionada && !product.freeShipping === true) {
+		console.log(product.freeShippingRegion);
+		console.log(customerStateAddress);
+
+		if (
+			!transportadoraSelecionada &&
+			(product.freeShipping !== true || // Verifica se o produto não é frete grátis
+				product.freeShippingRegion !== customerStateAddress) // Ou se o estado do cliente não está na região de frete grátis
+		) {
 			toast.info("Selecione uma opção de frete!");
 			return; // Retorna para evitar a adição do produto ao carrinho sem transportadora selecionada
 		}
@@ -555,7 +569,7 @@ function SideComponent({ selectedVariation }) {
 	// Função para lidar com o clique no botão de Calculo de Frete
 	const handleButtonClick = () => {
 		if (!cepDestino) {
-			toast.error("O CEP é obrigatório!");
+			toast.info("O CEP é obrigatório!");
 			return;
 		} else if (cepDestino.length !== 8 || !/^\d{8}$/.test(cepDestino)) {
 			toast.info("O CEP precisa ter 8 números!");
@@ -730,14 +744,12 @@ function SideComponent({ selectedVariation }) {
 						</div> */}
 
 						{product?.freeShipping === true &&
-						partnerStateAddress === userStateAddress ? (
+						product.freeShippingRegion === customerStateAddress ? (
 							<div>
 								<div className="text-black flex flex-row items-center gap-2 mb-2">
 									<GrLocation size={18} />
 									<span className="text-sm">
-										{partner &&
-										partner.address &&
-										partner.address.length > 0 ? (
+										{partner?.address?.length > 0 ? (
 											partner.address.map((end) => (
 												<div key={end._id}>
 													<div>{`Enviado de ${end.city}/${end.state}`}</div>
@@ -768,16 +780,27 @@ function SideComponent({ selectedVariation }) {
 									</div>
 								</div>
 							</div>
-						) : product &&
-						  partnerStateAddress &&
-						  userStateAddress ? (
+						) : partner?.address?.length === 0 ? (
+							<div className="flex flex-row justify-between items-center gap-2 mb-1">
+								<div className="flex flex-row items-center text-black gap-2 mt-1">
+									<MdOutlineLocationOff size={24} />
+									<span>Erro de localização</span>
+								</div>
+								<div
+									className="tooltip cursor-pointer text-black mt-1"
+									data-tip="Erro na busca do endereço da Loja. Recarregue a página, e se o erro persistir entre em contato com a loja!">
+									<FiInfo
+										className="animate-pulse text-red-500"
+										size={18}
+									/>
+								</div>
+							</div>
+						) : partner ? (
 							<div>
 								<div className="text-black flex flex-row items-center gap-2 mb-2">
 									<GrLocation size={18} />
 									<span className="text-sm">
-										{partner &&
-										partner.address &&
-										partner.address.length > 0 ? (
+										{partner?.address?.length > 0 ? (
 											partner.address.map((end) => (
 												<div key={end._id}>
 													<div>{`Enviado de ${end.city}/${end.state}`}</div>
@@ -793,7 +816,6 @@ function SideComponent({ selectedVariation }) {
 										)}
 									</span>
 								</div>
-
 								<div>
 									<h2 className="flex flex-row items-center text-black gap-2 mb-1">
 										<LiaShippingFastSolid size={24} />
@@ -817,7 +839,6 @@ function SideComponent({ selectedVariation }) {
 											}}
 											maxLength={8}
 										/>
-
 										<button
 											type="button"
 											className="btn btn-primary w-[120px]"
@@ -835,20 +856,16 @@ function SideComponent({ selectedVariation }) {
 								</div>
 							</div>
 						) : (
-							// Mostrar um placeholder de carregamento ou nada enquanto os dados estão sendo carregados
-							<div className="flex flex-row justify-between items-center gap-2 mb-1">
-								<div className="flex flex-row items-center text-black gap-2 mt-1">
-									<MdOutlineLocationOff size={24} />
-									<span>Erro de localização</span>
-								</div>
-								<div
-									className="tooltip cursor-pointer text-black mt-1"
-									data-tip="Erro na busca do endereço da Loja e/ou do cliente. Confira seu endereço e atualize se necessário, se o erro persistir entre em contato com a loja!">
-									<FiInfo
-										className="animate-pulse text-red-500"
-										size={18}
+							<div className="flex flex-row justify-center items-center gap-2 mb-1">
+								<SkeletonTheme
+									baseColor="#202020"
+									highlightColor="#444">
+									<Skeleton
+										circle={false}
+										height={40}
+										width={250}
 									/>
-								</div>
+								</SkeletonTheme>
 							</div>
 						)}
 

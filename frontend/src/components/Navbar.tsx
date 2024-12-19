@@ -128,6 +128,7 @@ function Navbar() {
 			localStorage.removeItem("productsInCart");
 			localStorage.removeItem("transportadoraInfo");
 			localStorage.removeItem("coupons");
+			localStorage.removeItem("selectedVariations");
 			setCart(0);
 			setSubtotal(0);
 		} catch (error) {

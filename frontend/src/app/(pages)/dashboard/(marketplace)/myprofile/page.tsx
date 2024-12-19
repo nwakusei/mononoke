@@ -235,7 +235,12 @@ const updateUserFormSchema = z
 			.transform((city) => {
 				return city.trim();
 			}),
-		state: z.string().min(1, "※ Informe o estado!").trim(),
+		state: z
+			.string()
+			.trim()
+			.refine((val) => val !== "default" && val.trim() !== "", {
+				message: "※ Informe o estado!",
+			}),
 		postalCode: z
 			.string()
 			.min(8, "※ Digite o número do CEP!")
@@ -669,6 +674,7 @@ function MyProfilePage() {
 											type="text"
 											// name="name"
 											placeholder={`...`}
+											autoComplete="off"
 											defaultValue={user?.name}
 											className={`input input-bordered ${
 												errors.name
@@ -700,6 +706,7 @@ function MyProfilePage() {
 												type="text"
 												// name="cpfCnpj"
 												placeholder={`...`}
+												autoComplete="off"
 												defaultValue={user?.cpfCnpj}
 												className={`input input-bordered ${
 													errors.cpfCnpj
@@ -732,6 +739,7 @@ function MyProfilePage() {
 												type="text"
 												// name="cpfCnpj"
 												placeholder={`...`}
+												autoComplete="off"
 												defaultValue={user?.cpf}
 												className={`input input-bordered ${
 													errors.cpf
@@ -764,6 +772,7 @@ function MyProfilePage() {
 											type="text"
 											// name="email"
 											placeholder={`...`}
+											autoComplete="off"
 											defaultValue={user?.nickname}
 											className={`input input-bordered ${
 												errors.nickname
@@ -797,6 +806,7 @@ function MyProfilePage() {
 											type="email"
 											// name="email"
 											placeholder={`...`}
+											autoComplete="off"
 											defaultValue={user?.email}
 											className={`input input-bordered ${
 												errors.email
@@ -1212,6 +1222,7 @@ function MyProfilePage() {
 										<input
 											type="text"
 											placeholder="..."
+											autoComplete="off"
 											defaultValue={
 												user.address[0]?.street
 											}
@@ -1244,6 +1255,7 @@ function MyProfilePage() {
 											type="text"
 											// name="complemento"
 											placeholder="..."
+											autoComplete="off"
 											defaultValue={
 												user.address[0]?.complement
 											}
@@ -1279,6 +1291,7 @@ function MyProfilePage() {
 											type="text"
 											// name="bairro"
 											placeholder="..."
+											autoComplete="off"
 											defaultValue={
 												user.address[0]?.neighborhood
 											}
@@ -1316,6 +1329,7 @@ function MyProfilePage() {
 											type="text"
 											// name="cidade"
 											placeholder="..."
+											autoComplete="off"
 											defaultValue={user.address[0]?.city}
 											className={`input input-bordered ${
 												errors.city
@@ -1350,9 +1364,11 @@ function MyProfilePage() {
 											} w-full max-w-3xl`}
 											{...register("state")}
 											defaultValue={
-												user.address[0]?.state
+												user.address
+													? user.address[0]?.state
+													: "default"
 											}>
-											<option disabled selected>
+											<option disabled selected value="">
 												Em qual estado sua loja está
 												localizada?
 											</option>
@@ -1474,6 +1490,7 @@ function MyProfilePage() {
 											type="text"
 											// name="cep"
 											placeholder="..."
+											autoComplete="off"
 											defaultValue={
 												user.address[0]?.postalCode
 											}
@@ -1662,6 +1679,7 @@ function MyProfilePage() {
 											type="password"
 											// name="password"
 											placeholder="Digite a nova senha"
+											autoComplete="off"
 											className={`input input-bordered ${
 												errors.password
 													? `input-error`
@@ -1694,6 +1712,7 @@ function MyProfilePage() {
 											type="password"
 											// name="confirmPassword"
 											placeholder="Confirme a senha"
+											autoComplete="off"
 											className={`input input-bordered ${
 												errors.confirmPassword
 													? `input-error`
@@ -1724,7 +1743,7 @@ function MyProfilePage() {
 							{/* Adicionar Porduto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold mb-4 text-black">
-									Deseja publicar o Produto?
+									Deseja atualizar as informações de perfil?
 								</h1>
 								{/* Nome e Descrição */}
 
@@ -1743,7 +1762,7 @@ function MyProfilePage() {
 										<button
 											type="submit"
 											className="btn btn-primary shadow-md w-[200px]">
-											Atualizar Perfil
+											Atualizar
 										</button>
 									)}
 								</div>

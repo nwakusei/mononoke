@@ -11,6 +11,7 @@ interface ICustomer {
 	profileImage: string;
 	accountType: string;
 	name: string;
+	nickname: string;
 	email: string;
 	password: string;
 	cpf: string;
@@ -33,6 +34,9 @@ const customerSchema = new Schema<ICustomer>(
 		name: {
 			type: String,
 			required: true,
+		},
+		nickname: {
+			type: String,
 		},
 		email: {
 			type: String,

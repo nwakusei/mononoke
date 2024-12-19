@@ -532,7 +532,7 @@ function AddBalance() {
 				<div className="flex flex-row justify-center bg-gray-300 h-screen">
 					{loadingButtonId ? (
 						<button className="flex flex-row items-center btn btn-primary text-black shadow-md w-[200px]">
-							<span className="loading loading-spinner loading-md"></span>
+							<span className="loading loading-dots loading-md"></span>
 						</button>
 					) : (
 						<button

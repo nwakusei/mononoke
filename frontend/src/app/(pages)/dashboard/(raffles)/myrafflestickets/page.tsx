@@ -64,7 +64,7 @@ function MyRafflesTicketsPage() {
 												Prêmio
 											</th>
 											<th className="text-base text-black">
-												Custo da inscrição
+												Custo do ticket
 											</th>
 											<th className="text-base text-black">
 												Data de realização
@@ -88,36 +88,26 @@ function MyRafflesTicketsPage() {
 																myTicket
 																	?.imagesRaffle
 																	.length >
-																	0 &&
-																myTicket?.imagesRaffle.map(
-																	(
-																		item,
-																		index
-																	) => (
-																		<div
-																			key={
-																				index
-																			}
-																			className="avatar">
-																			<div className="mask mask-squircle w-12 h-12">
-																				<Image
-																					src={`http://localhost:5000/images/raffles/${item}`}
-																					alt={
-																						item
-																					}
-																					width={
-																						280
-																					}
-																					height={
-																						280
-																					} // Altere a altura conforme necessário
-																					unoptimized
-																				/>
-																			</div>
+																	0 && (
+																	<div className="avatar">
+																		<div className="mask mask-squircle w-12 h-12">
+																			<Image
+																				src={`http://localhost:5000/images/raffles/${myTicket.imagesRaffle[0]}`} // Acessa apenas o índice 0
+																				alt={
+																					myTicket
+																						.imagesRaffle[0]
+																				}
+																				width={
+																					280
+																				}
+																				height={
+																					280
+																				} // Altere a altura conforme necessário
+																				unoptimized
+																			/>
 																		</div>
-																	)
+																	</div>
 																)}
-
 															<div>
 																<div className="font-bold text-black">
 																	<h2 className="w-[230px] overflow-x-hidden mb-2">
@@ -168,13 +158,6 @@ function MyRafflesTicketsPage() {
 														</div>
 													</td>
 													<th>
-														{/* <button className="flex flex-row items-center btn btn-primary btn-xs text-white w-[90px] shadow-md">
-															<Link
-																href={`/dashboard/myrafflestickets/${myTicket._id}`}>
-																+ Detalhes
-															</Link>
-														</button> */}
-
 														{loadingButtonId ===
 														myTicket._id ? (
 															<button className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
@@ -186,7 +169,7 @@ function MyRafflesTicketsPage() {
 																	handleClick(
 																		myTicket._id
 																	)
-																} // Passa o ID do pedido
+																}
 																className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
 																+ Detalhes
 															</button>

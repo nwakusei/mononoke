@@ -13,6 +13,8 @@ import api from "@/utils/api";
 
 // Components
 import { LoadingPage } from "@/components/LoadingPageComponent";
+import { MainImageRaffleComponent } from "@/components/MainImageRaffleComponent";
+import { ImageCarouselRaffleComponent } from "@/components/ImageCarouselRaffleComponent";
 
 // Icons
 import { LuCalendarRange } from "react-icons/lu";
@@ -30,6 +32,17 @@ function RafflePage() {
 	const [maximizedImage, setMaximizedImage] = useState(null);
 	const [loadingBtn, setLoadingBtn] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+
+	const [selectedImage, setSelectedImage] = useState({
+		type: "raffle", // 'product' ou 'variation'
+		variationIndex: 0, // Índice da variação (por exemplo, cor ou tamanho)
+		index: 0, // Índice da opção dentro da variação
+	});
+
+	// Função para alterar a imagem ao clicar em uma miniatura
+	const handleThumbnailClick = (index) => {
+		setSelectedImage({ type: "carousel", index });
+	};
 
 	useEffect(() => {
 		const fetchRaffle = async () => {
@@ -89,8 +102,13 @@ function RafflePage() {
 			<div className="bg-white rounded-md shadow-md p-4 flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
 				<div className="flex flex-row gap-8">
 					{/* Componente de Imagem Principal */}
+
 					<div className="flex flex-col">
-						<div className="border-[1px] border-black border-opacity-20 bg-white w-[402px] rounded-md relative shadow-lg mb-2">
+						<MainImageRaffleComponent
+							selectedImage={selectedImage}
+							raffle={raffle}
+						/>
+						{/* <div className="border-[1px] border-black border-opacity-20 bg-white w-[402px] rounded-md relative shadow-lg mb-2">
 							<div className="h-[402px] flex items-center justify-center mx-3 my-2">
 								{raffle?.imagesRaffle &&
 									raffle?.imagesRaffle.length > 0 && (
@@ -104,9 +122,14 @@ function RafflePage() {
 										/>
 									)}
 							</div>
-						</div>
+						</div> */}
 						{/* Pequenas imagens */}
-						<div className="flex flex-row gap-2">
+						<ImageCarouselRaffleComponent
+							raffle={raffle}
+							handleThumbnailClick={handleThumbnailClick}
+							selectedImage={selectedImage}
+						/>
+						{/* <div className="flex flex-row gap-2">
 							{raffle?.imagesRaffle &&
 								raffle?.imagesRaffle.length > 0 &&
 								raffle?.imagesRaffle.map((image, id) => (
@@ -129,9 +152,9 @@ function RafflePage() {
 										</div>
 									</div>
 								))}
-						</div>
-						{/* Renderizar imagem maximizada se existir */}
-						{maximizedImageProduct && (
+						</div> */}
+
+						{/* {maximizedImageProduct && (
 							<div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center">
 								<div className="relative max-w-full max-h-full">
 									<Image
@@ -150,7 +173,7 @@ function RafflePage() {
 									</button>
 								</div>
 							</div>
-						)}
+						)} */}
 					</div>
 
 					{/* Componente intermediário */}

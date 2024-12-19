@@ -4,13 +4,15 @@ import getToken from "./get-token.js";
 
 const checkToken = (req: Request, res: Response, next: NextFunction) => {
 	if (!req.headers.authorization) {
-		return res.status(401).json({ message: "Acesso negado!" });
+		res.status(401).json({ message: "Acesso negado!" });
+		return;
 	}
 
 	const token = getToken(req);
 
 	if (!token) {
-		return res.status(401).json({ message: "Acesso negado!" });
+		res.status(401).json({ message: "Acesso negado!" });
+		return;
 	}
 
 	try {
@@ -18,7 +20,7 @@ const checkToken = (req: Request, res: Response, next: NextFunction) => {
 		(req as any).user = verified;
 		next(); // Chame o next() para permitir que a solicitação continue.
 	} catch (err) {
-		return res.status(401).json({ message: "Token Inválido!" });
+		res.status(401).json({ message: "Token Inválido!" });
 	}
 };
 

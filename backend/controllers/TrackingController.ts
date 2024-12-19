@@ -10,6 +10,7 @@ import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
 
 import fetch from "node-fetch";
+import { PartnerModel } from "../models/PartnerModel.js";
 
 class TrackingController {
 	static async checkAddressByCep(req: Request, res: Response) {
@@ -142,8 +143,17 @@ class TrackingController {
 				return;
 			}
 
-			const tokenKangu =
-				"b98aa429dc3a01ac33f7982f1da926c699c0768e39c3a20992cb59e129d43694";
+			const partnerID = order.partnerID;
+			const partner = await PartnerModel.findById(partnerID);
+
+			if (!partner) {
+				console.log("Parceiro não localizado!");
+				res.status(422).json({ message: "Erro ao rastrear o pedido!" });
+				return;
+			}
+
+			const tokenKangu = partner.shippingConfiguration[0].credential;
+
 			const kanguApiUrl = `https://portal.kangu.com.br/tms/transporte/rastrear/${trackingCode}`;
 
 			const response = await fetch(kanguApiUrl, {

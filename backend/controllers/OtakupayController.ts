@@ -1119,7 +1119,7 @@ class OtakupayController {
 								},
 							],
 							shippingMethod: transportadora,
-							statusShipping: "Envio Pendente",
+							statusShipping: "Pendente",
 							trackingCode: "",
 							discountsApplied: 0,
 							orderNote: "",
@@ -2487,7 +2487,7 @@ class OtakupayController {
 							],
 							shippingMethod: transportadora,
 							trackingCode: "",
-							statusShipping: "Envio Pendente",
+							statusShipping: "Pendente",
 							discountsApplied: 0,
 							orderNote: "",
 						});
@@ -4221,8 +4221,7 @@ class OtakupayController {
 													shippingMethod:
 														transportadora,
 													trackingCode: "",
-													statusShipping:
-														"Envio Pendente",
+													statusShipping: "Pendente",
 													discountsApplied: 0,
 													orderNote: "",
 												});

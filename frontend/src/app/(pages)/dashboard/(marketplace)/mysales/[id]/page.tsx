@@ -252,8 +252,8 @@ function MySaleByIDPage() {
 													<tr key={index}>
 														<td>
 															<div className="flex items-center gap-3 mb-2">
-																<div className="avatar">
-																	<div className="mask mask-squircle w-12 h-12 pointer-events-none">
+																<div>
+																	<div className="w-[60px] pointer-events-none">
 																		<Image
 																			src={`http://localhost:5000/images/products/${item.productImage}`}
 																			alt={
@@ -275,6 +275,12 @@ function MySaleByIDPage() {
 																			{
 																				item.productTitle
 																			}
+																		</h2>
+																	</div>
+																	<div>
+																		<h2>
+																			Variação:
+																			Default
 																		</h2>
 																	</div>
 																</div>

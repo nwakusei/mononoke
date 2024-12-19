@@ -307,17 +307,15 @@ function CartPage() {
 		}
 	}
 
-	const decreaseQuantity = async (productId, optionId) => {
+	const decreaseQuantity = async (productId) => {
 		try {
 			// Obter os produtos no carrinho do localStorage
 			let productsInCart =
 				JSON.parse(localStorage.getItem("productsInCart")) || [];
 
-			// Encontrar o índice do produto usando productID e optionID
+			// Encontrar o índice do produto usando apenas o productID
 			const index = productsInCart.findIndex(
-				(item) =>
-					item.productID === productId &&
-					item.productVariations?.[0]?.optionID === optionId
+				(item) => item.productID === productId
 			);
 
 			if (index !== -1) {
@@ -427,7 +425,7 @@ function CartPage() {
 					setProductsInCart([...productsInCart]);
 				}
 			} else {
-				toast.error("Produto ou variação não encontrados no carrinho.");
+				toast.error("Produto não encontrado no carrinho.");
 			}
 		} catch (error) {
 			console.log("Erro ao diminuir quantidade do produto", error);
@@ -435,17 +433,15 @@ function CartPage() {
 		}
 	};
 
-	const increaseQuantity = async (productId, optionId) => {
+	const increaseQuantity = async (productId) => {
 		try {
 			// Obter os produtos no carrinho do localStorage
 			let productsInCart =
 				JSON.parse(localStorage.getItem("productsInCart")) || [];
 
-			// Encontrar o índice do produto usando productID e optionID
+			// Encontrar o índice do produto usando productID
 			const index = productsInCart.findIndex(
-				(item) =>
-					item.productID === productId &&
-					item.productVariations?.[0]?.optionID === optionId
+				(item) => item.productID === productId
 			);
 
 			if (index !== -1) {
@@ -467,7 +463,8 @@ function CartPage() {
 				// Atualizar o estado com os produtos no carrinho
 				setProductsInCart([...productsInCart]);
 			} else {
-				toast.error("Produto ou variação não encontrados no carrinho.");
+				// Se o produto não for encontrado, mostrar erro
+				toast.error("Produto não encontrado no carrinho.");
 			}
 
 			// Filtrar os produtos para remover aqueles com frete grátis e cep vazio
@@ -478,10 +475,7 @@ function CartPage() {
 
 			// Verificar se há produtos no carrinho após a filtragem
 			if (filteredProducts.length > 0) {
-				// Inicializar objeto para armazenar informações dos produtos por parceiro
 				const partnerInfo = {};
-
-				// Inicializar variável para armazenar o cepDestino
 				let cepDestino = null;
 
 				// Calcular as informações dos produtos por parceiro
@@ -496,7 +490,7 @@ function CartPage() {
 					const productPriceTotal = product.productPriceTotal || 0;
 					const quantityThisProduct =
 						product.quantityThisProduct || 0;
-					const transpID = product.transportadora?.id; // Obter apenas o ID da transportadora
+					const transpID = product.transportadora?.id;
 
 					if (!partnerInfo[partnerID]) {
 						partnerInfo[partnerID] = {
@@ -508,12 +502,11 @@ function CartPage() {
 							productPriceTotal: productPriceTotal,
 							quantityThisProduct: quantityThisProduct,
 							transportadora: {
-								id: transpID, // Inicializa o ID da transportadora
+								id: transpID,
 							},
 							productID: productID,
 						};
 					} else {
-						// Acumular os valores de peso, comprimento, largura, altura e quantidade
 						partnerInfo[partnerID].weight +=
 							weight * quantityThisProduct;
 						partnerInfo[partnerID].length = length;
@@ -525,7 +518,6 @@ function CartPage() {
 							quantityThisProduct;
 					}
 
-					// Atualize o cepDestino se o produto tiver um
 					if (
 						product.cepDestino &&
 						product.cepDestino.trim() !== ""
@@ -539,7 +531,6 @@ function CartPage() {
 					partnerInfo
 				);
 
-				// Certificar-se de que cepDestino esteja definido antes de chamar handleSimulateShipping
 				if (cepDestino) {
 					// Chamada da função para simular o frete
 					handleSimulateShipping(cepDestino, partnerInfo);
@@ -641,8 +632,14 @@ function CartPage() {
 			localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
 			setProductsInCart(updatedCart);
 
-			// Resetar o subtotal e carrinho, caso necessário
+			// Limpar o localStorage quando o carrinho estiver vazio
 			if (updatedCart.length === 0) {
+				localStorage.removeItem("productsInCart");
+				localStorage.removeItem("transportadoraInfo");
+				localStorage.removeItem("coupons");
+				localStorage.removeItem("selectedVariations");
+
+				// Resetar o carrinho e o subtotal
 				setCart(0);
 				setSubtotal(0);
 			}
@@ -653,6 +650,97 @@ function CartPage() {
 			toast.error("Erro ao remover produto!");
 		}
 	};
+
+	// const handleRemoveFromCart = async (productId, optionId) => {
+	// 	try {
+	// 		// Obter os produtos no carrinho do localStorage
+	// 		let productsInCart =
+	// 			JSON.parse(localStorage.getItem("productsInCart")) || [];
+
+	// 		// Filtrar o carrinho para remover o item correspondente
+	// 		const updatedCart = productsInCart.filter(
+	// 			(item) =>
+	// 				!(
+	// 					item.productID === productId &&
+	// 					item.productVariations?.[0]?.optionID === optionId
+	// 				)
+	// 		);
+
+	// 		// Verificar se ainda há produtos com "cepDestino" no carrinho
+	// 		const filteredProducts = updatedCart.filter(
+	// 			(product) =>
+	// 				product.cepDestino && product.cepDestino.trim() !== ""
+	// 		);
+
+	// 		if (filteredProducts.length > 0) {
+	// 			// Preparar dados para recalcular o frete
+	// 			const partnerInfo = {};
+	// 			let cepDestino = null;
+
+	// 			filteredProducts.forEach((product) => {
+	// 				const partnerID = product.partnerID;
+	// 				const weight = product.weight || 0;
+	// 				const quantity = product.quantityThisProduct || 1;
+
+	// 				if (!partnerInfo[partnerID]) {
+	// 					partnerInfo[partnerID] = {
+	// 						weight: weight * quantity,
+	// 						length: product.length || 0,
+	// 						width: product.width || 0,
+	// 						height: product.height || 0,
+	// 						productPriceTotal: product.productPriceTotal || 0,
+	// 						quantityThisProduct: quantity,
+	// 					};
+	// 				} else {
+	// 					partnerInfo[partnerID].weight += weight * quantity;
+	// 					partnerInfo[partnerID].productPriceTotal +=
+	// 						product.productPriceTotal || 0;
+	// 					partnerInfo[partnerID].quantityThisProduct += quantity;
+	// 				}
+
+	// 				if (
+	// 					product.cepDestino &&
+	// 					product.cepDestino.trim() !== ""
+	// 				) {
+	// 					cepDestino = product.cepDestino;
+	// 				}
+	// 			});
+
+	// 			// Recalcular o frete
+	// 			if (cepDestino) {
+	// 				await handleSimulateShipping(cepDestino, partnerInfo);
+	// 			} else {
+	// 				console.error("Erro: cepDestino não definido.");
+	// 			}
+	// 		} else {
+	// 			// Limpar transportadoraInfo se não houver produtos elegíveis para frete
+	// 			localStorage.removeItem("transportadoraInfo");
+	// 			setTransportadoraInfo({});
+	// 		}
+
+	// 		// Atualizar o localStorage e os estados
+	// 		localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
+	// 		setProductsInCart(updatedCart);
+
+	// 		// Atualizar subtotal e carrinho
+	// 		if (updatedCart.length === 0) {
+	// 			setCart(0);
+	// 			setSubtotal(0);
+	// 		} else {
+	// 			const newSubtotal = updatedCart.reduce(
+	// 				(acc, item) => acc + (item.productPriceTotal || 0),
+	// 				0
+	// 			);
+	// 			setSubtotal(newSubtotal);
+	// 		}
+
+	// 		// Notificar o usuário
+	// 		toast.success("Produto removido com sucesso!");
+	// 	} catch (error) {
+	// 		console.error("Erro ao remover produto:", error);
+	// 		toast.error("Erro ao remover produto!");
+	// 	}
+	// };
 
 	const calculateTotalFrete = () => {
 		let totalFrete = 0;
@@ -718,12 +806,7 @@ function CartPage() {
 										(productInCart, index) => (
 											<div
 												key={productInCart.productID}
-												className={`flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[672px] min-h-[100px] p-4 rounded-md shadow-md ${
-													index <
-													partnerProducts.length - 1
-														? "mb-2"
-														: ""
-												}`}>
+												className={`flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[672px] min-h-[100px] p-4 rounded-md shadow-md`}>
 												{/* Renderizar informações do produto */}
 												<div className="flex flex-row justify-between items-center gap-4">
 													{productInCart
@@ -760,16 +843,18 @@ function CartPage() {
 															)
 														)
 													) : (
-														<Image
-															className="object-contain h-full"
-															src={`http://localhost:5000/images/products/${productInCart.imageProduct}`}
-															alt={
-																productInCart.productTitle
-															}
-															width={100}
-															height={100}
-															unoptimized
-														/>
+														<div className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
+															<Image
+																className="object-contain h-full"
+																src={`http://localhost:5000/images/products/${productInCart.imageProduct}`}
+																alt={
+																	productInCart.productTitle
+																}
+																width={100}
+																height={100}
+																unoptimized
+															/>
+														</div>
 													)}
 
 													<div>
@@ -807,10 +892,7 @@ function CartPage() {
 															<button
 																onClick={() =>
 																	decreaseQuantity(
-																		productInCart.productID,
-																		productInCart
-																			.productVariations[0]
-																			?.optionID // Passe o optionID
+																		productInCart.productID
 																	)
 																}
 																className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
@@ -831,12 +913,9 @@ function CartPage() {
 															<button
 																onClick={() =>
 																	increaseQuantity(
-																		productInCart.productID,
-																		productInCart
-																			.productVariations[0]
-																			?.optionID // Passe o optionID da variação
+																		productInCart.productID
 																	)
-																}
+																} // Passando apenas o productID
 																className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
 																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
 																	+
@@ -860,21 +939,19 @@ function CartPage() {
 															}
 														</h1>
 													</div>
-													<div>
-														<div
-															onClick={() =>
-																handleRemoveFromCart(
-																	productInCart.productID,
-																	productInCart
-																		.productVariations[0]
-																		?.optionID // Passe o optionID
-																)
-															}
-															className="text-black hover:text-white flex flex-col items-center justify-center border-dashed hover:border-solid border-[1px] border-primary hover:bg-secondary w-10 h-10 transition-all ease-in duration-200 hover:shadow-md active:scale-[.97] rounded cursor-pointer">
-															<MdOutlineDeleteOutline
-																size={25}
-															/>
-														</div>
+													<div
+														onClick={() =>
+															handleRemoveFromCart(
+																productInCart.productID,
+																productInCart
+																	.productVariations?.[0]
+																	?.optionID // Verificação segura
+															)
+														}
+														className="text-black hover:text-white flex flex-col items-center justify-center border-dashed hover:border-solid border-[1px] border-primary hover:bg-secondary w-10 h-10 transition-all ease-in duration-200 hover:shadow-md active:scale-[.97] rounded cursor-pointer">
+														<MdOutlineDeleteOutline
+															size={25}
+														/>
 													</div>
 												</div>
 											</div>
@@ -994,8 +1071,10 @@ function CartPage() {
 														key={partnerID}
 														className="text-black border-[1px] border-black border-opacity-20 bg-white p-4 rounded-md shadow-md">
 														<div>
-															Transportadora:{" "}
-															{info.transpNome}
+															{info.transpNome ===
+															"Frete Grátis"
+																? info.transpNome
+																: `Transportadora: ${info.transpNome}`}
 														</div>
 														<div>
 															Frete da Loja:{" "}
