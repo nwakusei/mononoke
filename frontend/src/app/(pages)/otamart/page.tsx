@@ -3,8 +3,6 @@
 import { useState, useEffect, useContext } from "react";
 import api from "@/utils/api";
 
-import slugify from "slugify";
-
 // Context
 import { Context } from "@/context/UserContext";
 
@@ -22,6 +20,7 @@ import { FiInfo } from "react-icons/fi";
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
+import { CategoryButton } from "@/components/CategoryButton";
 
 function OtamartPage() {
 	const [products, setProducts] = useState([]);
@@ -31,6 +30,10 @@ function OtamartPage() {
 	const [searchText, setSearchText] = useState("");
 	const [returnedProducts, setReturnedProducts] = useState([]);
 	const [noResults, setNoResults] = useState(false); // Nova variável de estado
+
+	const categories = [
+		...new Set(products.map((product) => product.category)),
+	];
 
 	useEffect(() => {
 		api.get("/products/").then((response) => {
@@ -72,6 +75,35 @@ function OtamartPage() {
 		fetchReturnedProduct();
 	};
 
+	const handleSearchCategory = async (category) => {
+		if (!category) {
+			return;
+		}
+
+		setIsLoading(true);
+		setNoResults(false);
+
+		try {
+			const response = await api.post(`/searches/search-category`, {
+				category: category,
+			});
+
+			if (response.data.products.length > 0) {
+				setReturnedProducts(response.data.products);
+			} else {
+				setNoResults(true);
+			}
+		} catch (error) {
+			if (error.response && error.response.status === 404) {
+				setNoResults(true); // Define como true se o status for 404
+			} else {
+				console.error("Erro ao buscar o produto:", error);
+			}
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	// Função para lidar com o pressionamento da tecla Enter
 	const handleKeyDown = (e) => {
 		if (e.key === "Enter") {
@@ -85,12 +117,15 @@ function OtamartPage() {
 
 	return (
 		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
+			<CategoryButton categoriesDB={categories} />
 			<div className="flex flex-col items-center justify-center col-start-2 col-span-4 md:col-start-2 md:col-span-6">
 				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mt-8 mb-2 rounded-md shadow-md select-none">
 					Categorias
 				</div>
 				<div className="flex flex-row justify-center gap-4 mt-3">
-					<div className="flex items-center">
+					<div
+						onClick={() => handleSearchCategory("CD")}
+						className="flex items-center">
 						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97] cursor-pointer">
 							<GiEvilBook className="mb-1" size={40} />
 							<span className="text-xs select-none">

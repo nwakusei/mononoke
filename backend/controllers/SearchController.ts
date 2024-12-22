@@ -67,6 +67,25 @@ class ProductController {
 			console.log(error);
 		}
 	}
+
+	static async searchProductByCategory(req: Request, res: Response) {
+		const { category } = req.body;
+
+		if (!category) {
+			res.status(422).json({
+				message: "A categoria do produto é obrigatória!",
+			});
+			return;
+		}
+
+		try {
+			const products = await ProductModel.find({ category: category });
+
+			res.status(200).json({ products: products });
+		} catch (error) {
+			console.log(error);
+		}
+	}
 }
 
 export default ProductController;

@@ -11,4 +11,6 @@ router.post("/search-store/:id", SearchController.searchProductsInStore);
 
 router.post("/search-otamart", SearchController.searchProductsInOtamart);
 
+router.post("/search-category", SearchController.searchProductByCategory);
+
 export default router;
