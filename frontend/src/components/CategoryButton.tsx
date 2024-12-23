@@ -12,46 +12,38 @@ import { TbCards } from "react-icons/tb";
 import { RiPencilRuler2Line } from "react-icons/ri";
 import { GiProtectionGlasses } from "react-icons/gi";
 
-function CategoryButton({ categoriesDB }) {
+function CategoryButton({ categoriesDB, onCategoryClick }) {
 	const categories = [
-		{ name: "Impressos", Tag: "Impresso", icon: GiEvilBook },
-		{ name: "Games", Tag: "Game", icon: IoGameControllerOutline },
-		{ name: "Figures", Tag: "Figure", icon: GiBattleMech },
-		{ name: "CDs/DVDs", Tag: "CD", icon: LuDisc3 },
-		{ name: "Vestuário", Tag: "Vestuario", icon: PiTShirt },
-		{ name: "Acessórios", Tag: "Acessorio", icon: BsSmartwatch },
-		{ name: "TCGs", Tag: "TCG", icon: TbCards },
-		{ name: "Papelaria", Tag: "Papelaria", icon: RiPencilRuler2Line },
-		{ name: "Óculos", Tag: "Oculos", icon: GiProtectionGlasses },
+		{ name: "Impressos", tag: "Impresso", icon: GiEvilBook },
+		{ name: "Games", tag: "Game", icon: IoGameControllerOutline },
+		{ name: "Figures", tag: "Figure", icon: GiBattleMech },
+		{ name: "CDs/DVDs", tag: "CD", icon: LuDisc3 },
+		{ name: "Vestuário", tag: "Vestuario", icon: PiTShirt },
+		{ name: "Acessórios", tag: "Acessorio", icon: BsSmartwatch },
+		{ name: "TCGs", tag: "TCG", icon: TbCards },
+		{ name: "Papelaria", tag: "Papelaria", icon: RiPencilRuler2Line },
+		{ name: "Óculos", tag: "Oculos", icon: GiProtectionGlasses },
 	];
 
 	// Filtrar categorias com base nos nomes que existem em categoriesDB
 	const filteredCategories = categories.filter((category) =>
-		categoriesDB.includes(category.Tag)
+		categoriesDB.includes(category.tag)
 	);
 
 	return (
-		<div className="flex flex-col items-center justify-center col-start-2 col-span-4 md:col-start-2 md:col-span-6">
-			<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mt-8 mb-2 rounded-md shadow-md select-none">
-				Categorias
-			</div>
-			<div className="flex flex-row justify-center gap-4 mt-3">
-				{filteredCategories.map((category) => (
-					<div
-						key={category.name}
-						className="flex items-center cursor-pointer">
-						<div className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg transition-all ease-in hover:scale-110 active:scale-[.97]">
-							{React.createElement(category.icon, {
-								className: "mb-1",
-								size: 40,
-							})}
-							<span className="text-xs select-none">
-								{category.name}
-							</span>
-						</div>
-					</div>
-				))}
-			</div>
+		<div className="flex flex-row justify-center gap-4 mt-3">
+			{filteredCategories.map((category) => (
+				<div
+					key={category.name}
+					onClick={() => onCategoryClick?.(category.tag)}
+					className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg cursor-pointer transition-all ease-in hover:scale-110 active:scale-[.97]">
+					{React.createElement(category.icon, {
+						className: "mb-1",
+						size: 40,
+					})}
+					<span className="text-xs select-none">{category.name}</span>
+				</div>
+			))}
 		</div>
 	);
 }

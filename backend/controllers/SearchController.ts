@@ -79,7 +79,9 @@ class ProductController {
 		}
 
 		try {
-			const products = await ProductModel.find({ category: category });
+			const products = await ProductModel.find({
+				category: category,
+			}).sort("-createdAt");
 
 			res.status(200).json({ products: products });
 		} catch (error) {
