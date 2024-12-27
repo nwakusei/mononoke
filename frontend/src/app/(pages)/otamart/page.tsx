@@ -81,8 +81,8 @@ function OtamartPage() {
 		fetchReturnedProduct();
 	};
 
-	const handleSearchCategory = async (category) => {
-		if (!category) {
+	const handleSearchCategory = async (category: string) => {
+		if (!category || typeof category !== "string") {
 			return;
 		}
 
@@ -92,7 +92,7 @@ function OtamartPage() {
 
 		try {
 			const response = await api.post(`/searches/search-category`, {
-				category: category,
+				category,
 			});
 
 			if (response.data.products.length > 0) {
@@ -129,43 +129,35 @@ function OtamartPage() {
 					Categorias
 				</div>
 				<div className="flex flex-row justify-center gap-4 mt-3">
-					<div
-						onClick={handleSearchCategory}
-						className="flex items-center">
-						<CategoryButton
-							onCategoryClick={handleSearchCategory}
-							categoriesDB={categories}
-						/>
-					</div>
+					<CategoryButton
+						onCategoryClick={(category: string) =>
+							handleSearchCategory(category)
+						}
+						categoriesDB={categories}
+					/>
 				</div>
 			</div>
 			<div className="flex flex-col justify-center items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-16">
-				<div className="flex felx-row items-center justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mt-8 mb-4 rounded-md shadow-md select-none">
-					{returnedProducts?.length === 0 &&
-					rCategory.length === 0 ? (
-						<span>Produtos em Destaque</span>
-					) : rCategory.length > 0 ? (
-						<span>Resultado filtrado pela categoria</span>
-					) : (
-						<>
-							<FiInfo className="mt-[2px]" size={20} />
-							<span>
-								Resultado da pesquisa para '{searchedText}'
-							</span>
-						</>
-					)}
-
-					{/* {returnedProducts?.length === 0 ? (
-						<span>Produtos em Destaque</span>
-					) : (
-						<>
-							<FiInfo className="mt-[2px]" size={20} />
-							<span>
-								Resultado da pesquisa para '{searchedText}'
-							</span>
-						</>
-					)} */}
-				</div>
+				{returnedProducts?.length === 0 && rCategory.length === 0 ? (
+					<div className="flex flex-row items-center justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold overflow-hidden text-ellipsis whitespace-nowrap py-2 mt-8 mb-4 rounded-md shadow-md select-none">
+						<span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[800px]">
+							Produtos em Destaque
+						</span>
+					</div>
+				) : rCategory.length > 0 ? (
+					<div className="flex flex-row items-center justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold overflow-hidden text-ellipsis whitespace-nowrap py-2 mt-8 mb-4 rounded-md shadow-md select-none">
+						<span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[800px]">
+							Resultado filtrado pela categoria
+						</span>
+					</div>
+				) : (
+					<div className="flex flex-row items-center justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold overflow-hidden text-ellipsis whitespace-nowrap py-2 mt-8 mb-4 rounded-md shadow-md select-none">
+						<FiInfo className="mt-[2px]" size={20} />
+						<span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[800px]">
+							Resultado da pesquisa para '{searchedText}'
+						</span>
+					</div>
+				)}
 				<div className="flex flex-row justify-center">
 					<label className="input input-bordered input-primary flex items-center w-[1072px] gap-2 mb-8">
 						<input

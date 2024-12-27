@@ -750,11 +750,13 @@ function SideComponent({ selectedVariation }) {
 									<GrLocation size={18} />
 									<span className="text-sm">
 										{partner?.address?.length > 0 ? (
-											partner.address.map((end) => (
-												<div key={end._id}>
-													<div>{`Enviado de ${end.city}/${end.state}`}</div>
-												</div>
-											))
+											partner.address.map(
+												(end, index) => (
+													<div key={index}>
+														<div>{`Enviado de ${end.city}/${end.state}`}</div>
+													</div>
+												)
+											)
 										) : (
 											<div>
 												<span className="text-black">
@@ -801,11 +803,13 @@ function SideComponent({ selectedVariation }) {
 									<GrLocation size={18} />
 									<span className="text-sm">
 										{partner?.address?.length > 0 ? (
-											partner.address.map((end) => (
-												<div key={end._id}>
-													<div>{`Enviado de ${end.city}/${end.state}`}</div>
-												</div>
-											))
+											partner.address.map(
+												(end, index) => (
+													<div key={index}>
+														<div>{`Enviado de ${end.city}/${end.state}`}</div>
+													</div>
+												)
+											)
 										) : (
 											<div>
 												<span className="text-black">

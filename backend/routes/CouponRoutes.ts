@@ -14,6 +14,8 @@ router.get(
 	verifyToken,
 	CouponController.getAllCouponsByPartner
 );
+router.get("/:id", CouponController.getAllCouponsByStore);
+
 router.delete("/remove", verifyToken, CouponController.removeCouponById);
 
 export default router;

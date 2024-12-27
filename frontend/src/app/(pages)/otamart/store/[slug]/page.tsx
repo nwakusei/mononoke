@@ -31,6 +31,7 @@ import { toast } from "react-toastify";
 
 function StorePage() {
 	const [products, setProducts] = useState([]);
+	const [coupons, setCoupons] = useState([]);
 	const { partners } = useContext(Context);
 	const [isLoading, setIsLoading] = useState(true);
 	const { slug } = useParams();
@@ -95,6 +96,18 @@ function StorePage() {
 				}
 			};
 
+			// const fetchCoupons = async () => {
+			// 	try {
+			// 		const response = await api.get("/coupons/partner-coupons");
+			// 		setCoupons(response.data.coupons); // Atualize o estado com os cupons recebidos da API
+			// 		setIsLoading(false);
+			// 	} catch (error) {
+			// 		console.error("Erro ao buscar cupons:", error);
+			// 	}
+			// };
+
+			// fetchCoupons(); // Chame a função fetchCoupons aqui dentro do useEffect
+
 			fetchPartner();
 
 			fetchGetAllProductsStore();
@@ -103,17 +116,7 @@ function StorePage() {
 		}
 	}, [slug, partners]); // Dependências adequadas: `id` e `partners`.
 
-	// useEffect(() => {
-	// 	api.get(`/products/getall-products-store/${partner._id}`)
-	// 		.then((response) => {
-	// 			setProducts(response.data.products);
-	// 			setIsLoading(false);
-	// 		})
-	// 		.catch((error) => {
-	// 			console.error("Error fetching products:", error);
-	// 			setIsLoading(false); // Pode ser necessário para parar o carregamento em caso de erro
-	// 		});
-	// }, [partner._id]);
+	console.log(coupons);
 
 	console.log("VERIFICAR O QUE RETORNA:", partner);
 
@@ -361,6 +364,131 @@ function StorePage() {
 							<p className="whitespace-pre-wrap">
 								{partner?.description}
 							</p>
+						</div>
+					</div>
+				</div>
+
+				<div>
+					<div className="flex flex-row justify-center gap-4 bg-white text-black w-[1100px] p-4 mb-8 flex-nowrap rounded-md shadow-md select-none">
+						{/* CCupons de Desconto */}
+						<div className="flex flex-row bg-primary w-[253px] h-[100px] gap-2 rounded-md relative overflow-hidden">
+							<div className="flex flex-col items-center mt-1 ml-[30px] gap-2">
+								<h2 className="text-xl">10% de Desconto</h2>
+								<button className="btn btn-error w-[130px]">
+									Copiar Código
+								</button>
+							</div>
+							{/* Linha vertical */}
+							<div
+								className="relative h-full w-[1px] ml-[20px] my-[2px]"
+								style={{
+									background:
+										"repeating-linear-gradient(to bottom, black 0, black 5px, transparent 5px, transparent 10px)",
+								}}></div>
+							{/* Corte côncavo esquerdo */}
+							<div
+								className="absolute top-1/2 left-0 w-[20px] h-[40px] bg-white"
+								style={{
+									borderRadius: "0 50% 50% 0",
+									transform: "translate(-50%, -50%)",
+								}}></div>
+							{/* Corte côncavo direito */}
+							<div
+								className="absolute top-1/2 right-0 w-[20px] h-[40px] bg-white"
+								style={{
+									borderRadius: "50% 0 0 50%",
+									transform: "translate(50%, -50%)",
+								}}></div>
+						</div>
+
+						<div className="flex flex-row bg-primary w-[253px] h-[100px] gap-2 rounded-md relative overflow-hidden">
+							<div className="flex flex-col items-center mt-1 ml-[30px] gap-2">
+								<h2 className="text-xl">10% de Desconto</h2>
+								<button className="btn btn-error w-[130px]">
+									Copiar Código
+								</button>
+							</div>
+							{/* Linha vertical */}
+							<div
+								className="relative h-full w-[1px] ml-[20px] my-[2px]"
+								style={{
+									background:
+										"repeating-linear-gradient(to bottom, black 0, black 5px, transparent 5px, transparent 10px)",
+								}}></div>
+							{/* Corte côncavo esquerdo */}
+							<div
+								className="absolute top-1/2 left-0 w-[20px] h-[40px] bg-white"
+								style={{
+									borderRadius: "0 50% 50% 0",
+									transform: "translate(-50%, -50%)",
+								}}></div>
+							{/* Corte côncavo direito */}
+							<div
+								className="absolute top-1/2 right-0 w-[20px] h-[40px] bg-white"
+								style={{
+									borderRadius: "50% 0 0 50%",
+									transform: "translate(50%, -50%)",
+								}}></div>
+						</div>
+
+						<div className="flex flex-row bg-primary w-[253px] h-[100px] gap-2 rounded-md relative overflow-hidden">
+							<div className="flex flex-col items-center mt-1 ml-[30px] gap-2">
+								<h2 className="text-xl">10% de Desconto</h2>
+								<button className="btn btn-error w-[130px]">
+									Copiar Código
+								</button>
+							</div>
+							{/* Linha vertical */}
+							<div
+								className="relative h-full w-[1px] ml-[20px] my-[2px]"
+								style={{
+									background:
+										"repeating-linear-gradient(to bottom, black 0, black 5px, transparent 5px, transparent 10px)",
+								}}></div>
+							{/* Corte côncavo esquerdo */}
+							<div
+								className="absolute top-1/2 left-0 w-[20px] h-[40px] bg-white"
+								style={{
+									borderRadius: "0 50% 50% 0",
+									transform: "translate(-50%, -50%)",
+								}}></div>
+							{/* Corte côncavo direito */}
+							<div
+								className="absolute top-1/2 right-0 w-[20px] h-[40px] bg-white"
+								style={{
+									borderRadius: "50% 0 0 50%",
+									transform: "translate(50%, -50%)",
+								}}></div>
+						</div>
+
+						<div className="flex flex-row bg-primary w-[253px] h-[100px] gap-2 rounded-md relative overflow-hidden">
+							<div className="flex flex-col items-center mt-1 ml-[30px] gap-2">
+								<h2 className="text-xl">10% de Desconto</h2>
+								<button className="btn btn-error w-[130px]">
+									Copiar Código
+								</button>
+							</div>
+							{/* Linha vertical */}
+							<div
+								className="relative h-full w-[1px] ml-[20px] my-[2px]"
+								style={{
+									background:
+										"repeating-linear-gradient(to bottom, black 0, black 5px, transparent 5px, transparent 10px)",
+								}}></div>
+							{/* Corte côncavo esquerdo */}
+							<div
+								className="absolute top-1/2 left-0 w-[20px] h-[40px] bg-white"
+								style={{
+									borderRadius: "0 50% 50% 0",
+									transform: "translate(-50%, -50%)",
+								}}></div>
+							{/* Corte côncavo direito */}
+							<div
+								className="absolute top-1/2 right-0 w-[20px] h-[40px] bg-white"
+								style={{
+									borderRadius: "50% 0 0 50%",
+									transform: "translate(50%, -50%)",
+								}}></div>
 						</div>
 					</div>
 				</div>

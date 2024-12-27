@@ -165,6 +165,28 @@ class CouponController {
 		}
 	}
 
+	static async getAllCouponsByStore(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(422).json({
+				message: "ID da loja é obrigatório!",
+			});
+			return;
+		}
+
+		try {
+			const coupons = await CouponModel.find({
+				partnerID: id,
+			}).sort("-createdAt");
+
+			res.status(200).json({ coupons: coupons });
+		} catch (error) {
+			res.status(500).json({ error: "Erro ao carregar os Cupons" });
+			return;
+		}
+	}
+
 	static async removeCouponById(req: Request, res: Response) {
 		const { id } = req.body;
 
