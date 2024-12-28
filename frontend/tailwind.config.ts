@@ -34,6 +34,7 @@ const config: Config = {
 					neutral: "#1d283a",
 
 					"base-100": "#0f1729",
+					"violet-950": "#2e1065",
 
 					info: "#0ca6e9",
 

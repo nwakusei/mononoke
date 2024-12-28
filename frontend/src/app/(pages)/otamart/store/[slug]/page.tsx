@@ -4,6 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { useParams } from "next/navigation";
 import api from "@/utils/api";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 import "./storeId.css";
 
@@ -26,8 +27,8 @@ import { FiInfo } from "react-icons/fi";
 
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
+import { MiniCouponCard } from "@/components/MiniCouponCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
-import { toast } from "react-toastify";
 
 function StorePage() {
 	const [products, setProducts] = useState([]);
@@ -96,17 +97,35 @@ function StorePage() {
 				}
 			};
 
-			// const fetchCoupons = async () => {
-			// 	try {
-			// 		const response = await api.get("/coupons/partner-coupons");
-			// 		setCoupons(response.data.coupons); // Atualize o estado com os cupons recebidos da API
-			// 		setIsLoading(false);
-			// 	} catch (error) {
-			// 		console.error("Erro ao buscar cupons:", error);
-			// 	}
-			// };
+			const fetchCoupons = async () => {
+				// Faz o lookup para obter o ID correspondente à slug
+				const response = await api.get(`/partners/convert/${slug}`);
 
-			// fetchCoupons(); // Chame a função fetchCoupons aqui dentro do useEffect
+				const id = response.data.id;
+
+				// Encontra o parceiro com base no slug.
+				const foundPartner = partners.find((p) => p._id === id);
+
+				if (foundPartner) {
+					// Atualiza o estado com o parceiro encontrado
+					setPartner(foundPartner);
+
+					// Verifica se foundPartner._id existe antes de fazer a requisição dos produtos
+					if (foundPartner._id) {
+						const response = await api.get(
+							`/coupons/store-coupons/${foundPartner._id}`
+						);
+						setCoupons(response.data.coupons); // Atualize o estado com os cupons recebidos da API
+						setIsLoading(false);
+					} else {
+						console.log("ID do parceiro não encontrado!");
+					}
+				} else {
+					console.log("Loja não encontrada!");
+				}
+			};
+
+			fetchCoupons(); // Chame a função fetchCoupons aqui dentro do useEffect
 
 			fetchPartner();
 
@@ -115,10 +134,6 @@ function StorePage() {
 			console.error("Erro ao deixaar de seguir a loja:", error);
 		}
 	}, [slug, partners]); // Dependências adequadas: `id` e `partners`.
-
-	console.log(coupons);
-
-	console.log("VERIFICAR O QUE RETORNA:", partner);
 
 	const rating =
 		partner?.rating > 0
@@ -199,20 +214,20 @@ function StorePage() {
 	const handleFollow = async () => {
 		setbuttonLoading(true);
 		try {
-			// Simula a chamada API para seguir a loja
 			const response = await api.post(
 				`/customers/follow-store/${partner._id}`
 			);
 
-			// Atualiza o estado local para refletir a nova lista de lojas seguidas
 			setFollowedStores((prevStores) => [
 				...prevStores,
 				{ storeID: partner?._id },
 			]);
 			toast.success(response.data.message);
 		} catch (error: any) {
-			toast.error(error.response.data.message);
-			console.error(error.response.data.message);
+			const errorMessage =
+				error?.response?.data?.message || "Ocorreu um erro!";
+			toast.error(errorMessage);
+			console.warn("Erro ao seguir loja:", errorMessage); // Usar warn para mensagens informativas
 		} finally {
 			setbuttonLoading(false);
 		}
@@ -245,15 +260,45 @@ function StorePage() {
 				<div>
 					<div className="flex flex-row gap-8 bg-white text-black w-[1100px] min-h-[200px] p-4 mt-8 mb-8 rounded-md shadow-md select-none">
 						{/* Card Store Info 1 */}
-						<div className="w-[300px] h-[150px] flex flex-row bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
-							<Image
-								className="object-contain w-full h-full pointer-events-none"
-								src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
-								alt="Logo Shop"
-								width={300}
-								height={150}
-								unoptimized
-							/>
+						<div className="flex flex-col gap-2">
+							<div className="w-[300px] h-[150px] bg-pink-200 border border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
+								<Image
+									className="object-contain w-full h-full pointer-events-none"
+									src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
+									alt="Logo Shop"
+									width={300}
+									height={150}
+									unoptimized
+								/>
+							</div>
+							{buttonLoading ? (
+								<button
+									disabled
+									className="w-[300px] h-[50px] button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+									<span className="loading loading-spinner loading-md"></span>
+								</button>
+							) : followedStores?.some(
+									(store) => store.storeID === partner?._id
+							  ) ? (
+								<button
+									// Função para deixar de seguir - não implementada ainda
+									className="w-[300px] h-[50px] button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+									<span className="text-following">
+										Deixar de seguir
+									</span>
+									<span
+										onClick={handleUnfollow}
+										className="text-follow">
+										Seguindo
+									</span>
+								</button>
+							) : (
+								<button
+									onClick={handleFollow}
+									className="w-[300px] h-[50px] bg-violet-950 transition-all ease-in duration-100 hover:bg-black text-white rounded-md shadow-md flex items-center justify-center">
+									Seguir Loja
+								</button>
+							)}
 						</div>
 
 						<div className="flex flex-col w-[230px]">
@@ -324,39 +369,6 @@ function StorePage() {
 								</span>
 								<h1>Produtos vendidos: {productsSold}</h1>
 							</div>
-							<div className="mt-1">
-								{buttonLoading ? (
-									<button
-										disabled
-										className="button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center">
-										<span className="loading loading-spinner loading-md"></span>
-									</button>
-								) : followedStores?.some(
-										(store) =>
-											store.storeID === partner?._id
-								  ) ? (
-									<button
-										// Função para deixar de seguir - não implementada ainda
-										className="button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
-										<span
-											// onClick={handleUnfollow} // Função para deixar de seguir
-											className="text-following">
-											Deixar de seguir
-										</span>
-										<span
-											onClick={handleUnfollow}
-											className="text-follow">
-											Seguindo
-										</span>
-									</button>
-								) : (
-									<button
-										onClick={handleFollow} // Função para seguir
-										className="button follow bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
-										Seguir
-									</button>
-								)}
-							</div>
 						</div>
 						<div className="border-r-[1px] border-r-black"></div>
 						<div className="w-[450px]">
@@ -368,132 +380,27 @@ function StorePage() {
 					</div>
 				</div>
 
-				<div>
+				{coupons && coupons.length > 0 && (
 					<div className="flex flex-row justify-center gap-4 bg-white text-black w-[1100px] p-4 mb-8 flex-nowrap rounded-md shadow-md select-none">
-						{/* CCupons de Desconto */}
-						<div className="flex flex-row bg-primary w-[253px] h-[100px] gap-2 rounded-md relative overflow-hidden">
-							<div className="flex flex-col items-center mt-1 ml-[30px] gap-2">
-								<h2 className="text-xl">10% de Desconto</h2>
-								<button className="btn btn-error w-[130px]">
-									Copiar Código
-								</button>
-							</div>
-							{/* Linha vertical */}
-							<div
-								className="relative h-full w-[1px] ml-[20px] my-[2px]"
-								style={{
-									background:
-										"repeating-linear-gradient(to bottom, black 0, black 5px, transparent 5px, transparent 10px)",
-								}}></div>
-							{/* Corte côncavo esquerdo */}
-							<div
-								className="absolute top-1/2 left-0 w-[20px] h-[40px] bg-white"
-								style={{
-									borderRadius: "0 50% 50% 0",
-									transform: "translate(-50%, -50%)",
-								}}></div>
-							{/* Corte côncavo direito */}
-							<div
-								className="absolute top-1/2 right-0 w-[20px] h-[40px] bg-white"
-								style={{
-									borderRadius: "50% 0 0 50%",
-									transform: "translate(50%, -50%)",
-								}}></div>
-						</div>
-
-						<div className="flex flex-row bg-primary w-[253px] h-[100px] gap-2 rounded-md relative overflow-hidden">
-							<div className="flex flex-col items-center mt-1 ml-[30px] gap-2">
-								<h2 className="text-xl">10% de Desconto</h2>
-								<button className="btn btn-error w-[130px]">
-									Copiar Código
-								</button>
-							</div>
-							{/* Linha vertical */}
-							<div
-								className="relative h-full w-[1px] ml-[20px] my-[2px]"
-								style={{
-									background:
-										"repeating-linear-gradient(to bottom, black 0, black 5px, transparent 5px, transparent 10px)",
-								}}></div>
-							{/* Corte côncavo esquerdo */}
-							<div
-								className="absolute top-1/2 left-0 w-[20px] h-[40px] bg-white"
-								style={{
-									borderRadius: "0 50% 50% 0",
-									transform: "translate(-50%, -50%)",
-								}}></div>
-							{/* Corte côncavo direito */}
-							<div
-								className="absolute top-1/2 right-0 w-[20px] h-[40px] bg-white"
-								style={{
-									borderRadius: "50% 0 0 50%",
-									transform: "translate(50%, -50%)",
-								}}></div>
-						</div>
-
-						<div className="flex flex-row bg-primary w-[253px] h-[100px] gap-2 rounded-md relative overflow-hidden">
-							<div className="flex flex-col items-center mt-1 ml-[30px] gap-2">
-								<h2 className="text-xl">10% de Desconto</h2>
-								<button className="btn btn-error w-[130px]">
-									Copiar Código
-								</button>
-							</div>
-							{/* Linha vertical */}
-							<div
-								className="relative h-full w-[1px] ml-[20px] my-[2px]"
-								style={{
-									background:
-										"repeating-linear-gradient(to bottom, black 0, black 5px, transparent 5px, transparent 10px)",
-								}}></div>
-							{/* Corte côncavo esquerdo */}
-							<div
-								className="absolute top-1/2 left-0 w-[20px] h-[40px] bg-white"
-								style={{
-									borderRadius: "0 50% 50% 0",
-									transform: "translate(-50%, -50%)",
-								}}></div>
-							{/* Corte côncavo direito */}
-							<div
-								className="absolute top-1/2 right-0 w-[20px] h-[40px] bg-white"
-								style={{
-									borderRadius: "50% 0 0 50%",
-									transform: "translate(50%, -50%)",
-								}}></div>
-						</div>
-
-						<div className="flex flex-row bg-primary w-[253px] h-[100px] gap-2 rounded-md relative overflow-hidden">
-							<div className="flex flex-col items-center mt-1 ml-[30px] gap-2">
-								<h2 className="text-xl">10% de Desconto</h2>
-								<button className="btn btn-error w-[130px]">
-									Copiar Código
-								</button>
-							</div>
-							{/* Linha vertical */}
-							<div
-								className="relative h-full w-[1px] ml-[20px] my-[2px]"
-								style={{
-									background:
-										"repeating-linear-gradient(to bottom, black 0, black 5px, transparent 5px, transparent 10px)",
-								}}></div>
-							{/* Corte côncavo esquerdo */}
-							<div
-								className="absolute top-1/2 left-0 w-[20px] h-[40px] bg-white"
-								style={{
-									borderRadius: "0 50% 50% 0",
-									transform: "translate(-50%, -50%)",
-								}}></div>
-							{/* Corte côncavo direito */}
-							<div
-								className="absolute top-1/2 right-0 w-[20px] h-[40px] bg-white"
-								style={{
-									borderRadius: "50% 0 0 50%",
-									transform: "translate(50%, -50%)",
-								}}></div>
-						</div>
+						{/* Cupons de Desconto */}
+						{coupons.map(
+							(coupon: {
+								_id: string;
+								discountPercentage: number;
+								couponCode: string;
+							}) => (
+								<MiniCouponCard
+									key={coupon._id} // Aqui é onde a key é necessária, pois estamos iterando sobre cupons
+									couponID={coupon._id}
+									couponDiscount={coupon.discountPercentage}
+									cupomCode={coupon.couponCode}
+								/>
+							)
+						)}
 					</div>
-				</div>
+				)}
 
-				<div className="flex felx-row items-center justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mb-4 rounded-md shadow-md select-none">
+				<div className="flex felx-row items-center justify-center gap-3 bg-primary w-[300px] sm:w-[400px] md:sm:w-[600px] lg:w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mb-4 rounded-md shadow-md select-none">
 					{!searchedText ? (
 						<h1>Produtos da Loja</h1>
 					) : (
@@ -506,7 +413,7 @@ function StorePage() {
 					)}
 				</div>
 				<div>
-					<label className="input input-bordered input-primary flex items-center w-[1072px] gap-2 mb-8">
+					<label className="input input-bordered input-primary flex items-center w-[262px] sm:w-[362px] md:sm:w-[562px] lg:w-[1072px] gap-2 mb-8">
 						<input
 							type="text"
 							className="grow bg-base-100"
@@ -548,6 +455,7 @@ function StorePage() {
 							return (
 								<ProductAdCard
 									key={returnedProduct._id}
+									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
 									title={returnedProduct.productTitle}
@@ -586,6 +494,7 @@ function StorePage() {
 							return (
 								<ProductAdCard
 									key={product._id}
+									product={product}
 									freeShipping={product.freeShipping}
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
 									title={product.productTitle}

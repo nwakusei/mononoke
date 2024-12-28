@@ -63,7 +63,7 @@ function ProductAdCard({
 			// Retorna a faixa de desconto
 			return lowestDiscount === highestDiscount
 				? `${lowestDiscount}%`
-				: `${lowestDiscount}% - ${highestDiscount}%`;
+				: `${lowestDiscount}% ~ ${highestDiscount}%`;
 		}
 
 		// Caso não haja variações, usa os preços principais
@@ -300,7 +300,7 @@ function ProductAdCard({
 																	currency:
 																		"BRL",
 																}
-															)} - ${Number(
+															)} ~ ${Number(
 																highestPrice
 															).toLocaleString(
 																"pt-BR",
@@ -322,7 +322,7 @@ function ProductAdCard({
 																	currency:
 																		"BRL",
 																}
-															)} - ${Number(
+															)} ~ ${Number(
 																highestPrice
 															).toLocaleString(
 																"pt-BR",

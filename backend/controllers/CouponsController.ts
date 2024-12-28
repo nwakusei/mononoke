@@ -4,7 +4,7 @@ import { CouponModel } from "../models/CouponModel.js";
 import bcrypt from "bcrypt";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Multer } from "multer";
-import { ObjectId, isValidObjectId } from "mongoose";
+import mongoose, { ObjectId, isValidObjectId } from "mongoose";
 import fetch from "node-fetch";
 
 // Middlewares/Helpers
@@ -176,14 +176,30 @@ class CouponController {
 		}
 
 		try {
+			// Converte o 'id' para ObjectId antes de fazer a busca
+			const objectId = new mongoose.Types.ObjectId(id);
+
+			// Data atual formatada como string no formato YYYY-MM-DD
+			const currentDate = new Date().toISOString().split("T")[0];
+
+			// Buscar cupons com 'partnerID' e que ainda não estão expirados
 			const coupons = await CouponModel.find({
-				partnerID: id,
+				partnerID: objectId,
+				expirationDate: { $gte: currentDate }, // Compara como string no formato YYYY-MM-DD
 			}).sort("-createdAt");
 
-			res.status(200).json({ coupons: coupons });
+			// Formatar o expirationDate para 'YYYY-MM-DD' caso necessário
+			const formattedCoupons = coupons.filter((coupon) => {
+				// Converter o expirationDate (DD/MM/YYYY) para YYYY-MM-DD para comparar
+				const [day, month, year] = coupon.expirationDate.split("/");
+				const formattedExpirationDate = `${year}-${month}-${day}`;
+				return formattedExpirationDate >= currentDate; // Comparar com a data atual
+			});
+
+			res.status(200).json({ coupons: formattedCoupons });
 		} catch (error) {
+			console.error(error);
 			res.status(500).json({ error: "Erro ao carregar os Cupons" });
-			return;
 		}
 	}
 
@@ -223,7 +239,7 @@ class CouponController {
 			return;
 		}
 
-		await CouponModel.findByIdAndRemove(id);
+		await CouponModel.findByIdAndDelete(id);
 
 		res.status(200).json({ message: "Cupom removido com sucesso!" });
 	}

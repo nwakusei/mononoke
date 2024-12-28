@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -28,12 +26,6 @@ function CouponCard({
 	};
 
 	const tipText = copied ? "Código Copiado" : "Clique para copiar o código";
-
-	// // Verificar se o siteLink já tem protocolo, se não, adicionar 'https://'
-	// const formattedSiteLink =
-	// 	siteLink?.startsWith("http://") || siteLink?.startsWith("https://")
-	// 		? siteLink
-	// 		: `https://${siteLink}`;
 
 	return (
 		<div className="bg-white w-[260px] flex flex-col rounded-md relative shadow-md select-none">
