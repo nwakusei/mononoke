@@ -1297,6 +1297,26 @@ class OtakupayController {
 
 					// Salvar o produto com as alterações
 					await dbProduct.save();
+
+					// Atualizar a quantidade de produtos vendidos pelo parceiro
+					const partner = await PartnerModel.findById(
+						product.partnerID
+					); // Supondo que `partnerID` esteja no produto
+					if (partner) {
+						partner.productsSold =
+							(partner.productsSold || 0) +
+							product.productQuantity;
+
+						// Salvar as alterações no parceiro
+						await partner.save();
+						console.log(
+							`Quantidade de produtos vendidos pelo parceiro ${partner._id} atualizada para: ${partner.productsSold}`
+						);
+					} else {
+						console.error(
+							`Parceiro não encontrado para o ID ${product.partnerID}`
+						);
+					}
 				} catch (error) {
 					console.error(
 						`Erro ao atualizar o estoque do produto ID ${product.productID}:`,
@@ -1304,34 +1324,6 @@ class OtakupayController {
 					);
 				}
 			}
-
-			// for (const product of products) {
-			// 	try {
-			// 		// Encontrar o produto correspondente no banco de dados usando o productID
-			// 		const dbProduct = await ProductModel.findById(
-			// 			product.productID
-			// 		);
-
-			// 		if (!dbProduct) {
-			// 			console.error(
-			// 				`Produto não encontrado para o ID ${product.productID}`
-			// 			);
-			// 			continue; // Pular para o próximo produto
-			// 		}
-
-			// 		// Reduzir a quantidade no estoque
-			// 		dbProduct.stock -= product.productQuantity;
-			// 		await dbProduct.save();
-			// 		console.log(
-			// 			`Estoque do produto ${dbProduct.productTitle} atualizado.`
-			// 		);
-			// 	} catch (error) {
-			// 		console.error(
-			// 			`Erro ao atualizar o estoque do produto ${product.productID}:`,
-			// 			error
-			// 		);
-			// 	}
-			// }
 
 			// Atualizar Customer (Balance Available e Otaku Points Pending)
 			await customerOtakupay.save();
@@ -2594,6 +2586,26 @@ class OtakupayController {
 			// 		// Reduzir a quantidade no estoque
 			// 		dbProduct.stock -= product.productQuantity;
 			// 		await dbProduct.save();
+
+			// // Atualizar a quantidade de produtos vendidos pelo parceiro
+			// 		const partner = await PartnerModel.findById(
+			// 			product.partnerID
+			// 		); // Supondo que `partnerID` esteja no produto
+			// 		if (partner) {
+			// 			partner.productsSold =
+			// 				(partner.productsSold || 0) +
+			// 				product.productQuantity;
+
+			// 			// Salvar as alterações no parceiro
+			// 			await partner.save();
+			// 			console.log(
+			// 				`Quantidade de produtos vendidos pelo parceiro ${partner._id} atualizada para: ${partner.productsSold}`
+			// 			);
+			// 		} else {
+			// 			console.error(
+			// 				`Parceiro não encontrado para o ID ${product.partnerID}`
+			// 			);
+			// 		}
 			// 		console.log(
 			// 			`Estoque do produto ${dbProduct.productTitle} atualizado.`
 			// 		);
@@ -2684,6 +2696,26 @@ class OtakupayController {
 
 					// Salvar o produto com as alterações
 					await dbProduct.save();
+
+					// Atualizar a quantidade de produtos vendidos pelo parceiro
+					const partner = await PartnerModel.findById(
+						product.partnerID
+					); // Supondo que `partnerID` esteja no produto
+					if (partner) {
+						partner.productsSold =
+							(partner.productsSold || 0) +
+							product.productQuantity;
+
+						// Salvar as alterações no parceiro
+						await partner.save();
+						console.log(
+							`Quantidade de produtos vendidos pelo parceiro ${partner._id} atualizada para: ${partner.productsSold}`
+						);
+					} else {
+						console.error(
+							`Parceiro não encontrado para o ID ${product.partnerID}`
+						);
+					}
 				} catch (error) {
 					console.error(
 						`Erro ao atualizar o estoque do produto ID ${product.productID}:`,
@@ -4344,6 +4376,26 @@ class OtakupayController {
 									// 		dbProduct.stock -=
 									// 			product.productQuantity;
 									// 		await dbProduct.save();
+
+									// 				// Atualizar a quantidade de produtos vendidos pelo parceiro
+									// const partner = await PartnerModel.findById(
+									// 	product.partnerID
+									// ); // Supondo que `partnerID` esteja no produto
+									// if (partner) {
+									// 	partner.productsSold =
+									// 		(partner.productsSold || 0) +
+									// 		product.productQuantity;
+
+									// 	// Salvar as alterações no parceiro
+									// 	await partner.save();
+									// 	console.log(
+									// 		`Quantidade de produtos vendidos pelo parceiro ${partner._id} atualizada para: ${partner.productsSold}`
+									// 	);
+									// } else {
+									// 	console.error(
+									// 		`Parceiro não encontrado para o ID ${product.partnerID}`
+									// 	);
+									// }
 									// 		console.log(
 									// 			`Estoque do produto ${dbProduct.productTitle} atualizado.`
 									// 		);
@@ -4449,6 +4501,28 @@ class OtakupayController {
 
 											// Salvar o produto com as alterações
 											await dbProduct.save();
+
+											// Atualizar a quantidade de produtos vendidos pelo parceiro
+											const partner =
+												await PartnerModel.findById(
+													product.partnerID
+												); // Supondo que `partnerID` esteja no produto
+											if (partner) {
+												partner.productsSold =
+													(partner.productsSold ||
+														0) +
+													product.productQuantity;
+
+												// Salvar as alterações no parceiro
+												await partner.save();
+												console.log(
+													`Quantidade de produtos vendidos pelo parceiro ${partner._id} atualizada para: ${partner.productsSold}`
+												);
+											} else {
+												console.error(
+													`Parceiro não encontrado para o ID ${product.partnerID}`
+												);
+											}
 										} catch (error) {
 											console.error(
 												`Erro ao atualizar o estoque do produto ID ${product.productID}:`,

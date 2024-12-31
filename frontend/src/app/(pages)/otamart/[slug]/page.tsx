@@ -844,15 +844,17 @@ function ProductPage() {
 					{/* Logo da Loja */}
 					{partner && (
 						<div className="flex flex-row gap-4">
-							<div className="w-[260px] h-[130px] bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
-								<Image
-									className="object-contain w-full h-full pointer-events-none"
-									src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
-									alt="Logo Shop"
-									width={260}
-									height={130}
-									unoptimized
-								/>
+							<div className="flex flex-col gap-2">
+								<div className="w-[260px] h-[130px] bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
+									<Image
+										className="object-contain w-full h-full pointer-events-none"
+										src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
+										alt="Logo Shop"
+										width={260}
+										height={130}
+										unoptimized
+									/>
+								</div>
 							</div>
 							<div className="flex flex-col">
 								<div className="flex flex-row items-center gap-1 font-semibold text-lg">
@@ -972,7 +974,7 @@ function ProductPage() {
 										size={18}
 									/>
 								</div>
-								<div className="flex flex-row items-center">
+								<div className="flex flex-row items-center mb-2">
 									<BsStarFill
 										className="text-yellow-400"
 										size={14}
@@ -985,12 +987,12 @@ function ProductPage() {
 										{`${partner?.followers} Seguidores`}
 									</span>
 								</div>
-								<div className="flex flex-row gap-4">
-									<div className="mt-1">
+								<div className="flex flex-row gap-2">
+									<div>
 										{buttonLoading ? (
 											<button
 												disabled
-												className="button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+												className="w-[180px] h-[50px] button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
 												<span className="loading loading-spinner loading-md"></span>
 											</button>
 										) : followedStores?.some(
@@ -1000,7 +1002,7 @@ function ProductPage() {
 										  ) ? (
 											<button
 												// Função para deixar de seguir - não implementada ainda
-												className="button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+												className="w-[180px] h-[50px] button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
 												<span className="text-following">
 													Deixar de seguir
 												</span>
@@ -1012,23 +1014,16 @@ function ProductPage() {
 											</button>
 										) : (
 											<button
-												onClick={handleFollow} // Função para seguir
-												className="button follow bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 w-[150px] px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
-												Seguir
+												onClick={handleFollow}
+												className="w-[180px] h-[50px] bg-violet-950 transition-all ease-in duration-100 hover:bg-yellow-500 text-white rounded-md shadow-md flex items-center justify-center">
+												Seguir Loja
 											</button>
 										)}
 									</div>
-									<div className="mt-1">
-										{/* <button className="text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 h-[36px] px-10 py-1 rounded-md hover:shadow-md">
-											<Link
-												href={`/otamart/store/${partner._id}`}>
-												Ver Loja
-											</Link>
-										</button> */}
-
+									<div className="">
 										{loadingButtonId ===
 										partner.nickname ? (
-											<button className="flex items-center justify-center text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 w-[150px] h-[36px] px-10 py-1 rounded-md hover:shadow-md">
+											<button className="btn btn-primary w-[180px] h-[36px] rounded shadow-md">
 												{/* <span className="loading loading-spinner loading-md"></span> */}
 												<span className="loading loading-dots loading-md"></span>
 											</button>
@@ -1038,8 +1033,8 @@ function ProductPage() {
 													handleClick(
 														partner.nickname
 													)
-												} // Passa o ID do pedido
-												className="flex items-center justify-center text-black hover:text-white border border-solid border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 w-[150px] h-[36px] px-10 py-1 rounded-md hover:shadow-md">
+												}
+												className="btn btn-secondary w-[180px] h-[36px] rounded-md shadow-md">
 												Ver Loja
 											</button>
 										)}

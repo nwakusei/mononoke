@@ -257,126 +257,124 @@ function StorePage() {
 	return (
 		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
 			<div className="flex flex-col justify-center items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-16">
-				<div>
-					<div className="flex flex-row gap-8 bg-white text-black w-[1100px] min-h-[200px] p-4 mt-8 mb-8 rounded-md shadow-md select-none">
-						{/* Card Store Info 1 */}
-						<div className="flex flex-col gap-2">
-							<div className="w-[300px] h-[150px] bg-pink-200 border border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
-								<Image
-									className="object-contain w-full h-full pointer-events-none"
-									src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
-									alt="Logo Shop"
-									width={300}
-									height={150}
-									unoptimized
-								/>
-							</div>
-							{buttonLoading ? (
-								<button
-									disabled
-									className="w-[300px] h-[50px] button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
-									<span className="loading loading-spinner loading-md"></span>
-								</button>
-							) : followedStores?.some(
-									(store) => store.storeID === partner?._id
-							  ) ? (
-								<button
-									// Função para deixar de seguir - não implementada ainda
-									className="w-[300px] h-[50px] button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
-									<span className="text-following">
-										Deixar de seguir
-									</span>
-									<span
-										onClick={handleUnfollow}
-										className="text-follow">
-										Seguindo
-									</span>
-								</button>
-							) : (
-								<button
-									onClick={handleFollow}
-									className="w-[300px] h-[50px] bg-violet-950 transition-all ease-in duration-100 hover:bg-black text-white rounded-md shadow-md flex items-center justify-center">
-									Seguir Loja
-								</button>
-							)}
+				<div className="flex flex-col lg:flex-row gap-2 lg:gap-8 bg-white text-black w-[350px] lg:w-[1100px] min-h-[200px] p-4 mt-8 mb-8 rounded-md shadow-md select-none">
+					{/* Card Store Info 1 */}
+					<div className="flex flex-col gap-2">
+						<div className="w-[300px] h-[150px] bg-pink-200 border border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
+							<Image
+								className="object-contain w-full h-full pointer-events-none"
+								src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
+								alt="Logo Shop"
+								width={300}
+								height={150}
+								unoptimized
+							/>
 						</div>
-
-						<div className="flex flex-col w-[230px]">
-							{/* Titulo e Selo de verificado */}
-							<div className="flex flex-row items-center gap-1 mb-4">
-								<span className="text-lg font-semibold">
-									{partner?.name}
+						{buttonLoading ? (
+							<button
+								disabled
+								className="w-[300px] h-[50px] button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+								<span className="loading loading-spinner loading-md"></span>
+							</button>
+						) : followedStores?.some(
+								(store) => store.storeID === partner?._id
+						  ) ? (
+							<button
+								// Função para deixar de seguir - não implementada ainda
+								className="w-[300px] h-[50px] button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+								<span className="text-following">
+									Deixar de seguir
 								</span>
-								<span>
-									{/* <MdVerified
+								<span
+									onClick={handleUnfollow}
+									className="text-follow">
+									Seguindo
+								</span>
+							</button>
+						) : (
+							<button
+								onClick={handleFollow}
+								className="w-[300px] h-[50px] bg-violet-950 transition-all ease-in duration-100 hover:bg-black text-white rounded-md shadow-md flex items-center justify-center">
+								Seguir Loja
+							</button>
+						)}
+					</div>
+
+					<div className="flex flex-col w-[230px]">
+						{/* Titulo e Selo de verificado */}
+						<div className="flex flex-row items-center gap-1 mb-4">
+							<span className="text-lg font-semibold">
+								{partner?.name}
+							</span>
+							<span>
+								{/* <MdVerified
 										className="text-ametista"
 										size={17}
 									/> */}
 
-									<div className="relative inline-block mt-[7px]">
-										<div className="group">
-											{/* Icone Visível no Client Side  */}
-											<MdVerified
-												className="text-ametista cursor-pointer"
-												size={17}
-											/>
-											{/* Tooltip */}
-											<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-64 p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 border-[1px] border-black bg-white text-black text-sm rounded shadow-lg pointer-events-none">
-												<div className="flex flex-row items-center gap-2">
-													<MdVerified
-														className="text-ametista"
-														size={18}
-													/>
-													<span>Selo Ametista</span>
-												</div>
-												<p className="ml-[25px]">
-													Loja com mais de 500 vendas
-												</p>
-												<p className="ml-[25px]">
-													Conta verificada
-												</p>
+								<div className="relative inline-block mt-[7px]">
+									<div className="group">
+										{/* Icone Visível no Client Side  */}
+										<MdVerified
+											className="text-ametista cursor-pointer"
+											size={17}
+										/>
+										{/* Tooltip */}
+										<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-64 p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 border-[1px] border-black bg-white text-black text-sm rounded shadow-lg pointer-events-none">
+											<div className="flex flex-row items-center gap-2">
+												<MdVerified
+													className="text-ametista"
+													size={18}
+												/>
+												<span>Selo Ametista</span>
 											</div>
+											<p className="ml-[25px]">
+												Loja com mais de 500 vendas
+											</p>
+											<p className="ml-[25px]">
+												Conta verificada
+											</p>
 										</div>
 									</div>
-								</span>
-							</div>
-							{/* Card Store Info 2 */}
-							<div className="flex flex-row items-center gap-2">
-								<span>
-									<CgBox size={18} />
-									{/* <BsBox2Heart size={17} /> */}
-								</span>
-								<h1>Produtos: {totalProducts}</h1>
-							</div>
-							<div className="flex flex-row items-center gap-2">
-								<span>
-									<Peoples size={18} />
-									{/* <BsPersonCheckFill size={20} /> */}
-								</span>
-								<h1>Seguidores: {followers}</h1>
-							</div>
-							<div className="flex flex-row items-center gap-2 mb-2">
-								<span>
-									<BsStar size={18} />
-								</span>
-								<h1>Avaliações: {rating}</h1>
-							</div>
-							<div className="flex flex-row items-center gap-2 mb-2">
-								<span>
-									{/* <BsBox2Heart size={18} /> */}
-									<BsBagCheck size={18} />
-									{/* <BsBagHeart size={18} /> */}
-								</span>
-								<h1>Produtos vendidos: {productsSold}</h1>
-							</div>
+								</div>
+							</span>
 						</div>
-						<div className="border-r-[1px] border-r-black"></div>
-						<div className="w-[450px]">
-							<h1 className="mb-2">Sobre a loja:</h1>
-							<p className="whitespace-pre-wrap">
-								{partner?.description}
-							</p>
+						{/* Card Store Info 2 */}
+						<div className="flex flex-row items-center gap-2">
+							<span>
+								<CgBox size={18} />
+								{/* <BsBox2Heart size={17} /> */}
+							</span>
+							<h1>Produtos: {totalProducts}</h1>
 						</div>
+						<div className="flex flex-row items-center gap-2">
+							<span>
+								<Peoples size={18} />
+								{/* <BsPersonCheckFill size={20} /> */}
+							</span>
+							<h1>Seguidores: {followers}</h1>
+						</div>
+						<div className="flex flex-row items-center gap-2 mb-2">
+							<span>
+								<BsStar size={18} />
+							</span>
+							<h1>Avaliações: {rating}</h1>
+						</div>
+						<div className="flex flex-row items-center gap-2 mb-2">
+							<span>
+								{/* <BsBox2Heart size={18} /> */}
+								<BsBagCheck size={18} />
+								{/* <BsBagHeart size={18} /> */}
+							</span>
+							<h1>Produtos vendidos: {productsSold}</h1>
+						</div>
+					</div>
+					<div className="border-r-[1px] border-r-black"></div>
+					<div className="w-[450px]">
+						<h1 className="mb-2">Sobre a loja:</h1>
+						<p className="whitespace-pre-wrap">
+							{partner?.description}
+						</p>
 					</div>
 				</div>
 
@@ -474,9 +472,9 @@ function StorePage() {
 									cashback={cashback}
 									rating={returnedProduct.rating}
 									quantitySold={
-										returnedProduct.productsSold > 1
-											? `${returnedProduct.productsSold} Vendidos`
-											: `${returnedProduct.productsSold} Vendido`
+										partner.productsSold > 1
+											? `${partner.productsSold} Vendidos`
+											: `${partner.productsSold} Vendido`
 									}
 									linkProductPage={`/otamart/${returnedProduct.slugTitle}`}
 								/>

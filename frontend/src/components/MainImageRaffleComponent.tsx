@@ -31,7 +31,9 @@ const MainImageRaffleComponent = ({ selectedImage, raffle }) => {
 					<Image
 						className="object-contain w-full h-full"
 						src={`http://localhost:5000/images/raffles/${imageUrl}`}
-						alt={raffle?.raffleTitle}
+						alt={
+							raffle?.raffleTitle || "Imagem Miniatura do sorteio"
+						}
 						width={10}
 						height={10}
 						unoptimized

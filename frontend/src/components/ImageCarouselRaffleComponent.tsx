@@ -53,7 +53,10 @@ const ImageCarouselRaffleComponent = ({
 								<Image
 									className="object-contain h-full cursor-pointer"
 									src={`http://localhost:5000/images/raffles/${image}`}
-									alt={`Thumbnail ${index}`}
+									alt={
+										raffle?.raffleTitle ||
+										"Imagem Principal do sorteio"
+									}
 									width={50}
 									height={10}
 								/>

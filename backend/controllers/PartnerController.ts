@@ -326,6 +326,7 @@ class PartnerController {
 			cpfCnpj,
 			description,
 			cashback,
+			credential,
 			password,
 			confirmPassword,
 			street,
@@ -335,6 +336,8 @@ class PartnerController {
 			state,
 			postalCode,
 		} = req.body;
+
+		console.log(req.body);
 
 		// Upload de imagens de Perfil Logo da Loja
 		const files = req.files as { [key: string]: Express.Multer.File[] };
@@ -364,6 +367,7 @@ class PartnerController {
 				partner.email = email;
 				partner.cpfCnpj = cpfCnpj;
 				partner.description = description;
+				partner.shippingConfiguration;
 				partner.cashback = cashback;
 
 				partner.address[0] = {
@@ -424,6 +428,24 @@ class PartnerController {
 						message: "As senhas precisam ser iguais!",
 					});
 					return;
+				}
+
+				// Atualizar ou adicionar configuração de envio
+				const shippingOperator = "Kangu"; // Provide a default value or get it from req.body
+				const existingShippingConfig =
+					partner.shippingConfiguration.find(
+						(config) => config.shippingOperator === shippingOperator
+					);
+
+				if (existingShippingConfig) {
+					// Atualizar credencial existente
+					existingShippingConfig.credential = credential;
+				} else {
+					// Adicionar nova configuração de envio
+					partner.shippingConfiguration.push({
+						shippingOperator,
+						credential,
+					});
 				}
 
 				await partner.save();
