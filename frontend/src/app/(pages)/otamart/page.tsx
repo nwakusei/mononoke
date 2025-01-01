@@ -240,7 +240,7 @@ function OtamartPage() {
 
 							return (
 								<ProductAdCard
-									key={returnedProduct._id}
+									key={`returned-${returnedProduct._id}`}
 									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
@@ -278,7 +278,7 @@ function OtamartPage() {
 
 							return (
 								<ProductAdCard
-									key={product._id}
+									key={`product-${product._id}`}
 									product={product}
 									freeShipping={product.freeShipping}
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}

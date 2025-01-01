@@ -155,6 +155,7 @@ class PartnerController {
 				accountType: accountType,
 				name: name,
 				nickname: "",
+				verifiedBadge: "",
 				email: email,
 				password: passwordHash,
 				description: "",
@@ -162,6 +163,7 @@ class PartnerController {
 				cashback: "1",
 				followers: 0,
 				rating: 0,
+				totalProducts: 0,
 				productsSold: 0,
 				otakupayID: newOtakupay._id,
 			});

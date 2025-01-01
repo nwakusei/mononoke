@@ -392,6 +392,12 @@ class ProductController {
 		try {
 			const newProduct = await product.save();
 
+			if ("totalProducts" in partner) {
+				partner.totalProducts += 1;
+
+				await partner.save();
+			}
+
 			res.status(201).json({
 				message: "Produto cadastrado com sucesso!",
 				newProduct,

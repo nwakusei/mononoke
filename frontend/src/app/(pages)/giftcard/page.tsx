@@ -64,7 +64,7 @@ function GiftCardPage() {
 									Gift Card
 								</div>
 								<div className="text-3xl font-bold text-right pr-4 select-none">
-									15 OP
+									R$ 15
 								</div>
 							</div>
 						</div>

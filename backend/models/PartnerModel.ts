@@ -22,6 +22,7 @@ interface IPartner {
 	accountType: string;
 	name: string;
 	nickname: string;
+	verifiedBadge: string;
 	email: string;
 	password: string;
 	cpfCnpj: number;
@@ -31,6 +32,7 @@ interface IPartner {
 	cashback: number;
 	followers: number;
 	rating: number;
+	totalProducts: number;
 	productsSold: number;
 	accountStatus: string;
 	otakupayID: mongoose.Schema.Types.ObjectId;
@@ -54,6 +56,10 @@ const partnerSchema = new Schema<IPartner>(
 			requered: true,
 		},
 		nickname: {
+			type: String,
+			required: false,
+		},
+		verifiedBadge: {
 			type: String,
 			required: false,
 		},
@@ -88,6 +94,9 @@ const partnerSchema = new Schema<IPartner>(
 			type: Number,
 		},
 		rating: {
+			type: Number,
+		},
+		totalProducts: {
 			type: Number,
 		},
 		productsSold: {

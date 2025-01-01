@@ -75,7 +75,7 @@ class ReviewController {
 				reviewDescription: string;
 			}
 
-			// Validação comentada pararealizar testes, ativar novamente no final
+			// Validação comentada para realizar testes, ativar novamente no final
 			// // Verificar se já existe uma avaliação do mesmo comprador para o pedido
 			// const existingReview = products.some((product) =>
 			// 	product.reviews.some(
@@ -229,6 +229,13 @@ class ReviewController {
 			partner.productsSold = totalProductsSold;
 
 			order.statusOrder = "Concluído";
+
+			// VERICAÇÃO DE QUANTIDADE DE PRODUTOS VENDIDOS PELA LOJA, E ATUALIZAÇÃO DO TIPO DE SELO
+			if (partner.productsSold >= 18) {
+				partner.verifiedBadge = "Esmeralda";
+			} else if (partner.productsSold >= 15) {
+				partner.verifiedBadge = "Blue";
+			}
 
 			await order.save();
 

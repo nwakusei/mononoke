@@ -11,8 +11,6 @@ import { format } from "date-fns";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
-import slugify from "slugify";
-
 import "./otamartId.css";
 
 // Axios
@@ -26,6 +24,7 @@ import { MainImageProductAdComponent } from "@/components/MainImageProductAdComp
 import { ImageCarouselComponent } from "@/components/ImageCarouselComponent";
 import { ProductVariation } from "@/components/ProductVariation";
 import { SideComponent } from "@/components/SideComponent";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Importe suas imagens e ícones aqui
@@ -289,6 +288,31 @@ function ProductPage() {
 			} else {
 				return <span>N/A</span>;
 			}
+		}
+	};
+
+	const renderPartnerRatingIcons = (partnerRating) => {
+		// Convertendo a nota para número
+		const rating = parseFloat(partnerRating);
+
+		// Verificando se a nota é válida
+		if (isNaN(rating) || rating < 0 || rating > 5) {
+			// Retorna estrela vazia para valores inválidos
+			return <BsStar className="text-gray-400" size={14} />;
+		}
+
+		// Arredondando a nota para uma casa decimal
+		const roundedRating = Math.round(rating * 10) / 10;
+
+		// Determinando o tipo de estrela com base na nota
+		if (roundedRating === 5.0) {
+			return <BsStarFill className="text-yellow-400" size={14} />;
+		} else if (roundedRating >= 0.5 && roundedRating < 5.0) {
+			// Notas intermediárias (>= 0.5 e < 5.0) renderizam meia estrela
+			return <BsStarHalf className="text-yellow-400" size={14} />;
+		} else {
+			// Notas menores que 0.5 renderizam estrela vazia
+			return <BsStar className="text-yellow-400" size={14} />;
 		}
 	};
 
@@ -858,130 +882,24 @@ function ProductPage() {
 							</div>
 							<div className="flex flex-col">
 								<div className="flex flex-row items-center gap-1 font-semibold text-lg">
-									<h1 className="text-black">
+									<div className="text-black">
 										{partner?.name}
-									</h1>
-									{/* <div className="relative group inline-block">
-										<MdVerified
-											className="text-blue-500 cursor-pointer"
-											size={18}
-										/>
-										<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-primary text-white text-sm rounded shadow-lg">
-											<div className="flex items-center">
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													fill="none"
-													viewBox="0 0 24 24"
-													stroke="currentColor"
-													className="w-5 h-5 mr-2">
-													<path
-														strokeLinecap="round"
-														strokeLinejoin="round"
-														strokeWidth="2"
-														d="M5 13l4 4L19 7"
-													/>
-												</svg>
-												<span>Selo Azul:</span>
-											</div>
-											<p>
-												Conta verificada desde Janeiro
-												de 2024.
-											</p>
-										</div>
-									</div> */}
-
-									<div className="relative inline-block mt-[2px]">
-										<div className="group">
-											{/* Icone Visível no Client Side  */}
-											<MdVerified
-												className="text-ametista cursor-pointer"
-												size={17}
-											/>
-											{/* Tooltip */}
-											<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-64 p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 border-[1px] border-black bg-white text-black text-sm rounded shadow-lg pointer-events-none">
-												<div className="flex flex-row items-center gap-2">
-													<MdVerified
-														className="text-ametista"
-														size={18}
-													/>
-													<span>Selo Ametista</span>
-												</div>
-												<p className="ml-[25px]">
-													Loja com mais de 500 vendas
-												</p>
-												<p className="ml-[25px]">
-													Conta verificada
-												</p>
-											</div>
-										</div>
 									</div>
-
-									{/* Bronze */}
-									<MdVerified
-										className="text-[#CD7F32]"
-										size={18}
-									/>
-
-									{/* Prata 1 */}
-									<MdVerified
-										className="text-[#C0C0C0]"
-										size={18}
-									/>
-
-									{/* Prata 2 */}
-									{/* <MdVerified
-										className="text-[#9a9a9a]"
-										size={18}
-									/> */}
-
-									{/* Dourado */}
-									<MdVerified
-										className="text-[#daa520]"
-										size={18}
-									/>
-
-									{/* Pérola */}
-									<MdVerified
-										className="text-[#EAE0C8]"
-										size={18}
-									/>
-
-									{/* Obsidiana */}
-									<MdVerified
-										className="text-[#0B0B0B]"
-										size={18}
-									/>
-
-									{/* Ametista */}
-									<MdVerified
-										className="text-[#9966CC]"
-										size={18}
-									/>
-
-									{/* Esmeralda */}
-									<MdVerified
-										className="text-[#50C878]"
-										size={18}
-									/>
-									{/* Safira */}
-									<MdVerified
-										className="text-[#0F52BA]"
-										size={18}
-									/>
-									{/* Rubi */}
-									<MdVerified
-										className="text-[#E0115F]"
-										size={18}
-									/>
+									{partner?.verifiedBadge !== "" && (
+										<VerifiedBadge
+											partnerVerifiedBadge={
+												partner?.verifiedBadge
+											}
+										/>
+									)}
 								</div>
 								<div className="flex flex-row items-center mb-2">
-									<BsStarFill
-										className="text-yellow-400"
-										size={14}
-									/>
+									{renderPartnerRatingIcons(partner?.rating)}
 									<span className="text-black ml-1 mr-2">
-										5.0
-									</span>{" "}
+										{Number.isInteger(partner?.rating)
+											? `${partner?.rating}.0`
+											: `${(partner?.rating).toFixed(1)}`}
+									</span>
 									<span className="text-black mb-1">|</span>
 									<span className="text-black ml-2">
 										{`${partner?.followers} Seguidores`}
@@ -992,7 +910,7 @@ function ProductPage() {
 										{buttonLoading ? (
 											<button
 												disabled
-												className="w-[180px] h-[50px] button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+												className="button w-[180px] h-[50px] bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
 												<span className="loading loading-spinner loading-md"></span>
 											</button>
 										) : followedStores?.some(
@@ -1002,7 +920,7 @@ function ProductPage() {
 										  ) ? (
 											<button
 												// Função para deixar de seguir - não implementada ainda
-												className="w-[180px] h-[50px] button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+												className="button w-[180px] h-[50px] follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
 												<span className="text-following">
 													Deixar de seguir
 												</span>
@@ -1045,12 +963,12 @@ function ProductPage() {
 							<div className="flex flex-col justify-center">
 								<div>
 									<span className="text-black">
-										Avaliações: 5.1mil
+										Total de Avaliações: 5.1mil
 									</span>
 								</div>
 								<div>
 									<span className="text-black">
-										Produtos: 2.3mil
+										Produtos: {partner?.totalProducts}
 									</span>
 								</div>
 								<div className="mt-3 opacity-0">

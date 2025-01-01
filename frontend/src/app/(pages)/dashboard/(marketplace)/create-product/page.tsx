@@ -1258,7 +1258,7 @@ function CreateProductPage() {
 											<option>CD/DVD</option>
 											<option>Vestuário</option>
 											<option>Acessório</option>
-											<option>TGC (Card Game)</option>
+											<option>TCG (Card Game)</option>
 											<option>Papelaria</option>
 											<option>Óculos</option>
 										</select>

@@ -12,7 +12,6 @@ import "./storeId.css";
 import { Context } from "@/context/UserContext";
 
 // Icons
-import { MdVerified } from "react-icons/md";
 import { Peoples } from "@icon-park/react";
 import {
 	BsStar,
@@ -28,6 +27,7 @@ import { FiInfo } from "react-icons/fi";
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
 import { MiniCouponCard } from "@/components/MiniCouponCard";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function StorePage() {
@@ -139,9 +139,8 @@ function StorePage() {
 		partner?.rating > 0
 			? `${(partner?.rating).toFixed(1)} (XX Notas)`
 			: "N/A";
-	const totalProducts = products.length;
 	const followers = partner?.followers;
-
+	const totalProducts = partner?.totalProducts;
 	const productsSold = partner?.productsSold;
 
 	// Função para buscar a lista de lojas seguidas
@@ -273,7 +272,7 @@ function StorePage() {
 						{buttonLoading ? (
 							<button
 								disabled
-								className="w-[300px] h-[50px] button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+								className="button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
 								<span className="loading loading-spinner loading-md"></span>
 							</button>
 						) : followedStores?.some(
@@ -281,7 +280,7 @@ function StorePage() {
 						  ) ? (
 							<button
 								// Função para deixar de seguir - não implementada ainda
-								className="w-[300px] h-[50px] button follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+								className="button w-[300px] h-[50px] follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
 								<span className="text-following">
 									Deixar de seguir
 								</span>
@@ -303,41 +302,16 @@ function StorePage() {
 					<div className="flex flex-col w-[230px]">
 						{/* Titulo e Selo de verificado */}
 						<div className="flex flex-row items-center gap-1 mb-4">
-							<span className="text-lg font-semibold">
+							<div className="text-lg font-semibold">
 								{partner?.name}
-							</span>
-							<span>
-								{/* <MdVerified
-										className="text-ametista"
-										size={17}
-									/> */}
-
-								<div className="relative inline-block mt-[7px]">
-									<div className="group">
-										{/* Icone Visível no Client Side  */}
-										<MdVerified
-											className="text-ametista cursor-pointer"
-											size={17}
-										/>
-										{/* Tooltip */}
-										<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-64 p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-300 border-[1px] border-black bg-white text-black text-sm rounded shadow-lg pointer-events-none">
-											<div className="flex flex-row items-center gap-2">
-												<MdVerified
-													className="text-ametista"
-													size={18}
-												/>
-												<span>Selo Ametista</span>
-											</div>
-											<p className="ml-[25px]">
-												Loja com mais de 500 vendas
-											</p>
-											<p className="ml-[25px]">
-												Conta verificada
-											</p>
-										</div>
-									</div>
-								</div>
-							</span>
+							</div>
+							{partner?.verifiedBadge !== "" && (
+								<VerifiedBadge
+									partnerVerifiedBadge={
+										partner?.verifiedBadge
+									}
+								/>
+							)}
 						</div>
 						{/* Card Store Info 2 */}
 						<div className="flex flex-row items-center gap-2">
@@ -373,7 +347,9 @@ function StorePage() {
 					<div className="w-[450px]">
 						<h1 className="mb-2">Sobre a loja:</h1>
 						<p className="whitespace-pre-wrap">
-							{partner?.description}
+							{partner?.description === ""
+								? "Essa loja não possui descrição."
+								: partner?.description}
 						</p>
 					</div>
 				</div>
@@ -452,7 +428,7 @@ function StorePage() {
 
 							return (
 								<ProductAdCard
-									key={returnedProduct._id}
+									key={`returned-${returnedProduct._id}`}
 									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
@@ -491,7 +467,7 @@ function StorePage() {
 
 							return (
 								<ProductAdCard
-									key={product._id}
+									key={`product-${product._id}`}
 									product={product}
 									freeShipping={product.freeShipping}
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
