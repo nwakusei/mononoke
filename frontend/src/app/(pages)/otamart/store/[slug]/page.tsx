@@ -41,99 +41,74 @@ function StorePage() {
 	const [returnedProducts, setReturnedProducts] = useState([]);
 	const [noResults, setNoResults] = useState(false); // Nova variável de estado
 
-	const [buttonLoading, setbuttonLoading] = useState(false);
+	const [user, setUser] = useState(null); // Inicializa como null
 	const [token] = useState(() => localStorage.getItem("token") || "");
+
+	const [buttonLoading, setbuttonLoading] = useState(false);
 	const [followedStores, setFollowedStores] = useState([]);
 
 	const [partner, setPartner] = useState({});
 
 	useEffect(() => {
-		// Verifica se `id` já foi definido.
+		// Verifica se `slug` já foi definido.
 		if (!slug) return;
 
-		try {
-			const fetchPartner = async () => {
+		const fetchData = async () => {
+			try {
 				// Faz o lookup para obter o ID correspondente à slug
 				const response = await api.get(`/partners/convert/${slug}`);
-
 				const id = response.data.id;
 
-				// Encontra o parceiro com base no slug.
+				// Encontra o parceiro com base no slug
 				const foundPartner = partners.find((p) => p._id === id);
 
-				if (foundPartner) {
-					// Atualiza o estado com o parceiro encontrado.
-					setPartner(foundPartner);
-				} else {
+				if (!foundPartner) {
 					console.log("Loja não encontrada!");
+					setIsLoading(false);
+					return;
 				}
-			};
 
-			const fetchGetAllProductsStore = async () => {
-				// Faz o lookup para obter o ID correspondente à slug
-				const response = await api.get(`/partners/convert/${slug}`);
+				// Atualiza o estado com o parceiro encontrado
+				setPartner(foundPartner);
 
-				const id = response.data.id;
+				// Busca os dados do usuário, se o token estiver presente
+				const userPromise = token
+					? api.get("/otakuprime/check-user", {
+							headers: {
+								Authorization: `Bearer ${JSON.parse(token)}`,
+							},
+					  })
+					: Promise.resolve({ data: null }); // Se não estiver logado, retorna uma resposta "vazia" para o usuário
 
-				// Encontra o parceiro com base no slug.
-				const foundPartner = partners.find((p) => p._id === id);
-
-				if (foundPartner) {
-					// Atualiza o estado com o parceiro encontrado
-					setPartner(foundPartner);
-
-					// Verifica se foundPartner._id existe antes de fazer a requisição dos produtos
-					if (foundPartner._id) {
-						const responseGetAllProductsStore = await api.get(
+				// Busca os produtos e os cupons simultaneamente
+				const [productsResponse, couponsResponse, userResponse] =
+					await Promise.all([
+						api.get(
 							`/products/getall-products-store/${foundPartner._id}`
-						);
-						setProducts(responseGetAllProductsStore.data.products);
-						setIsLoading(false);
-					} else {
-						console.log("ID do parceiro não encontrado!");
-					}
-				} else {
-					console.log("Loja não encontrada!");
+						),
+						api.get(`/coupons/store-coupons/${foundPartner._id}`),
+						userPromise,
+					]);
+
+				// Atualiza os estados com os dados obtidos
+				setProducts(productsResponse.data.products);
+				setCoupons(couponsResponse.data.coupons);
+
+				// Se o usuário estiver logado, atualiza os dados do usuário
+				if (userResponse.data) {
+					setUser(userResponse.data);
 				}
-			};
+			} catch (error) {
+				console.error("Erro ao buscar dados:", error);
+			} finally {
+				setIsLoading(false);
+			}
+		};
 
-			const fetchCoupons = async () => {
-				// Faz o lookup para obter o ID correspondente à slug
-				const response = await api.get(`/partners/convert/${slug}`);
-
-				const id = response.data.id;
-
-				// Encontra o parceiro com base no slug.
-				const foundPartner = partners.find((p) => p._id === id);
-
-				if (foundPartner) {
-					// Atualiza o estado com o parceiro encontrado
-					setPartner(foundPartner);
-
-					// Verifica se foundPartner._id existe antes de fazer a requisição dos produtos
-					if (foundPartner._id) {
-						const response = await api.get(
-							`/coupons/store-coupons/${foundPartner._id}`
-						);
-						setCoupons(response.data.coupons); // Atualize o estado com os cupons recebidos da API
-						setIsLoading(false);
-					} else {
-						console.log("ID do parceiro não encontrado!");
-					}
-				} else {
-					console.log("Loja não encontrada!");
-				}
-			};
-
-			fetchCoupons(); // Chame a função fetchCoupons aqui dentro do useEffect
-
-			fetchPartner();
-
-			fetchGetAllProductsStore();
-		} catch (error) {
-			console.error("Erro ao deixaar de seguir a loja:", error);
-		}
-	}, [slug, partners]); // Dependências adequadas: `id` e `partners`.
+		setIsLoading(true); // Ativa o estado de carregamento antes de iniciar a busca
+		fetchData();
+	}, [slug, partners, token]);
+	// Dependências adequadas: `id` e `partners`.
 
 	const rating =
 		partner?.rating > 0
@@ -142,6 +117,31 @@ function StorePage() {
 	const followers = partner?.followers;
 	const totalProducts = partner?.totalProducts;
 	const productsSold = partner?.productsSold;
+
+	const renderPartnerRatingIcons = (partnerRating) => {
+		// Convertendo a nota para número
+		const rating = parseFloat(partnerRating);
+
+		// Verificando se a nota é válida
+		if (isNaN(rating) || rating < 0 || rating > 5) {
+			// Retorna estrela vazia para valores inválidos
+			return <BsStar size={18} />;
+		}
+
+		// Arredondando a nota para uma casa decimal
+		const roundedRating = Math.round(rating * 10) / 10;
+
+		// Determinando o tipo de estrela com base na nota
+		if (roundedRating === 5.0) {
+			return <BsStarFill size={18} />;
+		} else if (roundedRating >= 0.5 && roundedRating < 5.0) {
+			// Notas intermediárias (>= 0.5 e < 5.0) renderizam meia estrela
+			return <BsStarHalf size={18} />;
+		} else {
+			// Notas menores que 0.5 renderizam estrela vazia
+			return <BsStar size={18} />;
+		}
+	};
 
 	// Função para buscar a lista de lojas seguidas
 	const fetchFollowedStores = async () => {
@@ -329,9 +329,7 @@ function StorePage() {
 							<h1>Seguidores: {followers}</h1>
 						</div>
 						<div className="flex flex-row items-center gap-2 mb-2">
-							<span>
-								<BsStar size={18} />
-							</span>
+							<span>{renderPartnerRatingIcons(rating)}</span>
 							<h1>Avaliações: {rating}</h1>
 						</div>
 						<div className="flex flex-row items-center gap-2 mb-2">
@@ -429,6 +427,7 @@ function StorePage() {
 							return (
 								<ProductAdCard
 									key={`returned-${returnedProduct._id}`}
+									viewAdultContent={user?.viewAdultContent}
 									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
@@ -468,6 +467,7 @@ function StorePage() {
 							return (
 								<ProductAdCard
 									key={`product-${product._id}`}
+									viewAdultContent={user?.viewAdultContent}
 									product={product}
 									freeShipping={product.freeShipping}
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}

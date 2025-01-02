@@ -129,6 +129,7 @@ class CustomerController {
 
 		try {
 			const otakupay = new OtakupayModel({
+				accountStatus: "Active",
 				accountType: accountType,
 				name: name,
 				email: email,
@@ -143,11 +144,13 @@ class CustomerController {
 
 			// Criar um usuário Cliente
 			const customer = new CustomerModel({
+				accountStatus: "Active",
 				accountType: accountType,
 				name: name,
 				nickname: "",
 				email: email,
 				password: passwordHash,
+				viewAdultContent: false,
 				otakupayID: newOtakupay._id,
 			});
 
@@ -600,6 +603,7 @@ class CustomerController {
 			nickname,
 			email,
 			cpf,
+			viewAdultContent,
 			password,
 			confirmPassword,
 			street,
@@ -633,6 +637,7 @@ class CustomerController {
 				customer.nickname = nickname;
 				customer.email = email;
 				customer.cpf = cpf;
+				customer.viewAdultContent = viewAdultContent;
 
 				customer.address[0] = {
 					street: street,

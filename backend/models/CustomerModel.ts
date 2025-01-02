@@ -8,15 +8,16 @@ interface IFollowingStores {
 
 // Interface tipando os dados que irão no Banco de Dados.
 interface ICustomer {
-	profileImage: string;
+	accountStatus: string;
 	accountType: string;
+	profileImage: string;
 	name: string;
 	nickname: string;
 	email: string;
 	password: string;
 	cpf: string;
 	address: [{}];
-	accountStatus: string;
+	viewAdultContent: boolean;
 	otakupayID: mongoose.Schema.Types.ObjectId;
 	followingStores: IFollowingStores[];
 }
@@ -24,13 +25,17 @@ interface ICustomer {
 // Schema que corresponda a Interface.
 const customerSchema = new Schema<ICustomer>(
 	{
-		profileImage: {
+		accountStatus: {
 			type: String,
+			required: false,
 		},
 		accountType: {
 			type: String,
-			required: true,
 		},
+		profileImage: {
+			type: String,
+		},
+
 		name: {
 			type: String,
 			required: true,
@@ -40,7 +45,7 @@ const customerSchema = new Schema<ICustomer>(
 		},
 		email: {
 			type: String,
-			required: true,
+			required: false,
 			unique: true,
 		},
 		password: {
@@ -54,6 +59,9 @@ const customerSchema = new Schema<ICustomer>(
 		},
 		address: {
 			type: [{}],
+		},
+		viewAdultContent: {
+			type: Boolean,
 		},
 		otakupayID: {
 			type: mongoose.Schema.Types.ObjectId,

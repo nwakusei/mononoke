@@ -135,6 +135,7 @@ class PartnerController {
 
 		try {
 			const otakupay = new OtakupayModel({
+				accountStatus: "Active",
 				accountType: accountType,
 				name: name,
 				email: email,
@@ -150,9 +151,10 @@ class PartnerController {
 
 			// Criar um usuário Parceiro
 			const partner = new PartnerModel({
+				accountStatus: "Active",
+				accountType: accountType,
 				profileImage: "",
 				logoImage: "",
-				accountType: accountType,
 				name: name,
 				nickname: "",
 				verifiedBadge: "",
@@ -165,6 +167,7 @@ class PartnerController {
 				rating: 0,
 				totalProducts: 0,
 				productsSold: 0,
+				viewAdultContent: false,
 				otakupayID: newOtakupay._id,
 			});
 
@@ -327,6 +330,7 @@ class PartnerController {
 			email,
 			cpfCnpj,
 			description,
+			viewAdultContent,
 			cashback,
 			credential,
 			password,
@@ -369,6 +373,7 @@ class PartnerController {
 				partner.email = email;
 				partner.cpfCnpj = cpfCnpj;
 				partner.description = description;
+				partner.viewAdultContent = viewAdultContent;
 				partner.shippingConfiguration;
 				partner.cashback = cashback;
 

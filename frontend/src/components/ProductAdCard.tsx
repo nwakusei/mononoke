@@ -3,12 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 
+// Images
+import AdultProductCover from "../../public/adult-content-cover.png";
+
 // Icons
 import { Currency } from "@icon-park/react";
 import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
 import { LiaShippingFastSolid } from "react-icons/lia";
 
 function ProductAdCard({
+	viewAdultContent,
 	product,
 	freeShipping,
 	productImage,
@@ -22,6 +26,13 @@ function ProductAdCard({
 	quantitySold,
 	linkProductPage,
 }) {
+	// LÓGICA DE EXIBIÇÃO DE CONTEÚDO ADULTO
+	const isContentAllowed =
+		product.adultProduct === true &&
+		(viewAdultContent === false || viewAdultContent === undefined)
+			? false // Se o produto for adulto e o usuário não pode ver ou está deslogado, não exibe
+			: true; // Exibe o produto se for não adulto ou o usuário pode ver conteúdo adulto
+
 	// Calcular a porcentagem de desconto
 	const calculateDiscountPercentage = (product) => {
 		if (!product) {
@@ -117,6 +128,8 @@ function ProductAdCard({
 	// 	);
 	// };
 
+	console.log("VER CONTEÚDO ADULTO", viewAdultContent);
+
 	const discountPercentage = calculateDiscountPercentage(product);
 
 	// Função para renderizar os ícones de classificação com base no rating
@@ -181,7 +194,11 @@ function ProductAdCard({
 					<div className="flex flex-col object-contain w-full h-full select-none pointer-events-none">
 						<Image
 							className="object-contain w-full h-full"
-							src={productImage}
+							src={
+								isContentAllowed
+									? productImage
+									: AdultProductCover
+							}
 							alt="Product Image"
 							width={10}
 							height={10}
@@ -196,7 +213,11 @@ function ProductAdCard({
 					<div className="flex flex-col object-contain w-full h-full select-none pointer-events-none">
 						<Image
 							className="object-contain w-full h-full"
-							src={productImage}
+							src={
+								isContentAllowed
+									? productImage
+									: AdultProductCover
+							}
 							alt="Product Image"
 							width={10}
 							height={10}

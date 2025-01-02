@@ -12,7 +12,7 @@ function VerifiedBadge({ partnerVerifiedBadge }: IVerifiedBadgeProps) {
 		{ name: "Dourado", hex: "#daa520", salesQuantity: "1000" },
 		{ name: "Pérola", hex: "#EAE0C8", salesQuantity: "500" },
 		{ name: "Obsidiana", hex: "#0B0B0B", salesQuantity: "500" },
-		{ name: "Esmeralda", hex: "#50C878", salesQuantity: "500" },
+		{ name: "Esmeralda", hex: "#50C878", salesQuantity: "2 mil" },
 		{ name: "Safira", hex: "#0F52BA", salesQuantity: "500" },
 		{ name: "Rubi", hex: "#E0115F", salesQuantity: "5 mil" },
 		{ name: "Ametista", hex: "#9966CC", salesQuantity: "5 mil" },
@@ -46,12 +46,12 @@ function VerifiedBadge({ partnerVerifiedBadge }: IVerifiedBadgeProps) {
 								}}
 								size={18}
 							/>
-							<span>{`Selo ${verifiedBadge?.name}`}</span>
+							<span>{`• Selo ${verifiedBadge?.name}`}</span>
 						</div>
 						<p className="ml-[25px]">
-							{`Loja com mais de ${verifiedBadge?.salesQuantity} vendas`}
+							{`• Mais de ${verifiedBadge?.salesQuantity} vendas`}
 						</p>
-						<p className="ml-[25px]">Conta verificada</p>
+						<p className="ml-[25px]">• Conta verificada</p>
 					</div>
 				</div>
 			</div>

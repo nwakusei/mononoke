@@ -145,6 +145,7 @@ const createProductFormSchema = z
 				}
 			),
 		category: z.string().min(1, "※ A categoria do produto é obrigatória!"),
+		adultProduct: z.string().min(1, "※ item obrigatório!"),
 		productVariations: z
 			.array(
 				z.object({
@@ -1236,40 +1237,88 @@ function CreateProductPage() {
 										</div>
 									</label>
 
-									<label className="form-control">
-										<div className="label">
-											<span className="label-text text-black">
-												Categoria do Produto
-											</span>
-										</div>
-										<select
-											className={`select ${
-												errors.category
-													? `select-error`
-													: `select-success`
-											} w-full`}
-											{...register("category")}>
-											<option disabled selected value="">
-												Escolha a categoria do Produto
-											</option>
-											<option>Impresso</option>
-											<option>Figure</option>
-											<option>Game</option>
-											<option>CD/DVD</option>
-											<option>Vestuário</option>
-											<option>Acessório</option>
-											<option>TCG (Card Game)</option>
-											<option>Papelaria</option>
-											<option>Óculos</option>
-										</select>
-										<div className="label -mt-1">
-											{errors.category && (
-												<span className="label-text-alt text-red-500">
-													{errors.category.message}
+									<div className="flex flex-col gap-2">
+										<label className="form-control">
+											<div className="label">
+												<span className="label-text text-black">
+													Categoria do Produto
 												</span>
+											</div>
+											<select
+												className={`select ${
+													errors.category
+														? `select-error`
+														: `select-success`
+												} w-full`}
+												{...register("category")}>
+												<option
+													disabled
+													selected
+													value="">
+													Escolha a categoria do
+													Produto
+												</option>
+												<option>Impresso</option>
+												<option>Figure</option>
+												<option>Game</option>
+												<option>CD/DVD</option>
+												<option>Vestuário</option>
+												<option>Acessório</option>
+												<option>TCG (Card Game)</option>
+												<option>Papelaria</option>
+												<option>Óculos</option>
+											</select>
+											<div className="label -mt-1">
+												{errors.category && (
+													<span className="label-text-alt text-red-500">
+														{
+															errors.category
+																.message
+														}
+													</span>
+												)}
+											</div>
+										</label>
+
+										<label className="form-control w-full max-w-3xl">
+											<div className="label">
+												<span className="label-text text-black">
+													É um produto adulto?
+												</span>
+											</div>
+
+											<select
+												className={`select ${
+													errors.adultProduct
+														? `select-error`
+														: `select-success`
+												}  w-full max-w-xs`}
+												{...register("adultProduct")}>
+												<option
+													disabled
+													selected
+													value="">
+													Selecione uma opção
+												</option>
+												<option value="false">
+													Não
+												</option>
+												<option value="true">
+													Sim
+												</option>
+											</select>
+											{errors.adultProduct && (
+												<div className="label">
+													<span className="label-text-alt text-red-500">
+														{
+															errors.adultProduct
+																.message
+														}
+													</span>
+												</div>
 											)}
-										</div>
-									</label>
+										</label>
+									</div>
 								</div>
 							</div>
 						</div>

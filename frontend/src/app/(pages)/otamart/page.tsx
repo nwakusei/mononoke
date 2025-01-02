@@ -35,16 +35,59 @@ function OtamartPage() {
 	const [rCategory, setRcategory] = useState([]);
 	const [noResults, setNoResults] = useState(false); // Nova variável de estado
 
+	const [user, setUser] = useState(null); // Inicializa como null
+	const [token] = useState(() => localStorage.getItem("token") || "");
+
 	const categories = [
 		...new Set(products.map((product) => product.category)),
 	];
 
+	// LÓGICA INICIAL DE BUSCA DE PRODUTOS
+	// useEffect(() => {
+	// 	api.get("/products/").then((response) => {
+	// 		setProducts(response.data.products);
+	// 		setIsLoading(false);
+	// 	});
+	// }, []);
+
 	useEffect(() => {
-		api.get("/products/").then((response) => {
-			setProducts(response.data.products);
-			setIsLoading(false);
-		});
-	}, []);
+		const fetchData = async () => {
+			try {
+				// Faz o lookup para obter o ID correspondente à slug
+				const productPromise = await api.get(`/products/`);
+
+				// Busca os dados do usuário, se o token estiver presente
+				const userPromise = token
+					? api.get("/otakuprime/check-user", {
+							headers: {
+								Authorization: `Bearer ${JSON.parse(token)}`,
+							},
+					  })
+					: Promise.resolve({ data: null }); // Se não estiver logado, retorna uma resposta "vazia" para o usuário
+
+				// Aguarda todas as promessas
+				const [productResponse, userResponse] = await Promise.all([
+					productPromise,
+					userPromise,
+				]);
+
+				// Atualiza os estados com os dados obtidos
+				setProducts(productResponse.data.products);
+
+				// Se o usuário estiver logado, atualiza os dados do usuário
+				if (userResponse.data) {
+					setUser(userResponse.data);
+				}
+			} catch (error) {
+				console.error("Error fetching data:", error);
+			} finally {
+				setIsLoading(false); // Encerra o estado de carregamento
+			}
+		};
+
+		setIsLoading(true); // Ativa o estado de carregamento antes de iniciar a busca
+		fetchData();
+	}, [token]); // A dependência de `token` garante que a lógica seja reavaliada se o token mudar
 
 	const handleSearch = async () => {
 		// Verifica se há texto na pesquisa antes de fazer a requisição
@@ -202,6 +245,7 @@ function OtamartPage() {
 							return (
 								<ProductAdCard
 									key={categoryProduct._id}
+									viewAdultContent={user?.viewAdultContent}
 									product={categoryProduct}
 									freeShipping={categoryProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${categoryProduct.imagesProduct[0]}`}
@@ -241,6 +285,7 @@ function OtamartPage() {
 							return (
 								<ProductAdCard
 									key={`returned-${returnedProduct._id}`}
+									viewAdultContent={user?.viewAdultContent}
 									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
@@ -279,6 +324,7 @@ function OtamartPage() {
 							return (
 								<ProductAdCard
 									key={`product-${product._id}`}
+									viewAdultContent={user?.viewAdultContent}
 									product={product}
 									freeShipping={product.freeShipping}
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}

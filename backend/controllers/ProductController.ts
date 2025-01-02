@@ -31,6 +31,7 @@ class ProductController {
 			daysShipping,
 			freeShipping,
 			freeShippingRegion,
+			adultProduct,
 		} = req.body;
 
 		console.log(productVariations);
@@ -245,16 +246,18 @@ class ProductController {
 			return;
 		}
 
-		if (!freeShipping) {
-			res.status(422).json({
-				message: "Informe se o produto possui frete grátis!",
-			});
-			return;
-		}
+		adultProduct;
 
 		if (!imagesProduct || imagesProduct.length === 0) {
 			// Validação de Imagem
 			res.status(422).json({ message: "A imagem é obrigatória!" });
+			return;
+		}
+
+		if (!adultProduct) {
+			res.status(422).json({
+				message: "Informe se é um produto adulto!",
+			});
 			return;
 		}
 
@@ -359,6 +362,7 @@ class ProductController {
 			daysShipping: daysShipping,
 			freeShipping: freeShipping,
 			freeShippingRegion: freeShippingRegion,
+			adultProduct: adultProduct,
 			imagesProduct: [],
 			productsSold: 0,
 			rating: 0,

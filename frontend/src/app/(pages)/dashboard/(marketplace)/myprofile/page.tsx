@@ -155,6 +155,7 @@ const updateUserFormSchema = z
 						"※ A descrição precisa ter entre 100 e 150 caracteres!",
 				}
 			),
+		viewAdultContent: z.string().min(1, "※ item obrigatório!"),
 		street: z
 			.string()
 			.min(1, "※ Digite o nome da rua e o número!")
@@ -760,7 +761,7 @@ function MyProfilePage() {
 								</div>
 								<div className="flex flex-row gap-4">
 									{/* Nickname */}
-									<label className="form-control w-[300px]">
+									<label className="form-control">
 										<div className="label">
 											<span className="label-text text-black">
 												Nickname
@@ -776,7 +777,7 @@ function MyProfilePage() {
 												errors.nickname
 													? `input-error`
 													: `input-success`
-											} w-full max-w-3xl`}
+											} w-[300px]`}
 											{...register("nickname")}
 										/>
 										<div className="label">
@@ -810,7 +811,7 @@ function MyProfilePage() {
 												errors.email
 													? `input-error`
 													: `input-success`
-											} w-full max-w-3xl`}
+											} w-[500px]`}
 											{...register("email")}
 										/>
 										<div className="label">
@@ -822,6 +823,42 @@ function MyProfilePage() {
 												)}
 											</span>
 										</div>
+									</label>
+
+									{/* Ver conteúdo adulto? */}
+									<label className="form-control w-full max-w-3xl">
+										<div className="label">
+											<span className="label-text text-black">
+												Ver conteúdo adulto?
+											</span>
+										</div>
+
+										<select
+											className={`select ${
+												errors.viewAdultContent
+													? `select-error`
+													: `select-success`
+											}  w-full max-w-xs`}
+											defaultValue={
+												user?.viewAdultContent || ""
+											}
+											{...register("viewAdultContent")}>
+											<option disabled selected value="">
+												Selecione uma opção
+											</option>
+											<option value="false">Não</option>
+											<option value="true">Sim</option>
+										</select>
+										{errors.viewAdultContent && (
+											<div className="label">
+												<span className="label-text-alt text-red-500">
+													{
+														errors.viewAdultContent
+															.message
+													}
+												</span>
+											</div>
+										)}
 									</label>
 								</div>
 

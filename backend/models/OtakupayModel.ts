@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOtakuPayCustomer {
+	accountStatus: string;
 	accountType: string;
 	name: string;
 	email: string;
@@ -18,6 +19,10 @@ interface IOtakuPayCustomer {
 // Schema que corresponda a Interface.
 const OtakupaySchema = new Schema<IOtakuPayCustomer>(
 	{
+		accountStatus: {
+			type: String,
+			required: false,
+		},
 		accountType: {
 			type: String,
 		},

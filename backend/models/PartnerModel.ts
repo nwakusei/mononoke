@@ -17,9 +17,10 @@ interface IShippingConfig {
 
 // Interface tipando os dados que irão no Banco de Dados.
 interface IPartner {
+	accountStatus: string;
+	accountType: string;
 	profileImage: string;
 	logoImage: string;
-	accountType: string;
 	name: string;
 	nickname: string;
 	verifiedBadge: string;
@@ -34,23 +35,27 @@ interface IPartner {
 	rating: number;
 	totalProducts: number;
 	productsSold: number;
-	accountStatus: string;
+	viewAdultContent: boolean;
 	otakupayID: mongoose.Schema.Types.ObjectId;
 }
 
 // Schema que corresponda a Interface.
 const partnerSchema = new Schema<IPartner>(
 	{
+		accountStatus: {
+			type: String,
+			required: false,
+		},
+		accountType: {
+			type: String,
+		},
 		profileImage: {
 			type: String,
 		},
 		logoImage: {
 			type: String,
 		},
-		accountType: {
-			type: String,
-			required: true,
-		},
+
 		name: {
 			type: String,
 			requered: true,
@@ -88,7 +93,7 @@ const partnerSchema = new Schema<IPartner>(
 		},
 		cashback: {
 			type: Number,
-			required: true,
+			required: false,
 		},
 		followers: {
 			type: Number,
@@ -102,8 +107,8 @@ const partnerSchema = new Schema<IPartner>(
 		productsSold: {
 			type: Number,
 		},
-		accountStatus: {
-			type: String,
+		viewAdultContent: {
+			type: Boolean,
 		},
 		otakupayID: {
 			type: mongoose.Schema.Types.ObjectId,
