@@ -37,3 +37,33 @@
 .button:hover .text-following {
 	opacity: 1; /* Torna o texto "Deixar de seguir" visível quando o botão é hover */
 }
+
+.chat-box {
+	background-color: #ffffff;
+	position: fixed;
+	bottom: 50px;
+	right: 5px;
+	width: 400px;
+	height: 500px;
+	padding: 16px;
+	border-radius: 8px;
+	box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.chat-messages {
+	overflow-y: auto;
+	height: 300px;
+}
+
+.message {
+	padding: 8px;
+	margin-bottom: 4px;
+	background-color: #f1f1f1;
+	border-radius: 5px;
+}

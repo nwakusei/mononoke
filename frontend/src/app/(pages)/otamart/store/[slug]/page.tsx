@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useParams } from "next/navigation";
 import api from "@/utils/api";
 import Image from "next/image";
@@ -12,7 +12,7 @@ import "./storeId.css";
 import { Context } from "@/context/UserContext";
 
 // Icons
-import { Peoples } from "@icon-park/react";
+import { Peoples, Send, SendOne } from "@icon-park/react";
 import {
 	BsStar,
 	BsBagHeart,
@@ -23,6 +23,9 @@ import {
 } from "react-icons/bs";
 import { CgBox } from "react-icons/cg";
 import { FiInfo } from "react-icons/fi";
+
+import { BsHeadset } from "react-icons/bs";
+import { IoCloseSharp } from "react-icons/io5";
 
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
@@ -45,9 +48,15 @@ function StorePage() {
 	const [token] = useState(() => localStorage.getItem("token") || "");
 
 	const [buttonLoading, setbuttonLoading] = useState(false);
+	const [sendButtonLoading, setSendButtonLoading] = useState(false);
 	const [followedStores, setFollowedStores] = useState([]);
 
 	const [partner, setPartner] = useState({});
+
+	const [isChatOpen, setIsChatOpen] = useState(false); // Estado para controlar a visibilidade do chat
+
+	const [viewChat, setViewChat] = useState({});
+	const [message, setMessage] = useState("");
 
 	useEffect(() => {
 		// Verifica se `slug` já foi definido.
@@ -80,19 +89,35 @@ function StorePage() {
 					  })
 					: Promise.resolve({ data: null }); // Se não estiver logado, retorna uma resposta "vazia" para o usuário
 
-				// Busca os produtos e os cupons simultaneamente
-				const [productsResponse, couponsResponse, userResponse] =
-					await Promise.all([
-						api.get(
-							`/products/getall-products-store/${foundPartner._id}`
-						),
-						api.get(`/coupons/store-coupons/${foundPartner._id}`),
-						userPromise,
-					]);
+				// Busca os produtos, cupons, usuário e chat simultaneamente
+				const [
+					productsResponse,
+					couponsResponse,
+					userResponse,
+					chatResponse,
+				] = await Promise.all([
+					api.get(
+						`/products/getall-products-store/${foundPartner._id}`
+					),
+					api.get(`/coupons/store-coupons/${foundPartner._id}`),
+					userPromise,
+					api
+						.get(`/chats/get-chat-by-user/${foundPartner._id}`)
+						.catch((error) => {
+							if (
+								error.response &&
+								error.response.status === 404
+							) {
+								return { data: { chatFromClientToStore: {} } }; // Retorna um objeto vazio caso o chat não exista
+							}
+							throw error; // Caso seja outro erro, lança novamente
+						}),
+				]);
 
 				// Atualiza os estados com os dados obtidos
 				setProducts(productsResponse.data.products);
 				setCoupons(couponsResponse.data.coupons);
+				setViewChat(chatResponse.data.chatFromClientToStore);
 
 				// Se o usuário estiver logado, atualiza os dados do usuário
 				if (userResponse.data) {
@@ -108,7 +133,36 @@ function StorePage() {
 		setIsLoading(true); // Ativa o estado de carregamento antes de iniciar a busca
 		fetchData();
 	}, [slug, partners, token]);
-	// Dependências adequadas: `id` e `partners`.
+
+	useEffect(() => {
+		if (isChatOpen) {
+			// Garante que o scroll vá para o final quando o chat for aberto
+			const chatMessagesContainer =
+				document.querySelector(".chat-messages");
+			if (chatMessagesContainer) {
+				// Move o scroll para o final, sem inverter as mensagens
+				chatMessagesContainer.scrollTop =
+					chatMessagesContainer.scrollHeight;
+			}
+		}
+	}, [isChatOpen, viewChat?.messages]);
+
+	// FUNCIONOU EM PARTES
+	// useEffect(() => {
+	// 	if (isChatOpen) {
+	// 		// Garante que o scroll vá para o final quando o chat for aberto
+	// 		const chatMessagesContainer =
+	// 			document.querySelector(".chat-messages");
+	// 		if (chatMessagesContainer) {
+	// 			chatMessagesContainer.scrollTop =
+	// 				chatMessagesContainer.scrollHeight;
+	// 		}
+	// 	}
+	// }, [isChatOpen, viewChat]);
+
+	const toggleChat = () => {
+		setIsChatOpen((prev) => !prev); // Alterna entre aberto e fechado
+	};
 
 	const rating =
 		partner?.rating > 0
@@ -249,6 +303,29 @@ function StorePage() {
 		}
 	};
 
+	async function handleSendMessage(userTwoID, message) {
+		if (!message.trim()) {
+			return; // Se a mensagem estiver vazia, não envia
+		}
+
+		setSendButtonLoading(true);
+
+		try {
+			const response = await api.post("/chats/send-message", {
+				userTwoID,
+				message,
+			});
+
+			// Limpa o campo de mensagem
+			setMessage("");
+			setViewChat(response.data.chatFromClientToStore);
+		} catch (error) {
+			console.error("Erro ao enviar a mensagem:", error);
+		} finally {
+			setSendButtonLoading(false);
+		}
+	}
+
 	if (isLoading) {
 		return <LoadingPage />;
 	}
@@ -272,7 +349,7 @@ function StorePage() {
 						{buttonLoading ? (
 							<button
 								disabled
-								className="button bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+								className="button w-[300px] h-[50px] bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
 								<span className="loading loading-spinner loading-md"></span>
 							</button>
 						) : followedStores?.some(
@@ -495,6 +572,109 @@ function StorePage() {
 						})
 					)}
 				</div>
+
+				{/* CAIXA DE CHAT */}
+				{isChatOpen && (
+					<div className="flex flex-col justify-between chat-box fixed bottom-16 right-5 bg-white shadow-lg p-4 rounded-md border border-gray-300 z-40 ">
+						<div className="chat-header flex justify-between items-center">
+							<h2 className="text-xl font-semibold">Chat</h2>
+
+							<IoCloseSharp
+								className="cursor-pointer"
+								onClick={toggleChat}
+								size={30}
+							/>
+						</div>
+						{viewChat &&
+						Array.isArray(viewChat.messages) &&
+						viewChat.messages.length > 0 ? (
+							<div
+								key={viewChat._id}
+								className="chat-messages overflow-y-auto flex-1 mb-4">
+								{/* Exemplo de mensagens */}
+								{viewChat.messages.map((message, index) => (
+									<div
+										key={index}
+										className={`chat ${
+											message.senderID === user?._id
+												? "chat-start"
+												: "chat-end"
+										} mr-2`}>
+										<div className="chat-image avatar">
+											<div className="w-10 rounded-full">
+												<img
+													alt="Tailwind CSS chat bubble component"
+													src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+												/>
+											</div>
+										</div>
+										<div className="chat-header flex flex-row items-center gap-2">
+											{message.senderID === user?._id
+												? user?.name
+												: partner?.name}
+											<time className="text-xs opacity-50">
+												12:45hs
+											</time>
+										</div>
+										<div className="chat-bubble">
+											{message.message}
+										</div>
+										<div className="chat-footer opacity-50">
+											Enviado
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<></>
+						)}
+
+						<div>
+							{/* <input
+								type="text"
+								placeholder="Digite uma mensagem..."
+								className="textarea w-full h-[80px] rounded-md p-2 mt-2"
+								value={message}
+								onChange={(e) => setMessage(e.target.value)}
+							/> */}
+							<textarea
+								className="textarea w-full h-[80px] mt-2"
+								placeholder="Digite a mensagem..."
+								value={message}
+								onChange={(e) =>
+									setMessage(e.target.value)
+								}></textarea>
+							{sendButtonLoading ? (
+								<button
+									disabled
+									className="bg-blue-500 w-[100px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2">
+									<span className="loading loading-dots loading-sm"></span>
+								</button>
+							) : (
+								<button
+									onClick={() =>
+										handleSendMessage(partner._id, message)
+									}
+									className="flex flex-row justify-center items-center gap-2 bg-blue-500 w-[100px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2">
+									<SendOne
+										className="cursor-pointer"
+										size={20}
+									/>
+									<span>Enviar</span>
+								</button>
+							)}
+						</div>
+					</div>
+				)}
+
+				{/* BOTÃO DO CHAT */}
+				{!isChatOpen && (
+					<button
+						onClick={toggleChat}
+						className="btn btn-primary w-[70px] h-[70px] rounded-full fixed bottom-5 right-5 shadow-md z-50">
+						<BsHeadset size={25} />
+					</button>
+				)}
 			</div>
 		</section>
 	);

@@ -128,8 +128,6 @@ function ProductAdCard({
 	// 	);
 	// };
 
-	console.log("VER CONTEÚDO ADULTO", viewAdultContent);
-
 	const discountPercentage = calculateDiscountPercentage(product);
 
 	// Função para renderizar os ícones de classificação com base no rating

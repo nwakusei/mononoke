@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -7,10 +8,6 @@ import Image from "next/image";
 import { Sidebar } from "@/components/Sidebar";
 
 // Imagens e Logos
-import Otakuyasan from "../../../../../public/otakuyasan.png";
-import Otakuyasan2 from "../../../../../public/otakuyasan2.png";
-import Amora from "../../../../../public/amora.jpg";
-import MundosInfinitos from "../../../../../public/mundos-infinitos.png";
 
 // Icons
 import {
@@ -327,7 +324,7 @@ function ChatPage() {
 							<div className="flex flex-row gap-2 mt-2">
 								<button
 									onClick={handleSendMessage}
-									className="btn btn-primary flex justify-center items-center">
+									className="btn btn-primary w-[100px] flex justify-center items-center">
 									<Send
 										className="cursor-pointer"
 										size={25}
@@ -336,7 +333,7 @@ function ChatPage() {
 								{/* Botão "use client" */}
 								<button
 									onClick={handleUseClientButtonClick}
-									className="btn btn-primary">
+									className="btn btn-primary w-[100px]">
 									<IoImageOutline size={25} />
 								</button>
 								{/* Input file oculto */}

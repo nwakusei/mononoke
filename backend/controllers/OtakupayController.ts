@@ -1089,7 +1089,7 @@ class OtakupayController {
 						const order = new OrderModel({
 							orderID: new ObjectId().toHexString().toUpperCase(),
 							statusOrder: "Confirmado",
-							paymentMethod: "OtakuPay: Saldo em conta",
+							paymentMethod: "Saldo em conta",
 							shippingCostTotal: vlrFrete,
 							customerOrderCostTotal: partnerOrderCostTotal,
 							partnerCommissionOtamart:
@@ -2447,8 +2447,7 @@ class OtakupayController {
 						const order = new OrderModel({
 							orderID: new ObjectId().toHexString().toUpperCase(),
 							statusOrder: "Confirmado",
-							paymentMethod:
-								"OtakuPay: Pagamento em Cartão de Crédito",
+							paymentMethod: "Cartão de Crédito",
 							shippingCostTotal: vlrFrete,
 							customerOrderCostTotal: partnerOrderCostTotal,
 							partnerCommissionOtamart:
@@ -4212,8 +4211,7 @@ class OtakupayController {
 														.toHexString()
 														.toUpperCase(),
 													statusOrder: "Confirmado",
-													paymentMethod:
-														"OtakuPay: Pagamento via Pix",
+													paymentMethod: "Pix",
 													shippingCostTotal: vlrFrete,
 													customerOrderCostTotal:
 														partnerOrderCostTotal,

@@ -57,7 +57,7 @@ function CashbackCard({
 					<button
 						onClick={handleclick}
 						className="btn btn-primary w-full shadow-md">
-						Acessar
+						Acessar Loja
 					</button>
 				)}
 			</div>
