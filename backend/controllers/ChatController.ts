@@ -11,6 +11,13 @@ class ChatController {
 	static async sendMessageByChat(req: Request, res: Response): Promise<void> {
 		const { userTwoID, message } = req.body;
 
+		// Upload de Imagens
+		let imageMessage = "";
+
+		if (req.file) {
+			imageMessage = req.file.filename;
+		}
+
 		const token: any = getToken(req);
 		const user = await getUserByToken(token);
 
@@ -22,6 +29,11 @@ class ChatController {
 		const userOneID = user._id.toString();
 
 		try {
+			const messageContent =
+				message === undefined || message === ""
+					? imageMessage
+					: message;
+
 			// Verificar se o chat do cliente para a loja já existe
 			let chatFromClientToStore = await ChatModel.findOne({
 				userOneID: userOneID,
@@ -42,7 +54,7 @@ class ChatController {
 					messages: [
 						{
 							senderID: userOneID,
-							message: message,
+							message: messageContent,
 							timestamp: new Date(),
 						},
 					],
@@ -53,7 +65,7 @@ class ChatController {
 				// Adicionar mensagem ao chat existente
 				chatFromClientToStore.messages.push({
 					senderID: userOneID,
-					message: message,
+					message: messageContent,
 					timestamp: new Date(),
 				});
 
@@ -68,7 +80,7 @@ class ChatController {
 					messages: [
 						{
 							senderID: userOneID,
-							message: message,
+							message: messageContent,
 							timestamp: new Date(),
 						},
 					],
@@ -79,7 +91,7 @@ class ChatController {
 				// Adicionar mensagem ao chat existente
 				chatFromStoreToClient.messages.push({
 					senderID: userOneID,
-					message: message,
+					message: messageContent,
 					timestamp: new Date(),
 				});
 

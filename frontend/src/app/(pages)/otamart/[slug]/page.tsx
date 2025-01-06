@@ -1317,6 +1317,9 @@ function ProductPage() {
 										return (
 											<ProductAdCard
 												key={recommendedProduct._id}
+												viewAdultContent={
+													user?.viewAdultContent
+												}
 												product={recommendedProduct}
 												freeShipping={
 													recommendedProduct.freeShipping

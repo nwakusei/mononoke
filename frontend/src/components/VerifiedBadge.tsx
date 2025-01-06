@@ -7,15 +7,24 @@ interface IVerifiedBadgeProps {
 
 function VerifiedBadge({ partnerVerifiedBadge }: IVerifiedBadgeProps) {
 	const badges = [
-		{ name: "Bronze", hex: "#CD7F32", salesQuantity: "500" },
-		{ name: "Prata", hex: "#C0C0C0", salesQuantity: "700" },
-		{ name: "Dourado", hex: "#daa520", salesQuantity: "1000" },
-		{ name: "Pérola", hex: "#EAE0C8", salesQuantity: "500" },
-		{ name: "Obsidiana", hex: "#0B0B0B", salesQuantity: "500" },
-		{ name: "Esmeralda", hex: "#50C878", salesQuantity: "2 mil" },
-		{ name: "Safira", hex: "#0F52BA", salesQuantity: "500" },
-		{ name: "Rubi", hex: "#E0115F", salesQuantity: "5 mil" },
-		{ name: "Ametista", hex: "#9966CC", salesQuantity: "5 mil" },
+		{ name: "Azul", hex: "#2196f3", salesQuantity: "500" },
+		{ name: "Bronze", hex: "#CD7F32", salesQuantity: "1 mil" },
+		{ name: "Prata", hex: "#C0C0C0", salesQuantity: "2 mil" },
+		{ name: "Dourado", hex: "#daa520", salesQuantity: "5 mil" },
+		{ name: "Pérola", hex: "#EAE0C8", salesQuantity: "10 mil" },
+		{ name: "Morganita Clara", hex: "#F4C1C1", salesQuantity: "xx mil" },
+		{ name: "Morganita Médio", hex: "#F7A8B8", salesQuantity: "xx mil" },
+		{ name: "Morganita Pêssego", hex: "#F1C0A0", salesQuantity: "xx mil" },
+		{ name: "Peridoto", hex: "#A2D86B", salesQuantity: "xx mil" },
+		{ name: "Safira Laranja", hex: "#E65C00", salesQuantity: "xx mil" },
+		{ name: "Âmbar Médio", hex: "#FF9C33", salesQuantity: "xx mil" },
+		{ name: "Âmbar Escuro", hex: "#D9773B", salesQuantity: "xx mil" },
+		{ name: "Aquamarina", hex: "#7FB7D1", salesQuantity: "xx mil" },
+		{ name: "Obsidiana", hex: "#0B0B0B", salesQuantity: "20 mil" },
+		{ name: "Esmeralda", hex: "#00674f", salesQuantity: "30 mil" },
+		{ name: "Safira", hex: "#0F52BA", salesQuantity: "50 mil" },
+		{ name: "Rubi", hex: "#E0115F", salesQuantity: "75 mil" },
+		{ name: "Ametista", hex: "#4c1d95", salesQuantity: "100 mil" },
 	];
 
 	// Usando o código hexadecimal completo

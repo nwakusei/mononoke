@@ -22,6 +22,8 @@ const storageTypes: {
 				folder = "reviews";
 			} else if (req.baseUrl.includes("raffles")) {
 				folder = "raffles";
+			} else if (req.baseUrl.includes("chats")) {
+				folder = "chats";
 			}
 
 			cb(null, `public/images/${folder}`);

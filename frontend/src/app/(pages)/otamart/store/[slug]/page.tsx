@@ -12,7 +12,13 @@ import "./storeId.css";
 import { Context } from "@/context/UserContext";
 
 // Icons
-import { Peoples, Send, SendOne } from "@icon-park/react";
+import {
+	NewPicture,
+	AddPicture,
+	Peoples,
+	Send,
+	SendOne,
+} from "@icon-park/react";
 import {
 	BsStar,
 	BsBagHeart,
@@ -26,6 +32,7 @@ import { FiInfo } from "react-icons/fi";
 
 import { BsHeadset } from "react-icons/bs";
 import { IoCloseSharp } from "react-icons/io5";
+import { BsCheck2All, BsCheck2 } from "react-icons/bs";
 
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
@@ -57,6 +64,11 @@ function StorePage() {
 
 	const [viewChat, setViewChat] = useState({});
 	const [message, setMessage] = useState("");
+	const [imageMessage, setImageMessage] = useState<File | null>(null);
+	const isImage = (msg) => {
+		// Verifica se o sufixo da mensagem corresponde a uma imagem
+		return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(msg);
+	};
 
 	useEffect(() => {
 		// Verifica se `slug` já foi definido.
@@ -303,22 +315,35 @@ function StorePage() {
 		}
 	};
 
-	async function handleSendMessage(userTwoID, message) {
-		if (!message.trim()) {
-			return; // Se a mensagem estiver vazia, não envia
+	async function handleSendMessage(userTwoID, message, imageMessage) {
+		console.log("Imagem enviada:", imageMessage);
+
+		// if (!message.trim()) {
+		// 	return; // Se a mensagem estiver vazia, não envia
+		// }
+
+		// Cria um novo objeto FormData
+		const formData = new FormData();
+
+		// Adiciona os dados ao FormData
+		formData.append("userTwoID", userTwoID);
+		formData.append("message", message);
+
+		// Adiciona a imagem, se houver
+		if (imageMessage) {
+			formData.append("imageMessage", imageMessage);
 		}
 
 		setSendButtonLoading(true);
 
 		try {
-			const response = await api.post("/chats/send-message", {
-				userTwoID,
-				message,
-			});
+			// Faz a requisição POST com o FormData
+			const response = await api.post("/chats/send-message", formData);
 
 			// Limpa o campo de mensagem
 			setMessage("");
-			setViewChat(response.data.chatFromClientToStore);
+			setImageMessage(null); // Limpa a imagem, se houver
+			setViewChat(response.data.chatFromClientToStore); // Atualiza o chat
 		} catch (error) {
 			console.error("Erro ao enviar a mensagem:", error);
 		} finally {
@@ -370,7 +395,7 @@ function StorePage() {
 						) : (
 							<button
 								onClick={handleFollow}
-								className="w-[300px] h-[50px] bg-violet-950 transition-all ease-in duration-100 hover:bg-black text-white rounded-md shadow-md flex items-center justify-center">
+								className="w-[300px] h-[50px] bg-violet-900 transition-all ease-in duration-100 hover:bg-black text-white rounded-md shadow-md flex items-center justify-center">
 								Seguir Loja
 							</button>
 						)}
@@ -576,21 +601,41 @@ function StorePage() {
 				{/* CAIXA DE CHAT */}
 				{isChatOpen && (
 					<div className="flex flex-col justify-between chat-box fixed bottom-16 right-5 bg-white shadow-lg p-4 rounded-md border border-gray-300 z-40 ">
-						<div className="chat-header flex justify-between items-center">
-							<h2 className="text-xl font-semibold">Chat</h2>
-
-							<IoCloseSharp
-								className="cursor-pointer"
-								onClick={toggleChat}
-								size={30}
-							/>
+						<div className="chat-header w-full bg-primary flex flex-row items-center rounded-t-md">
+							<div className="flex flex-row items-center gap-2 pl-[16px] py-[8px]">
+								<div className="chat-image avatar">
+									<div className="w-10 rounded-full">
+										<Image
+											className="object-contain w-full h-full pointer-events-none"
+											src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
+											alt="Logo Shop"
+											width={300}
+											height={150}
+											unoptimized
+										/>
+									</div>
+								</div>
+								<div className="flex flex-col">
+									<h2 className="text-xl font-semibold -mb-1">
+										{partner?.name}
+									</h2>
+									<h3 className="text-sm">Online</h3>
+								</div>
+							</div>
+							<div className="pr-[16px]">
+								<IoCloseSharp
+									className="cursor-pointer"
+									onClick={toggleChat}
+									size={30}
+								/>
+							</div>
 						</div>
 						{viewChat &&
 						Array.isArray(viewChat.messages) &&
 						viewChat.messages.length > 0 ? (
 							<div
 								key={viewChat._id}
-								className="chat-messages overflow-y-auto flex-1 mb-4">
+								className="chat-messages overflow-y-auto flex-1">
 								{/* Exemplo de mensagens */}
 								{viewChat.messages.map((message, index) => (
 									<div
@@ -602,25 +647,67 @@ function StorePage() {
 										} mr-2`}>
 										<div className="chat-image avatar">
 											<div className="w-10 rounded-full">
-												<img
-													alt="Tailwind CSS chat bubble component"
-													src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-												/>
+												{message.senderID ===
+												user?._id ? (
+													<Image
+														className="object-contain w-full h-full pointer-events-none"
+														src={`http://localhost:5000/images/customers/${user?.profileImage}`}
+														alt="Logo Shop"
+														width={300}
+														height={150}
+														unoptimized
+													/>
+												) : (
+													<Image
+														className="object-contain w-full h-full pointer-events-none"
+														src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
+														alt="Logo Shop"
+														width={300}
+														height={150}
+														unoptimized
+													/>
+												)}
 											</div>
 										</div>
 										<div className="chat-header flex flex-row items-center gap-2">
-											{message.senderID === user?._id
-												? user?.name
-												: partner?.name}
-											<time className="text-xs opacity-50">
-												12:45hs
+											<span className="mb-1">
+												{message.senderID === user?._id
+													? user?.nickname
+													: partner?.nickname}
+											</span>
+											<time className="text-xs opacity-50 mt-1 mb-1">
+												{`${new Intl.DateTimeFormat(
+													"pt-BR",
+													{
+														hour: "2-digit",
+														minute: "2-digit",
+													}
+												).format(
+													new Date(message.timestamp)
+												)} hs`}
 											</time>
 										</div>
-										<div className="chat-bubble">
-											{message.message}
-										</div>
-										<div className="chat-footer opacity-50">
-											Enviado
+										{isImage(message.message) ? (
+											<Image
+												className="object-contain w-[120px] pointer-events-none rounded shadow-md"
+												src={`http://localhost:5000/images/chats/${message.message}`}
+												alt="Logo Shop"
+												width={300}
+												height={150}
+												unoptimized
+											/>
+										) : (
+											<div className="chat-bubble">
+												{message.message}
+											</div>
+										)}
+
+										<div className="chat-footer opacity-50 flex flex-row gap-1">
+											<span className="text-xs">
+												Entregue
+											</span>
+											<BsCheck2 size={16} />
+											<BsCheck2All size={16} />
 										</div>
 									</div>
 								))}
@@ -629,14 +716,40 @@ function StorePage() {
 							<></>
 						)}
 
-						<div>
-							{/* <input
-								type="text"
-								placeholder="Digite uma mensagem..."
-								className="textarea w-full h-[80px] rounded-md p-2 mt-2"
-								value={message}
-								onChange={(e) => setMessage(e.target.value)}
-							/> */}
+						<form
+							onSubmit={(e) => {
+								e.preventDefault();
+								handleSendMessage(
+									partner._id,
+									message,
+									imageMessage
+								);
+							}}
+							className="px-[16px] pb-[16px]">
+							{imageMessage && (
+								<>
+									<hr />
+									<div className="flex mt-[4px] relative gap-1">
+										<img
+											src={URL.createObjectURL(
+												imageMessage
+											)} // Gera um URL temporário para a imagem
+											alt="Imagem Selecionada"
+											className="w-[40px] object-cover rounded-sm shadow-md"
+										/>
+										{/* Botão de close */}
+										<button
+											onClick={() =>
+												setImageMessage(null)
+											} // Limpa a imagem
+											className="text-white"
+											aria-label="Close">
+											×
+										</button>
+									</div>
+								</>
+							)}
+
 							<textarea
 								className="textarea w-full h-[80px] mt-2"
 								placeholder="Digite a mensagem..."
@@ -644,35 +757,53 @@ function StorePage() {
 								onChange={(e) =>
 									setMessage(e.target.value)
 								}></textarea>
-							{sendButtonLoading ? (
-								<button
-									disabled
-									className="bg-blue-500 w-[100px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2">
-									<span className="loading loading-dots loading-sm"></span>
-								</button>
-							) : (
-								<button
-									onClick={() =>
-										handleSendMessage(partner._id, message)
-									}
-									className="flex flex-row justify-center items-center gap-2 bg-blue-500 w-[100px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2">
-									<SendOne
-										className="cursor-pointer"
-										size={20}
+
+							<div className="flex flex-row items-center gap-2">
+								<div className="bg-blue-500 flex flex-col justify-center items-center w-[40px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2 relative">
+									{/* <AddPicture size={20} /> */}
+									<NewPicture size={20} />
+									<input
+										type="file"
+										accept="image/*"
+										onChange={(e) =>
+											setImageMessage(e.target.files[0])
+										}
+										className="absolute top-0 left-0 w-full h-full cursor-pointer opacity-0"
 									/>
-									<span>Enviar</span>
-								</button>
-							)}
-						</div>
+								</div>
+
+								{sendButtonLoading ? (
+									<button
+										disabled
+										className="bg-blue-500 w-[100px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2">
+										<span className="loading loading-dots loading-sm"></span>
+									</button>
+								) : (
+									<button className="flex flex-row justify-center items-center gap-2 bg-blue-500 w-[100px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded-md shadow-md mt-2">
+										<SendOne
+											className="cursor-pointer"
+											size={20}
+										/>
+										<span>Enviar</span>
+									</button>
+								)}
+							</div>
+						</form>
 					</div>
 				)}
 
 				{/* BOTÃO DO CHAT */}
-				{!isChatOpen && (
+				{!isChatOpen ? (
 					<button
 						onClick={toggleChat}
-						className="btn btn-primary w-[70px] h-[70px] rounded-full fixed bottom-5 right-5 shadow-md z-50">
+						className="btn btn-primary w-[60px] h-[60px] rounded-full fixed bottom-5 right-5 shadow-md z-50">
 						<BsHeadset size={25} />
+					</button>
+				) : (
+					<button
+						onClick={toggleChat}
+						className="btn btn-primary w-[60px] h-[60px] rounded-full fixed bottom-5 right-5 shadow-md z-50">
+						<IoCloseSharp className="cursor-pointer" size={30} />
 					</button>
 				)}
 			</div>

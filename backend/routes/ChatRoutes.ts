@@ -7,7 +7,12 @@ const router = Router();
 import verifyToken from "../helpers/verify-token";
 import { imageUpload } from "../helpers/image-upload";
 
-router.post("/send-message", verifyToken, ChatController.sendMessageByChat);
+router.post(
+	"/send-message",
+	verifyToken,
+	imageUpload.single("imageMessage"),
+	ChatController.sendMessageByChat
+);
 router.get(
 	"/get-chat-by-user/:id",
 	verifyToken,
