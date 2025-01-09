@@ -14,9 +14,15 @@ router.post(
 	ChatController.sendMessageByChat
 );
 router.get(
-	"/get-chat-by-user/:id",
+	"/get-messages-by-user/:id",
 	verifyToken,
 	ChatController.getChatMessagesByUser
 );
+
+router.get("/get-chats-by-user", verifyToken, ChatController.getChatsByUser);
+
+router.get("/get-chat/:id", verifyToken, ChatController.getChatByID);
+
+router.post("/search-chat", verifyToken, ChatController.searchChat);
 
 export default router;

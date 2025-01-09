@@ -114,7 +114,7 @@ function StorePage() {
 					api.get(`/coupons/store-coupons/${foundPartner._id}`),
 					userPromise,
 					api
-						.get(`/chats/get-chat-by-user/${foundPartner._id}`)
+						.get(`/chats/get-messages-by-user/${foundPartner._id}`)
 						.catch((error) => {
 							if (
 								error.response &&
@@ -316,11 +316,9 @@ function StorePage() {
 	};
 
 	async function handleSendMessage(userTwoID, message, imageMessage) {
-		console.log("Imagem enviada:", imageMessage);
-
-		// if (!message.trim()) {
-		// 	return; // Se a mensagem estiver vazia, não envia
-		// }
+		if (!message.trim() && !imageMessage) {
+			return;
+		}
 
 		// Cria um novo objeto FormData
 		const formData = new FormData();
@@ -344,7 +342,8 @@ function StorePage() {
 			setMessage("");
 			setImageMessage(null); // Limpa a imagem, se houver
 			setViewChat(response.data.chatFromClientToStore); // Atualiza o chat
-		} catch (error) {
+		} catch (error: any) {
+			toast.error(error.response.data.message);
 			console.error("Erro ao enviar a mensagem:", error);
 		} finally {
 			setSendButtonLoading(false);
@@ -660,7 +659,7 @@ function StorePage() {
 												) : (
 													<Image
 														className="object-contain w-full h-full pointer-events-none"
-														src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
+														src={`http://localhost:5000/images/partners/${partner?.profileImage}`}
 														alt="Logo Shop"
 														width={300}
 														height={150}
@@ -702,13 +701,13 @@ function StorePage() {
 											</div>
 										)}
 
-										<div className="chat-footer opacity-50 flex flex-row gap-1">
+										{/* <div className="chat-footer opacity-50 flex flex-row gap-1">
 											<span className="text-xs">
 												Entregue
 											</span>
 											<BsCheck2 size={16} />
 											<BsCheck2All size={16} />
-										</div>
+										</div> */}
 									</div>
 								))}
 							</div>
@@ -759,8 +758,7 @@ function StorePage() {
 								}></textarea>
 
 							<div className="flex flex-row items-center gap-2">
-								<div className="bg-blue-500 flex flex-col justify-center items-center w-[40px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2 relative">
-									{/* <AddPicture size={20} /> */}
+								<label className="bg-blue-500 flex flex-col justify-center items-center w-[40px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded shadow-md mt-2 relative cursor-pointer">
 									<NewPicture size={20} />
 									<input
 										type="file"
@@ -768,9 +766,9 @@ function StorePage() {
 										onChange={(e) =>
 											setImageMessage(e.target.files[0])
 										}
-										className="absolute top-0 left-0 w-full h-full cursor-pointer opacity-0"
+										className="hidden"
 									/>
-								</div>
+								</label>
 
 								{sendButtonLoading ? (
 									<button

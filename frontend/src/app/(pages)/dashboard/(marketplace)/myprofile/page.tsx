@@ -369,14 +369,15 @@ import { FiInfo } from "react-icons/fi";
 function MyProfilePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
-	const [imagemSelecionadaProfile, setImagemSelecionadaProfile] =
-		useState("");
-	const [imagemSelecionadaLogo, setImagemSelecionadaLogo] = useState("");
+	const [selectedProfileImage, setSelectedProfileImage] = useState<
+		string | null
+	>(null);
+	const [selectedLogoImage, setSelectedLogoImage] = useState<string | null>(
+		null
+	);
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingButton, setLoadingButton] = useState(false);
 	const router = useRouter();
-
-	console.log(imagemSelecionadaLogo);
 
 	const {
 		register,
@@ -402,18 +403,18 @@ function MyProfilePage() {
 	useEffect(() => {
 		if (user) {
 			if (user.accountType === "partner") {
-				setImagemSelecionadaProfile(
+				setSelectedProfileImage(
 					user?.profileImage
 						? `http://localhost:5000/images/partners/${user.profileImage}`
 						: ""
 				);
-				setImagemSelecionadaLogo(
+				setSelectedLogoImage(
 					user?.logoImage
 						? `http://localhost:5000/images/partners/${user.logoImage}`
 						: ""
 				);
 			} else {
-				setImagemSelecionadaProfile(
+				setSelectedProfileImage(
 					user?.profileImage
 						? `http://localhost:5000/images/customers/${user.profileImage}`
 						: ""
@@ -422,7 +423,7 @@ function MyProfilePage() {
 		}
 	}, [user]); // Atualiza a imagem quando o usuário muda
 
-	const handleImagemSelecionada = (event, setImageFunction) => {
+	const handleSelectedImage = (event, setImageFunction) => {
 		const file = event.target.files[0];
 		if (file) {
 			const reader = new FileReader();
@@ -432,6 +433,8 @@ function MyProfilePage() {
 			reader.readAsDataURL(file);
 		}
 	};
+
+	handleSelectedImage;
 
 	// async function updateUser(data: TUpdateUserFormData) {
 	// 	console.log(data.profileImage);
@@ -840,10 +843,15 @@ function MyProfilePage() {
 													: `select-success`
 											}  w-full max-w-xs`}
 											defaultValue={
-												user?.viewAdultContent || ""
+												user?.viewAdultContent !==
+												undefined
+													? String(
+															user.viewAdultContent
+													  )
+													: ""
 											}
 											{...register("viewAdultContent")}>
-											<option disabled selected value="">
+											<option disabled value="">
 												Selecione uma opção
 											</option>
 											<option value="false">Não</option>
@@ -944,12 +952,12 @@ function MyProfilePage() {
 										</div>
 										<div
 											className={`text-black hover:text-white flex flex-col justify-center items-center w-[150px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-											{imagemSelecionadaProfile ? (
+											{selectedProfileImage ? (
 												<>
 													<Image
 														className="object-contain w-full h-full rounded"
 														src={
-															imagemSelecionadaProfile
+															selectedProfileImage
 														}
 														alt="Imagem selecionada"
 														width={150}
@@ -958,12 +966,13 @@ function MyProfilePage() {
 													/>
 													<button
 														type="button"
-														className="absolute top-1 right-1 bg-red-500 text-white p-1 w-8 h-8 rounded-md z-10"
-														onClick={() =>
-															setImagemSelecionadaProfile(
+														className="absolute top-1 right-1 bg-red-500 text-white p-1 w-8 h-8 rounded-md z-50"
+														onClick={(e) => {
+															e.preventDefault(); // Previne o comportamento padrão
+															setSelectedProfileImage(
 																null
-															)
-														}>
+															); // Limpa a imagem renderizada
+														}}>
 														X
 													</button>
 												</>
@@ -971,9 +980,9 @@ function MyProfilePage() {
 												<div
 													className="flex flex-col justify-center items-center"
 													onChange={(event) =>
-														handleImagemSelecionada(
+														handleSelectedImage(
 															event,
-															setImagemSelecionadaProfile
+															setSelectedProfileImage
 														)
 													}>
 													<h2 className="text-xs mb-2">
@@ -1017,11 +1026,11 @@ function MyProfilePage() {
 										</div>
 										<div
 											className={`text-black hover:text-white flex flex-col justify-center items-center w-[120px] h-[120px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-											{imagemSelecionadaProfile ? (
+											{selectedProfileImage ? (
 												<div className="relative w-full h-full">
 													<img
 														src={
-															imagemSelecionadaProfile
+															selectedProfileImage
 														}
 														alt="Imagem selecionada"
 														className="object-contain w-full h-full rounded"
@@ -1031,7 +1040,7 @@ function MyProfilePage() {
 														type="button"
 														className="absolute top-1 right-1 bg-red-500 text-white p-1 w-8 h-8 rounded-md z-10"
 														onClick={() =>
-															setImagemSelecionadaProfile(
+															setSelectedProfileImage(
 																null
 															)
 														}>
@@ -1043,9 +1052,9 @@ function MyProfilePage() {
 														type="file"
 														accept="image/*"
 														onChange={(event) =>
-															handleImagemSelecionada(
+															handleSelectedImage(
 																event,
-																setImagemSelecionadaProfile
+																setSelectedProfileImage
 															)
 														}
 													/>
@@ -1061,9 +1070,9 @@ function MyProfilePage() {
 														type="file"
 														accept="image/*"
 														onChange={(event) =>
-															handleImagemSelecionada(
+															handleSelectedImage(
 																event,
-																setImagemSelecionadaProfile
+																setSelectedProfileImage
 															)
 														}
 													/>
@@ -1100,11 +1109,11 @@ function MyProfilePage() {
 												</div>
 												<div
 													className={`text-black hover:text-white flex flex-col justify-center items-center w-[300px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-													{imagemSelecionadaLogo ? (
+													{selectedLogoImage ? (
 														<Image
 															className="object-contain w-full h-full rounded"
 															src={
-																imagemSelecionadaLogo
+																selectedLogoImage
 															}
 															alt="Imagem selecionada"
 															width={300}
@@ -1115,9 +1124,9 @@ function MyProfilePage() {
 														<div
 															className="flex flex-col justify-center items-center"
 															onChange={(event) =>
-																handleImagemSelecionada(
+																handleSelectedImage(
 																	event,
-																	setImagemSelecionadaLogo
+																	setSelectedLogoImage
 																)
 															}>
 															<h2 className="text-xs mb-2">
@@ -1171,11 +1180,11 @@ function MyProfilePage() {
 												</div>
 												<div
 													className={`text-black hover:text-white flex flex-col justify-center items-center w-[300px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-													{imagemSelecionadaLogo ? (
+													{selectedLogoImage ? (
 														<Image
 															className="object-contain w-full h-full rounded"
 															src={
-																imagemSelecionadaLogo
+																selectedLogoImage
 															}
 															alt="Imagem selecionada"
 															width={300}
@@ -1186,9 +1195,9 @@ function MyProfilePage() {
 														<div
 															className="flex flex-col justify-center items-center"
 															onChange={(event) =>
-																handleImagemSelecionada(
+																handleSelectedImage(
 																	event,
-																	setImagemSelecionadaLogo
+																	setSelectedLogoImage
 																)
 															}>
 															<h2 className="text-xs mb-2">
@@ -1403,7 +1412,7 @@ function MyProfilePage() {
 													? user.address[0]?.state
 													: "default"
 											}>
-											<option disabled selected value="">
+											<option disabled value="">
 												Em qual estado sua loja está
 												localizada?
 											</option>

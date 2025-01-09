@@ -10,6 +10,9 @@ interface IMessages {
 interface IChat {
 	userOneID: Object;
 	userTwoID: Object;
+	userTwoAccountType: string;
+	userTwoNickname: string;
+	userTwoProfileImage: string;
 	messages: IMessages[];
 }
 
@@ -22,6 +25,15 @@ const chatSchema = new Schema<IChat>(
 		userTwoID: {
 			type: Object,
 			required: true,
+		},
+		userTwoAccountType: {
+			type: String,
+		},
+		userTwoNickname: {
+			type: String,
+		},
+		userTwoProfileImage: {
+			type: String,
 		},
 		messages: {
 			type: [{}],
