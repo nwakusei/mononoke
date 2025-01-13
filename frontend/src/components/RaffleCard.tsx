@@ -3,11 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+// Images
+import AdultRaffleCover from "../../public/adult-content-cover.png";
+
 // Icons
 import { LuCalendarRange } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
 
 function RaffleCard({
+	viewAdultContent,
+	raffle,
 	rafflePrize,
 	raffleImage,
 	raffleDate,
@@ -17,6 +22,13 @@ function RaffleCard({
 }) {
 	const [loadingButton, setLoadingButton] = useState(false);
 	const router = useRouter();
+
+	// LÓGICA DE EXIBIÇÃO DE CONTEÚDO ADULTO
+	const isContentAllowed =
+		raffle.adultRaffle === true &&
+		(viewAdultContent === false || viewAdultContent === undefined)
+			? false // Se o produto for adulto e o usuário não pode ver ou está deslogado, não exibe
+			: true; // Exibe o produto se for não adulto ou o usuário pode ver conteúdo adulto
 
 	function handleclick() {
 		setLoadingButton(true);
@@ -31,7 +43,7 @@ function RaffleCard({
 			<div className="flex flex-col items-center justify-center h-[220px] mx-3 mt-2 -mb-3 pointer-events-none">
 				<Image
 					className="object-contain w-full h-full"
-					src={raffleImage}
+					src={isContentAllowed ? raffleImage : AdultRaffleCover}
 					alt="Raffle Image"
 					width={10}
 					height={10}

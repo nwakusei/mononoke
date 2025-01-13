@@ -12,13 +12,45 @@ function RafflesPage() {
 	const [raffles, setRaffles] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 
+	const [user, setUser] = useState(null); // Inicializa como null
+	const [token] = useState(() => localStorage.getItem("token") || "");
+
 	useEffect(() => {
-		api.get("/raffles/getall-raffles").then((response) => {
-			console.log(response.data);
-			setRaffles(response.data.raffles);
-			setIsLoading(false);
-		});
-	}, []);
+		const fetchData = async () => {
+			try {
+				// Faz o lookup para obter o ID correspondente à slug
+				const rafflesPromise = await api.get("/raffles/getall-raffles");
+
+				// Busca os dados do usuário, se o token estiver presente
+				const userPromise = token
+					? api.get("/otakuprime/check-user", {
+							headers: {
+								Authorization: `Bearer ${JSON.parse(token)}`,
+							},
+					  })
+					: Promise.resolve({ data: null }); // Se não estiver logado, retorna uma resposta "vazia" para o usuário
+
+				// Aguarda todas as promessas
+				const [rafflesResponse, userResponse] = await Promise.all([
+					rafflesPromise,
+					userPromise,
+				]);
+
+				setRaffles(rafflesResponse.data.raffles);
+				// Se o usuário estiver logado, atualiza os dados do usuário
+				if (userResponse.data) {
+					setUser(userResponse.data);
+				}
+			} catch (error) {
+				console.error("Error fetching data:", error);
+			} finally {
+				setIsLoading(false); // Encerra o estado de carregamento
+			}
+		};
+
+		setIsLoading(true); // Ativa o estado de carregamento antes de iniciar a busca
+		fetchData();
+	}, [token]);
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -36,6 +68,8 @@ function RafflesPage() {
 						raffles.map((raffle, index) => (
 							<RaffleCard
 								key={index}
+								viewAdultContent={user?.viewAdultContent}
+								raffle={raffle}
 								rafflePrize={raffle.rafflePrize}
 								raffleImage={`http://localhost:5000/images/raffles/${raffle.imagesRaffle[0]}`}
 								raffleDate={`${format(

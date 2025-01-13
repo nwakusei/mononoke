@@ -314,7 +314,7 @@ function Navbar() {
 											<li>
 												<Link
 													href="/raffles"
-													className="flex flex-row justify-between items-center text-white">
+													className="flex flex-row justify-between items-center text-white active:!bg-secondary">
 													<span className="flex items-center gap-2">
 														<MdOutlineLocalActivity
 															size={20}

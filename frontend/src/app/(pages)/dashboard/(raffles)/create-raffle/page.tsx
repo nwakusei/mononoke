@@ -53,6 +53,7 @@ const createCouponFormSchema = z.object({
 				message: "※ O título possui caracteres inválidos!",
 			}
 		),
+	adultRaffle: z.string().min(1, "※ item obrigatório!"),
 	raffleDate: z
 		.string()
 		.refine((val) => !isNaN(Date.parse(val)), {
@@ -329,7 +330,7 @@ function CreateRafflePage() {
 
 								<div className="flex flex-col gap-10">
 									{/* Nome e Descrição */}
-									<div className="flex flex-row gap-8 w-full">
+									<div className="flex flex-row gap-8">
 										<label className="form-control">
 											<div className="label">
 												<span className="label-text text-black">
@@ -598,6 +599,47 @@ function CreateRafflePage() {
 													</span>
 												)}
 											</div>
+										</label>
+									</div>
+
+									<div className="flex flex-row items-center gap-8">
+										<label className="form-control w-full max-w-3xl">
+											<div className="label">
+												<span className="label-text text-black">
+													É um item adulto?
+												</span>
+											</div>
+
+											<select
+												className={`select ${
+													errors.adultRaffle
+														? `select-error`
+														: `select-success`
+												}  w-full max-w-xs`}
+												{...register("adultRaffle")}>
+												<option
+													disabled
+													selected
+													value="">
+													Selecione uma opção
+												</option>
+												<option value="false">
+													Não
+												</option>
+												<option value="true">
+													Sim
+												</option>
+											</select>
+											{errors.adultRaffle && (
+												<div className="label">
+													<span className="label-text-alt text-red-500">
+														{
+															errors.adultRaffle
+																.message
+														}
+													</span>
+												</div>
+											)}
 										</label>
 									</div>
 								</div>

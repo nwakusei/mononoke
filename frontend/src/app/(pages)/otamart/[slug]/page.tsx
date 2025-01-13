@@ -1281,7 +1281,7 @@ function ProductPage() {
 								))
 							) : (
 								<div>
-									<div className="text-center text-black mb-2">
+									<div className="text-center text-black mb-4">
 										Esse produto ainda não possui
 										avaliações!
 									</div>

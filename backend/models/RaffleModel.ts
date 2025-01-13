@@ -24,6 +24,7 @@ interface IRaffle {
 	raffleRules: string;
 	minNumberParticipants: Number;
 	raffleOrganizer: string;
+	adultRaffle: boolean;
 	partnerID: Schema.Types.ObjectId;
 	registeredTickets: IRegisteredTickets[];
 	winner: IWinner;
@@ -58,6 +59,10 @@ const raffleSchema = new Schema<IRaffle>(
 		},
 		raffleOrganizer: {
 			type: String,
+			required: true,
+		},
+		adultRaffle: {
+			type: Boolean,
 			required: true,
 		},
 		minNumberParticipants: {

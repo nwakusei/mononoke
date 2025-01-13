@@ -66,6 +66,7 @@ class RaffleController {
 			raffleDescription,
 			raffleRules,
 			minNumberParticipants,
+			adultRaffle,
 		} = req.body;
 
 		const imagesRaffle = req.files as Express.Multer.File[];
@@ -152,6 +153,7 @@ class RaffleController {
 				raffleRules: raffleRules,
 				minNumberParticipants: minNumberParticipants,
 				raffleOrganizer: partner.name,
+				adultRaffle: adultRaffle,
 				partnerID: partner.id,
 				// winner: {},
 			});

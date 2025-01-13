@@ -1,0 +1,10 @@
+.file {
+	display: none;
+}
+
+.chat-messages {
+	overflow-y: auto;
+	min-height: 300px;
+	max-height: 400px;
+	padding: 16px;
+}

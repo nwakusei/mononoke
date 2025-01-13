@@ -4,13 +4,10 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-import {
-	format,
-	formatDistanceToNow,
-	differenceInHours,
-	constructNow,
-} from "date-fns";
+import { format, formatDistanceToNow, differenceInHours } from "date-fns";
 import { ptBR } from "date-fns/locale"; // Localização para Português
+
+import "./chat.css";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
@@ -18,29 +15,9 @@ import { Sidebar } from "@/components/Sidebar";
 // Imagens e Logos
 
 // Icons
-import {
-	ShoppingCartOne,
-	ShoppingBag,
-	Coupon,
-	PaymentMethod,
-	Currency,
-	Credit,
-	Deposit,
-	Expenses,
-	Send,
-	NewPicture,
-	SendOne,
-} from "@icon-park/react";
-import { GrChat } from "react-icons/gr";
-import { LuSettings, LuQrCode } from "react-icons/lu";
-import { RiAccountPinBoxLine } from "react-icons/ri";
-import { MdOutlineWarehouse } from "react-icons/md";
-import { BsShopWindow, BsChatSquareText } from "react-icons/bs";
-import { GoArrowUpRight } from "react-icons/go";
-import { PiHandHeartDuotone, PiChatCenteredText } from "react-icons/pi";
+import { NewPicture, SendOne } from "@icon-park/react";
 import { IoIosSearch } from "react-icons/io";
 import { BsCheck2All, BsCheck2 } from "react-icons/bs";
-import { IoImageOutline } from "react-icons/io5";
 import { IoIosArrowDown } from "react-icons/io";
 import { HiOutlineEllipsisVertical } from "react-icons/hi2";
 import { LoadingPage } from "@/components/LoadingPageComponent";
@@ -64,6 +41,19 @@ function ChatPage() {
 		// Verifica se o sufixo da mensagem corresponde a uma imagem
 		return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(msg);
 	};
+
+	useEffect(() => {
+		if (chat) {
+			// Garante que o scroll vá para o final quando o chat for aberto
+			const chatMessagesContainer =
+				document.querySelector(".chat-messages");
+			if (chatMessagesContainer) {
+				// Move o scroll para o final, sem inverter as mensagens
+				chatMessagesContainer.scrollTop =
+					chatMessagesContainer.scrollHeight;
+			}
+		}
+	}, [chat?.messages]);
 
 	const [searchName, setSearchName] = useState("");
 	const [returnedChat, setReturnedChat] = useState({});
@@ -354,13 +344,13 @@ function ChatPage() {
 						)}
 					</div>
 					<div>
-						<div className="bg-white w-[900px] border border-gray-900 border-t-0 border-r-0 border-b-1 border-l-0 mr-4 p-6 rounded-tr-md">
+						<div className="bg-white w-[900px] h-[95px] border border-gray-900 border-t-0 border-r-0 border-b-1 border-l-0 mr-4 p-6 rounded-tr-md">
 							<div className="flex flex-row">
 								<div className="flex flex-row items-center gap-2">
 									<div className="avatar online">
-										<div className="w-12 rounded-full">
-											{chat.userTwoAccountType ===
-											"customer" ? (
+										{chat.userTwoAccountType ===
+										"customer" ? (
+											<div className="w-12 rounded-full">
 												<Image
 													className="object-contain w-[120px] pointer-events-none rounded shadow-md"
 													src={`http://localhost:5000/images/customers/${chat.userTwoProfileImage}`}
@@ -369,7 +359,10 @@ function ChatPage() {
 													height={150}
 													unoptimized
 												/>
-											) : (
+											</div>
+										) : chat.userTwoAccountType ===
+										  "partner" ? (
+											<div className="w-12 rounded-full">
 												<Image
 													className="object-contain w-[120px] pointer-events-none rounded shadow-md"
 													src={`http://localhost:5000/images/partners/${chat.userTwoProfileImage}`}
@@ -378,25 +371,26 @@ function ChatPage() {
 													height={150}
 													unoptimized
 												/>
-											)}
-										</div>
+											</div>
+										) : (
+											<div />
+										)}
 									</div>
 									<div>
 										<div className="font-semibold text-black mb-1">
 											{chat.userTwoNickname
 												? chat.userTwoNickname
-												: "Selecionando chat..."}
+												: "Selecione um chat"}
 										</div>
-										<div className="text-xs text-black">
+										{/* <div className="text-xs text-black">
 											Online
-										</div>
+										</div> */}
 									</div>
 								</div>
 							</div>
 						</div>
-						<div className="bg-white w-[900px] min-h-[300px] rounded-b-nome rounded-t-none p-6 mr-4">
-							{chat &&
-								Array.isArray(chat.messages) &&
+						<div className="chat-messages bg-white w-[900px] min-h-[300px] rounded-b-nome rounded-t-none p-6 mr-4">
+							{chat && Array.isArray(chat.messages) ? (
 								chat.messages.map((message, index) => (
 									<div
 										key={index}
@@ -480,7 +474,10 @@ function ChatPage() {
 											Entregue <BsCheck2 size={16} />
 										</div>
 									</div>
-								))}
+								))
+							) : (
+								<div>Nenhuma mensagem a ser exibida...</div>
+							)}
 						</div>
 						<div
 							className="bg-white w-[900px] border border-gray-900 border-t-1 border-r-0 border-b-0 border-l-0 mr-4 pt-1 pb-6 px-6 relative overflow-auto rounded-br-md"

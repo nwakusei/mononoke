@@ -4,6 +4,7 @@
 import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -32,6 +33,10 @@ function RafflePage() {
 	const [maximizedImage, setMaximizedImage] = useState(null);
 	const [loadingBtn, setLoadingBtn] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+
+	const router = useRouter();
+
+	const [showAgeModal, setShowAgeModal] = useState(true); // Controle inicial do modal
 
 	const [selectedImage, setSelectedImage] = useState({
 		type: "raffle", // 'product' ou 'variation'
@@ -98,17 +103,48 @@ function RafflePage() {
 	}
 
 	return (
-		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
-			<div className="bg-white rounded-md shadow-md p-4 flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
-				<div className="flex flex-row gap-8">
-					{/* Componente de Imagem Principal */}
+		<>
+			{/* Modal de aviso +18 */}
+			{showAgeModal && (
+				<div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+					<div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
+						<h2 className="text-black text-xl font-semibold mb-4">
+							Conteúdo +18
+						</h2>
+						<p className="text-gray-600 mb-6">
+							Este conteúdo é destinado apenas para maiores de 18
+							anos. Você confirma que possui mais de 18 anos?
+						</p>
+						<div className="flex gap-4 justify-center">
+							<button
+								onClick={() => setShowAgeModal(false)} // Atualiza estado para fechar modal
+								className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition">
+								Sim, tenho mais de 18
+							</button>
+							<button
+								onClick={() => router.push("/raffles")}
+								className="px-4 py-2 bg-error text-white rounded hover:bg-red-600 transition">
+								Não
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 
-					<div className="flex flex-col">
-						<MainImageRaffleComponent
-							selectedImage={selectedImage}
-							raffle={raffle}
-						/>
-						{/* <div className="border-[1px] border-black border-opacity-20 bg-white w-[402px] rounded-md relative shadow-lg mb-2">
+			<section
+				className={`min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 ${
+					showAgeModal ? "blur-sm pointer-events-none" : "blur-none"
+				}`}>
+				<div className="bg-white rounded-md shadow-md p-4 flex flex-col gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
+					<div className="flex flex-row gap-8">
+						{/* Componente de Imagem Principal */}
+
+						<div className="flex flex-col">
+							<MainImageRaffleComponent
+								selectedImage={selectedImage}
+								raffle={raffle}
+							/>
+							{/* <div className="border-[1px] border-black border-opacity-20 bg-white w-[402px] rounded-md relative shadow-lg mb-2">
 							<div className="h-[402px] flex items-center justify-center mx-3 my-2">
 								{raffle?.imagesRaffle &&
 									raffle?.imagesRaffle.length > 0 && (
@@ -123,13 +159,13 @@ function RafflePage() {
 									)}
 							</div>
 						</div> */}
-						{/* Pequenas imagens */}
-						<ImageCarouselRaffleComponent
-							raffle={raffle}
-							handleThumbnailClick={handleThumbnailClick}
-							selectedImage={selectedImage}
-						/>
-						{/* <div className="flex flex-row gap-2">
+							{/* Pequenas imagens */}
+							<ImageCarouselRaffleComponent
+								raffle={raffle}
+								handleThumbnailClick={handleThumbnailClick}
+								selectedImage={selectedImage}
+							/>
+							{/* <div className="flex flex-row gap-2">
 							{raffle?.imagesRaffle &&
 								raffle?.imagesRaffle.length > 0 &&
 								raffle?.imagesRaffle.map((image, id) => (
@@ -154,7 +190,7 @@ function RafflePage() {
 								))}
 						</div> */}
 
-						{/* {maximizedImageProduct && (
+							{/* {maximizedImageProduct && (
 							<div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center">
 								<div className="relative max-w-full max-h-full">
 									<Image
@@ -174,142 +210,143 @@ function RafflePage() {
 								</div>
 							</div>
 						)} */}
-					</div>
-
-					{/* Componente intermediário */}
-					<div className="flex flex-col w-[650px] text-black">
-						<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md select-none">
-							Detalhes do Sorteio
 						</div>
-						<div className="flex flex-col">
-							<h1 className="text-xl font-semibold mb-4">
-								{raffle?.rafflePrize}
-							</h1>
-							<div className="flex flex-row items-center gap-2">
-								{/* <MdOutlineLocalActivity
+
+						{/* Componente intermediário */}
+						<div className="flex flex-col w-[650px] text-black">
+							<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md select-none">
+								Detalhes do Sorteio
+							</div>
+							<div className="flex flex-col">
+								<h1 className="text-xl font-semibold mb-4">
+									{raffle?.rafflePrize}
+								</h1>
+								<div className="flex flex-row items-center gap-2">
+									{/* <MdOutlineLocalActivity
 								className="mt-[1px]"
 								size={19}
 							/> */}
-								<Coupon size={17} />
-								<span>
-									{`Valor do Ticket: ${raffle?.raffleCost.toLocaleString(
-										"pt-BR",
-										{
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										}
-									)} OP`}
-								</span>
-							</div>
-							<div className="flex flex-row items-center gap-2">
-								<Peoples size={17} />
-								<span>
-									{`Mínimo de Participantes: ${raffle?.minNumberParticipants}`}
-								</span>
-							</div>
-							<div className="flex flex-row items-center gap-2">
-								<LuCalendarRange size={16} />
-
-								<span>
-									{`Data do Sorteio: ${
-										raffle?.raffleDate
-											? format(
-													new Date(
-														raffle?.raffleDate
-													),
-													"dd/MM/yyy"
-											  )
-											: ""
-									}`}
-								</span>
-							</div>
-
-							<div className="flex flex-row items-center gap-2">
-								{/* <BsPeopleFill size={17} /> */}
-								<MdOutlineLocalActivity size={19} />
-								<span>
-									{`Tickets Registrados: ${raffle?.registeredTickets.length}`}
-								</span>
-							</div>
-
-							<div className="flex flex-row items-center gap-2 mb-4">
-								<MdOutlineStore size={18} />
-								<div>
-									Organizado por:{" "}
-									<span className="text-primary transition-all ease-in duration-200 hover:text-secondary cursor-pointer">
-										{/* <Link href={`/otamart/store/${idStore}`}></Link> */}
-										{raffle?.raffleOrganizer}
+									<Coupon size={17} />
+									<span>
+										{`Valor do Ticket: ${raffle?.raffleCost.toLocaleString(
+											"pt-BR",
+											{
+												minimumFractionDigits: 2,
+												maximumFractionDigits: 2,
+											}
+										)} OP`}
 									</span>
 								</div>
-							</div>
-							<div className="">
-								<p className="whitespace-pre-wrap break-words mb-2">
-									<span className="font-semibold">
-										Descrição:
-									</span>{" "}
-									{raffle?.raffleDescription}
-								</p>
-							</div>
-							<div className="divider">E</div>
-							<div className="">
-								<p className="whitespace-pre-wrap break-words">
-									<span className="font-semibold">
-										Regras:
-									</span>{" "}
-									{raffle?.raffleRules}
-								</p>
+								<div className="flex flex-row items-center gap-2">
+									<Peoples size={17} />
+									<span>
+										{`Mínimo de Participantes: ${raffle?.minNumberParticipants}`}
+									</span>
+								</div>
+								<div className="flex flex-row items-center gap-2">
+									<LuCalendarRange size={16} />
+
+									<span>
+										{`Data do Sorteio: ${
+											raffle?.raffleDate
+												? format(
+														new Date(
+															raffle?.raffleDate
+														),
+														"dd/MM/yyy"
+												  )
+												: ""
+										}`}
+									</span>
+								</div>
+
+								<div className="flex flex-row items-center gap-2">
+									{/* <BsPeopleFill size={17} /> */}
+									<MdOutlineLocalActivity size={19} />
+									<span>
+										{`Tickets Registrados: ${raffle?.registeredTickets.length}`}
+									</span>
+								</div>
+
+								<div className="flex flex-row items-center gap-2 mb-4">
+									<MdOutlineStore size={18} />
+									<div>
+										Organizado por:{" "}
+										<span className="text-primary transition-all ease-in duration-200 hover:text-secondary cursor-pointer">
+											{/* <Link href={`/otamart/store/${idStore}`}></Link> */}
+											{raffle?.raffleOrganizer}
+										</span>
+									</div>
+								</div>
+								<div className="">
+									<p className="whitespace-pre-wrap break-words mb-2">
+										<span className="font-semibold">
+											Descrição:
+										</span>{" "}
+										{raffle?.raffleDescription}
+									</p>
+								</div>
+								<div className="divider">E</div>
+								<div className="">
+									<p className="whitespace-pre-wrap break-words">
+										<span className="font-semibold">
+											Regras:
+										</span>{" "}
+										{raffle?.raffleRules}
+									</p>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<div className="flex flex-row justify-center">
-					{loadingBtn ? (
-						<button className="flex flex-row justify-center items-center w-[250px] btn btn-primary shadow-md">
-							<span className="loading loading-spinner loading-md"></span>
-						</button>
-					) : (
-						<button
-							onClick={handleSubmit}
-							className="w-[250px] btn btn-primary shadow-md">
-							Inscrever-se
-						</button>
-					)}
-				</div>
-			</div>
-
-			{/* Descrição do produto*/}
-			<div className="bg-white rounded-md shadow-md gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
-				{/* Descrição e Detalhes*/}
-				<div className="flex flex-col">
-					<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
-						Vencedor do Sorteio
+					<div className="flex flex-row justify-center">
+						{loadingBtn ? (
+							<button className="flex flex-row justify-center items-center w-[250px] btn btn-primary shadow-md">
+								<span className="loading loading-spinner loading-md"></span>
+							</button>
+						) : (
+							<button
+								onClick={handleSubmit}
+								className="w-[250px] btn btn-primary shadow-md">
+								Inscrever-se
+							</button>
+						)}
 					</div>
-					{raffle?.winner ? (
-						<>
-							<div className="flex flex-row my-4 mx-4 gap-2">
-								<div className="bg-ametista w-[100px] h-[100px] rounded-md">
-									Foto
-								</div>
-								<div className="flex flex-col">
-									<h1 className="text-black font-semibold">
-										{raffle?.winner.customerName}
-									</h1>
-									<h2 className="text-black">
-										{`Ticket Sorteado: ${raffle?.winner.ticketNumber}`}
-									</h2>
-								</div>
-							</div>
-						</>
-					) : (
-						<>
-							<p className="my-2 text-black text-center">
-								Este sorteio ainda não foi realizado!
-							</p>
-						</>
-					)}
 				</div>
-			</div>
-		</section>
+
+				{/* Descrição do produto*/}
+				<div className="bg-white rounded-md shadow-md gap-8 col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-8">
+					{/* Descrição e Detalhes*/}
+					<div className="flex flex-col">
+						<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
+							Vencedor do Sorteio
+						</div>
+						{raffle?.winner ? (
+							<>
+								<div className="flex flex-row my-4 mx-4 gap-2">
+									<div className="bg-ametista w-[100px] h-[100px] rounded-md">
+										Foto
+									</div>
+									<div className="flex flex-col">
+										<h1 className="text-black font-semibold">
+											{raffle?.winner.customerName}
+										</h1>
+										<h2 className="text-black">
+											{`Ticket Sorteado: ${raffle?.winner.ticketNumber}`}
+										</h2>
+									</div>
+								</div>
+							</>
+						) : (
+							<>
+								<p className="my-2 text-black text-center mb-4">
+									Este sorteio ainda não foi realizado!
+								</p>
+							</>
+						)}
+					</div>
+				</div>
+			</section>
+		</>
 	);
 }
 
