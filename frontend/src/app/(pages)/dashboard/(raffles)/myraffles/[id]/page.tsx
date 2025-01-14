@@ -96,7 +96,10 @@ function MyRafflesByID() {
 										<Image
 											className="object-contain h-full"
 											src={`http://localhost:5000/images/raffles/${myraffle?.imagesRaffle[0]}`}
-											alt={myraffle?.productTitle}
+											alt={
+												myraffle?.productTitle ||
+												"Imagem Principal do Sorteio!"
+											}
 											width={280}
 											height={10}
 											unoptimized
@@ -183,12 +186,19 @@ function MyRafflesByID() {
 					{myraffle?.winner ? (
 						<>
 							<div className="flex flex-row my-4 mx-4 gap-2">
-								<div className="bg-ametista w-[100px] h-[100px] rounded-md">
-									Foto
+								<div className="w-[100px] h-[100px]">
+									<Image
+										className="object-contain w-full h-full pointer-events-none rounded-md shadow-md"
+										src={`http://localhost:5000/images/customers/${myraffle?.winner.customerProfileImage}`}
+										alt="Logo Shop"
+										width={260}
+										height={130}
+										unoptimized
+									/>
 								</div>
 								<div className="flex flex-col">
 									<h1 className="text-black font-semibold">
-										{myraffle?.winner.customerName}
+										{`Nome: ${myraffle?.winner.customerName}`}
 									</h1>
 									<h2 className="text-black">
 										{`Ticket Sorteado: ${myraffle?.winner.ticketNumber}`}

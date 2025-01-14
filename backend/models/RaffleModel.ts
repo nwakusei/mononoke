@@ -4,6 +4,7 @@ import mongoose, { Schema, model } from "mongoose";
 interface IRegisteredTickets {
 	customerID: string;
 	customerName: string;
+	customerProfileImage: string;
 	ticketNumber: string;
 }
 
@@ -11,6 +12,7 @@ interface IRegisteredTickets {
 interface IWinner {
 	customerID: string;
 	customerName: string;
+	customerProfileImage: string;
 	ticketNumber: string;
 }
 
@@ -85,6 +87,10 @@ const raffleSchema = new Schema<IRaffle>(
 					type: String,
 					required: true,
 				},
+				customerProfileImage: {
+					type: String,
+					require: true,
+				},
 				ticketNumber: {
 					type: String,
 					required: true,
@@ -97,6 +103,9 @@ const raffleSchema = new Schema<IRaffle>(
 				ref: "CustomerModel",
 			},
 			customerName: {
+				type: String,
+			},
+			customerProfileImage: {
 				type: String,
 			},
 			ticketNumber: {

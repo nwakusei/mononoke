@@ -64,8 +64,6 @@ function ProductPage() {
 
 	const [selectedVariation, setSelectedVariation] = useState(0);
 
-	console.log("USUÁRIO LOGADO", user);
-
 	// useEffect(() => {
 	// 	if (!slug) return;
 

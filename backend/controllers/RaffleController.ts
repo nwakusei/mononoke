@@ -193,7 +193,7 @@ class RaffleController {
 	}
 
 	static async getAllRaffles(req: Request, res: Response) {
-		const raffles = await RaffleModel.find();
+		const raffles = await RaffleModel.find().sort("-createdAt");
 
 		res.status(200).json({ raffles: raffles });
 	}
@@ -409,7 +409,7 @@ class RaffleController {
 		// Verifica se o sorteio já tem um vencedor
 		if (raffleID.winner && raffleID.winner.ticketNumber) {
 			res.status(422).json({
-				message: "Este sorteio já tem um vencedor!",
+				message: "Este sorteio já foi realizado!",
 			});
 			return;
 		}
@@ -557,6 +557,7 @@ class RaffleController {
 			const newTicket = {
 				customerID: customer._id.toString(),
 				customerName: customer.name,
+				customerProfileImage: customer.profileImage,
 				ticketNumber: ticketNumber,
 			};
 
@@ -613,7 +614,7 @@ class RaffleController {
 			// Verifica se já existe um vencedor
 			if (raffle.winner && raffle.winner.customerID) {
 				res.status(422).json({
-					message: "O sorteio já foi realizado!",
+					message: "Este sorteio já foi realizado!",
 				});
 				return;
 			}
@@ -622,7 +623,7 @@ class RaffleController {
 
 			if (!participants || participants.length === 0) {
 				res.status(422).json({
-					message: "Nenhum participante encontrado!",
+					message: "Nenhum participante localizado!",
 				});
 				return;
 			}
@@ -641,6 +642,7 @@ class RaffleController {
 			raffle.winner = {
 				customerID: winner.customerID,
 				customerName: winner.customerName,
+				customerProfileImage: winner.customerProfileImage,
 				ticketNumber: winner.ticketNumber, // Adapte se necessário
 			};
 

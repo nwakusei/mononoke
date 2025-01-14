@@ -20,13 +20,12 @@ import { ImageCarouselRaffleComponent } from "@/components/ImageCarouselRaffleCo
 // Icons
 import { LuCalendarRange } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
-import { BsPersonFill, BsPeopleFill } from "react-icons/bs";
 import { Peoples } from "@icon-park/react";
 import { Coupon } from "@icon-park/react";
-import Link from "next/link";
 
 function RafflePage() {
-	const [token] = useState(localStorage.getItem("token") || "");
+	const [token] = useState(() => localStorage.getItem("token") || "");
+	const [user, setUser] = useState(null); // Inicializa como null
 	const { id } = useParams();
 	const [raffle, setRaffle] = useState({});
 	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
@@ -48,6 +47,58 @@ function RafflePage() {
 	const handleThumbnailClick = (index) => {
 		setSelectedImage({ type: "carousel", index });
 	};
+
+	useEffect(() => {
+		if (!id) return;
+
+		const fetchData = async () => {
+			try {
+				// // Faz o lookup para obter o ID correspondente à slug
+				// const response = await api.get(`/products/convert/${slug}`);
+				// const id = response.data.id;
+
+				// Busca os dados do produto
+				const rafflePromise = api.get(`/raffles/get-raffle/${id}`);
+
+				// Busca os dados do usuário, se o token estiver presente
+				const userPromise = token
+					? api.get("/otakuprime/check-user", {
+							headers: {
+								Authorization: `Bearer ${JSON.parse(token)}`,
+							},
+					  })
+					: Promise.resolve({ data: null }); // Se não estiver logado, retorna uma resposta "vazia" para o usuário
+
+				// Aguarda todas as promessas
+				const [raffleResponse, userResponse] = await Promise.all([
+					rafflePromise,
+					userPromise,
+				]);
+
+				// Atualiza os estados com os dados obtidos
+				setRaffle(raffleResponse.data.raffle);
+				// Se o usuário estiver logado, atualiza os dados do usuário
+				if (userResponse.data) {
+					setUser(userResponse.data);
+				}
+
+				// Verifica se o produto é adulto e se o usuário pode ou não visualizar o conteúdo
+				const shouldShowModal =
+					raffleResponse.data.raffle.adultRaffle === true &&
+					(!userResponse.data ||
+						userResponse.data.viewAdultContent === false);
+
+				setShowAgeModal(shouldShowModal);
+			} catch (error) {
+				console.error("Error fetching data:", error);
+			} finally {
+				setIsLoading(false); // Encerra o estado de carregamento
+			}
+		};
+
+		setIsLoading(true); // Ativa o estado de carregamento antes de iniciar a busca
+		fetchData();
+	}, [token, id]);
 
 	useEffect(() => {
 		const fetchRaffle = async () => {
@@ -131,6 +182,7 @@ function RafflePage() {
 				</div>
 			)}
 
+			{/* Conteúdo da página */}
 			<section
 				className={`min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 ${
 					showAgeModal ? "blur-sm pointer-events-none" : "blur-none"
@@ -228,7 +280,7 @@ function RafflePage() {
 							/> */}
 									<Coupon size={17} />
 									<span>
-										{`Valor do Ticket: ${raffle?.raffleCost.toLocaleString(
+										{`Custo do Ticket: ${raffle?.raffleCost.toLocaleString(
 											"pt-BR",
 											{
 												minimumFractionDigits: 2,
@@ -323,12 +375,19 @@ function RafflePage() {
 						{raffle?.winner ? (
 							<>
 								<div className="flex flex-row my-4 mx-4 gap-2">
-									<div className="bg-ametista w-[100px] h-[100px] rounded-md">
-										Foto
+									<div className="w-[100px] h-[100px]">
+										<Image
+											className="object-contain w-full h-full pointer-events-none rounded-md shadow-md"
+											src={`http://localhost:5000/images/customers/${raffle?.winner.customerProfileImage}`}
+											alt="Logo Shop"
+											width={260}
+											height={130}
+											unoptimized
+										/>
 									</div>
 									<div className="flex flex-col">
 										<h1 className="text-black font-semibold">
-											{raffle?.winner.customerName}
+											{`Nome: ${raffle?.winner.customerName}`}
 										</h1>
 										<h2 className="text-black">
 											{`Ticket Sorteado: ${raffle?.winner.ticketNumber}`}
