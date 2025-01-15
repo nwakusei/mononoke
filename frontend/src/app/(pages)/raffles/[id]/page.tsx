@@ -196,72 +196,13 @@ function RafflePage() {
 								selectedImage={selectedImage}
 								raffle={raffle}
 							/>
-							{/* <div className="border-[1px] border-black border-opacity-20 bg-white w-[402px] rounded-md relative shadow-lg mb-2">
-							<div className="h-[402px] flex items-center justify-center mx-3 my-2">
-								{raffle?.imagesRaffle &&
-									raffle?.imagesRaffle.length > 0 && (
-										<Image
-											className="object-contain h-full"
-											src={`http://localhost:5000/images/raffles/${raffle?.imagesRaffle[0]}`}
-											alt={raffle?.productTitle}
-											width={280}
-											height={10}
-											unoptimized
-										/>
-									)}
-							</div>
-						</div> */}
+
 							{/* Pequenas imagens */}
 							<ImageCarouselRaffleComponent
 								raffle={raffle}
 								handleThumbnailClick={handleThumbnailClick}
 								selectedImage={selectedImage}
 							/>
-							{/* <div className="flex flex-row gap-2">
-							{raffle?.imagesRaffle &&
-								raffle?.imagesRaffle.length > 0 &&
-								raffle?.imagesRaffle.map((image, id) => (
-									<div className="border-[1px] border-black border-opacity-20 bg-white w-[74px] rounded relative shadow-md">
-										<div
-											key={id}
-											className="h-[74px] flex items-center justify-center">
-											<Image
-												className="object-contain h-full cursor-pointer"
-												src={`http://localhost:5000/images/raffles/${image}`}
-												alt="Shoes"
-												onClick={() =>
-													handleOpenImagesProduct(
-														image
-													)
-												}
-												width={50}
-												height={10}
-											/>
-										</div>
-									</div>
-								))}
-						</div> */}
-
-							{/* {maximizedImageProduct && (
-							<div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center">
-								<div className="relative max-w-full max-h-full">
-									<Image
-										className="object-contain max-w-full max-h-full rounded-md"
-										src={`http://localhost:5000/images/raffles/${maximizedImageProduct}`}
-										alt="Maximized Image"
-										width={400}
-										height={200}
-										unoptimized
-									/>
-
-									<button
-										className="absolute top-4 right-4 bg-error px-3 py-1 rounded shadow-md text-white"
-										onClick={handleCloseImagesProduct}>
-										✕
-									</button>
-								</div>
-							</div>
-						)} */}
 						</div>
 
 						{/* Componente intermediário */}
@@ -374,24 +315,26 @@ function RafflePage() {
 						</div>
 						{raffle?.winner ? (
 							<>
-								<div className="flex flex-row my-4 mx-4 gap-2">
-									<div className="w-[100px] h-[100px]">
-										<Image
-											className="object-contain w-full h-full pointer-events-none rounded-md shadow-md"
-											src={`http://localhost:5000/images/customers/${raffle?.winner.customerProfileImage}`}
-											alt="Logo Shop"
-											width={260}
-											height={130}
-											unoptimized
-										/>
-									</div>
-									<div className="flex flex-col">
-										<h1 className="text-black font-semibold">
-											{`Nome: ${raffle?.winner.customerName}`}
-										</h1>
-										<h2 className="text-black">
-											{`Ticket Sorteado: ${raffle?.winner.ticketNumber}`}
-										</h2>
+								<div className="flex flex-row justify-center my-4 mx-4 gap-2">
+									<div className="border-[1px] border-black border-opacity-20 bg-white flex flex-row justify-center p-2 rounded-md shadow-md gap-2">
+										<div className="w-[100px] h-[100px]">
+											<Image
+												className="object-contain w-full h-full pointer-events-none rounded-md shadow-md"
+												src={`http://localhost:5000/images/customers/${raffle.winner.customerProfileImage}`}
+												alt="Vencedor"
+												width={260}
+												height={130}
+												unoptimized
+											/>
+										</div>
+										<div className="flex flex-col">
+											<h1 className="text-black font-semibold">
+												{`Nome: ${raffle?.winner.customerName}`}
+											</h1>
+											<h2 className="text-black">
+												{`Ticket Sorteado: ${raffle?.winner.ticketNumber}`}
+											</h2>
+										</div>
 									</div>
 								</div>
 							</>

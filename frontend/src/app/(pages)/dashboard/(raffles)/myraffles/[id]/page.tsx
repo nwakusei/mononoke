@@ -25,52 +25,92 @@ function MyRafflesByID() {
 	const [loadingBtn, setLoadingBtn] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const [counter, setCounter] = useState(5); // Iniciar com 99, por exemplo
+	const [counter, setCounter] = useState(5);
+	const [raffleStatus, setRaffleStatus] = useState("not_started");
 
-	// Atualizar o contador a cada segundo
+	// Fetch inicial dos dados do sorteio
 	useEffect(() => {
-		if (counter > 0) {
+		fetchRaffleData();
+	}, [id, token]);
+
+	// Atualiza o estado de myraffle
+	const fetchRaffleData = async () => {
+		try {
+			const response = await api.get(`/raffles/partner-raffle/${id}`, {
+				headers: {
+					Authorization: `Bearer ${JSON.parse(token)}`,
+				},
+			});
+
+			const raffleData = response.data.raffle;
+			setMyraffle(raffleData);
+			setIsLoading(false);
+
+			// Determinar status com base em winner
+			if (raffleData.winner) {
+				setRaffleStatus("completed");
+			}
+		} catch (error) {
+			console.error("Erro ao buscar dados do sorteio:", error);
+		}
+	};
+
+	// Controlar contador e atualização de status
+	useEffect(() => {
+		if (raffleStatus === "countdown" && counter > 0) {
 			const intervalId = setInterval(() => {
 				setCounter((prevCounter) => prevCounter - 1);
 			}, 1000);
 
-			// Limpar o intervalo quando o contador chegar a 0
 			return () => clearInterval(intervalId);
+		} else if (raffleStatus === "countdown" && counter === 0) {
+			fetchRaffleData(); // Atualiza os dados do sorteio
+			setRaffleStatus("completed"); // Define o status como concluído
+
+			// Exibir alerta após o sorteio ser realizado
+			Swal.fire({
+				title: "Sorteio realizado com sucesso!",
+				text: `O vencedor foi: ${
+					myraffle?.winner?.customerName || "Desconhecido"
+				}`,
+				width: 800,
+				icon: "success",
+			});
 		}
-	}, [counter]);
+	}, [counter, raffleStatus]);
 
-	useEffect(() => {
-		api.get(`/raffles/partner-raffle/${id}`, {
-			headers: {
-				Authorization: `Bearer ${JSON.parse(token)}`,
-			},
-		}).then((response) => {
-			console.log("API Response:", response.data.raffle); // Verifique o conteúdo da resposta
-			setMyraffle(response.data.raffle);
-			setIsLoading(false);
-		});
-	}, [id, token]);
-
+	// Handler para realizar o sorteio
 	async function handleSubmit() {
+		if (raffleStatus === "completed") {
+			Swal.fire({
+				title: "Este sorteio já foi realizado!",
+				icon: "info",
+				width: 800,
+			});
+			return;
+		}
+
 		setLoadingBtn(true);
 		try {
-			await api
-				.post(`raffles/sorteio/${id}`, {
-					headers: {
-						Authorization: `Bearer ${JSON.parse(token)}`,
-					},
-				})
-				.then((responser) => {
-					Swal.fire({
-						title: responser.data.message,
-						width: 800,
-						icon: "success",
-					});
-				});
+			const response = await api.post(`raffles/sorteio/${id}`, {
+				headers: {
+					Authorization: `Bearer ${JSON.parse(token)}`,
+				},
+			});
+
+			setCounter(5);
+			setRaffleStatus("countdown");
+
+			// Swal.fire({
+			// 	title: response.data.message,
+			// 	width: 800,
+			// 	icon: "success",
+			// });
 		} catch (error: any) {
-			console.log(error);
+			console.error(error);
 			Swal.fire({
-				title: error.response.data.message,
+				title:
+					error.response?.data?.message || "Erro ao realizar sorteio",
 				width: 800,
 				icon: "error",
 			});
@@ -87,29 +127,27 @@ function MyRafflesByID() {
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4 mb-4">
 				<div className="flex flex-row gap-8 bg-white ml-4 mr-8 rounded-md shadow-md">
-					{/* Componente de Imagem Principal */}
+					{/* Dados do Sorteio */}
 					<div className="flex flex-col py-4 pl-4">
 						<div className="border-[1px] border-black border-opacity-20 bg-white w-[402px] rounded-md relative shadow-lg">
 							<div className="h-[402px] flex items-center justify-center mx-3 my-2">
-								{myraffle?.imagesRaffle &&
-									myraffle?.imagesRaffle.length > 0 && (
-										<Image
-											className="object-contain h-full"
-											src={`http://localhost:5000/images/raffles/${myraffle?.imagesRaffle[0]}`}
-											alt={
-												myraffle?.productTitle ||
-												"Imagem Principal do Sorteio!"
-											}
-											width={280}
-											height={10}
-											unoptimized
-										/>
-									)}
+								{myraffle?.imagesRaffle?.length > 0 && (
+									<Image
+										className="object-contain h-full pointer-events-none"
+										src={`http://localhost:5000/images/raffles/${myraffle.imagesRaffle[0]}`}
+										alt={
+											myraffle?.productTitle ||
+											"Imagem Principal do Sorteio!"
+										}
+										width={280}
+										height={10}
+										unoptimized
+									/>
+								)}
 							</div>
 						</div>
 					</div>
 
-					{/* Componente intermediário */}
 					<div className="flex flex-col w-[640px] text-black py-4 pr-4">
 						<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md select-none">
 							Detalhes do Sorteio
@@ -118,10 +156,6 @@ function MyRafflesByID() {
 							{myraffle?.rafflePrize}
 						</h1>
 						<div className="flex flex-row items-center gap-2">
-							{/* <MdOutlineLocalActivity
-								className="mt-[1px]"
-								size={19}
-							/> */}
 							<Coupon size={17} />
 							<span>
 								{`Valor do Ticket: ${myraffle?.raffleCost?.toLocaleString(
@@ -141,12 +175,11 @@ function MyRafflesByID() {
 						</div>
 						<div className="flex flex-row items-center gap-2">
 							<LuCalendarRange size={16} />
-
 							<span>
 								{`Data do Sorteio: ${
 									myraffle?.raffleDate
 										? format(
-												new Date(myraffle?.raffleDate),
+												new Date(myraffle.raffleDate),
 												"dd/MM/yyy"
 										  )
 										: ""
@@ -154,23 +187,25 @@ function MyRafflesByID() {
 							</span>
 						</div>
 
-						<div className="flex flex-row items-center gap-2 mb-2">
+						<div className="flex flex-row items-center gap-2 mb-4">
 							{/* <BsPeopleFill size={17} /> */}
 							<MdOutlineLocalActivity size={19} />
 							<span>
-								{`Tickets Registrados: ${myraffle?.registeredTickets?.length}`}
+								{`Tickets Registrados: ${myraffle?.registeredTickets.length}`}
 							</span>
 						</div>
-						<div className="break-words">
-							<p className="whitespace-pre-wrap mb-2">
+
+						<div className="">
+							<p className="whitespace-pre-wrap break-words mb-2">
 								<span className="font-semibold">
 									Descrição:
 								</span>{" "}
 								{myraffle?.raffleDescription}
 							</p>
 						</div>
-						<div className="break-words">
-							<p className="whitespace-pre-wrap">
+						<div className="divider">E</div>
+						<div className="">
+							<p className="whitespace-pre-wrap break-words">
 								<span className="font-semibold">Regras:</span>{" "}
 								{myraffle?.raffleRules}
 							</p>
@@ -178,19 +213,19 @@ function MyRafflesByID() {
 					</div>
 				</div>
 
-				{/* Descrição e Detalhes*/}
+				{/* Vencedor */}
 				<div className="flex flex-col bg-white rounded-md shadow-md mt-4 ml-4 mr-8">
 					<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
 						Vencedor do Sorteio
 					</div>
-					{myraffle?.winner ? (
-						<>
-							<div className="flex flex-row my-4 mx-4 gap-2">
+					{raffleStatus === "completed" && myraffle?.winner ? (
+						<div className="flex flex-row justify-center my-4 mx-4 gap-2">
+							<div className="border-[1px] border-black border-opacity-20 bg-white flex flex-row justify-center p-2 rounded-md shadow-md gap-2">
 								<div className="w-[100px] h-[100px]">
 									<Image
 										className="object-contain w-full h-full pointer-events-none rounded-md shadow-md"
-										src={`http://localhost:5000/images/customers/${myraffle?.winner.customerProfileImage}`}
-										alt="Logo Shop"
+										src={`http://localhost:5000/images/customers/${myraffle.winner.customerProfileImage}`}
+										alt="Vencedor"
 										width={260}
 										height={130}
 										unoptimized
@@ -205,23 +240,29 @@ function MyRafflesByID() {
 									</h2>
 								</div>
 							</div>
-						</>
+						</div>
 					) : (
-						<>
-							<p className="my-2 text-black text-center">
-								Este sorteio ainda não foi realizado!
-							</p>
-							<span className="countdown font-mono text-6xl">
-								{/* Atualizando a variável CSS --value dinamicamente */}
-								<span
-									style={{
-										["--value" as any]: counter,
-									}}></span>
-							</span>
-						</>
+						<div className="flex flex-row justify-center">
+							<div className="flex flex-col items-center gap-2">
+								<p className="my-2 text-black text-center">
+									{raffleStatus === "countdown"
+										? "Realizando o sorteio..."
+										: "Este sorteio ainda não foi realizado!"}
+								</p>
+								{raffleStatus === "countdown" && (
+									<span className="countdown font-mono text-6xl mb-4">
+										<span
+											style={{
+												["--value" as any]: counter,
+											}}></span>
+									</span>
+								)}
+							</div>
+						</div>
 					)}
 				</div>
 
+				{/* Botão */}
 				<div className="flex flex-row justify-center mt-8">
 					{loadingBtn ? (
 						<button className="flex flex-row justify-center items-center w-[250px] btn btn-primary shadow-md">
@@ -230,7 +271,8 @@ function MyRafflesByID() {
 					) : (
 						<button
 							onClick={handleSubmit}
-							className="w-[250px] btn btn-primary shadow-md">
+							className="w-[250px] btn btn-primary shadow-md"
+							disabled={raffleStatus === "completed"}>
 							Sortear
 						</button>
 					)}
