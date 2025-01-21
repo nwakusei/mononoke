@@ -50,6 +50,6 @@ router.post(
 	OtakupayController.finishPaymentPixOtakuPay
 );
 
-router.post("/liberar", OtakupayController.liberaçãoDeValores);
+router.post("/realease-values", OtakupayController.releaseOfValues);
 
 export default router;

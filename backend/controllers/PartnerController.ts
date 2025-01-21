@@ -23,30 +23,39 @@ if (secretKey.length !== 32) {
 
 // Função para Criptografar dados sensíveis no Banco de Dados
 function encrypt(balance: string): string {
+	const iv = crypto.randomBytes(16); // Gera um IV aleatório
 	const cipher = crypto.createCipheriv(
 		"aes-256-cbc",
 		Buffer.from(secretKey, "utf-8"),
-		Buffer.alloc(16, 0) // Alteração aqui: criando um IV nulo
+		iv
 	);
 	let encrypted = cipher.update(balance, "utf8", "hex");
 	encrypted += cipher.final("hex");
-	return encrypted;
+
+	// Combina o IV com o texto criptografado
+	return iv.toString("hex") + ":" + encrypted;
 }
 
-// Função para Descriptografar dados sensíveis no Banco de Dados
+// Esta função processa o texto criptografado com o IV concatenado:
 function decrypt(encryptedBalance: string): number | null {
-	let decrypted = ""; // Declarando a variável fora do bloco try
+	let decrypted = "";
 
 	try {
+		// Divide o IV do texto criptografado
+		const [ivHex, encryptedData] = encryptedBalance.split(":");
+		if (!ivHex || !encryptedData) {
+			throw new Error("Formato inválido do texto criptografado.");
+		}
+
+		const iv = Buffer.from(ivHex, "hex");
+
 		const decipher = crypto.createDecipheriv(
 			"aes-256-cbc",
 			Buffer.from(secretKey, "utf-8"),
-			Buffer.alloc(16, 0)
+			iv
 		);
 
-		decipher.setAutoPadding(false);
-
-		decrypted = decipher.update(encryptedBalance, "hex", "utf8");
+		decrypted = decipher.update(encryptedData, "hex", "utf8");
 		decrypted += decipher.final("utf8");
 
 		const balanceNumber = parseFloat(decrypted);

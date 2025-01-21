@@ -244,7 +244,7 @@ class ReviewController {
 			// Requisição teste para ativar outra requisição dentro da API
 			const transactionRequestConfig: AxiosRequestConfig = {
 				method: "post",
-				url: "http://localhost:5000/otakupay/liberar",
+				url: "http://localhost:5000/otakupay/realease-values",
 				headers: {
 					"Content-Type": "application/json",
 					// Authorization: `Bearer ${accessToken}`, // Se precisar de um token de autenticação

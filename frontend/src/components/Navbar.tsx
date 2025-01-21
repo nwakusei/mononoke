@@ -141,7 +141,7 @@ function Navbar() {
 			{userAuthenticated ? (
 				<nav>
 					<div className="navbar bg-primary shadow-md">
-						<div className="flex-1 ml-10 select-none pointer-events-none">
+						<div className="flex-1 ml-10 select-none pointer-events-none mr-12">
 							<Image
 								src={Logo}
 								width={200}

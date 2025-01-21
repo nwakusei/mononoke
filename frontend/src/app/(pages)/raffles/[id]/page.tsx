@@ -299,7 +299,11 @@ function RafflePage() {
 						) : (
 							<button
 								onClick={handleSubmit}
-								className="w-[250px] btn btn-primary shadow-md">
+								className="w-[250px] btn btn-primary shadow-md disabled:bg-gray-400 disabled:text-gray-500"
+								disabled={
+									raffle.winner &&
+									Object.keys(raffle.winner).length > 0
+								}>
 								Inscrever-se
 							</button>
 						)}

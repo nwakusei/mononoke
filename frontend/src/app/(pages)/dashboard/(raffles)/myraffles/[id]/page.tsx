@@ -271,7 +271,7 @@ function MyRafflesByID() {
 					) : (
 						<button
 							onClick={handleSubmit}
-							className="w-[250px] btn btn-primary shadow-md"
+							className="w-[250px] btn btn-primary shadow-md disabled:bg-gray-400 disabled:text-gray-500"
 							disabled={raffleStatus === "completed"}>
 							Sortear
 						</button>

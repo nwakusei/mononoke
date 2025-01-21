@@ -18,32 +18,52 @@ if (secretKey.length !== 32) {
 	throw new Error("A chave precisa ter 32 caracteres para o AES-256");
 }
 
-// Função para Criptografar dados sensíveis no Banco de Dados
+// // Função para Criptografar dados sensíveis no Banco de Dados
+// function encrypt(balance: string): string {
+// 	const cipher = crypto.createCipheriv(
+// 		"aes-256-cbc",
+// 		Buffer.from(secretKey, "utf-8"),
+// 		Buffer.alloc(16, 0) // Alteração aqui: criando um IV nulo
+// 	);
+// 	let encrypted = cipher.update(balance, "utf8", "hex");
+// 	encrypted += cipher.final("hex");
+// 	return encrypted;
+// }
+
 function encrypt(balance: string): string {
+	const iv = crypto.randomBytes(16); // Gera um IV aleatório
 	const cipher = crypto.createCipheriv(
 		"aes-256-cbc",
 		Buffer.from(secretKey, "utf-8"),
-		Buffer.alloc(16, 0) // Alteração aqui: criando um IV nulo
+		iv
 	);
 	let encrypted = cipher.update(balance, "utf8", "hex");
 	encrypted += cipher.final("hex");
-	return encrypted;
+
+	// Combina o IV com o texto criptografado
+	return iv.toString("hex") + ":" + encrypted;
 }
 
-// Função para Descriptografar dados sensíveis no Banco de Dados
+// Esta função processa o texto criptografado com o IV concatenado:
 function decrypt(encryptedBalance: string): number | null {
-	let decrypted = ""; // Declarando a variável fora do bloco try
+	let decrypted = "";
 
 	try {
+		// Divide o IV do texto criptografado
+		const [ivHex, encryptedData] = encryptedBalance.split(":");
+		if (!ivHex || !encryptedData) {
+			throw new Error("Formato inválido do texto criptografado.");
+		}
+
+		const iv = Buffer.from(ivHex, "hex");
+
 		const decipher = crypto.createDecipheriv(
 			"aes-256-cbc",
 			Buffer.from(secretKey, "utf-8"),
-			Buffer.alloc(16, 0)
+			iv
 		);
 
-		decipher.setAutoPadding(false);
-
-		decrypted = decipher.update(encryptedBalance, "hex", "utf8");
+		decrypted = decipher.update(encryptedData, "hex", "utf8");
 		decrypted += decipher.final("utf8");
 
 		const balanceNumber = parseFloat(decrypted);
@@ -57,27 +77,59 @@ function decrypt(encryptedBalance: string): number | null {
 	}
 }
 
-// Função para Descriptografar dados sensíveis no Banco de Dados em String
-function decryptString(encryptedData: string): string | null {
-	let decrypted = ""; // Declare a variável fora do bloco try
-	try {
-		const decipher = crypto.createDecipheriv(
-			"aes-256-cbc",
-			Buffer.from(secretKey, "utf-8"),
-			Buffer.alloc(16, 0)
-		);
+// // Função para Descriptografar dados sensíveis no Banco de Dados
+// function decrypt(encryptedBalance: string): number | null {
+// 	let decrypted = ""; // Declarando a variável fora do bloco try
 
-		decipher.setAutoPadding(false);
+// 	try {
+// 		const decipher = crypto.createDecipheriv(
+// 			"aes-256-cbc",
+// 			Buffer.from(secretKey, "utf-8"),
+// 			Buffer.alloc(16, 0)
+// 		);
 
-		decrypted = decipher.update(encryptedData, "hex", "utf8");
-		decrypted += decipher.final("utf8");
+// 		decipher.setAutoPadding(false);
 
-		return decrypted;
-	} catch (error) {
-		console.error("Erro ao descriptografar os dados:", error);
-		return null;
-	}
+// 		decrypted = decipher.update(encryptedBalance, "hex", "utf8");
+// 		decrypted += decipher.final("utf8");
+
+// 		const balanceNumber = parseFloat(decrypted);
+// 		if (isNaN(balanceNumber)) {
+// 			return null;
+// 		}
+// 		return parseFloat(balanceNumber.toFixed(2));
+// 	} catch (error) {
+// 		console.error("Erro ao descriptografar o saldo:", error);
+// 		return null;
+// 	}
+// }
+
+// Função para arredondar valores
+function roundTo(num: number, decimals: number): number {
+	return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
+
+// // Função para Descriptografar dados sensíveis no Banco de Dados em String
+// function decryptString(encryptedData: string): string | null {
+// 	let decrypted = ""; // Declare a variável fora do bloco try
+// 	try {
+// 		const decipher = crypto.createDecipheriv(
+// 			"aes-256-cbc",
+// 			Buffer.from(secretKey, "utf-8"),
+// 			Buffer.alloc(16, 0)
+// 		);
+
+// 		decipher.setAutoPadding(false);
+
+// 		decrypted = decipher.update(encryptedData, "hex", "utf8");
+// 		decrypted += decipher.final("utf8");
+
+// 		return decrypted;
+// 	} catch (error) {
+// 		console.error("Erro ao descriptografar os dados:", error);
+// 		return null;
+// 	}
+// }
 
 class OrderController {
 	static async getAllPartnerOrders(req: Request, res: Response) {
@@ -768,7 +820,6 @@ class OrderController {
 			// Buscar o pedido pelo ID
 			const order = await OrderModel.findById(id);
 
-			// Caso a ordem não seja encontrada
 			if (!order) {
 				res.status(404).json({ message: "Pedido não encontrado!" });
 				return;
@@ -785,10 +836,186 @@ class OrderController {
 				return;
 			}
 
-			await OrderModel.deleteOne({ _id: order._id });
+			const customerID = order.customerID;
+			const customer = await CustomerModel.findById({ _id: customerID });
 
-			// Retornar a ordem encontrada
-			res.status(200).json({ message: "Cancelado", order });
+			if (!customer) {
+				res.status(404).json({ message: "Customer não encontrado!" });
+				return;
+			}
+
+			const customerOtakupayID = customer.otakupayID;
+			const customerOtakuPay = await OtakupayModel.findById({
+				_id: customerOtakupayID,
+			});
+
+			if (!customerOtakuPay) {
+				res.status(404).json({
+					message: "OtakuPay do Customer não encontrado!",
+				});
+				return;
+			}
+
+			const customerOtakuPointPedingCrypted =
+				customerOtakuPay.otakuPointsPending;
+
+			const customerOtakuPointPedingDecrypted = decrypt(
+				customerOtakuPointPedingCrypted
+			);
+
+			console.log(
+				"OTAKU POINT PENDING DO CUSTOMER ANTES DA DEVOLUÇÃO DOS PONTOS:",
+				customerOtakuPointPedingDecrypted
+			);
+
+			if (!customerOtakuPointPedingDecrypted) {
+				res.status(404).json({
+					message:
+						"Otaku Point Pendente Descriptografado do Customer não encontrado!",
+				});
+				return;
+			}
+
+			const orderOtakuPointsEarnedEncrypted =
+				order.customerOtakuPointsEarned;
+
+			const orderOtakuPointsEarnedDecrypted = decrypt(
+				orderOtakuPointsEarnedEncrypted
+			);
+
+			console.log(
+				"OTAKU POINT DO CUSTOMER QUE SERIA GANHO PELO PEDIDO:",
+				orderOtakuPointsEarnedDecrypted
+			);
+
+			if (!orderOtakuPointsEarnedDecrypted) {
+				res.status(404).json({
+					message:
+						"Otaku Point Ganho pelo Customer no Pedido Descriptografado não encontrado!",
+				});
+				return;
+			}
+
+			const subtractPointsEarned = roundTo(
+				customerOtakuPointPedingDecrypted -
+					orderOtakuPointsEarnedDecrypted,
+				2
+			).toString();
+
+			const subtractPointsEarnedCrypted = encrypt("702.56");
+
+			console.log(
+				"OTAKU POINT PENDING DO CUSTOMER APÓS A SUBTRAÇÃO DO VALOR QUE SERIA GANHO:",
+				subtractPointsEarned
+			);
+
+			console.log(
+				"OTAKU POINT PENDING DO CUSTOMER APÓS A SUBTRAÇÃO DO VALOR QUE SERIA GANHO - CRIPTOGRAFADO:",
+				subtractPointsEarnedCrypted
+			);
+
+			const customerOrderCostTotal = roundTo(
+				order.customerOrderCostTotal,
+				2
+			);
+
+			console.log(
+				"VALOR TOTAL DO PEDIDO A SER CANCELADO:",
+				customerOrderCostTotal
+			);
+
+			const customerBalanceAvailableCrypted =
+				customerOtakuPay.balanceAvailable;
+
+			const customerBalanceAvailableDecrypted = decrypt(
+				customerBalanceAvailableCrypted
+			);
+
+			console.log(
+				"BALANCE AVAILABLE DO CUSTOMER ANTES DO REEMBOLSO:",
+				customerBalanceAvailableDecrypted
+			);
+
+			if (!customerBalanceAvailableDecrypted) {
+				res.status(404).json({
+					message: "Customer Balance Available não encontrado!",
+				});
+				return;
+			}
+
+			const refundCustomer = roundTo(
+				customerBalanceAvailableDecrypted + customerOrderCostTotal,
+				2
+			).toString();
+
+			console.log(
+				"BALANCE AVAILABLE DO CUSTOMER APÓS O REEMBOLSO:",
+				refundCustomer
+			);
+
+			const refundCustomerCrypted = encrypt(refundCustomer);
+
+			console.log(
+				"BALANCE AVAILABLE DO CUSTOMER APÓS O REEMBOLSO - CRIPTOGRAFADO:",
+				refundCustomerCrypted
+			);
+
+			const partnerOtakuPayID = partner.otakupayID;
+			const partnerOtakupay = await OtakupayModel.findById({
+				_id: partnerOtakuPayID,
+			});
+
+			const partnerBalancePendingCrypted =
+				partnerOtakupay?.balancePending;
+
+			const partnerBalancePendingDecrypted = decrypt(
+				partnerBalancePendingCrypted as string
+			);
+
+			console.log(
+				"PARTNER BALANCE PENDING DESCRIPTOGRAFADO",
+				partnerBalancePendingDecrypted
+			);
+
+			if (!partnerBalancePendingDecrypted) {
+				res.status(404).json({
+					message: "Partner Balance Pending não encontrado!",
+				});
+				return;
+			}
+
+			const subtractPartnerSale = roundTo(
+				partnerBalancePendingDecrypted - customerOrderCostTotal,
+				2
+			).toString();
+
+			console.log(
+				"NOVO BALANCE PENDING DO PARTNER DESCRIPTOGRAFADO",
+				subtractPartnerSale
+			);
+
+			const subtractPartnerSaleCrypted = encrypt(subtractPartnerSale);
+
+			console.log(
+				"NOVO BALANCE PENDING DO PARTNER - CRIPTOGRAFADO",
+				subtractPartnerSaleCrypted
+			);
+
+			customerOtakuPay.otakuPointsPending = subtractPointsEarnedCrypted;
+
+			customerOtakuPay.balanceAvailable = refundCustomerCrypted;
+
+			if (partnerOtakupay) {
+				partnerOtakupay.balancePending = subtractPartnerSaleCrypted;
+			}
+
+			// await customerOtakuPay.save();
+			// await partnerOtakupay?.save();
+			// await order.deleteOne(order)
+
+			res.status(200).json({
+				message: "Pedido Cancelado com sucesso!",
+			});
 		} catch (err) {
 			console.error(err);
 			res.status(500).json({ message: "Erro ao buscar pedido!" });
