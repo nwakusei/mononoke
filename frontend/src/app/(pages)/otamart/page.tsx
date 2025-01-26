@@ -167,7 +167,7 @@ function OtamartPage() {
 
 	return (
 		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
-			<div className="flex flex-col items-center justify-center col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+			<div className="flex flex-col items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6">
 				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mt-8 mb-2 rounded-md shadow-md select-none">
 					Categorias
 				</div>
@@ -180,9 +180,9 @@ function OtamartPage() {
 					/>
 				</div>
 			</div>
-			<div className="flex flex-col justify-center items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-16">
+			<div className="flex flex-col items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-16">
 				{returnedProducts?.length === 0 && rCategory.length === 0 ? (
-					<div className="flex flex-row items-center justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold overflow-hidden text-ellipsis whitespace-nowrap py-2 mt-8 mb-4 rounded-md shadow-md select-none">
+					<div className="flex flex-row justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold overflow-hidden text-ellipsis whitespace-nowrap py-2 mt-8 mb-4 rounded-md shadow-md select-none">
 						<span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[800px]">
 							Produtos em Destaque
 						</span>

@@ -131,12 +131,6 @@ class CustomerController {
 		const balanceToEncrypt = "0.00"; // Exemplo de valor a ser criptografado
 		const encryptedBalance = encrypt(balanceToEncrypt);
 
-		console.log(
-			"SALDO INICIAL DO CUSTOMER (CRIPTOGRAFADO):",
-			encryptedBalance
-		);
-		console.log("SALDO INICIAL DO CUSTOMER EM NÚMERO:", balanceToEncrypt);
-
 		try {
 			const otakupay = new OtakupayModel({
 				accountStatus: "Active",

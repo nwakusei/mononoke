@@ -132,16 +132,6 @@ class PartnerController {
 		const cashbackToEncrypt = "1";
 		const encryptedCashback = encrypt(cashbackToEncrypt);
 
-		console.log(
-			"SALDO INICIAL DO PARTNER (CRIPTOGRAFADO):",
-			encryptedBalance
-		);
-		console.log("SALDO INICIAL DO PARTNER EM NÚMERO:", balanceToEncrypt);
-		// console.log(
-		// 	"CASHBACK PADRÃO CADASTRADO DO PARTNER EM NÚMERO:",
-		// 	cashbackToEncrypt
-		// );
-
 		try {
 			const otakupay = new OtakupayModel({
 				accountStatus: "Active",

@@ -356,7 +356,7 @@ function StorePage() {
 
 	return (
 		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
-			<div className="flex flex-col justify-center items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-16">
+			<div className="flex flex-col items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6 mb-16">
 				<div className="flex flex-col lg:flex-row gap-2 lg:gap-8 bg-white text-black w-[350px] lg:w-[1100px] min-h-[200px] p-4 mt-8 mb-8 rounded-md shadow-md select-none">
 					{/* Card Store Info 1 */}
 					<div className="flex flex-col gap-2">

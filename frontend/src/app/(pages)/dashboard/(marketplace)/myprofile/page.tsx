@@ -851,7 +851,7 @@ function MyProfilePage() {
 													: ""
 											}
 											{...register("viewAdultContent")}>
-											<option disabled value="">
+											<option value="">
 												Selecione uma opção
 											</option>
 											<option value="false">Não</option>
