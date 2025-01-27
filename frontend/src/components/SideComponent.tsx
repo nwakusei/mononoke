@@ -542,7 +542,7 @@ function SideComponent({ selectedVariation }) {
 		}
 
 		try {
-			const response = await api.post("/products/simulate-shipping", {
+			const response = await api.post("/products/simulate-shipping2", {
 				productID: product._id,
 				cepDestino: cep,
 				weight: product.weight, // Adicione o peso do produto
@@ -876,46 +876,38 @@ function SideComponent({ selectedVariation }) {
 						{transportadoras.length > 0 ? (
 							transportadoras.map((transportadora) => (
 								<div
-									key={transportadora.idSimulacao}
+									key={transportadora.id}
 									onClick={() =>
 										handleSelected(
-											transportadora.idSimulacao,
-											transportadora.idTransp,
-											transportadora.transp_nome,
-											transportadora.cnpjTransp,
-											transportadora.url_logo,
-											transportadora.vlrFrete,
-											transportadora.prazoEntMin,
-											transportadora.prazoEnt,
-											transportadora.dtPrevEntMin,
-											transportadora.dtPrevEnt
+											transportadora.id,
+											transportadora?.company.id,
+											transportadora.transportadora?
+												.company.name,
+											transportadora?.company.picture,
+											transportadora.price || null,
+											transportadora.delivery_time
 										)
 									}
 									className={`${
 										selectedTransportadora[
-											transportadora.idSimulacao
+											transportadora.id
 										]
 											? `bg-secondary border-solid text-white shadow-md`
 											: "border-dashed"
 									} hover:bg-secondary text-black hover:text-white transition-all ease-in duration-150 hover:border-solid border-[1px] border-primary rounded hover:shadow-md cursor-pointer p-2 mb-2`}>
 									<div className="flex flex-row justify-between items-center gap-2 mb-1">
 										<span>
-											{transportadora.transp_nome}
+											{`${transportadora?.company.name} (${transportadora.name})`}
 										</span>
+
 										<h2>
-											{transportadora.tarifas.map(
-												(tarifa, index) => (
-													<h2 key={index}>
-														{tarifa.valor.toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-														)}
-													</h2>
-												)
-											)}
+											{transportadora.price &&
+												parseFloat(
+													transportadora.price
+												).toLocaleString("pt-BR", {
+													style: "currency",
+													currency: "BRL",
+												})}
 										</h2>
 									</div>
 									<div className="flex flex-row justify-between">
@@ -925,7 +917,7 @@ function SideComponent({ selectedVariation }) {
 										<h2 className="text-sm">
 											{`≅ ${
 												product.daysShipping +
-												transportadora.prazoEnt
+												transportadora.delivery_time
 											} dias`}
 										</h2>
 									</div>

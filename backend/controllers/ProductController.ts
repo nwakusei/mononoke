@@ -1049,8 +1049,6 @@ class ProductController {
 				? partner.address[0].postalCode
 				: undefined;
 
-		console.log(partner.address[0].postalCode);
-
 		// Caso queira tratar casos onde pode não haver nenhum endereço
 		if (!cepOrigem) {
 			res.status(422).json({ message: "CEP de origem não encontrado!" });
@@ -1136,78 +1134,109 @@ class ProductController {
 	}
 
 	static async simulateShippingMelhorEnvio(req: Request, res: Response) {
-		const {
-			productID,
-			cepDestino,
-			weight,
-			height,
-			width,
-			length,
-			productPrice,
-			productPriceTotal,
-			quantityThisProduct,
-		} = req.body;
-
-		const weightTotal = weight * quantityThisProduct;
-
-		const cepOrigen = "04812010";
-
 		try {
-			// Define a URL do endpoint
-			const url =
-				"https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate";
+			const {
+				productID,
+				cepDestino,
+				weight,
+				height,
+				width,
+				length,
+				productPrice,
+				productPriceTotal,
+				quantityThisProduct,
+			} = req.body;
 
-			// Define o corpo da requisição (body)
+			// Calcula o peso total
+			const weightTotal = weight * quantityThisProduct;
+
+			// Busca o produto pelo ID
+			const product = await ProductModel.findById(productID).exec();
+			if (!product) {
+				return res
+					.status(404)
+					.json({ message: "Produto não encontrado!" });
+			}
+
+			// Busca o parceiro pelo partnerID do produto
+			const partner = await PartnerModel.findById(
+				product.partnerID
+			).exec();
+			if (!partner) {
+				return res
+					.status(404)
+					.json({ message: "Parceiro não encontrado!" });
+			}
+
+			// Obtém o CEP de origem do parceiro
+			const cepOrigem =
+				partner.address.length > 0
+					? partner.address[0].postalCode
+					: undefined;
+
+			if (!cepOrigem) {
+				return res
+					.status(422)
+					.json({ message: "CEP de origem não encontrado!" });
+			}
+
+			// Define o corpo da requisição
 			const body = {
 				from: {
-					postal_code: cepOrigen, // CEP de origem
+					postal_code: cepOrigem,
 				},
 				to: {
-					postal_code: cepDestino, // CEP de destino
+					postal_code: cepDestino,
 				},
 				package: {
-					height: height, // Altura do pacote
-					width: width, // Largura do pacote
-					length: length, // Comprimento do pacote
-					weight: weightTotal, // Peso do pacote
+					height: height,
+					width: width,
+					length: length,
+					weight: weightTotal,
 				},
 				options: {
-					insurance_value: productPriceTotal, // Valor do seguro
-					receipt: false, // Se deseja aviso de recebimento
-					own_hand: false, // Se deseja mão própria
+					insurance_value: productPriceTotal,
+					receipt: false,
+					own_hand: false,
 				},
-				services: "1,2,3,4,7,11", // Serviços desejados
+				services: "1,2,3,4,7,11",
 			};
 
 			// Configura os cabeçalhos da requisição
 			const headers = {
-				Accept: "application/json", // Tipo de resposta que esperamos
-				Authorization:
-					"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5NTYiLCJqdGkiOiJmMzI2NzI2MWVjOTMzZDY2OTA0YzhhY2U5MjZiYWU4ZWY4ZjI4ZjRlODNjNjA0Nzc1ZTAxZjdiY2ViYTY2MDAxYTZmMGI3MjU4MjA1OTZiNiIsImlhdCI6MTczNzg3MTQ1NC40MTQ2ODMsIm5iZiI6MTczNzg3MTQ1NC40MTQ2ODUsImV4cCI6MTc2OTQwNzQ1NC40MDE5MTEsInN1YiI6IjllMGVhOGE2LTBjYWQtNDZiNS04MzM0LWVkNGZjMjY2NDNhZiIsInNjb3BlcyI6WyJzaGlwcGluZy1jYWxjdWxhdGUiXX0.e1YVYR2fdqaLIwoNWY9VYhwQiJy7Ns-XgENjgdlN9NDV-O005VN8ei_0CXMDU6Yehb-mJh7N7z-TRIO6B8NlUtESoU97t7kxgUs6mKhH9qS2tELm_VhIZksYd4ZII3JJJknXVgSe37PzZgv_38wy_V1__XF34UdQlZowS-T7uNrb88zSC9e8qgDif3sHJnkUuwNCwX_kMugt_v5HwNd7rZpF5frE--WGyR5e3XWrw4ofzOemeEJeQPYcDA_MNMS1VdOCxYkRomujm2ceJg2bJ68RMhqf17sMOzvjyWB6bqE8LokbGZyNz1cI4Jy4R7Ay6ycCyhlu_ESntY0LfrbVv-IOoMiluIMq5hgJ_PuPesLrJGfgjMOzRO5PuGTyyojlRf683kb8ceVor5tZ46JhSltUsJGrkegz-QhO1y-G2qA6ifROsX-liPWB6RmnhjGdgN3PHtCaAj67mkHrn5PrkgOYPrKJ622LaL3ZEI8iWbbcxve4HDXMyeXRYGs6E4wJRLPPj4gP8xtfCmohiTZ_ia3hate-fRojU8_ym1AxuHYDWJe0fH0SG66NnBk65GEY9LUCR4L4L4zH6q_5v_jrHflNT3X7ST5WG1LOf_umhQkLBantZMdX_9OmiGu3JeNxc0_r7tXGf1MMm4C2wB55b7gvaTUncVNlAulhE0OC7io", // Substitua pelo token de acesso
-				"Content-Type": "application/json", // Tipo de conteúdo que estamos enviando
-				"User-Agent": "support@mononoke.com.br", // Seu nome de aplicação e email para contato
+				Accept: "application/json",
+				Authorization: `Bearer ${process.env.TOKEN_ACCESS_MELHOR_ENVIO}`,
+				"Content-Type": "application/json",
+				"User-Agent": "support@mononoke.com.br",
 			};
 
-			// Faz a requisição POST para o endpoint do Melhor Envio
-			const response = await fetch(url, {
-				method: "POST",
-				headers: headers,
-				body: JSON.stringify(body),
-			});
+			// Faz a requisição ao endpoint do Melhor Envio
+			const response = await fetch(
+				"https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate",
+				{
+					method: "POST",
+					headers: headers,
+					body: JSON.stringify(body),
+				}
+			);
 
 			// Processa a resposta
 			const data = await response.json();
 
-			// Verifica se a requisição foi bem-sucedida
 			if (!response.ok) {
 				throw new Error("Erro ao calcular frete: " + data.message);
 			}
 
-			// Retorna a resposta para o cliente
-			res.status(200).json(data);
-		} catch (error) {
-			// Em caso de erro, retorna a mensagem de erro
-			res.status(500).json({ error: error.message });
+			// Filtra transportadoras sem o campo 'error'
+			const filteredData = data.filter(
+				(transportadora: any) => !transportadora.error
+			);
+
+			// Retorna os dados filtrados para o cliente
+			return res.status(200).json(filteredData);
+		} catch (error: any) {
+			// Retorna erro em caso de falha
+			return res.status(500).json({ error: error.message });
 		}
 	}
 }
