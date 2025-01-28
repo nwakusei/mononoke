@@ -539,12 +539,21 @@ function ProductPage() {
 					showAgeModal ? "blur-sm pointer-events-none" : "blur-none"
 				}`}>
 				<main className="flex flex-col bg-white p-4 rounded-md shadow-md col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">
-					<div className="flex flex-row justify-between">
-						{/* Componente para a imagem principal */}
-						<MainImageProductAdComponent
-							selectedImage={selectedImage}
-							product={product}
-						/>
+					<div className="flex flex-row justify-between items-start">
+						<div className="flex flex-col">
+							{/* Componente para a imagem principal */}
+							<MainImageProductAdComponent
+								selectedImage={selectedImage}
+								product={product}
+							/>
+
+							{/* Componente para as miniaturas */}
+							<ImageCarouselComponent
+								product={product}
+								handleThumbnailClick={handleThumbnailClick}
+								selectedImage={selectedImage}
+							/>
+						</div>
 
 						{/* Componente intermediário */}
 						<div className="flex flex-col w-[350px]">
@@ -800,184 +809,6 @@ function ProductPage() {
 								</div>
 							)}
 
-							{/* {product?.productVariations?.length > 0 ? (
-							<div>
-								{product.productVariations.map(
-									(variation, index) => {
-										const prices = variation.options.map(
-											(option) => ({
-												original: option.originalPrice,
-												promo: option.promotionalPrice,
-											})
-										);
-
-										// Calcula valores para exibição e riscado
-										const promotionalPrices = prices
-											.filter((p) => p.promo > 0)
-											.map((p) => p.promo);
-										const originalPricesWithPromo = prices
-											.filter((p) => p.promo > 0)
-											.map((p) => p.original);
-
-										const displayedPrices = prices.map(
-											(p) =>
-												p.promo > 0
-													? p.promo
-													: p.original
-										);
-										const lowestPrice = Math.min(
-											...displayedPrices
-										);
-										const highestPrice = Math.max(
-											...displayedPrices
-										);
-
-										const lowestOriginalPriceWithPromo =
-											Math.min(
-												...originalPricesWithPromo
-											);
-										const highestOriginalPriceWithPromo =
-											Math.max(
-												...originalPricesWithPromo
-											);
-
-										return (
-											<div
-												key={index}
-												className="flex flex-col my-2">
-												<div>
-													{promotionalPrices.length >
-													0 ? (
-														<h2 className="text-2xl text-primary font-semibold">
-															{`${Number(
-																lowestPrice
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)} - ${Number(
-																highestPrice
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}`}
-														</h2>
-													) : (
-														<h2 className="text-2xl text-primary font-semibold">
-															{`${Number(
-																lowestPrice
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)} - ${Number(
-																highestPrice
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}`}
-														</h2>
-													)}
-												</div>
-
-												{promotionalPrices.length >
-													1 && (
-													<div className="flex flex-row items-center mb-2">
-														<span className="text-base text-black line-through mr-2">
-															{`${Number(
-																lowestOriginalPriceWithPromo
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)} - ${Number(
-																highestOriginalPriceWithPromo
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}`}
-														</span>
-													</div>
-												)}
-
-												{promotionalPrices.length ===
-													1 && (
-													<div className="flex flex-row items-center mb-2">
-														<span className="text-base text-black line-through mr-2">
-															{`${Number(
-																originalPricesWithPromo[0]
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}`}
-														</span>
-													</div>
-												)}
-											</div>
-										);
-									}
-								)}
-							</div>
-						) : (
-							<div>
-								{product?.promotionalPrice > 0 ? (
-									<div>
-										<h2 className="text-2xl text-primary font-semibold">
-											{Number(
-												product?.promotionalPrice
-											).toLocaleString("pt-BR", {
-												style: "currency",
-												currency: "BRL",
-											})}
-										</h2>
-										<div className="flex flex-row items-center mb-2">
-											<span className="text-base text-black line-through mr-2">
-												{Number(
-													product?.originalPrice
-												).toLocaleString("pt-BR", {
-													style: "currency",
-													currency: "BRL",
-												})}
-											</span>
-										</div>
-									</div>
-								) : (
-									<h2 className="text-2xl text-primary font-semibold">
-										{Number(
-											product?.originalPrice
-										).toLocaleString("pt-BR", {
-											style: "currency",
-											currency: "BRL",
-										})}
-									</h2>
-								)}
-							</div>
-						)} */}
 							{/* Cashback */}
 							{partner && (
 								<div className="flex flex-row items-center mb-4">
@@ -989,6 +820,7 @@ function ProductPage() {
 									</span>
 								</div>
 							)}
+
 							{/* Variações */}
 							<ProductVariation
 								variations={product?.productVariations}
@@ -996,15 +828,10 @@ function ProductPage() {
 								// selectedImage={selectedImage}
 							/>
 						</div>
+
 						{/* Componente Lateral D. */}
 						<SideComponent selectedVariation={selectedVariation} />
 					</div>
-					{/* Componente para as miniaturas */}
-					<ImageCarouselComponent
-						product={product}
-						handleThumbnailClick={handleThumbnailClick}
-						selectedImage={selectedImage}
-					/>
 				</main>
 
 				{/* Descrição do produto*/}

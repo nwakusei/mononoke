@@ -106,17 +106,14 @@ function SideComponent({ selectedVariation }) {
 	// 		: Number(product.originalPrice);
 
 	// Função para selecionar variações
+
 	function handleSelected(
 		transportadoraSimulacao,
 		transportadoraId,
 		transportadoraNome,
-		transportadoraCNPJ,
 		transportadoraLogo,
 		transportadoraVlrFrete,
-		transportadoraPrazoMin,
-		transportadoraPrazoEnt,
-		transportadoraDtPrevEntMin,
-		transportadoraDtPrevEnt
+		transportadoraPrazo
 	) {
 		setSelectedTransportadora((prevState) => {
 			const deselectedItems = Object.keys(prevState).reduce(
@@ -134,13 +131,9 @@ function SideComponent({ selectedVariation }) {
 				[transportadoraSimulacao]: !prevState[transportadoraSimulacao],
 				id: transportadoraId,
 				nome: transportadoraNome, // Adiciona o nome da transportadora ao estado
-				cnpj: transportadoraCNPJ,
 				logo: transportadoraLogo,
 				vlrFrete: transportadoraVlrFrete,
-				prazoMin: transportadoraPrazoMin,
-				prazoEnt: transportadoraPrazoEnt,
-				dtPrevEntMin: transportadoraDtPrevEntMin,
-				dtPrevEnt: transportadoraDtPrevEnt,
+				prazo: transportadoraPrazo,
 			};
 		});
 	}
@@ -490,7 +483,13 @@ function SideComponent({ selectedVariation }) {
 	// 	}
 	// }
 
-	async function handleSimulateShipping(cep: number) {
+	async function handleSimulateShipping(cep: number, quantity: number) {
+		// Verifica se a quantidade é válida (maior que zero)
+		if (quantity <= 0) {
+			toast.info("A quantidade precisa ser maior que 0!");
+			return;
+		}
+
 		if (product.productVariations.length > 0 && !selectedVariation) {
 			return toast.info("Selecione a variação!");
 		} else if (
@@ -542,7 +541,7 @@ function SideComponent({ selectedVariation }) {
 		}
 
 		try {
-			const response = await api.post("/products/simulate-shipping2", {
+			const response = await api.post("/products/simulate-shipping", {
 				productID: product._id,
 				cepDestino: cep,
 				weight: product.weight, // Adicione o peso do produto
@@ -550,7 +549,7 @@ function SideComponent({ selectedVariation }) {
 				width: product.width, // Adicione a largura do produto
 				length: product.length, // Adicione o comprimento do produto
 				productPrice: productPrice, // Adicione o preço unitário do produto
-				productPriceTotal: productPrice * quantity, // Adicione o preço total do produto
+				// productPriceTotal: productPrice * quantity, // Adicione o preço total do produto
 				quantityThisProduct: quantity, // Adicione a quantidade do produto
 			});
 
@@ -575,7 +574,7 @@ function SideComponent({ selectedVariation }) {
 			toast.info("O CEP precisa ter 8 números!");
 			return;
 		} else {
-			handleSimulateShipping(cepDestino);
+			handleSimulateShipping(cepDestino, quantity);
 		}
 	};
 
@@ -881,8 +880,7 @@ function SideComponent({ selectedVariation }) {
 										handleSelected(
 											transportadora.id,
 											transportadora?.company.id,
-											transportadora.transportadora?
-												.company.name,
+											transportadora?.company.name,
 											transportadora?.company.picture,
 											transportadora.price || null,
 											transportadora.delivery_time

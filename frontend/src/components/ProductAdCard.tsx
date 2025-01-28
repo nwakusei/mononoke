@@ -382,7 +382,7 @@ function ProductAdCard({
 													</div>
 												)} */}
 												{/* Exibição de valores riscados, se houver apenas uma promoção */}
-												{promotionalPrices.length ===
+												{/* {promotionalPrices.length ===
 													1 && (
 													<div className="flex flex-row items-center">
 														<span className="text-xs text-black line-through mr-2">
@@ -398,7 +398,7 @@ function ProductAdCard({
 															)}`}
 														</span>
 													</div>
-												)}
+												)} */}
 											</div>
 										);
 									}

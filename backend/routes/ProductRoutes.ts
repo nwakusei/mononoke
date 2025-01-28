@@ -68,10 +68,8 @@ router.delete("/:id", verifyToken, ProductController.removeProductById);
 
 router.get("/recommended-product/:id", ProductController.recommendedProduct);
 
-router.post("/simulate-shipping", ProductController.simulateShipping);
-
 router.post(
-	"/simulate-shipping2",
+	"/simulate-shipping",
 	ProductController.simulateShippingMelhorEnvio
 );
 
