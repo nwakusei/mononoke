@@ -108,7 +108,7 @@ function SideComponent({ selectedVariation }) {
 	// Função para selecionar variações
 
 	function handleSelected(
-		transportadoraSimulacao,
+		transportadoraIDSimulacao,
 		transportadoraId,
 		transportadoraNome,
 		transportadoraLogo,
@@ -120,7 +120,7 @@ function SideComponent({ selectedVariation }) {
 				(acc, key) => ({
 					...acc,
 					[key]:
-						key === transportadoraSimulacao
+						key === transportadoraIDSimulacao
 							? !prevState[key]
 							: false,
 				}),
@@ -128,10 +128,11 @@ function SideComponent({ selectedVariation }) {
 			);
 			return {
 				...deselectedItems,
-				[transportadoraSimulacao]: !prevState[transportadoraSimulacao],
-				id: transportadoraId,
-				nome: transportadoraNome, // Adiciona o nome da transportadora ao estado
-				logo: transportadoraLogo,
+				[transportadoraIDSimulacao]:
+					!prevState[transportadoraIDSimulacao],
+				companyID: transportadoraId,
+				companyName: transportadoraNome, // Adiciona o nome da transportadora ao estado
+				companyLogo: transportadoraLogo,
 				vlrFrete: transportadoraVlrFrete,
 				prazo: transportadoraPrazo,
 			};
@@ -298,15 +299,14 @@ function SideComponent({ selectedVariation }) {
 			selectedTransportadora &&
 			Object.values(selectedTransportadora).some((value) => value);
 
-		const transpFreeShipping = {
-			id: 0,
-			nome: "Free Shipping",
-			prazoEnt: 3,
-			vlrFrete: 0.0,
-		};
+		console.log("Transportadora Selecionada:", transportadoraSelecionada);
 
-		console.log(product.freeShippingRegion);
-		console.log(customerStateAddress);
+		const transpFreeShipping = {
+			companyID: 0,
+			companyName: "Free Shipping",
+			vlrFrete: 0.0,
+			prazo: 3,
+		};
 
 		if (
 			!transportadoraSelecionada &&
