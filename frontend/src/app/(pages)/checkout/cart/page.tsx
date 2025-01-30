@@ -313,7 +313,7 @@ function CartPage() {
 					transportadoraData[partnerID] = {
 						partnerID: partnerID,
 						companyName: transportadoraCorreta?.company?.name, // Corrigido para acessar o nome da empresa corretamente
-						vlrFrete: transportadoraCorreta?.price,
+						vlrFrete: Number(transportadoraCorreta?.price),
 						prazo: transportadoraCorreta?.delivery_time,
 					};
 
@@ -548,7 +548,7 @@ function CartPage() {
 							productPriceTotal: productPriceTotal,
 							quantityThisProduct: quantityThisProduct,
 							transportadora: {
-								id: transpID,
+								companyID: transpID,
 							},
 							productID: productID,
 						};

@@ -1249,6 +1249,112 @@ class ProductController {
 			return res.status(500).json({ error: error.message });
 		}
 	}
+
+	static async simulateShippingCorreiosModico(req: Request, res: Response) {
+		const {
+			productID,
+			cepDestino,
+			weight,
+			height,
+			width,
+			length,
+			productPrice,
+			quantityThisProduct,
+		} = req.body;
+
+		// Cálculo total do valor
+		const productPriceTotal = productPrice * quantityThisProduct;
+
+		// Cálculo total do peso
+		const weightTotal = weight * quantityThisProduct;
+
+		try {
+			// Busca o produto pelo ID
+			const product = await ProductModel.findById(productID).exec();
+
+			if (!product) {
+				return res
+					.status(404)
+					.json({ message: "Produto não encontrado!" });
+			}
+
+			if (product.category !== "Impresso") {
+				res.status(400).json({
+					message: "Produto não é do tipo Impresso!",
+				});
+				return;
+			}
+
+			// Tabela de preços do Registro Módico
+			const precosFrete = [
+				{
+					id: "100",
+					name: "Registro Módico",
+					weight: {
+						min: 0.0,
+						max: 0.02,
+					},
+					price: "5.50",
+					currency: "R$",
+					delivery_time: 7,
+					company: {
+						id: 111,
+						name: "Correios",
+						picture: "https://logo.com/correios.png",
+					},
+				},
+				{
+					id: "120",
+					name: "Registro Módico",
+					weight: {
+						min: 0.02,
+						max: 0.05,
+					},
+					price: "6.25",
+					currency: "R$",
+					delivery_time: 7,
+					company: {
+						id: 121,
+						name: "Correios",
+						picture: "https://logo.com/correios.png",
+					},
+				},
+				{
+					id: "130",
+					name: "Registro Módico",
+					weight: {
+						min: 0.25,
+						max: 0.27,
+					},
+					price: "6.95",
+					currency: "R$",
+					delivery_time: 7,
+					company: {
+						id: 131,
+						name: "Correios",
+						picture: "https://logo.com/correios.png",
+					},
+				},
+			];
+
+			// Filtrar todas as opções compatíveis com o peso total
+			const shippingFound = precosFrete.filter(
+				(shipping) =>
+					weightTotal >= shipping.weight.min &&
+					weightTotal <= shipping.weight.max
+			);
+
+			if (shippingFound) {
+				return res.status(200).json(shippingFound);
+			} else {
+				return res.status(400).json({
+					error: "Peso excede o limite do Registro Módico.",
+				});
+			}
+		} catch (error: any) {
+			return res.status(500).json({ error: error.message });
+		}
+	}
 }
 
 export default ProductController;

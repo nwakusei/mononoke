@@ -73,4 +73,9 @@ router.post(
 	ProductController.simulateShippingMelhorEnvio
 );
 
+router.post(
+	"/simulate-shipping-modico",
+	ProductController.simulateShippingCorreiosModico
+);
+
 export default router;
