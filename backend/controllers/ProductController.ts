@@ -1153,6 +1153,8 @@ class ProductController {
 		// Calculo total do peso
 		const weightTotal = weight * quantityThisProduct;
 
+		console.log("PESO TOTAL RECEBIDO: ", weightTotal);
+
 		try {
 			// Busca o produto pelo ID
 			const product = await ProductModel.findById(productID).exec();
@@ -1262,11 +1264,9 @@ class ProductController {
 			quantityThisProduct,
 		} = req.body;
 
-		// Cálculo total do valor
-		const productPriceTotal = productPrice * quantityThisProduct;
-
 		// Cálculo total do peso
 		const weightTotal = weight * quantityThisProduct;
+		console.log("PESO TOTAL RECEBIDO: ", weightTotal);
 
 		try {
 			// Busca o produto pelo ID
@@ -1290,10 +1290,7 @@ class ProductController {
 				{
 					id: "100",
 					name: "Registro Módico",
-					weight: {
-						min: 0.0,
-						max: 0.02,
-					},
+					weight: { min: 0.25, max: 0.499 },
 					price: "5.50",
 					currency: "R$",
 					delivery_time: 7,
@@ -1306,10 +1303,7 @@ class ProductController {
 				{
 					id: "120",
 					name: "Registro Módico",
-					weight: {
-						min: 0.02,
-						max: 0.05,
-					},
+					weight: { min: 0.5, max: 0.599 },
 					price: "6.25",
 					currency: "R$",
 					delivery_time: 7,
@@ -1322,10 +1316,7 @@ class ProductController {
 				{
 					id: "130",
 					name: "Registro Módico",
-					weight: {
-						min: 0.25,
-						max: 0.27,
-					},
+					weight: { min: 0.61, max: 0.75 },
 					price: "6.95",
 					currency: "R$",
 					delivery_time: 7,
@@ -1337,15 +1328,15 @@ class ProductController {
 				},
 			];
 
-			// Filtrar todas as opções compatíveis com o peso total
-			const shippingFound = precosFrete.filter(
+			// Buscar a transportadora que atende ao peso total
+			const shippingFound = precosFrete.find(
 				(shipping) =>
 					weightTotal >= shipping.weight.min &&
 					weightTotal <= shipping.weight.max
 			);
 
 			if (shippingFound) {
-				return res.status(200).json(shippingFound);
+				return res.status(200).json([shippingFound]); // Retorna o objeto dentro de um array
 			} else {
 				return res.status(400).json({
 					error: "Peso excede o limite do Registro Módico.",

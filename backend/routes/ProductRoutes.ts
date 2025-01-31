@@ -69,12 +69,12 @@ router.delete("/:id", verifyToken, ProductController.removeProductById);
 router.get("/recommended-product/:id", ProductController.recommendedProduct);
 
 router.post(
-	"/simulate-shipping",
+	"/simulate-melhor-envio",
 	ProductController.simulateShippingMelhorEnvio
 );
 
 router.post(
-	"/simulate-shipping-modico",
+	"/simulate-modico",
 	ProductController.simulateShippingCorreiosModico
 );
 

@@ -171,7 +171,7 @@ function CartPage() {
 
 				if (!productInfo[partnerID]) {
 					productInfo[partnerID] = {
-						weight: weight * quantityThisProduct,
+						weight: weight,
 						length: length,
 						width: width,
 						height: height,
@@ -185,8 +185,7 @@ function CartPage() {
 					};
 				} else {
 					// Acumular os valores de peso, comprimento, largura, altura e quantidade
-					productInfo[partnerID].weight +=
-						weight * quantityThisProduct;
+					productInfo[partnerID].weight += weight;
 					productInfo[partnerID].length = length;
 					productInfo[partnerID].width = width;
 					productInfo[partnerID].height = height;
@@ -275,7 +274,7 @@ function CartPage() {
 					const partnerData = productInfo[partnerID];
 
 					const response = await api.post(
-						"/products/simulate-shipping",
+						"/products/simulate-melhor-envio",
 						{
 							productID: partnerData.productID, // Incluindo o productID
 							cepDestino: cepDestino,
@@ -298,7 +297,9 @@ function CartPage() {
 								partnerData.transportadora?.companyID
 							);
 						}
-					);
+					); // Trasnportadora Correta para Melhor Envio
+
+					// const transportadoraCorreta = response.data[0]; // Trasnportadora Correta para Módico
 
 					if (transportadoraCorreta) {
 						console.log(
@@ -351,6 +352,83 @@ function CartPage() {
 			console.error("Ocorreu um erro:", error);
 		}
 	}
+
+	// async function handleSimulateShipping(cepDestino, productInfo) {
+	// 	try {
+	// 		const transportadoraData = {};
+
+	// 		for (const partnerID in productInfo) {
+	// 			if (productInfo.hasOwnProperty(partnerID)) {
+	// 				const partnerData = productInfo[partnerID];
+
+	// 				const response = await api.post(
+	// 					"/products/simulate-melhor-enviomelhor-envio",
+	// 					{
+	// 						productID: partnerData.productID, // Incluindo o productID
+	// 						cepDestino: cepDestino,
+	// 						weight: partnerData.weight,
+	// 						height: partnerData.height,
+	// 						width: partnerData.width,
+	// 						length: partnerData.length,
+	// 						productPrice: partnerData.productPriceTotal,
+	// 						productPriceTotal: partnerData.productPriceTotal,
+	// 						quantityThisProduct:
+	// 							partnerData.quantityThisProduct,
+	// 					}
+	// 				);
+
+	// 				const transportadoraCorreta = response.data.find(
+	// 					(transportadora) => {
+	// 						return (
+	// 							transportadora.company?.id ===
+	// 							partnerData.transportadora?.companyID
+	// 						);
+	// 					}
+	// 				); // Trasnportadora Correta para Melhor Envio
+
+	// 				// const transportadoraCorreta = response.data[0]; // Trasnportadora Correta para Módico
+
+	// 				console.log(
+	// 					"DADOS DA TRANSPORTADORA CORRETA:",
+	// 					transportadoraCorreta
+	// 				);
+
+	// 				// Adicionando os dados da transportadora ao objeto transportadoraData
+	// 				transportadoraData[partnerID] = {
+	// 					partnerID: partnerID,
+	// 					companyName: transportadoraCorreta?.company?.name, // Corrigido para acessar o nome da empresa corretamente
+	// 					vlrFrete: Number(transportadoraCorreta?.price),
+	// 					prazo: transportadoraCorreta?.delivery_time,
+	// 				};
+	// 			}
+	// 		}
+
+	// 		// Verifique se transportadoraData não está vazio
+	// 		if (Object.keys(transportadoraData).length === 0) {
+	// 			console.log("Transportadora data está vazio.");
+	// 		} else {
+	// 			console.log("Transportadora data:", transportadoraData);
+	// 		}
+
+	// 		// Atualizando o estado com os dados da transportadora
+	// 		setTransportadoraInfo(transportadoraData);
+	// 		// Salvando no localStorage
+	// 		try {
+	// 			console.log(
+	// 				"Salvando dados no localStorage:",
+	// 				transportadoraData
+	// 			);
+	// 			localStorage.setItem(
+	// 				"transportadoraInfo",
+	// 				JSON.stringify(transportadoraData)
+	// 			);
+	// 		} catch (error) {
+	// 			console.error("Erro ao salvar no localStorage:", error);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error("Ocorreu um erro:", error);
+	// 	}
+	// }
 
 	const decreaseQuantity = async (productId) => {
 		try {
@@ -413,7 +491,7 @@ function CartPage() {
 
 							if (!productInfo[partnerID]) {
 								productInfo[partnerID] = {
-									weight: weight * quantityThisProduct,
+									weight: weight,
 									length: length,
 									width: width,
 									height: height,
@@ -427,8 +505,7 @@ function CartPage() {
 								};
 							} else {
 								// Acumular os valores de peso, comprimento, largura, altura e quantidade
-								productInfo[partnerID].weight +=
-									weight * quantityThisProduct;
+								productInfo[partnerID].weight += weight;
 								productInfo[partnerID].length = length;
 								productInfo[partnerID].width = width;
 								productInfo[partnerID].height = height;
@@ -540,7 +617,7 @@ function CartPage() {
 
 					if (!productInfo[partnerID]) {
 						productInfo[partnerID] = {
-							weight: weight * quantityThisProduct,
+							weight: weight,
 							length: length,
 							width: width,
 							height: height,
@@ -553,8 +630,7 @@ function CartPage() {
 							productID: productID,
 						};
 					} else {
-						productInfo[partnerID].weight +=
-							weight * quantityThisProduct;
+						productInfo[partnerID].weight += weight;
 						productInfo[partnerID].length = length;
 						productInfo[partnerID].width = width;
 						productInfo[partnerID].height = height;
@@ -630,7 +706,7 @@ function CartPage() {
 
 					if (!productInfo[partnerID]) {
 						productInfo[partnerID] = {
-							weight: weight * quantityThisProduct,
+							weight: weight,
 							length: length,
 							width: width,
 							height: height,
@@ -643,8 +719,7 @@ function CartPage() {
 						};
 					} else {
 						// Acumular os valores de peso, comprimento, largura, altura e quantidade
-						productInfo[partnerID].weight +=
-							weight * quantityThisProduct;
+						productInfo[partnerID].weight += weight;
 						productInfo[partnerID].length = length;
 						productInfo[partnerID].width = width;
 						productInfo[partnerID].height = height;
