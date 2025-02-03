@@ -155,6 +155,7 @@ class CustomerController {
 				email: email,
 				password: passwordHash,
 				viewAdultContent: false,
+				newsletters: true,
 				otakupayID: newOtakupay._id,
 			});
 

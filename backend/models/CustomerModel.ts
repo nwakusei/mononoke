@@ -18,8 +18,9 @@ interface ICustomer {
 	cpf: string;
 	address: [{}];
 	viewAdultContent: boolean;
-	otakupayID: mongoose.Schema.Types.ObjectId;
 	followingStores: IFollowingStores[];
+	newsletters: boolean;
+	otakupayID: mongoose.Schema.Types.ObjectId;
 }
 
 // Schema que corresponda a Interface.
@@ -63,12 +64,15 @@ const customerSchema = new Schema<ICustomer>(
 		viewAdultContent: {
 			type: Boolean,
 		},
+		followingStores: {
+			type: [{}],
+		},
+		newsletters: {
+			type: Boolean,
+		},
 		otakupayID: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "OtakupayModel",
-		},
-		followingStores: {
-			type: [{}],
 		},
 	},
 	{ timestamps: true }

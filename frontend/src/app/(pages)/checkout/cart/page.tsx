@@ -274,7 +274,7 @@ function CartPage() {
 					const partnerData = productInfo[partnerID];
 
 					const response = await api.post(
-						"/products/simulate-melhor-envio",
+						"/shippings/simulate-melhor-envio",
 						{
 							productID: partnerData.productID, // Incluindo o productID
 							cepDestino: cepDestino,

@@ -541,7 +541,7 @@ function SideComponent({ selectedVariation }) {
 		}
 
 		try {
-			const response = await api.post("/products/simulate-melhor-envio", {
+			const response = await api.post("/shippings/simulate-modico", {
 				productID: product._id,
 				cepDestino: cep,
 				weight: product.weight, // Adicione o peso do produto

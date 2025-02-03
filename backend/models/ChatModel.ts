@@ -42,6 +42,6 @@ const chatSchema = new Schema<IChat>(
 	{ timestamps: true }
 );
 
-const ChatModel = mainDB.model("Chat", chatSchema);
+const ChatModel = mainDB.model<IChat>("Chat", chatSchema);
 
 export { ChatModel };
