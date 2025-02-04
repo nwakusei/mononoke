@@ -253,6 +253,7 @@ const updateUserFormSchema = z
 					message: "※ O CEP deve ser um número válido!",
 				}
 			),
+		shippingOperator: z.array(z.enum(["MelhorEnvio", "Modico"])),
 		credential: z.string().trim().optional(), // Torna opcional inicialmente
 		cashback: z
 			.string()
@@ -1563,6 +1564,65 @@ function MyProfilePage() {
 									<></>
 								) : (
 									<>
+										{/* Operador Logístico */}
+										<label className="flex flex-row form-control w-full max-w-3xl">
+											<div className="flex flex-col items-center">
+												<div className="label">
+													<span className="label-text text-black">
+														Melhor Envio
+													</span>
+												</div>
+												<input
+													type="checkbox"
+													defaultChecked={user.shippingConfiguration[0]?.shippingOperator.includes(
+														"MelhorEnvio"
+													)}
+													className="checkbox"
+													value="MelhorEnvio"
+													{...register(
+														"shippingOperator"
+													)}
+												/>
+											</div>
+
+											<div className="flex flex-col items-center">
+												<div className="label">
+													<span className="label-text text-black">
+														Registro Módico
+													</span>
+												</div>
+												<input
+													type="checkbox"
+													defaultChecked={user.shippingConfiguration[0]?.shippingOperator.includes(
+														"Modico"
+													)}
+													className="checkbox"
+													value="Modico"
+													{...register(
+														"shippingOperator"
+													)}
+												/>
+											</div>
+
+											<div className="label">
+												<span className="label-text-alt text-red-500">
+													{errors.shippingOperator ? (
+														<span>
+															{
+																errors
+																	.shippingOperator
+																	.message
+															}
+														</span>
+													) : (
+														<span className="text-black">
+															Obs.:...
+														</span>
+													)}
+												</span>
+											</div>
+										</label>
+
 										{/* Credential */}
 										<label className="form-control w-full max-w-3xl">
 											<div className="label">

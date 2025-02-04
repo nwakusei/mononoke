@@ -36,7 +36,7 @@ class ProductController {
 					min: shippingWeightMin,
 					max: shippingWeightMax,
 				},
-				deliveryTime: shippingDeliveryTime,
+				delivery_time: shippingDeliveryTime,
 				company: {
 					id: shippingCompanyID,
 					name: shippingCompanyName,
@@ -226,6 +226,7 @@ class ProductController {
 
 		// Cálculo total do peso
 		const weightTotal = weight * quantityThisProduct;
+
 		console.log("PESO TOTAL RECEBIDO: ", weightTotal);
 
 		try {

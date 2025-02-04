@@ -331,6 +331,7 @@ class PartnerController {
 			description,
 			viewAdultContent,
 			cashback,
+			shippingOperator,
 			credential,
 			password,
 			confirmPassword,
@@ -436,23 +437,46 @@ class PartnerController {
 					return;
 				}
 
-				// Atualizar ou adicionar configuração de envio
-				const shippingOperator = "Kangu"; // Provide a default value or get it from req.body
-				const existingShippingConfig =
-					partner.shippingConfiguration.find(
-						(config) => config.shippingOperator === shippingOperator
-					);
+				// Atualizar ou adicionar configuração de envio3
+				const shippingOperators = shippingOperator.split(",");
 
-				if (existingShippingConfig) {
-					// Atualizar credencial existente
-					existingShippingConfig.credential = credential;
-				} else {
-					// Adicionar nova configuração de envio
-					partner.shippingConfiguration.push({
-						shippingOperator,
-						credential,
-					});
-				}
+				// Cria uma lista com os operadores de envio que o usuário deseja manter
+				const selectedOperators = shippingOperators.map((operator) =>
+					operator.trim()
+				);
+
+				// Itera sobre as configurações de envio já existentes para verificar se algum operador deve ser removido ou atualizado
+				partner.shippingConfiguration.forEach(
+					(existingConfig, index) => {
+						if (
+							!selectedOperators.includes(
+								existingConfig.shippingOperator
+							)
+						) {
+							// Se o operador não está mais selecionado, removemos da configuração
+							partner.shippingConfiguration.splice(index, 1);
+						} else {
+							// Se o operador estiver na lista de selecionados, atualizamos a credencial
+							existingConfig.credential = credential;
+						}
+					}
+				);
+
+				// Agora iteramos sobre os novos operadores de envio (que ainda não existem) e os adicionamos
+				selectedOperators.forEach((operator) => {
+					const existingShippingConfig =
+						partner.shippingConfiguration.find(
+							(config) => config.shippingOperator === operator
+						);
+
+					if (!existingShippingConfig) {
+						// Adicionar nova configuração de envio para o operador específico
+						partner.shippingConfiguration.push({
+							shippingOperator: operator,
+							credential,
+						});
+					}
+				});
 
 				await partner.save();
 

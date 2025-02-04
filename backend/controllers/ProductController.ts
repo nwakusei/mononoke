@@ -857,11 +857,11 @@ class ProductController {
 				{
 					$match: {
 						category: currentProduct.category,
-						_id: { $ne: new mongoose.Types.ObjectId(id) }, // Exclui o produto atual da lista de recomendação ($ne = Not Equal)
+						_id: { $ne: new mongoose.Types.ObjectId(id) },
 					},
 				},
 				{
-					$sample: { size: 4 }, // Seleciona 4 produtos aleatórios
+					$sample: { size: 4 }, // Seleciona até 4 produtos aleatórios
 				},
 			]);
 
@@ -870,11 +870,11 @@ class ProductController {
 				const additionalProducts = await ProductModel.aggregate([
 					{
 						$match: {
-							_id: { $ne: new mongoose.Types.ObjectId(id) }, // Exclui o produto atual da lista de recomendação
+							_id: { $ne: new mongoose.Types.ObjectId(id) },
 						},
 					},
 					{
-						$sample: { size: 4 - recommendedProducts.length }, // Seleciona o número necessário para completar 4 produtos
+						$sample: { size: 4 - recommendedProducts.length },
 					},
 				]);
 
@@ -882,6 +882,15 @@ class ProductController {
 				recommendedProducts =
 					recommendedProducts.concat(additionalProducts);
 			}
+
+			// 🔥 **Remover duplicatas com base no _id**
+			recommendedProducts = recommendedProducts.filter(
+				(product, index, self) =>
+					index ===
+					self.findIndex(
+						(p) => p._id.toString() === product._id.toString()
+					)
+			);
 
 			// Passo 4: Enviar os produtos encontrados na resposta
 			res.status(200).json({

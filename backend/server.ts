@@ -13,7 +13,7 @@ const app = express();
 app.use(express.static("public"));
 
 // Configuração CORS
-app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
+app.use(cors({ credentials: true, origin: process.env.CLIENT_SIDE_URL }));
 
 // // Configuração JSON response > para transformar o corpo da solicitação em JSON
 // app.use(express.json());

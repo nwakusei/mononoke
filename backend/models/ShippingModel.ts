@@ -9,7 +9,7 @@ interface IModalityOptions {
 		min: number;
 		max: number;
 	};
-	deliveryTime: number;
+	delivery_time: number;
 	company: {
 		id: number;
 		name: string;
