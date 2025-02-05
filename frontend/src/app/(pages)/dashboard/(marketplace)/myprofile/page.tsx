@@ -254,7 +254,8 @@ const updateUserFormSchema = z
 				}
 			),
 		shippingOperator: z.array(z.enum(["MelhorEnvio", "Modico"])),
-		credential: z.string().trim().optional(), // Torna opcional inicialmente
+		modalityOptions: z.array(z.enum(["2", "31"])), // Garante que modalityOptions é um array de strings
+		credential: z.string(), // Torna opcional inicialmente
 		cashback: z
 			.string()
 			.trim()
@@ -437,117 +438,16 @@ function MyProfilePage() {
 
 	handleSelectedImage;
 
-	// async function updateUser(data: TUpdateUserFormData) {
-	// 	console.log(data.profileImage);
-
-	// 	setOutput(JSON.stringify(data, null, 2));
-
-	// 	try {
-	// 		if (user?.accountType === "partner") {
-	// 			const name = e.target.name.value;
-	// 			const cashback = e.target.cashback.value;
-	// 			const email = e.target.email.value;
-	// 			const cpfCnpj = e.target.cpfCnpj.value;
-
-	// 			const logradouro = e.target.logradouro.value;
-	// 			const complemento = e.target.complemento.value;
-	// 			const bairro = e.target.bairro.value;
-	// 			const cidade = e.target.cidade.value;
-	// 			const uf = e.target.uf.value;
-	// 			const cep = e.target.cep.value;
-
-	// 			const address = {
-	// 				logradouro: logradouro,
-	// 				complemento: complemento,
-	// 				bairro: bairro,
-	// 				cidade: cidade,
-	// 				uf: uf,
-	// 				cep: cep,
-	// 			};
-
-	// 			const password = e.target.password.value;
-	// 			const confirmPassword = e.target.confirmPassword.value;
-
-	// 			const response = await api.patch("/partners/edit", {
-	// 				name: name,
-	// 				cashback: cashback,
-	// 				email: email,
-	// 				cpfCnpj: cpfCnpj,
-	// 				address: address,
-	// 				password: password,
-	// 				confirmPassword: confirmPassword,
-	// 			});
-
-	// 			Swal.fire({
-	// 				title: response.data.message,
-	// 				width: 900,
-	// 				icon: "success",
-	// 			});
-
-	// 			console.log(response.data);
-	// 		} else if (user?.accountType === "customer") {
-	// 			const name = e.target.name.value;
-	// 			const email = e.target.email.value;
-	// 			const cpf = e.target.cpf.value;
-
-	// 			const logradouro = e.target.logradouro.value;
-	// 			const complemento = e.target.complemento.value;
-	// 			const bairro = e.target.bairro.value;
-	// 			const cidade = e.target.cidade.value;
-	// 			const uf = e.target.uf.value;
-	// 			const cep = e.target.cep.value;
-
-	// 			const address = {
-	// 				logradouro: logradouro,
-	// 				complemento: complemento,
-	// 				bairro: bairro,
-	// 				cidade: cidade,
-	// 				uf: uf,
-	// 				cep: cep,
-	// 			};
-
-	// 			const password = e.target.password.value;
-	// 			const confirmPassword = e.target.confirmPassword.value;
-
-	// 			const response = await api.patch("/customers/edit", {
-	// 				name: name,
-	// 				email: email,
-	// 				cpf: cpf,
-	// 				address: address,
-	// 				password: password,
-	// 				confirmPassword: confirmPassword,
-	// 			});
-
-	// 			Swal.fire({
-	// 				title: response.data.message,
-	// 				width: 900,
-	// 				icon: "success",
-	// 			});
-	// 		}
-	// 	} catch (error: any) {
-	// 		console.log(error);
-
-	// 		Swal.fire({
-	// 			title: error.response.data.message,
-	// 			width: 900,
-	// 			icon: "error",
-	// 		});
-	// 	}
-	// }
-
 	async function updateUser(data: TUpdateUserFormData) {
 		// Sanitiza os dados antes de usá-los
 		const sanitizedData = Object.fromEntries(
 			Object.entries(data).map(([key, value]) => {
-				// Verifica se o valor é uma string (ou outro tipo que precise de sanitização)
 				if (typeof value === "string") {
 					return [key, DOMPurify.sanitize(value)];
 				}
-				return [key, value]; // Retorna o valor original se não for uma string
+				return [key, value];
 			})
 		);
-
-		console.log(sanitizedData);
 
 		setOutput(JSON.stringify(sanitizedData, null, 2));
 		console.log("Dados sanitizados:", sanitizedData);
@@ -555,33 +455,32 @@ function MyProfilePage() {
 		// Cria um novo FormData
 		const formData = new FormData();
 
-		// // Itera sobre os campos do objeto 'sanitizedData' e adiciona ao FormData
-		// Object.entries(sanitizedData).forEach(([key, value]) => {
-		// 	if (key === "profileImage" && value instanceof File) {
-		// 		formData.append(key, value);
-		// 		console.log(`Adicionado ao FormData: ${key} - [Imagem]`);
-		// 	} else {
-		// 		formData.append(key, value);
-		// 		console.log(`Adicionado ao FormData: ${key} - ${value}`);
-		// 	}
-		// });
-
-		// Itera sobre os campos do objeto 'sanitizedData' e adiciona ao FormData
-		Object.entries(sanitizedData).forEach(([key, value]) => {
-			// Verifica se o valor é a imagem de perfil (profileImage)
-			if (key === "profileImage" && value instanceof File) {
-				formData.append(key, value);
+		// Asegura que modalityOptions é um array
+		if (Array.isArray(sanitizedData.modalityOptions)) {
+			sanitizedData.modalityOptions.forEach((option) => {
+				formData.append("modalityOptions[]", option); // 'modalityOptions[]' para enviar como array
 				console.log(
-					`Adicionado ao FormData: ${key} - [Imagem de Perfil]`
+					`Adicionado ao FormData: modalityOptions[] - ${option}`
 				);
-			}
-			// Verifica se o valor é a logo (LogoImage)
-			else if (key === "LogoImage" && value instanceof File) {
-				formData.append(key, value);
-				console.log(`Adicionado ao FormData: ${key} - [Logo]`);
-			} else {
-				formData.append(key, value);
-				console.log(`Adicionado ao FormData: ${key} - ${value}`);
+			});
+		}
+
+		// Adiciona outros dados no FormData
+		Object.entries(sanitizedData).forEach(([key, value]) => {
+			if (key !== "modalityOptions") {
+				// Ignora a propriedade 'modalityOptions' aqui, pois já tratamos dela
+				if (key === "profileImage" && value instanceof File) {
+					formData.append(key, value);
+					console.log(
+						`Adicionado ao FormData: ${key} - [Imagem de Perfil]`
+					);
+				} else if (key === "LogoImage" && value instanceof File) {
+					formData.append(key, value);
+					console.log(`Adicionado ao FormData: ${key} - [Logo]`);
+				} else {
+					formData.append(key, value);
+					console.log(`Adicionado ao FormData: ${key} - ${value}`);
+				}
 			}
 		});
 
@@ -598,45 +497,9 @@ function MyProfilePage() {
 			setLoadingButton(false);
 		} catch (error: any) {
 			toast.error(error.response.data.message);
-			setLoadingButton(false); // Certifique-se de parar o loading se ocorrer um erro
+			setLoadingButton(false);
 		}
 	}
-
-	// async function updateUser(data: TUpdateUserFormData) {
-	// 	setOutput(JSON.stringify(data, null, 2));
-
-	// 	console.log("Dados recebidos:", data);
-
-	// 	// Cria um novo FormData
-	// 	const formData = new FormData();
-
-	// 	// Itera sobre os campos do objeto 'data' e adiciona ao FormData
-	// 	Object.entries(data).forEach(([key, value]) => {
-	// 		if (key === "profileImage" && value instanceof File) {
-	// 			formData.append(key, value);
-	// 			console.log(`Adicionado ao FormData: ${key} - [Imagem]`);
-	// 		} else {
-	// 			formData.append(key, value);
-	// 			console.log(`Adicionado ao FormData: ${key} - ${value}`);
-	// 		}
-	// 	});
-
-	// 	try {
-	// 		setLoadingButton(true);
-
-	// 		if (user?.accountType === "partner") {
-	// 			const response = await api.patch("/partners/edit", formData);
-
-	// 			toast.success(response.data.message);
-	// 		} else if (user?.accountType === "customer") {
-	// 			const response = await api.patch("/customers/edit", formData);
-	// 			toast.success(response.data.message);
-	// 		}
-	// 		setLoadingButton(false);
-	// 	} catch (error: any) {
-	// 		toast.error(error.response.data.message);
-	// 	}
-	// }
 
 	const handleCancelar = () => {
 		// Redirecionar para outra página ao clicar em Cancelar
@@ -1566,7 +1429,7 @@ function MyProfilePage() {
 									<>
 										{/* Operador Logístico */}
 										<label className="flex flex-row form-control w-full max-w-3xl">
-											<div className="flex flex-col items-center">
+											<div className="flex flex-row items-center">
 												<div className="label">
 													<span className="label-text text-black">
 														Melhor Envio
@@ -1585,7 +1448,88 @@ function MyProfilePage() {
 												/>
 											</div>
 
-											<div className="flex flex-col items-center">
+											<div className="label">
+												<span className="label-text-alt text-red-500">
+													{errors.shippingOperator ? (
+														<span>
+															{
+																errors
+																	.shippingOperator
+																	.message
+															}
+														</span>
+													) : (
+														<span className="text-black">
+															Obs.:...
+														</span>
+													)}
+												</span>
+											</div>
+										</label>
+
+										{/* Modalidades de Envio */}
+										<label className="flex flex-row form-control w-full max-w-3xl">
+											<div className="flex flex-row items-center">
+												<div className="label">
+													<span className="label-text text-black">
+														SEDEX
+													</span>
+												</div>
+												<input
+													type="checkbox"
+													defaultChecked={user.shippingConfiguration[0]?.shippingOperator.includes(
+														"MelhorEnvio"
+													)}
+													className="checkbox"
+													value="2"
+													{...register(
+														"modalityOptions"
+													)}
+												/>
+											</div>
+
+											<div className="flex flex-row items-center">
+												<div className="label">
+													<span className="label-text text-black">
+														Loggi (Express)
+													</span>
+												</div>
+												<input
+													type="checkbox"
+													defaultChecked={user.shippingConfiguration[0]?.shippingOperator.includes(
+														"MelhorEnvio"
+													)}
+													className="checkbox"
+													value="31"
+													{...register(
+														"modalityOptions"
+													)}
+												/>
+											</div>
+
+											<div className="label">
+												<span className="label-text-alt text-red-500">
+													{errors.modalityOptions ? (
+														<span>
+															{
+																errors
+																	.modalityOptions
+																	.message
+															}
+														</span>
+													) : (
+														<span className="text-black">
+															Obs.:...
+														</span>
+													)}
+												</span>
+											</div>
+										</label>
+
+										<hr />
+
+										<label className="flex flex-row form-control w-full max-w-3xl">
+											<div className="flex flex-row items-center">
 												<div className="label">
 													<span className="label-text text-black">
 														Registro Módico

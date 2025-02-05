@@ -12,6 +12,7 @@ interface IAddress {
 
 interface IShippingConfig {
 	shippingOperator?: string;
+	modalityOptions?: string[];
 	credential?: string;
 }
 
