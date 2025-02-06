@@ -11,7 +11,7 @@ import Swal from "sweetalert2";
 import DOMPurify from "dompurify";
 
 // React Hook Form e Zod
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -253,8 +253,12 @@ const updateUserFormSchema = z
 					message: "※ O CEP deve ser um número válido!",
 				}
 			),
-		shippingOperator: z.array(z.enum(["MelhorEnvio", "Modico"])),
-		modalityOptions: z.array(z.enum(["2", "31"])), // Garante que modalityOptions é um array de strings
+		shippingConfiguration: z.array(
+			z.object({
+				shippingOperator: z.enum(["MelhorEnvio", "Modico"]),
+				modalityOptions: z.array(z.string()).optional(),
+			})
+		), // Garante que modalityOptions é um array de strings
 		credential: z.string(), // Torna opcional inicialmente
 		cashback: z
 			.string()
@@ -385,9 +389,53 @@ function MyProfilePage() {
 		register,
 		handleSubmit,
 		formState: { errors },
+		control,
+		watch,
 	} = useForm<TUpdateUserFormData>({
 		resolver: zodResolver(updateUserFormSchema),
+		defaultValues: {
+			shippingConfiguration: [],
+		},
 	});
+
+	const { fields, append, remove, update } = useFieldArray({
+		control,
+		name: "shippingConfiguration",
+	});
+
+	const handleAddOperator = (operator) => {
+		// Verifica se o operador já existe no formulário para evitar duplicatas
+		const existingIndex = fields.findIndex(
+			(field) => field.shippingOperator === operator
+		);
+		if (existingIndex === -1) {
+			append({ shippingOperator: operator, modalityOptions: [] });
+		} else {
+			remove(existingIndex); // Se já existe, remove ao desmarcar
+		}
+	};
+
+	const handleModalityChange = (operator, modality) => {
+		const index = fields.findIndex(
+			(field) => field.shippingOperator === operator
+		);
+		if (index !== -1) {
+			const updatedModalities = fields[index].modalityOptions.includes(
+				modality
+			)
+				? fields[index].modalityOptions.filter((m) => m !== modality)
+				: [...fields[index].modalityOptions, modality];
+
+			// ⚠️ Atualiza o estado corretamente
+			update(index, {
+				...fields[index],
+				modalityOptions: updatedModalities,
+			});
+		}
+	};
+
+	// Verifica quais operadores já estão selecionados
+	const selectedOperators = watch("shippingConfiguration");
 
 	const [output, setOutput] = useState("");
 
@@ -438,6 +486,70 @@ function MyProfilePage() {
 
 	handleSelectedImage;
 
+	// // Requisição anterior que funcionava antes das alterações
+	// async function updateUser(data: TUpdateUserFormData) {
+	// 	// Sanitiza os dados antes de usá-los
+	// 	const sanitizedData = Object.fromEntries(
+	// 		Object.entries(data).map(([key, value]) => {
+	// 			if (typeof value === "string") {
+	// 				return [key, DOMPurify.sanitize(value)];
+	// 			}
+	// 			return [key, value];
+	// 		})
+	// 	);
+
+	// 	setOutput(JSON.stringify(sanitizedData, null, 2));
+	// 	console.log("Dados sanitizados:", sanitizedData);
+
+	// 	// Cria um novo FormData
+	// 	const formData = new FormData();
+
+	// 	// Asegura que modalityOptions é um array
+	// 	if (Array.isArray(sanitizedData.modalityOptions)) {
+	// 		sanitizedData.modalityOptions.forEach((option) => {
+	// 			formData.append("modalityOptions[]", option); // 'modalityOptions[]' para enviar como array
+	// 			console.log(
+	// 				`Adicionado ao FormData: modalityOptions[] - ${option}`
+	// 			);
+	// 		});
+	// 	}
+
+	// 	// Adiciona outros dados no FormData
+	// 	Object.entries(sanitizedData).forEach(([key, value]) => {
+	// 		if (key !== "modalityOptions") {
+	// 			// Ignora a propriedade 'modalityOptions' aqui, pois já tratamos dela
+	// 			if (key === "profileImage" && value instanceof File) {
+	// 				formData.append(key, value);
+	// 				console.log(
+	// 					`Adicionado ao FormData: ${key} - [Imagem de Perfil]`
+	// 				);
+	// 			} else if (key === "LogoImage" && value instanceof File) {
+	// 				formData.append(key, value);
+	// 				console.log(`Adicionado ao FormData: ${key} - [Logo]`);
+	// 			} else {
+	// 				formData.append(key, value);
+	// 				console.log(`Adicionado ao FormData: ${key} - ${value}`);
+	// 			}
+	// 		}
+	// 	});
+
+	// 	try {
+	// 		setLoadingButton(true);
+
+	// 		if (user?.accountType === "partner") {
+	// 			const response = await api.patch("/partners/edit", formData);
+	// 			toast.success(response.data.message);
+	// 		} else if (user?.accountType === "customer") {
+	// 			const response = await api.patch("/customers/edit", formData);
+	// 			toast.success(response.data.message);
+	// 		}
+	// 		setLoadingButton(false);
+	// 	} catch (error: any) {
+	// 		toast.error(error.response.data.message);
+	// 		setLoadingButton(false);
+	// 	}
+	// }
+
 	async function updateUser(data: TUpdateUserFormData) {
 		// Sanitiza os dados antes de usá-los
 		const sanitizedData = Object.fromEntries(
@@ -455,20 +567,21 @@ function MyProfilePage() {
 		// Cria um novo FormData
 		const formData = new FormData();
 
-		// Asegura que modalityOptions é um array
-		if (Array.isArray(sanitizedData.modalityOptions)) {
-			sanitizedData.modalityOptions.forEach((option) => {
-				formData.append("modalityOptions[]", option); // 'modalityOptions[]' para enviar como array
-				console.log(
-					`Adicionado ao FormData: modalityOptions[] - ${option}`
-				);
-			});
-		}
+		// Adiciona a configuração de envio (shippingConfiguration) como JSON stringificado
+		formData.append(
+			"shippingConfiguration",
+			JSON.stringify(sanitizedData.shippingConfiguration)
+		);
+		console.log(
+			`Adicionado ao FormData: shippingConfiguration - ${JSON.stringify(
+				sanitizedData.shippingConfiguration
+			)}`
+		);
 
 		// Adiciona outros dados no FormData
 		Object.entries(sanitizedData).forEach(([key, value]) => {
-			if (key !== "modalityOptions") {
-				// Ignora a propriedade 'modalityOptions' aqui, pois já tratamos dela
+			if (key !== "shippingConfiguration" && key !== "modalityOptions") {
+				// Ignora as propriedades 'shippingConfiguration' e 'modalityOptions' aqui
 				if (key === "profileImage" && value instanceof File) {
 					formData.append(key, value);
 					console.log(
@@ -1428,144 +1541,82 @@ function MyProfilePage() {
 								) : (
 									<>
 										{/* Operador Logístico */}
-										<label className="flex flex-row form-control w-full max-w-3xl">
-											<div className="flex flex-row items-center">
-												<div className="label">
-													<span className="label-text text-black">
-														Melhor Envio
-													</span>
-												</div>
-												<input
-													type="checkbox"
-													defaultChecked={user.shippingConfiguration[0]?.shippingOperator.includes(
-														"MelhorEnvio"
-													)}
-													className="checkbox"
-													value="MelhorEnvio"
-													{...register(
-														"shippingOperator"
-													)}
-												/>
-											</div>
-
-											<div className="label">
-												<span className="label-text-alt text-red-500">
-													{errors.shippingOperator ? (
-														<span>
-															{
-																errors
-																	.shippingOperator
-																	.message
+										{["MelhorEnvio", "Modico"].map(
+											(operator) => (
+												<div
+													key={operator}
+													className="mb-4">
+													<label className="flex items-center">
+														<input
+															type="checkbox"
+															onChange={() =>
+																handleAddOperator(
+																	operator
+																)
 															}
+															checked={selectedOperators.some(
+																(o) =>
+																	o.shippingOperator ===
+																	operator
+															)}
+															className="checkbox"
+														/>
+														<span className="ml-2">
+															{operator}
 														</span>
-													) : (
-														<span className="text-black">
-															Obs.:...
-														</span>
-													)}
-												</span>
-											</div>
-										</label>
+													</label>
 
-										{/* Modalidades de Envio */}
-										<label className="flex flex-row form-control w-full max-w-3xl">
-											<div className="flex flex-row items-center">
-												<div className="label">
-													<span className="label-text text-black">
-														SEDEX
-													</span>
+													{selectedOperators.some(
+														(o) =>
+															o.shippingOperator ===
+															operator
+													) && (
+														<div className="ml-6">
+															{["2", "31"].map(
+																(modality) => (
+																	<label
+																		key={
+																			modality
+																		}
+																		className="flex items-center">
+																		<input
+																			type="checkbox"
+																			onChange={() =>
+																				handleModalityChange(
+																					operator,
+																					modality
+																				)
+																			}
+																			checked={
+																				selectedOperators
+																					.find(
+																						(
+																							o
+																						) =>
+																							o.shippingOperator ===
+																							operator
+																					)
+																					?.modalityOptions.includes(
+																						modality
+																					) ||
+																				false
+																			}
+																			className="checkbox"
+																		/>
+																		<span className="ml-2">
+																			{modality ===
+																			"2"
+																				? "SEDEX"
+																				: "Loggi (Express)"}
+																		</span>
+																	</label>
+																)
+															)}
+														</div>
+													)}
 												</div>
-												<input
-													type="checkbox"
-													defaultChecked={user.shippingConfiguration[0]?.shippingOperator.includes(
-														"MelhorEnvio"
-													)}
-													className="checkbox"
-													value="2"
-													{...register(
-														"modalityOptions"
-													)}
-												/>
-											</div>
-
-											<div className="flex flex-row items-center">
-												<div className="label">
-													<span className="label-text text-black">
-														Loggi (Express)
-													</span>
-												</div>
-												<input
-													type="checkbox"
-													defaultChecked={user.shippingConfiguration[0]?.shippingOperator.includes(
-														"MelhorEnvio"
-													)}
-													className="checkbox"
-													value="31"
-													{...register(
-														"modalityOptions"
-													)}
-												/>
-											</div>
-
-											<div className="label">
-												<span className="label-text-alt text-red-500">
-													{errors.modalityOptions ? (
-														<span>
-															{
-																errors
-																	.modalityOptions
-																	.message
-															}
-														</span>
-													) : (
-														<span className="text-black">
-															Obs.:...
-														</span>
-													)}
-												</span>
-											</div>
-										</label>
-
-										<hr />
-
-										<label className="flex flex-row form-control w-full max-w-3xl">
-											<div className="flex flex-row items-center">
-												<div className="label">
-													<span className="label-text text-black">
-														Registro Módico
-													</span>
-												</div>
-												<input
-													type="checkbox"
-													defaultChecked={user.shippingConfiguration[0]?.shippingOperator.includes(
-														"Modico"
-													)}
-													className="checkbox"
-													value="Modico"
-													{...register(
-														"shippingOperator"
-													)}
-												/>
-											</div>
-
-											<div className="label">
-												<span className="label-text-alt text-red-500">
-													{errors.shippingOperator ? (
-														<span>
-															{
-																errors
-																	.shippingOperator
-																	.message
-															}
-														</span>
-													) : (
-														<span className="text-black">
-															Obs.:...
-														</span>
-													)}
-												</span>
-											</div>
-										</label>
+											)
+										)}
 
 										{/* Credential */}
 										<label className="form-control w-full max-w-3xl">

@@ -331,6 +331,7 @@ class PartnerController {
 			description,
 			viewAdultContent,
 			cashback,
+			shippingConfiguration,
 			shippingOperator,
 			modalityOptions,
 			credential,
@@ -455,7 +456,7 @@ class PartnerController {
 				// 	// Se não há operadores selecionados, o array shippingConfiguration é limpo
 				// 	partner.shippingConfiguration = [];
 				// } else {
-				// 	// Itera sobre as configurações de envio já existentes para verificar se algum operador deve ser removido ou atualizado
+				// 	// Itera sobre as configurações de envio já existentes para verificar se algum operador deve ser removido
 				// 	partner.shippingConfiguration.forEach(
 				// 		(existingConfig, index) => {
 				// 			if (
@@ -465,45 +466,6 @@ class PartnerController {
 				// 			) {
 				// 				// Se o operador não está mais selecionado, removemos a configuração
 				// 				partner.shippingConfiguration.splice(index, 1);
-				// 			} else {
-				// 				// Se o operador estiver na lista, atualizamos a credencial
-				// 				existingConfig.credential = credential;
-
-				// 				// Aqui, associamos as modalidades ao operador
-				// 				const currentModalities =
-				// 					existingConfig.modalityOptions || [];
-
-				// 				// Identifica as modalidades a serem removidas (não está no novo array)
-				// 				const modalitiesToRemove =
-				// 					currentModalities.filter(
-				// 						(modality) =>
-				// 							!modalityOptionsArray.includes(
-				// 								modality
-				// 							)
-				// 					);
-
-				// 				// Identifica as modalidades a serem adicionadas (estão no novo array, mas não no banco)
-				// 				const modalitiesToAdd =
-				// 					modalityOptionsArray.filter(
-				// 						(modality) =>
-				// 							!currentModalities.includes(
-				// 								modality
-				// 							)
-				// 					);
-
-				// 				// Atualiza a lista de modalidades removendo as que não existem mais
-				// 				existingConfig.modalityOptions =
-				// 					currentModalities.filter(
-				// 						(modality) =>
-				// 							!modalitiesToRemove.includes(
-				// 								modality
-				// 							)
-				// 					);
-
-				// 				// Adiciona as novas modalidades
-				// 				existingConfig.modalityOptions.push(
-				// 					...modalitiesToAdd
-				// 				);
 				// 			}
 				// 		}
 				// 	);
@@ -522,61 +484,96 @@ class PartnerController {
 				// 				credential,
 				// 				modalityOptions: modalityOptionsArray,
 				// 			});
+				// 		} else {
+				// 			// Remove a configuração existente
+				// 			const indexToRemove =
+				// 				partner.shippingConfiguration.findIndex(
+				// 					(config) =>
+				// 						config.shippingOperator === operator
+				// 				);
+				// 			if (indexToRemove !== -1) {
+				// 				partner.shippingConfiguration.splice(
+				// 					indexToRemove,
+				// 					1
+				// 				);
+				// 			}
+
+				// 			// Adiciona nova configuração com as modalidades atualizadas
+				// 			partner.shippingConfiguration.push({
+				// 				shippingOperator: operator,
+				// 				credential,
+				// 				modalityOptions: modalityOptionsArray,
+				// 			});
 				// 		}
 				// 	});
 				// }
 
-				// Garantir que modalityOptions seja um array válido
-				const modalityOptionsArray =
-					modalityOptions && Array.isArray(modalityOptions)
-						? modalityOptions
-						: [];
+				// Verificar se o shippingConfiguration enviado é uma string e parsear para array
+				if (typeof req.body.shippingConfiguration === "string") {
+					try {
+						req.body.shippingConfiguration = JSON.parse(
+							req.body.shippingConfiguration
+						);
+					} catch (error) {
+						console.error(
+							"Erro ao parsear shippingConfiguration:",
+							error
+						);
+						req.body.shippingConfiguration = []; // Garantir que não quebre a aplicação
+					}
+				}
 
-				// Atualizar ou adicionar configuração de envio
-				const shippingOperators = shippingOperator
-					.split(",")
-					.map((operator) => operator.trim())
-					.filter((operator) => operator !== "");
+				// Garantir que shippingConfiguration seja um array válido
+				const shippingConfigurationArray = Array.isArray(
+					req.body.shippingConfiguration
+				)
+					? req.body.shippingConfiguration
+					: [];
 
-				// Verifica se há operadores logísticos enviados
-				if (shippingOperators.length === 0) {
-					// Se não há operadores selecionados, o array shippingConfiguration é limpo
+				// Se shippingConfiguration estiver vazio, limpe as configurações
+				if (shippingConfigurationArray.length === 0) {
 					partner.shippingConfiguration = [];
 				} else {
-					// Itera sobre as configurações de envio já existentes para verificar se algum operador deve ser removido
+					// Itera sobre as configurações de envio já existentes
 					partner.shippingConfiguration.forEach(
 						(existingConfig, index) => {
-							if (
-								!shippingOperators.includes(
+							// Verifica se o operador da configuração existente ainda existe na requisição
+							const newConfig = shippingConfigurationArray.find(
+								(config) =>
+									config.shippingOperator ===
 									existingConfig.shippingOperator
-								)
-							) {
-								// Se o operador não está mais selecionado, removemos a configuração
+							);
+
+							if (!newConfig) {
+								// Se o operador não está mais presente, remove a configuração
 								partner.shippingConfiguration.splice(index, 1);
 							}
 						}
 					);
 
-					// Agora iteramos sobre os novos operadores de envio (que ainda não existem) e os adicionamos
-					shippingOperators.forEach((operator) => {
+					// Agora, adicionamos ou atualizamos as configurações recebidas
+					shippingConfigurationArray.forEach((newConfig) => {
 						const existingShippingConfig =
 							partner.shippingConfiguration.find(
-								(config) => config.shippingOperator === operator
+								(config) =>
+									config.shippingOperator ===
+									newConfig.shippingOperator
 							);
 
 						if (!existingShippingConfig) {
-							// Adiciona nova configuração de envio para o operador específico
+							// Se o operador não existe, adicionamos a nova configuração
 							partner.shippingConfiguration.push({
-								shippingOperator: operator,
-								credential,
-								modalityOptions: modalityOptionsArray,
+								shippingOperator: newConfig.shippingOperator,
+								credential, // Ou o valor correto para credential
+								modalityOptions: newConfig.modalityOptions,
 							});
 						} else {
-							// Remove a configuração existente
+							// Se o operador já existe, vamos remover o antigo e adicionar a nova configuração
 							const indexToRemove =
 								partner.shippingConfiguration.findIndex(
 									(config) =>
-										config.shippingOperator === operator
+										config.shippingOperator ===
+										newConfig.shippingOperator
 								);
 							if (indexToRemove !== -1) {
 								partner.shippingConfiguration.splice(
@@ -585,11 +582,11 @@ class PartnerController {
 								);
 							}
 
-							// Adiciona nova configuração com as modalidades atualizadas
+							// Adiciona a nova configuração de modalidades
 							partner.shippingConfiguration.push({
-								shippingOperator: operator,
-								credential,
-								modalityOptions: modalityOptionsArray,
+								shippingOperator: newConfig.shippingOperator,
+								credential, // Ou o valor correto para credential
+								modalityOptions: newConfig.modalityOptions,
 							});
 						}
 					});
