@@ -121,15 +121,19 @@ class ProductController {
 				return;
 			}
 
-			const shippingOperator =
-				partner.shippingConfiguration?.[0].shippingOperator ===
-				"MelhorEnvio";
+			let melhorEnvioModalitiesString = "";
 
-			if (!shippingOperator) {
-				res.status(400).json({
-					message: "O operador logístico não é o Melhor Envio!",
-				});
-				return;
+			const melhorEnvioOperator = partner.shippingConfiguration?.find(
+				(service) => service.shippingOperator === "MelhorEnvio"
+			);
+
+			if (melhorEnvioOperator) {
+				const melhorEnvioModalities =
+					melhorEnvioOperator.modalityOptions || [];
+
+				melhorEnvioModalitiesString = melhorEnvioModalities.join(", ");
+			} else {
+				console.log("Operador MelhorEnvio não encontrado.");
 			}
 
 			// Obtém o CEP de origem do parceiro
@@ -164,7 +168,7 @@ class ProductController {
 					receipt: false,
 					own_hand: false,
 				},
-				services: "31,33",
+				services: melhorEnvioModalitiesString, // Agora acessível globalmente
 			};
 
 			// Configura os cabeçalhos da requisição
@@ -255,9 +259,9 @@ class ProductController {
 			}
 
 			// Verifica se a transportadora configurada pelo parceiro é Modico
-			const shippingOperator =
-				partner.shippingConfiguration?.[0].shippingOperator ===
-				"Modico";
+			const shippingOperator = partner.shippingConfiguration?.find(
+				(service) => service.shippingOperator === "Modico"
+			);
 
 			if (!shippingOperator) {
 				return res.status(400).json({

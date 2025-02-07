@@ -403,39 +403,97 @@ function MyProfilePage() {
 		name: "shippingConfiguration",
 	});
 
-	const handleAddOperator = (operator) => {
-		// Verifica se o operador já existe no formulário para evitar duplicatas
-		const existingIndex = fields.findIndex(
-			(field) => field.shippingOperator === operator
-		);
-		if (existingIndex === -1) {
-			append({ shippingOperator: operator, modalityOptions: [] });
-		} else {
-			remove(existingIndex); // Se já existe, remove ao desmarcar
+	// const [selectedOperators, setSelectedOperators] = useState([]);
+
+	// // Carrega os dados do banco quando o componente é montado
+	// useEffect(() => {
+	// 	if (user?.shippingConfiguration) {
+	// 		setSelectedOperators(user.shippingConfiguration); // Preserva o formato correto
+	// 	}
+	// }, [user]);
+
+	// // Função para adicionar/remover operadores
+	// const handleAddOperator = (operator) => {
+	// 	setSelectedOperators((prev) => {
+	// 		const exists = prev.some((o) => o.shippingOperator === operator);
+	// 		if (exists) {
+	// 			// Remove o operador se já existir
+	// 			return prev.filter((o) => o.shippingOperator !== operator);
+	// 		} else {
+	// 			// Adiciona um novo operador se não existir
+	// 			return [
+	// 				...prev,
+	// 				{ shippingOperator: operator, modalityOptions: [] }, // Inicializa com modalidades vazias
+	// 			];
+	// 		}
+	// 	});
+	// };
+
+	// // Função para adicionar/remover modalidades
+	// const handleModalityChange = (operator, modality) => {
+	// 	setSelectedOperators((prev) =>
+	// 		prev.map((o) =>
+	// 			o.shippingOperator === operator
+	// 				? {
+	// 						...o,
+	// 						modalityOptions: o.modalityOptions.includes(
+	// 							modality
+	// 						)
+	// 							? o.modalityOptions.filter(
+	// 									(m) => m !== modality
+	// 							  ) // Remove se já existir
+	// 							: [...o.modalityOptions, modality], // Adiciona se não existir
+	// 				  }
+	// 				: o
+	// 		)
+	// 	);
+	// };
+
+	const [selectedOperators, setSelectedOperators] = useState([]);
+	const modalityMapping = {
+		MelhorEnvio: ["2", "31"], // SEDEX e Loggi
+		Modico: ["JadLog"], // JadLog para Modico
+	};
+
+	// Carrega os dados do banco quando o componente é montado
+	useEffect(() => {
+		if (user?.shippingConfiguration) {
+			setSelectedOperators(user.shippingConfiguration);
 		}
+	}, [user]);
+
+	const handleAddOperator = (operator) => {
+		setSelectedOperators((prev) => {
+			const exists = prev.some((o) => o.shippingOperator === operator);
+			if (exists) {
+				return prev.filter((o) => o.shippingOperator !== operator);
+			} else {
+				return [
+					...prev,
+					{ shippingOperator: operator, modalityOptions: [] },
+				];
+			}
+		});
 	};
 
 	const handleModalityChange = (operator, modality) => {
-		const index = fields.findIndex(
-			(field) => field.shippingOperator === operator
-		);
-		if (index !== -1) {
-			const updatedModalities = fields[index].modalityOptions.includes(
-				modality
+		setSelectedOperators((prev) =>
+			prev.map((o) =>
+				o.shippingOperator === operator
+					? {
+							...o,
+							modalityOptions: o.modalityOptions.includes(
+								modality
+							)
+								? o.modalityOptions.filter(
+										(m) => m !== modality
+								  )
+								: [...o.modalityOptions, modality],
+					  }
+					: o
 			)
-				? fields[index].modalityOptions.filter((m) => m !== modality)
-				: [...fields[index].modalityOptions, modality];
-
-			// ⚠️ Atualiza o estado corretamente
-			update(index, {
-				...fields[index],
-				modalityOptions: updatedModalities,
-			});
-		}
+		);
 	};
-
-	// Verifica quais operadores já estão selecionados
-	const selectedOperators = watch("shippingConfiguration");
 
 	const [output, setOutput] = useState("");
 
@@ -551,16 +609,26 @@ function MyProfilePage() {
 	// }
 
 	async function updateUser(data: TUpdateUserFormData) {
+		// Certifique-se de que selectedOperators seja atribuído ao shippingConfiguration diretamente
+		const selectedOperatorsData = selectedOperators;
+
 		// Sanitiza os dados antes de usá-los
 		const sanitizedData = Object.fromEntries(
 			Object.entries(data).map(([key, value]) => {
-				if (typeof value === "string") {
+				if (
+					typeof value === "string" &&
+					key !== "shippingConfiguration"
+				) {
 					return [key, DOMPurify.sanitize(value)];
 				}
 				return [key, value];
 			})
 		);
 
+		// Adiciona selectedOperators diretamente ao campo shippingConfiguration
+		sanitizedData.shippingConfiguration = selectedOperatorsData;
+
+		// Verifique os dados após sanitização
 		setOutput(JSON.stringify(sanitizedData, null, 2));
 		console.log("Dados sanitizados:", sanitizedData);
 
@@ -578,10 +646,9 @@ function MyProfilePage() {
 			)}`
 		);
 
-		// Adiciona outros dados no FormData
+		// Adiciona os outros dados no FormData
 		Object.entries(sanitizedData).forEach(([key, value]) => {
 			if (key !== "shippingConfiguration" && key !== "modalityOptions") {
-				// Ignora as propriedades 'shippingConfiguration' e 'modalityOptions' aqui
 				if (key === "profileImage" && value instanceof File) {
 					formData.append(key, value);
 					console.log(
@@ -600,6 +667,7 @@ function MyProfilePage() {
 		try {
 			setLoadingButton(true);
 
+			// Envio para o servidor
 			if (user?.accountType === "partner") {
 				const response = await api.patch("/partners/edit", formData);
 				toast.success(response.data.message);
@@ -1572,7 +1640,9 @@ function MyProfilePage() {
 															operator
 													) && (
 														<div className="ml-6">
-															{["2", "31"].map(
+															{modalityMapping[
+																operator
+															]?.map(
 																(modality) => (
 																	<label
 																		key={
@@ -1607,7 +1677,10 @@ function MyProfilePage() {
 																			{modality ===
 																			"2"
 																				? "SEDEX"
-																				: "Loggi (Express)"}
+																				: modality ===
+																				  "31"
+																				? "Loggi (Express)"
+																				: "JadLog"}
 																		</span>
 																	</label>
 																)

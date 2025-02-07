@@ -48,6 +48,7 @@ function SideComponent({ selectedVariation }) {
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
 	);
+
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 
@@ -540,21 +541,82 @@ function SideComponent({ selectedVariation }) {
 			return;
 		}
 
-		try {
-			const response = await api.post("/shippings/simulate-modico", {
-				productID: product._id,
-				cepDestino: cep,
-				weight: product.weight, // Adicione o peso do produto
-				height: product.height, // Adicione a altura do produto
-				width: product.width, // Adicione a largura do produto
-				length: product.length, // Adicione o comprimento do produto
-				productPrice: productPrice, // Adicione o preço unitário do produto
-				// productPriceTotal: productPrice * quantity, // Adicione o preço total do produto
-				quantityThisProduct: quantity, // Adicione a quantidade do produto
-			});
+		// Verifique se 'partner.shippingConfiguration' existe e é um array
+		console.log(
+			"partner.shippingConfiguration:",
+			partner.shippingConfiguration
+		);
+		console.log(
+			"Tipo de partner.shippingConfiguration:",
+			typeof partner.shippingConfiguration
+		);
 
-			setTransportadoras(response.data);
+		// Verifique se 'partner.shippingConfiguration' existe e é um array
+		if (!Array.isArray(partner.shippingConfiguration)) {
+			console.error("shippingConfiguration não é um array válido.");
 			setIsCalculating(false);
+			return;
+		}
+
+		// Obtém os operadores disponíveis no parceiro
+		const melhorEnvioOperator = partner.shippingConfiguration.find(
+			(service) => service.shippingOperator === "MelhorEnvio"
+		);
+		const modicoOperator = partner.shippingConfiguration.find(
+			(service) => service.shippingOperator === "Modico"
+		);
+
+		try {
+			// Verifica se o parceiro tem o operador MelhorEnvio
+			if (melhorEnvioOperator) {
+				console.log("Iniciando requisição para MelhorEnvio...");
+				const responseMelhorEnvio = await api.post(
+					"/shippings/simulate-melhorenvio",
+					{
+						productID: product._id,
+						cepDestino: cep,
+						weight: product.weight,
+						height: product.height,
+						width: product.width,
+						length: product.length,
+						productPrice: productPrice,
+						quantityThisProduct: quantity,
+					}
+				);
+				console.log(
+					"Resposta do MelhorEnvio:",
+					responseMelhorEnvio.data
+				);
+
+				setTransportadoras((prevTransportadoras) => [
+					...prevTransportadoras,
+					...responseMelhorEnvio.data,
+				]);
+			}
+
+			// Verifica se o parceiro tem o operador Modico
+			if (modicoOperator) {
+				console.log("Iniciando requisição para Modico...");
+				const responseModico = await api.post(
+					"/shippings/simulate-modico",
+					{
+						productID: product._id,
+						cepDestino: cep,
+						weight: product.weight,
+						height: product.height,
+						width: product.width,
+						length: product.length,
+						productPrice: productPrice,
+						quantityThisProduct: quantity,
+					}
+				);
+				console.log("Resposta do Modico:", responseModico.data);
+
+				setTransportadoras((prevTransportadoras) => [
+					...prevTransportadoras,
+					...responseModico.data,
+				]);
+			}
 		} catch (error) {
 			console.error("Ocorreu um erro:", error);
 			toast.error(
