@@ -450,6 +450,7 @@ function MyProfilePage() {
 	// };
 
 	const [selectedOperators, setSelectedOperators] = useState([]);
+
 	const modalityMapping = {
 		MelhorEnvio: ["2", "31"], // SEDEX e Loggi
 		Modico: ["JadLog"], // JadLog para Modico

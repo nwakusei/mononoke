@@ -27,6 +27,7 @@ function CartPage() {
 	const { setCart, setSubtotal, transportadoraInfo, setTransportadoraInfo } =
 		useContext(CheckoutContext);
 	const [productsInCart, setProductsInCart] = useState([]);
+	const [isFreightSimulated, setIsFreightSimulated] = useState(false);
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -35,307 +36,247 @@ function CartPage() {
 		}
 	}, []);
 
-	// useEffect(() => {
-	// 	const savedProductsInCart = localStorage.getItem("productsInCart");
-
-	// 	if (savedProductsInCart) {
-	// 		const products = JSON.parse(savedProductsInCart);
-
-	// 		// Objeto para armazenar as informações dos produtos por parceiro
-	// 		const productInfo = {};
-
-	// 		// Variável para armazenar o cepDestino de um dos produtos
-	// 		let cepDestino = null;
-
-	// 		// Filtrar produtos elegíveis para cálculo de frete
-	// 		const eligibleProducts = products.filter(
-	// 			(product) => product.cepDestino.trim() !== ""
-	// 		);
-
-	// 		// Calcular as informações dos produtos por parceiro
-	// 		eligibleProducts.forEach((product) => {
-	// 			const partnerID = product.partnerID;
-	// 			const weight = product.weight || 0;
-	// 			const length = product.length || 0;
-	// 			const width = product.width || 0;
-	// 			const height = product.height || 0;
-	// 			cepDestino = product.cepDestino; // Obter o cepDestino de um dos produtos
-	// 			const productPrice = product.productPrice || 0;
-	// 			const productPriceTotal = product.productPriceTotal || 0;
-	// 			const quantityThisProduct = product.quantityThisProduct || 0;
-	// 			const transpID = product.transportadora?.id; // Obter apenas o ID da transportadora
-
-	// 			if (!productInfo[partnerID]) {
-	// 				productInfo[partnerID] = {
-	// 					weight: weight,
-	// 					length: length,
-	// 					width: width,
-	// 					height: height,
-	// 					productPrice: productPrice,
-	// 					productPriceTotal: productPriceTotal,
-	// 					quantityThisProduct: quantityThisProduct,
-	// 					transportadora: {
-	// 						id: transpID, // Inicializa o ID da transportadora
-	// 					},
-	// 				};
-	// 			} else {
-	// 				// Se o peso atual for menor que o peso acumulado até agora, atualize-o
-	// 				if (weight < productInfo[partnerID].weight) {
-	// 					productInfo[partnerID].weight = weight;
-	// 					productInfo[partnerID].length = length;
-	// 					productInfo[partnerID].width = width;
-	// 					productInfo[partnerID].height = height;
-	// 					productInfo[partnerID].transportadora.id = transpID;
-	// 				}
-
-	// 				// Atualizar os valores de productPriceTotal e quantityThisProduct para a soma de todos os itens
-	// 				productInfo[partnerID].productPriceTotal +=
-	// 					productPriceTotal;
-	// 				productInfo[partnerID].quantityThisProduct +=
-	// 					quantityThisProduct;
-	// 			}
-	// 		});
-
-	// 		console.log("Informações dos produtos por parceiro:", productInfo);
-
-	// 		// Certifique-se de que cepDestino esteja definido antes de chamar handleSimulateShipping
-	// 		if (cepDestino) {
-	// 			// Chamada da função para simular o frete
-	// 			handleSimulateShipping(cepDestino, productInfo);
-	// 		} else {
-	// 			// Define dados padrão para a transportadora
-	// 			const defaultTransportadoraData = {};
-
-	// 			for (const partnerID in productInfo) {
-	// 				if (productInfo.hasOwnProperty(partnerID)) {
-	// 					const partnerData = productInfo[partnerID];
-
-	// 					// Define os dados da transportadora como padrão
-	// 					defaultTransportadoraData[partnerID] = {
-	// 						partnerID: partnerID,
-	// 						transpNome: "Frete Grátis", // Nome da transportadora padrão
-	// 						vlrFrete: 0.0, // Valor do frete padrão (zero para frete grátis)
-	// 						prazoEnt: 3, // Prazo de entrega padrão
-	// 						// Adicione outras informações que você precisar aqui
-	// 					};
-	// 				}
-	// 			}
-
-	// 			// Atualizando o estado com os dados padrão da transportadora
-	// 			setTransportadoraInfo(defaultTransportadoraData);
-
-	// 			// Armazenando os dados da transportadora no localStorage
-	// 			localStorage.setItem(
-	// 				"transportadoraInfo",
-	// 				JSON.stringify(defaultTransportadoraData)
-	// 			);
-	// 		}
-	// 	}
-	// }, []);
-
 	useEffect(() => {
-		const savedProductsInCart = localStorage.getItem("productsInCart");
+		// 🚨 Se ainda não carregou os produtos ou já simulou o frete, não executa
+		if (productsInCart.length === 0 || isFreightSimulated) return;
 
-		if (savedProductsInCart) {
-			const products = JSON.parse(savedProductsInCart);
+		// 🔥 Objeto para armazenar as informações dos produtos por parceiro
+		const productInfo = {};
+		let cepDestino = null;
 
-			// Objeto para armazenar as informações dos produtos por parceiro
-			const productInfo = {};
+		// 🔹 Filtrar produtos elegíveis para cálculo de frete
+		const eligibleProducts = productsInCart.filter(
+			(product) => product.cepDestino && product.cepDestino.trim() !== ""
+		);
 
-			// Variável para armazenar o cepDestino de um dos produtos
-			let cepDestino = null;
+		eligibleProducts.forEach((product) => {
+			const partnerID = product.partnerID;
 
-			// Filtrar produtos elegíveis para cálculo de frete
-			const eligibleProducts = products.filter(
-				(product) =>
-					product.cepDestino && product.cepDestino.trim() !== ""
-			);
+			if (!productInfo[partnerID]) {
+				productInfo[partnerID] = {
+					weight: product.weight || 0,
+					length: product.length || 0,
+					width: product.width || 0,
+					height: product.height || 0,
+					productPrice: product.productPrice || 0,
+					productPriceTotal: product.productPriceTotal || 0,
+					quantityThisProduct: product.quantityThisProduct || 0,
+					transportadora: {
+						companyID: product.transportadora?.companyID,
+					},
+					productID: product.productID,
+				};
+			} else {
+				// 🔹 Acumulando valores de produtos do mesmo parceiro
+				productInfo[partnerID].weight += product.weight || 0;
+				productInfo[partnerID].length += product.length || 0;
+				productInfo[partnerID].width += product.width || 0;
+				productInfo[partnerID].height += product.height || 0;
+				productInfo[partnerID].productPrice +=
+					product.productPrice || 0;
+				productInfo[partnerID].productPriceTotal +=
+					product.productPriceTotal || 0;
+				productInfo[partnerID].quantityThisProduct +=
+					product.quantityThisProduct || 0;
+			}
 
-			// Processar produtos elegíveis para construir productInfo
-			eligibleProducts.forEach((product) => {
+			if (product.cepDestino && product.cepDestino.trim() !== "") {
+				cepDestino = product.cepDestino;
+			}
+		});
+
+		console.log("🚀 Enviando para handleSimulateShipping:", productInfo);
+
+		if (cepDestino) {
+			handleSimulateShipping(cepDestino, productInfo)
+				.then(() => setIsFreightSimulated(true)) // 🔥 Evita simulações duplicadas
+				.catch((error) => console.error("Erro na simulação:", error));
+		}
+
+		// 🔹 Processa produtos com frete grátis
+		const freeShippingProducts = productsInCart.filter(
+			(product) => !product.cepDestino || product.cepDestino.trim() === ""
+		);
+
+		if (freeShippingProducts.length > 0) {
+			const defaultTransportadoraData = {};
+
+			freeShippingProducts.forEach((product) => {
 				const partnerID = product.partnerID;
-				const weight = product.weight || 0;
-				const length = product.length || 0;
-				const width = product.width || 0;
-				const height = product.height || 0;
-				const productPrice = product.productPrice || 0;
-				const productPriceTotal = product.productPriceTotal || 0;
-				const quantityThisProduct = product.quantityThisProduct || 0;
-				const transpID = product.transportadora?.companyID; // Obter apenas o ID da transportadora
-				const productID = product.productID; // Adicionar o ID do produto
-
-				console.log(
-					`Verificando transpID para partnerID ${partnerID}:`,
-					transpID
-				);
-
-				if (!productInfo[partnerID]) {
-					productInfo[partnerID] = {
-						weight: weight,
-						length: length,
-						width: width,
-						height: height,
-						productPrice: productPrice,
-						productPriceTotal: productPriceTotal,
-						quantityThisProduct: quantityThisProduct,
-						transportadora: {
-							companyID: transpID, // Inicializa o ID da transportadora
-						},
-						productID: productID, // Adicionar o ID do produto
+				if (!defaultTransportadoraData[partnerID]) {
+					defaultTransportadoraData[partnerID] = {
+						partnerID: partnerID,
+						companyName: "Frete Grátis",
+						modalidyName: "",
+						vlrFrete: 0.0,
+						prazo: 3,
 					};
-				} else {
-					// Acumular os valores de peso, comprimento, largura, altura e quantidade
-					productInfo[partnerID].weight += weight;
-					productInfo[partnerID].length = length;
-					productInfo[partnerID].width = width;
-					productInfo[partnerID].height = height;
-					productInfo[partnerID].productPriceTotal +=
-						productPriceTotal;
-					productInfo[partnerID].quantityThisProduct +=
-						quantityThisProduct;
-					// Atualiza o ID do produto se necessário
-					productInfo[partnerID].productID = productID;
-				}
-
-				console.log(
-					"productInfo atualizado:",
-					JSON.stringify(productInfo, null, 2)
-				);
-
-				// Atualize o cepDestino se o produto tiver um
-				if (product.cepDestino && product.cepDestino.trim() !== "") {
-					cepDestino = product.cepDestino;
 				}
 			});
 
-			console.log(
-				"Enviando para handleSimulateShipping:",
-				JSON.stringify(productInfo, null, 2)
-			);
+			setTransportadoraInfo((prevInfo) => ({
+				...prevInfo,
+				...defaultTransportadoraData,
+			}));
 
-			// Chamada da função para simular o frete, se houver cepDestino
-			if (cepDestino) {
-				handleSimulateShipping(cepDestino, productInfo);
-			}
-
-			// Processar produtos com frete grátis
-			const freeShippingProducts = products.filter(
-				(product) =>
-					!product.cepDestino || product.cepDestino.trim() === ""
-			);
-
-			if (freeShippingProducts.length > 0) {
-				const defaultTransportadoraData = {};
-
-				freeShippingProducts.forEach((product) => {
-					const partnerID = product.partnerID;
-
-					if (!defaultTransportadoraData[partnerID]) {
-						defaultTransportadoraData[partnerID] = {
-							partnerID: partnerID,
-							companyName: "Frete Grátis", // Nome da transportadora padrão
-							vlrFrete: 0.0, // Valor do frete padrão (zero para frete grátis)
-							prazo: 3, // Prazo de entrega padrão
-							// Adicione outras informações que você precisar aqui
-						};
-					}
-				});
-
-				// Atualizando o estado com os dados padrão da transportadora
-				setTransportadoraInfo((prevInfo) => ({
-					...prevInfo,
+			localStorage.setItem(
+				"transportadoraInfo",
+				JSON.stringify({
+					...JSON.parse(
+						localStorage.getItem("transportadoraInfo") || "{}"
+					),
 					...defaultTransportadoraData,
-				}));
-
-				// Armazenando os dados da transportadora no localStorage
-				localStorage.setItem(
-					"transportadoraInfo",
-					JSON.stringify({
-						...JSON.parse(
-							localStorage.getItem("transportadoraInfo") || "{}"
-						),
-						...defaultTransportadoraData,
-					})
-				);
-			}
+				})
+			);
 		}
-	}, []);
+	}, [productsInCart]); // 🚀 Só executa quando `productsInCart` for atualizado
 
 	async function handleSimulateShipping(cepDestino, productInfo) {
 		console.log(
 			"Recebido em handleSimulateShipping:",
 			JSON.stringify(productInfo, null, 2)
 		);
+
 		try {
-			const transportadoraData = {};
+			let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
 
 			for (const partnerID in productInfo) {
 				if (productInfo.hasOwnProperty(partnerID)) {
 					const partnerData = productInfo[partnerID];
 
-					const response = await api.post(
-						"/shippings/simulate-melhor-envio",
-						{
-							productID: partnerData.productID, // Incluindo o productID
-							cepDestino: cepDestino,
-							weight: partnerData.weight,
-							height: partnerData.height,
-							width: partnerData.width,
-							length: partnerData.length,
-							productPrice: partnerData.productPriceTotal,
-							productPriceTotal: partnerData.productPriceTotal,
-							quantityThisProduct:
-								partnerData.quantityThisProduct,
-						}
-					);
+					let fretesRecebidos = []; // 🔥 Resetando para cada parceiro
 
-					const transportadoraCorreta = response.data.find(
-						(transportadora) => {
-							console.log(transportadora); // Verifique os dados retornados
-							return (
+					try {
+						const requests = [];
+
+						// Simulação de Melhor Envio
+						requests.push(
+							api
+								.post("/shippings/simulate-melhor-envio", {
+									productID: partnerData.productID,
+									cepDestino: cepDestino,
+									weight: partnerData.weight,
+									height: partnerData.height,
+									width: partnerData.width,
+									length: partnerData.length,
+									productPrice: partnerData.productPrice,
+									productPriceTotal:
+										partnerData.productPriceTotal,
+									quantityThisProduct:
+										partnerData.quantityThisProduct,
+								})
+								.catch((error) => {
+									console.warn(
+										`Erro ao simular Melhor Envio para ${partnerID}:`,
+										error
+									);
+									return { data: [] }; // Retorna array vazio para evitar falhas
+								})
+						);
+
+						// Simulação de Modico
+						requests.push(
+							api
+								.post("/shippings/simulate-modico", {
+									productID: partnerData.productID,
+									cepDestino: cepDestino,
+									weight: partnerData.weight,
+									height: partnerData.height,
+									width: partnerData.width,
+									length: partnerData.length,
+									productPrice: partnerData.productPrice,
+									productPriceTotal:
+										partnerData.productPriceTotal,
+									quantityThisProduct:
+										partnerData.quantityThisProduct,
+								})
+								.catch((error) => {
+									console.warn(
+										`Erro ao simular Modico para ${partnerID}:`,
+										error
+									);
+									return { data: [] }; // Retorna array vazio para evitar falhas
+								})
+						);
+
+						// Aguarda ambas as requisições e coleta os resultados
+						const [responseMelhorEnvio, responseModico] =
+							await Promise.all(requests);
+
+						// Verifica se as respostas são válidas e são arrays
+						const fretesMelhorEnvio = Array.isArray(
+							responseMelhorEnvio.data
+						)
+							? responseMelhorEnvio.data
+							: [];
+						const fretesModico = Array.isArray(responseModico.data)
+							? responseModico.data
+							: [];
+
+						// Junta os fretes das duas fontes
+						fretesRecebidos = [
+							...fretesMelhorEnvio,
+							...fretesModico,
+						];
+
+						// Ordena pelo menor preço
+						const sortedFretes = fretesRecebidos.sort(
+							(a, b) => Number(a.price) - Number(b.price)
+						);
+
+						// Filtra a transportadora correta com base no companyID salvo no banco de dados
+						const transportadoraCorreta = sortedFretes.find(
+							(transportadora) =>
 								transportadora.company?.id ===
 								partnerData.transportadora?.companyID
+						);
+
+						if (transportadoraCorreta) {
+							console.log(
+								"Transportadora encontrada:",
+								transportadoraCorreta
+							);
+						} else {
+							console.log(
+								"Nenhuma transportadora correspondente encontrada."
 							);
 						}
-					); // Trasnportadora Correta para Melhor Envio
 
-					// const transportadoraCorreta = response.data[0]; // Trasnportadora Correta para Módico
+						// Atualiza o objeto transportadoraData
+						transportadoraData[partnerID] = {
+							partnerID: partnerID,
+							companyName:
+								transportadoraCorreta?.company?.name ??
+								"Desconhecida",
+							modalidyName: transportadoraCorreta?.name ?? "-",
+							vlrFrete: Number(transportadoraCorreta?.price) || 0,
+							prazo: transportadoraCorreta?.delivery_time || "-",
+						};
 
-					if (transportadoraCorreta) {
 						console.log(
-							"Transportadora encontrada:",
-							transportadoraCorreta
+							"TransportadoraData atualizado:",
+							transportadoraData
 						);
-					} else {
-						console.log("Transportadora não encontrada.");
+					} catch (error) {
+						console.error(
+							`Erro ao simular frete para o parceiro ${partnerID}:`,
+							error
+						);
 					}
-
-					// Adicionando os dados da transportadora ao objeto transportadoraData
-					transportadoraData[partnerID] = {
-						partnerID: partnerID,
-						companyName: transportadoraCorreta?.company?.name, // Corrigido para acessar o nome da empresa corretamente
-						vlrFrete: Number(transportadoraCorreta?.price),
-						prazo: transportadoraCorreta?.delivery_time,
-					};
-
-					// Verifique o estado antes de atualizar
-					console.log(
-						"Atualizando transportadoraData:",
-						transportadoraData
-					);
 				}
 			}
 
-			// Verifique se transportadoraData não está vazio
+			// Verifica se transportadoraData não está vazio
 			if (Object.keys(transportadoraData).length === 0) {
 				console.log("Transportadora data está vazio.");
 			} else {
 				console.log("Transportadora data:", transportadoraData);
 			}
 
-			// Atualizando o estado com os dados da transportadora
+			// 🔥 Atualizando o estado sem acumular valores antigos
 			setTransportadoraInfo(transportadoraData);
-			// Salvando no localStorage
+
+			// 🔥 Salvando no localStorage
 			try {
 				console.log(
 					"Salvando dados no localStorage:",
@@ -505,10 +446,12 @@ function CartPage() {
 								};
 							} else {
 								// Acumular os valores de peso, comprimento, largura, altura e quantidade
-								productInfo[partnerID].weight += weight;
+								productInfo[partnerID].weight = weight;
 								productInfo[partnerID].length = length;
 								productInfo[partnerID].width = width;
 								productInfo[partnerID].height = height;
+								productInfo[partnerID].productPrice +=
+									productPrice;
 								productInfo[partnerID].productPriceTotal +=
 									productPriceTotal;
 								productInfo[partnerID].quantityThisProduct +=
@@ -630,10 +573,11 @@ function CartPage() {
 							productID: productID,
 						};
 					} else {
-						productInfo[partnerID].weight += weight;
+						productInfo[partnerID].weight = weight;
 						productInfo[partnerID].length = length;
 						productInfo[partnerID].width = width;
 						productInfo[partnerID].height = height;
+						productInfo[partnerID].productPrice += productPrice;
 						productInfo[partnerID].productPriceTotal +=
 							productPriceTotal;
 						productInfo[partnerID].quantityThisProduct +=
@@ -719,10 +663,11 @@ function CartPage() {
 						};
 					} else {
 						// Acumular os valores de peso, comprimento, largura, altura e quantidade
-						productInfo[partnerID].weight += weight;
+						productInfo[partnerID].weight = weight;
 						productInfo[partnerID].length = length;
 						productInfo[partnerID].width = width;
 						productInfo[partnerID].height = height;
+						productInfo[partnerID].productPrice += productPrice;
 						productInfo[partnerID].productPriceTotal +=
 							productPriceTotal;
 						productInfo[partnerID].quantityThisProduct +=
@@ -1195,7 +1140,7 @@ function CartPage() {
 															{info.companyName ===
 															"Frete Grátis"
 																? info.companyName
-																: `Transportadora: ${info.companyName}`}
+																: `Transportadora: ${info.companyName} (${info.modalidyName})`}
 														</div>
 														<div>
 															Frete da Loja:{" "}

@@ -96,6 +96,8 @@ class ProductController {
 			quantityThisProduct,
 		} = req.body;
 
+		console.log("DADOS DA REQUISIÇÃO: ", req.body);
+
 		// Calculo total do valor
 		const productPriceTotal = productPrice * quantityThisProduct;
 
@@ -174,14 +176,14 @@ class ProductController {
 			// Configura os cabeçalhos da requisição
 			const headers = {
 				Accept: "application/json",
-				Authorization: `Bearer ${process.env.TOKEN_ACCESS_MELHOR_ENVIO}`,
+				Authorization: `Bearer ${process.env.TOKEN_ACCESS_PRODUCAO_MELHOR_ENVIO}`,
 				"Content-Type": "application/json",
 				"User-Agent": "support@mononoke.com.br",
 			};
 
 			// Faz a requisição ao endpoint do Melhor Envio
 			const response = await fetch(
-				"https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate",
+				"https://melhorenvio.com.br/api/v2/me/shipment/calculate",
 				{
 					method: "POST",
 					headers: headers,
@@ -237,15 +239,15 @@ class ProductController {
 			const product = await ProductModel.findById(productID);
 
 			if (!product) {
-				return res
-					.status(404)
-					.json({ message: "Produto não encontrado!" });
+				res.status(404).json({ message: "Produto não encontrado!" });
+				return;
 			}
 
 			if (product.category !== "Impresso") {
-				return res.status(400).json({
+				res.status(400).json({
 					message: "Produto não é do tipo Impresso!",
 				});
+				return;
 			}
 
 			const partnerID = product.partnerID;
@@ -253,9 +255,8 @@ class ProductController {
 			const partner = await PartnerModel.findById(partnerID);
 
 			if (!partner) {
-				return res
-					.status(404)
-					.json({ message: "Parceiro não encontrado!" });
+				res.status(404).json({ message: "Parceiro não encontrado!" });
+				return;
 			}
 
 			// Verifica se a transportadora configurada pelo parceiro é Modico
@@ -264,10 +265,11 @@ class ProductController {
 			);
 
 			if (!shippingOperator) {
-				return res.status(400).json({
+				res.status(400).json({
 					message:
 						"Transportadora não é a Correios - Registro Módico!",
 				});
+				return;
 			}
 
 			// 🔎 Busca no banco a transportadora 'Modico' e suas modalidades
@@ -276,10 +278,11 @@ class ProductController {
 			});
 
 			if (!shippingEntry) {
-				return res.status(404).json({
+				res.status(404).json({
 					message:
 						"Nenhuma configuração de frete encontrada para Modico.",
 				});
+				return;
 			}
 
 			// Filtra a modalidade de frete adequada ao peso total
@@ -290,11 +293,13 @@ class ProductController {
 			);
 
 			if (shippingFound) {
-				return res.status(200).json([shippingFound]); // Retorna o objeto dentro de um array
+				res.status(200).json([shippingFound]); // Retorna o objeto dentro de um array
+				return;
 			} else {
-				return res.status(400).json({
+				res.status(400).json({
 					error: "Peso excede o limite do Registro Módico.",
 				});
+				return;
 			}
 		} catch (error: any) {
 			return res.status(500).json({ error: error.message });

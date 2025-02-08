@@ -49,6 +49,8 @@ function SideComponent({ selectedVariation }) {
 		(partner) => partner._id === product.partnerID
 	);
 
+	console.log("SHIPPING CONFIGURATION", partner?.shippingConfiguration);
+
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 
@@ -101,6 +103,7 @@ function SideComponent({ selectedVariation }) {
 			: Number(product.promotionalPrice) > 0
 			? Number(product.promotionalPrice)
 			: Number(product.originalPrice) || 0; // Usa o preço promocional, original ou fallback para 0
+
 	// const value =
 	// 	Number(product.promotionalPrice) > 0
 	// 		? Number(product.promotionalPrice)
@@ -112,6 +115,7 @@ function SideComponent({ selectedVariation }) {
 		transportadoraIDSimulacao,
 		transportadoraId,
 		transportadoraNome,
+		transportadoraModalidyName,
 		transportadoraLogo,
 		transportadoraVlrFrete,
 		transportadoraPrazo
@@ -133,6 +137,7 @@ function SideComponent({ selectedVariation }) {
 					!prevState[transportadoraIDSimulacao],
 				companyID: transportadoraId,
 				companyName: transportadoraNome, // Adiciona o nome da transportadora ao estado
+				modalidyName: transportadoraModalidyName,
 				companyLogo: transportadoraLogo,
 				vlrFrete: transportadoraVlrFrete,
 				prazo: transportadoraPrazo,
@@ -305,6 +310,7 @@ function SideComponent({ selectedVariation }) {
 		const transpFreeShipping = {
 			companyID: 0,
 			companyName: "Free Shipping",
+			modalidyName: "",
 			vlrFrete: 0.0,
 			prazo: 3,
 		};
@@ -485,7 +491,6 @@ function SideComponent({ selectedVariation }) {
 	// }
 
 	async function handleSimulateShipping(cep: number, quantity: number) {
-		// Verifica se a quantidade é válida (maior que zero)
 		if (quantity <= 0) {
 			toast.info("A quantidade precisa ser maior que 0!");
 			return;
@@ -501,64 +506,37 @@ function SideComponent({ selectedVariation }) {
 		}
 
 		setIsCalculating(true);
+		setTransportadoras([]); // 🔥 Resetando o estado antes de adicionar novos fretes
 
 		let productPrice;
-
-		// Se houver variações e uma variação selecionada, usa o preço da variação
 		if (selectedVariation) {
-			// Acesse o preço da variação selecionada
 			const variationPrice =
 				selectedVariation.promotionalPrice ||
 				selectedVariation.originalPrice;
-
-			if (variationPrice && Number(variationPrice) > 0) {
-				// Se a variação tiver um preço válido, usa o preço da variação
-				productPrice = Number(variationPrice);
-			} else {
-				// Se não houver preço válido na variação, verifica o preço do produto principal
-				productPrice =
-					product.promotionalPrice &&
-					Number(product.promotionalPrice) > 0
-						? Number(product.promotionalPrice)
-						: product.originalPrice &&
-						  Number(product.originalPrice) > 0
-						? Number(product.originalPrice)
-						: 0;
-			}
-		} else {
-			// Se não houver variação selecionada ou o produto não tiver variações, usa o preço principal
 			productPrice =
-				product.promotionalPrice && Number(product.promotionalPrice) > 0
+				Number(variationPrice) > 0
+					? Number(variationPrice)
+					: Number(product.promotionalPrice) ||
+					  Number(product.originalPrice) ||
+					  0;
+		} else {
+			productPrice =
+				Number(product.promotionalPrice) > 0
 					? Number(product.promotionalPrice)
-					: product.originalPrice && Number(product.originalPrice) > 0
-					? Number(product.originalPrice)
-					: 0;
+					: Number(product.originalPrice) || 0;
 		}
 
-		// Verifique se o preço foi encontrado
 		if (productPrice === 0) {
 			console.error("Preço do produto inválido:", product);
 			return;
 		}
 
-		// Verifique se 'partner.shippingConfiguration' existe e é um array
-		console.log(
-			"partner.shippingConfiguration:",
-			partner.shippingConfiguration
-		);
-		console.log(
-			"Tipo de partner.shippingConfiguration:",
-			typeof partner.shippingConfiguration
-		);
-
-		// Verifique se 'partner.shippingConfiguration' existe e é um array
 		if (!Array.isArray(partner.shippingConfiguration)) {
 			console.error("shippingConfiguration não é um array válido.");
 			setIsCalculating(false);
 			return;
 		}
 
-		// Obtém os operadores disponíveis no parceiro
 		const melhorEnvioOperator = partner.shippingConfiguration.find(
 			(service) => service.shippingOperator === "MelhorEnvio"
 		);
@@ -566,64 +544,81 @@ function SideComponent({ selectedVariation }) {
 			(service) => service.shippingOperator === "Modico"
 		);
 
+		let fretesRecebidos: any[] = [];
+
 		try {
-			// Verifica se o parceiro tem o operador MelhorEnvio
+			// 🔹 Simula frete pelo Melhor Envio
 			if (melhorEnvioOperator) {
 				console.log("Iniciando requisição para MelhorEnvio...");
-				const responseMelhorEnvio = await api.post(
-					"/shippings/simulate-melhorenvio",
-					{
-						productID: product._id,
-						cepDestino: cep,
-						weight: product.weight,
-						height: product.height,
-						width: product.width,
-						length: product.length,
-						productPrice: productPrice,
-						quantityThisProduct: quantity,
-					}
-				);
-				console.log(
-					"Resposta do MelhorEnvio:",
-					responseMelhorEnvio.data
-				);
+				try {
+					const responseMelhorEnvio = await api.post(
+						"/shippings/simulate-melhor-envio",
+						{
+							productID: product._id,
+							cepDestino: cep,
+							weight: product.weight,
+							height: product.height,
+							width: product.width,
+							length: product.length,
+							productPrice: productPrice,
+							quantityThisProduct: quantity,
+						}
+					);
 
-				setTransportadoras((prevTransportadoras) => [
-					...prevTransportadoras,
-					...responseMelhorEnvio.data,
-				]);
+					console.log(
+						"Resposta do MelhorEnvio:",
+						responseMelhorEnvio.data
+					);
+					fretesRecebidos = [
+						...fretesRecebidos,
+						...responseMelhorEnvio.data,
+					];
+				} catch (error) {
+					console.error("Erro ao simular com MelhorEnvio:", error);
+					toast.warn("Falha ao calcular frete com MelhorEnvio.");
+				}
 			}
 
-			// Verifica se o parceiro tem o operador Modico
+			// 🔹 Simula frete pelo Modico
 			if (modicoOperator) {
 				console.log("Iniciando requisição para Modico...");
-				const responseModico = await api.post(
-					"/shippings/simulate-modico",
-					{
-						productID: product._id,
-						cepDestino: cep,
-						weight: product.weight,
-						height: product.height,
-						width: product.width,
-						length: product.length,
-						productPrice: productPrice,
-						quantityThisProduct: quantity,
-					}
-				);
-				console.log("Resposta do Modico:", responseModico.data);
+				try {
+					const responseModico = await api.post(
+						"/shippings/simulate-modico",
+						{
+							productID: product._id,
+							cepDestino: cep,
+							weight: product.weight,
+							height: product.height,
+							width: product.width,
+							length: product.length,
+							productPrice: productPrice,
+							quantityThisProduct: quantity,
+						}
+					);
 
-				setTransportadoras((prevTransportadoras) => [
-					...prevTransportadoras,
-					...responseModico.data,
-				]);
+					if (responseModico?.data) {
+						fretesRecebidos = [
+							...fretesRecebidos,
+							...responseModico.data,
+						];
+					} else {
+						throw new Error("Resposta inválida do Modico.");
+					}
+				} catch (error) {
+					console.error("Erro ao simular com Modico:", error);
+					toast.warn("Falha ao calcular frete com Modico.");
+				}
 			}
-		} catch (error) {
-			console.error("Ocorreu um erro:", error);
-			toast.error(
-				"Ocorreu um erro ao simular o frete. Verifique o CEP e tente novamente!"
+
+			// 🔥 Atualiza o estado com os fretes disponíveis, ordenados pelo menor preço
+			setTransportadoras(
+				fretesRecebidos.sort(
+					(a, b) => Number(a.price) - Number(b.price)
+				)
 			);
 		} finally {
-			setIsCalculating(false); // Certifique-se de que o loading seja removido independentemente do sucesso ou erro
+			setIsCalculating(false);
 		}
 	}
 
@@ -943,6 +938,7 @@ function SideComponent({ selectedVariation }) {
 											transportadora.id,
 											transportadora?.company.id,
 											transportadora?.company.name,
+											transportadora?.name,
 											transportadora?.company.picture,
 											transportadora.price || null,
 											transportadora.delivery_time
