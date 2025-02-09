@@ -26,6 +26,35 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 // Components
 import { YourOrderComp } from "@/components/YourOrderComp";
 
+import CryptoJS from "crypto-js";
+
+function encryptData(data) {
+	return CryptoJS.AES.encrypt(
+		JSON.stringify(data),
+		"chave-secreta"
+	).toString();
+}
+
+const decryptData = (encryptedData) => {
+	try {
+		// Descriptografando com a chave
+		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
+		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+
+		// Verifica se a string descriptografada está válida
+		if (!decryptedString) {
+			throw new Error(
+				"Dados descriptografados estão vazios ou corrompidos."
+			);
+		}
+
+		return decryptedString; // Retorna uma string válida para o JSON.parse
+	} catch (error) {
+		console.error("Erro na descriptografia:", error);
+		return ""; // Retorna uma string vazia caso algo dê errado
+	}
+};
+
 function DeliveryPage() {
 	const { transportadoraInfo, setTransportadoraInfo } =
 		useContext(CheckoutContext);
@@ -49,8 +78,34 @@ function DeliveryPage() {
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
+
 		if (savedProductsInCart) {
-			setProductsInCart(JSON.parse(savedProductsInCart));
+			try {
+				// Descriptografa os dados primeiro
+				const decryptedData = decryptData(savedProductsInCart); // Decriptografa
+
+				// Verifica se a string descriptografada não está vazia
+				if (
+					decryptedData &&
+					typeof decryptedData === "string" &&
+					decryptedData.trim() !== ""
+				) {
+					// Agora podemos tentar parsear
+					const decryptedProducts = JSON.parse(decryptedData); // Parseia a string descriptografada para JSON
+
+					// Atualiza o estado com os produtos
+					setProductsInCart(decryptedProducts);
+				} else {
+					console.error(
+						"Erro na descriptografia dos dados. O retorno não é uma string válida."
+					);
+				}
+			} catch (error) {
+				console.error(
+					"Erro ao processar a descriptografia ou parsing:",
+					error
+				);
+			}
 		}
 	}, []);
 
@@ -103,8 +158,6 @@ function DeliveryPage() {
 			}
 		});
 
-		console.log("🚀 Enviando para handleSimulateShipping:", productInfo);
-
 		if (cepDestino) {
 			handleSimulateShipping(cepDestino, productInfo)
 				.then(() => setIsFreightSimulated(true)) // 🔥 Evita simulações duplicadas
@@ -132,29 +185,26 @@ function DeliveryPage() {
 				}
 			});
 
+			// Criptografando o transportadoraInfo antes de salvar
+			const encryptedTransportadoraInfo = encryptData(
+				defaultTransportadoraData
+			);
+
+			// Atualiza o estado com as informações criptografadas
 			setTransportadoraInfo((prevInfo) => ({
 				...prevInfo,
 				...defaultTransportadoraData,
 			}));
 
+			// Salva no localStorage
 			localStorage.setItem(
 				"transportadoraInfo",
-				JSON.stringify({
-					...JSON.parse(
-						localStorage.getItem("transportadoraInfo") || "{}"
-					),
-					...defaultTransportadoraData,
-				})
+				JSON.stringify(encryptedTransportadoraInfo)
 			);
 		}
-	}, [productsInCart]); // 🚀 Só executa quando `productsInCart` for atualizado
+	}, [productsInCart]);
 
 	async function handleSimulateShipping(cepDestino, productInfo) {
-		console.log(
-			"Recebido em handleSimulateShipping:",
-			JSON.stringify(productInfo, null, 2)
-		);
-
 		try {
 			let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
 
@@ -294,15 +344,18 @@ function DeliveryPage() {
 			// 🔥 Atualizando o estado sem acumular valores antigos
 			setTransportadoraInfo(transportadoraData);
 
-			// 🔥 Salvando no localStorage
+			// 🔥 Criptografando o transportadoraData antes de salvar no localStorage
+			const encryptedTransportadoraData = encryptData(transportadoraData);
+
+			// 🔥 Salvando os dados criptografados no localStorage
 			try {
 				console.log(
 					"Salvando dados no localStorage:",
-					transportadoraData
+					encryptedTransportadoraData
 				);
 				localStorage.setItem(
 					"transportadoraInfo",
-					JSON.stringify(transportadoraData)
+					JSON.stringify(encryptedTransportadoraData)
 				);
 			} catch (error) {
 				console.error("Erro ao salvar no localStorage:", error);

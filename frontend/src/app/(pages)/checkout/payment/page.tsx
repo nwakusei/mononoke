@@ -40,6 +40,35 @@ import { FaCheck } from "react-icons/fa";
 // Components
 import { YourOrderComp } from "@/components/YourOrderComp";
 
+import CryptoJS from "crypto-js";
+
+function encryptData(data) {
+	return CryptoJS.AES.encrypt(
+		JSON.stringify(data),
+		"chave-secreta"
+	).toString();
+}
+
+const decryptData = (encryptedData) => {
+	try {
+		// Descriptografando com a chave
+		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
+		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+
+		// Verifica se a string descriptografada está válida
+		if (!decryptedString) {
+			throw new Error(
+				"Dados descriptografados estão vazios ou corrompidos."
+			);
+		}
+
+		return decryptedString; // Retorna uma string válida para o JSON.parse
+	} catch (error) {
+		console.error("Erro na descriptografia:", error);
+		return ""; // Retorna uma string vazia caso algo dê errado
+	}
+};
+
 function PaymentPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const { transportadoraInfo, setSubtotal, setCart, setTransportadoraInfo } =
@@ -73,7 +102,13 @@ function PaymentPage() {
 		vlrFrete: info.vlrFrete,
 		daysShipping: info.prazoEnt,
 	}));
-	const coupons = JSON.parse(localStorage.getItem("coupons") || "[]");
+
+	const couponsEncrypted = localStorage.getItem("coupons"); // Recupera o valor criptografado
+
+	// Verifica se a chave existe no localStorage e, em seguida, descriptografa
+	const coupons = couponsEncrypted
+		? decryptData(couponsEncrypted) // Chama sua função de descriptografar
+		: []; // Caso não tenha nada, retorna um array vazio
 
 	const [pix, setPix] = useState({});
 	const [qrCodeUrl, setQrCodeUrl] = useState(""); // Estado para armazenar a URL do QR Code
@@ -82,8 +117,34 @@ function PaymentPage() {
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
+
 		if (savedProductsInCart) {
-			setProductsInCart(JSON.parse(savedProductsInCart));
+			try {
+				// Descriptografa os dados primeiro
+				const decryptedData = decryptData(savedProductsInCart); // Decriptografa
+
+				// Verifica se a string descriptografada não está vazia
+				if (
+					decryptedData &&
+					typeof decryptedData === "string" &&
+					decryptedData.trim() !== ""
+				) {
+					// Agora podemos tentar parsear
+					const decryptedProducts = JSON.parse(decryptedData); // Parseia a string descriptografada para JSON
+
+					// Atualiza o estado com os produtos
+					setProductsInCart(decryptedProducts);
+				} else {
+					console.error(
+						"Erro na descriptografia dos dados. O retorno não é uma string válida."
+					);
+				}
+			} catch (error) {
+				console.error(
+					"Erro ao processar a descriptografia ou parsing:",
+					error
+				);
+			}
 		}
 	}, []);
 
@@ -136,8 +197,6 @@ function PaymentPage() {
 			}
 		});
 
-		console.log("🚀 Enviando para handleSimulateShipping:", productInfo);
-
 		if (cepDestino) {
 			handleSimulateShipping(cepDestino, productInfo)
 				.then(() => setIsFreightSimulated(true)) // 🔥 Evita simulações duplicadas
@@ -165,29 +224,26 @@ function PaymentPage() {
 				}
 			});
 
+			// Criptografando o transportadoraInfo antes de salvar
+			const encryptedTransportadoraInfo = encryptData(
+				defaultTransportadoraData
+			);
+
+			// Atualiza o estado com as informações criptografadas
 			setTransportadoraInfo((prevInfo) => ({
 				...prevInfo,
 				...defaultTransportadoraData,
 			}));
 
+			// Salva no localStorage
 			localStorage.setItem(
 				"transportadoraInfo",
-				JSON.stringify({
-					...JSON.parse(
-						localStorage.getItem("transportadoraInfo") || "{}"
-					),
-					...defaultTransportadoraData,
-				})
+				JSON.stringify(encryptedTransportadoraInfo)
 			);
 		}
-	}, [productsInCart]); // 🚀 Só executa quando `productsInCart` for atualizado
+	}, [productsInCart]);
 
 	async function handleSimulateShipping(cepDestino, productInfo) {
-		console.log(
-			"Recebido em handleSimulateShipping:",
-			JSON.stringify(productInfo, null, 2)
-		);
-
 		try {
 			let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
 
@@ -327,15 +383,18 @@ function PaymentPage() {
 			// 🔥 Atualizando o estado sem acumular valores antigos
 			setTransportadoraInfo(transportadoraData);
 
-			// 🔥 Salvando no localStorage
+			// 🔥 Criptografando o transportadoraData antes de salvar no localStorage
+			const encryptedTransportadoraData = encryptData(transportadoraData);
+
+			// 🔥 Salvando os dados criptografados no localStorage
 			try {
 				console.log(
 					"Salvando dados no localStorage:",
-					transportadoraData
+					encryptedTransportadoraData
 				);
 				localStorage.setItem(
 					"transportadoraInfo",
-					JSON.stringify(transportadoraData)
+					JSON.stringify(encryptedTransportadoraData)
 				);
 			} catch (error) {
 				console.error("Erro ao salvar no localStorage:", error);
@@ -387,14 +446,26 @@ function PaymentPage() {
 				0
 			);
 
-			// Soma os valores de discountAmount dos coupons no localStorage
-			const couponsStorage = JSON.parse(
-				localStorage.getItem("coupons") || "[]"
-			);
+			// Recupera e descriptografa os cupons do localStorage
+			const couponsEncrypted = localStorage.getItem("coupons");
+			let couponsStorage = [];
+
+			if (couponsEncrypted) {
+				const decryptedCoupons = decryptData(couponsEncrypted);
+				try {
+					// Tenta transformar o dado descriptografado em um array válido
+					couponsStorage = Array.isArray(decryptedCoupons)
+						? decryptedCoupons
+						: [];
+				} catch (error) {
+					console.error("Erro ao processar cupons:", error);
+				}
+			}
+
+			// Soma os valores de discountAmount dos cupons
 			const totalDiscountAmount = couponsStorage.reduce(
-				(total, coupon) => {
-					return total + (parseFloat(coupon.discountAmount) || 0);
-				},
+				(total, coupon) =>
+					total + (parseFloat(coupon.discountAmount) || 0),
 				0
 			);
 

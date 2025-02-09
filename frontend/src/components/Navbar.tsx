@@ -53,6 +53,28 @@ import imageProfile from "../../public/Kon.jpg";
 import { Context } from "@/context/UserContext";
 import { CheckoutContext } from "@/context/CheckoutContext";
 
+import CryptoJS from "crypto-js";
+
+function encryptData(data) {
+	return CryptoJS.AES.encrypt(
+		JSON.stringify(data),
+		"chave-secreta"
+	).toString();
+}
+
+function decryptData(encryptedData) {
+	try {
+		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
+		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+	} catch (error) {
+		console.error(
+			"Erro ao descriptografar os produtos do carrinho:",
+			error
+		);
+		return null;
+	}
+}
+
 function Navbar() {
 	const { userAuthenticated, logout } = useContext(Context);
 	const { cart, setCart, subtotal, setSubtotal } =
@@ -60,18 +82,6 @@ function Navbar() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 	const [isImageLoaded, setIsImageLoaded] = useState(false);
-
-	// useEffect(() => {
-	// 	if (!token) return;
-
-	// 	api.get("/otakuprime/check-user", {
-	// 		headers: {
-	// 			Authorization: `Bearer ${JSON.parse(token)}`,
-	// 		},
-	// 	}).then((response) => {
-	// 		setUser(response.data);
-	// 	});
-	// }, [token]);
 
 	useEffect(() => {
 		if (!token) return;
@@ -97,30 +107,47 @@ function Navbar() {
 
 	useEffect(() => {
 		// Recupera os produtos do carrinho do localStorage
-		const productsInCart =
-			JSON.parse(localStorage.getItem("productsInCart")) || [];
+		const encryptedProducts = localStorage.getItem("productsInCart");
 
-		// Soma todas as quantidades dos produtos no carrinho
-		const totalQuantityProducts = productsInCart.reduce(
-			(total, product) => total + product.quantityThisProduct,
-			0
-		);
+		console.log("Dados criptografados recuperados:", encryptedProducts);
 
-		// Atualiza o estado do carrinho com o total de produtos
-		setCart(totalQuantityProducts);
+		if (!encryptedProducts) {
+			console.log(
+				"Nenhum dado criptografado encontrado no localStorage."
+			);
+			return;
+		}
 
-		// Calcula o preço total do carrinho
-		const totalCartValue = productsInCart.reduce(
-			(total, product) => total + product.productPriceTotal,
-			0
-		);
+		const productsInCart = decryptData(encryptedProducts);
 
-		// Define o subtotal como 0 se o carrinho estiver vazio
-		const subtotalValue = productsInCart.length > 0 ? totalCartValue : 0;
+		// Valida se produtos no carrinho é um array válido
+		if (Array.isArray(productsInCart)) {
+			console.log(
+				"Produtos no carrinho após descriptografar:",
+				productsInCart
+			);
 
-		// Atualiza o estado do subtotal
-		setSubtotal(subtotalValue);
-	}, [cart]); // Adiciona 'cart' como dependência para que o useEffect seja executado sempre que o carrinho for atualizado
+			// Continue com o cálculo do total e subtotal
+			const totalQuantityProducts = productsInCart.reduce(
+				(total, product) => total + product.quantityThisProduct,
+				0
+			);
+			setCart(totalQuantityProducts);
+
+			const totalCartValue = productsInCart.reduce(
+				(total, product) => total + product.productPriceTotal,
+				0
+			);
+
+			const subtotalValue =
+				productsInCart.length > 0 ? totalCartValue : 0;
+			setSubtotal(subtotalValue);
+		} else {
+			console.log(
+				"Erro ao descriptografar os dados do carrinho. Dados inválidos."
+			);
+		}
+	}, []);
 
 	// Função para remover itens do carrinho de compra
 	const handleRemoveFromCart = () => {

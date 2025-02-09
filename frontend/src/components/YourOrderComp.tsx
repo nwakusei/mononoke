@@ -16,6 +16,35 @@ import { CheckoutContext } from "@/context/CheckoutContext";
 import { FiInfo } from "react-icons/fi";
 import { Coupon } from "@icon-park/react";
 
+import CryptoJS from "crypto-js";
+
+function encryptData(data) {
+	return CryptoJS.AES.encrypt(
+		JSON.stringify(data),
+		"chave-secreta"
+	).toString();
+}
+
+const decryptData = (encryptedData) => {
+	try {
+		// Descriptografando com a chave
+		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
+		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+
+		// Verifica se a string descriptografada está válida
+		if (!decryptedString) {
+			throw new Error(
+				"Dados descriptografados estão vazios ou corrompidos."
+			);
+		}
+
+		return decryptedString; // Retorna uma string válida para o JSON.parse
+	} catch (error) {
+		console.error("Erro na descriptografia:", error);
+		return ""; // Retorna uma string vazia caso algo dê errado
+	}
+};
+
 function YourOrderComp({ productsInfo, shippingInfo }) {
 	const { setTransportadoraInfo } = useContext(CheckoutContext);
 	const [productsInCart, setProductsInCart] = useState([]);
@@ -27,8 +56,34 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
+
 		if (savedProductsInCart) {
-			setProductsInCart(JSON.parse(savedProductsInCart));
+			try {
+				// Descriptografa os dados primeiro
+				const decryptedData = decryptData(savedProductsInCart); // Decriptografa
+
+				// Verifica se a string descriptografada não está vazia
+				if (
+					decryptedData &&
+					typeof decryptedData === "string" &&
+					decryptedData.trim() !== ""
+				) {
+					// Agora podemos tentar parsear
+					const decryptedProducts = JSON.parse(decryptedData); // Parseia a string descriptografada para JSON
+
+					// Atualiza o estado com os produtos
+					setProductsInCart(decryptedProducts);
+				} else {
+					console.error(
+						"Erro na descriptografia dos dados. O retorno não é uma string válida."
+					);
+				}
+			} catch (error) {
+				console.error(
+					"Erro ao processar a descriptografia ou parsing:",
+					error
+				);
+			}
 		}
 	}, []);
 
@@ -81,8 +136,6 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 			}
 		});
 
-		console.log("🚀 Enviando para handleSimulateShipping:", productInfo);
-
 		if (cepDestino) {
 			handleSimulateShipping(cepDestino, productInfo)
 				.then(() => setIsFreightSimulated(true)) // 🔥 Evita simulações duplicadas
@@ -110,29 +163,26 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 				}
 			});
 
+			// Criptografando o transportadoraInfo antes de salvar
+			const encryptedTransportadoraInfo = encryptData(
+				defaultTransportadoraData
+			);
+
+			// Atualiza o estado com as informações criptografadas
 			setTransportadoraInfo((prevInfo) => ({
 				...prevInfo,
 				...defaultTransportadoraData,
 			}));
 
+			// Salva no localStorage
 			localStorage.setItem(
 				"transportadoraInfo",
-				JSON.stringify({
-					...JSON.parse(
-						localStorage.getItem("transportadoraInfo") || "{}"
-					),
-					...defaultTransportadoraData,
-				})
+				JSON.stringify(encryptedTransportadoraInfo)
 			);
 		}
-	}, [productsInCart]); // 🚀 Só executa quando `productsInCart` for atualizado
+	}, [productsInCart]);
 
 	async function handleSimulateShipping(cepDestino, productInfo) {
-		console.log(
-			"Recebido em handleSimulateShipping:",
-			JSON.stringify(productInfo, null, 2)
-		);
-
 		try {
 			let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
 
@@ -272,15 +322,18 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 			// 🔥 Atualizando o estado sem acumular valores antigos
 			setTransportadoraInfo(transportadoraData);
 
-			// 🔥 Salvando no localStorage
+			// 🔥 Criptografando o transportadoraData antes de salvar no localStorage
+			const encryptedTransportadoraData = encryptData(transportadoraData);
+
+			// 🔥 Salvando os dados criptografados no localStorage
 			try {
 				console.log(
 					"Salvando dados no localStorage:",
-					transportadoraData
+					encryptedTransportadoraData
 				);
 				localStorage.setItem(
 					"transportadoraInfo",
-					JSON.stringify(transportadoraData)
+					JSON.stringify(encryptedTransportadoraData)
 				);
 			} catch (error) {
 				console.error("Erro ao salvar no localStorage:", error);
@@ -353,21 +406,47 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 				0
 			);
 
-			// Soma os valores de discountAmount dos coupons no localStorage
-			const couponsStorage = JSON.parse(
-				localStorage.getItem("coupons") || "[]"
-			);
-			const totalDiscountAmount = couponsStorage.reduce(
-				(total, coupon) => total + coupon.discountAmount,
-				0
-			);
+			// Recupera e descriptografa os cupons do localStorage
+			const couponsStorageEncrypted = localStorage.getItem("coupons");
+			const decryptedCouponsStorage = couponsStorageEncrypted
+				? decryptData(couponsStorageEncrypted)
+				: "[]"; // Retorna uma string vazia se não houver cupons
 
-			// Subtrai o desconto do total
-			let total = subtotal + frete - totalDiscountAmount;
-			setTotalPedido(total < 0 ? 0 : total);
+			// Certifique-se de que decryptedCouponsStorage é uma string JSON válida ou um array
+			let couponsStorage = [];
 
-			// Define o desconto total aplicado
-			setCouponApplied(totalDiscountAmount);
+			// Se o valor descriptografado for uma string JSON válida, faz o parsing
+			try {
+				if (typeof decryptedCouponsStorage === "string") {
+					couponsStorage = JSON.parse(decryptedCouponsStorage);
+				} else {
+					couponsStorage = decryptedCouponsStorage; // Caso seja um objeto, já pode ser usado
+				}
+			} catch (error) {
+				console.error("Erro ao parsear os cupons:", error);
+			}
+
+			// Certifique-se de que couponsStorage é um array antes de aplicar o .reduce
+			if (Array.isArray(couponsStorage)) {
+				// Soma os valores de discountAmount dos coupons
+				const totalDiscountAmount = couponsStorage.reduce(
+					(total, coupon) => total + coupon.discountAmount,
+					0
+				);
+
+				// Subtrai o desconto do total
+				let total = subtotal + frete - totalDiscountAmount;
+				setTotalPedido(total < 0 ? 0 : total);
+
+				// Define o desconto total aplicado
+				setCouponApplied(totalDiscountAmount);
+
+				// Criptografa e armazena os cupons novamente no localStorage
+				const encryptedCoupons = encryptData(couponsStorage);
+				localStorage.setItem("coupons", encryptedCoupons);
+			} else {
+				console.warn("Os cupons não estão no formato esperado");
+			}
 		};
 
 		calcularTotalPedido();
@@ -404,9 +483,11 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 
 			if (cupomInfo) {
 				// Verifica se o cupom já foi aplicado anteriormente
-				const couponsStorage = JSON.parse(
-					localStorage.getItem("coupons") || "[]"
-				);
+				const couponsStorageEncrypted = localStorage.getItem("coupons");
+				const couponsStorage = couponsStorageEncrypted
+					? decryptData(couponsStorageEncrypted) || []
+					: [];
+
 				const cupomJaAplicado = couponsStorage.some(
 					(coupon) =>
 						coupon.partnerID === cupomInfo.partnerID &&
@@ -464,15 +545,17 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 						// Adiciona o novo cupom ao array
 						couponsStorage.push(cupomLocalStorage);
 
-						// Armazena o array atualizado no localStorage
-						localStorage.setItem(
-							"coupons",
-							JSON.stringify(couponsStorage)
-						);
+						// Criptografa e armazena o array atualizado no localStorage
+						const encryptedCoupons = encryptData(couponsStorage);
+						localStorage.setItem("coupons", encryptedCoupons);
 
+						// Criptografa os produtos e armazena no localStorage
+						const encryptedProductsInCart = encryptData(
+							produtosComPartnerIDCorreto
+						);
 						localStorage.setItem(
 							"productsInCart",
-							JSON.stringify(produtosComPartnerIDCorreto)
+							encryptedProductsInCart
 						);
 
 						setCouponApplied(descontoTotal); // Define o desconto total aplicado
@@ -505,32 +588,35 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 							<h1 className="text-lg font-semibold mb-6">
 								Seu Pedido
 							</h1>
-							{productsInfo.map((productInCart) => (
+							{productsInfo.map((productInCart, index) => (
 								<div
-									key={productInCart.productID}
+									key={productInCart.productID || index} // Usando productID ou índice como fallback
 									className="flex justify-between mb-2">
 									<h2>
 										{productInCart.quantityThisProduct} x{" "}
 										{productInCart.productTitle}
 									</h2>
 									<h2>
-										{productInCart.productPrice.toLocaleString(
-											"pt-BR",
-											{
-												style: "currency",
-												currency: "BRL",
-											}
-										)}
+										{productInCart.productPrice
+											? productInCart.productPrice.toLocaleString(
+													"pt-BR",
+													{
+														style: "currency",
+														currency: "BRL",
+													}
+											  )
+											: "Preço indisponível"}
 									</h2>
 								</div>
 							))}
 						</div>
 
 						<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
-						<div className="">
+
+						<div>
 							<div className="flex justify-between mb-1">
 								<h2 className="flex items-center justify-center gap-1">
-									Subtotal{" "}
+									Subtotal
 									<div
 										className="tooltip cursor-pointer"
 										data-tip="Não inclui o valor do frete!">
@@ -568,7 +654,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 										)}
 									</h2>
 								</div>
-							</div>{" "}
+							</div>
 							<div className="flex justify-between mb-1">
 								<h2>Desconto aplicado</h2>
 								<h2>
@@ -586,7 +672,8 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 						</div>
 
 						<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
-						<div className="">
+
+						<div>
 							<div className="flex justify-between mb-2">
 								<h2 className="font-semibold">
 									Total do Pedido
@@ -600,6 +687,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 							</div>
 						</div>
 					</div>
+
 					<label className="flex flex-row w-[400px] gap-2">
 						{couponApplied ? (
 							<></>

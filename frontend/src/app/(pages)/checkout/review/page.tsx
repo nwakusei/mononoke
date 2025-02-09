@@ -31,6 +31,35 @@ import { PiNoteBold } from "react-icons/pi";
 // Components
 import { YourOrderComp } from "@/components/YourOrderComp";
 
+import CryptoJS from "crypto-js";
+
+function encryptData(data) {
+	return CryptoJS.AES.encrypt(
+		JSON.stringify(data),
+		"chave-secreta"
+	).toString();
+}
+
+const decryptData = (encryptedData) => {
+	try {
+		// Descriptografando com a chave
+		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
+		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+
+		// Verifica se a string descriptografada está válida
+		if (!decryptedString) {
+			throw new Error(
+				"Dados descriptografados estão vazios ou corrompidos."
+			);
+		}
+
+		return decryptedString; // Retorna uma string válida para o JSON.parse
+	} catch (error) {
+		console.error("Erro na descriptografia:", error);
+		return ""; // Retorna uma string vazia caso algo dê errado
+	}
+};
+
 function ReviewInfoPage() {
 	const { transportadoraInfo, setTransportadoraInfo } =
 		useContext(CheckoutContext);
@@ -52,8 +81,34 @@ function ReviewInfoPage() {
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
+
 		if (savedProductsInCart) {
-			setProductsInCart(JSON.parse(savedProductsInCart));
+			try {
+				// Descriptografa os dados primeiro
+				const decryptedData = decryptData(savedProductsInCart); // Decriptografa
+
+				// Verifica se a string descriptografada não está vazia
+				if (
+					decryptedData &&
+					typeof decryptedData === "string" &&
+					decryptedData.trim() !== ""
+				) {
+					// Agora podemos tentar parsear
+					const decryptedProducts = JSON.parse(decryptedData); // Parseia a string descriptografada para JSON
+
+					// Atualiza o estado com os produtos
+					setProductsInCart(decryptedProducts);
+				} else {
+					console.error(
+						"Erro na descriptografia dos dados. O retorno não é uma string válida."
+					);
+				}
+			} catch (error) {
+				console.error(
+					"Erro ao processar a descriptografia ou parsing:",
+					error
+				);
+			}
 		}
 	}, []);
 
@@ -106,8 +161,6 @@ function ReviewInfoPage() {
 			}
 		});
 
-		console.log("🚀 Enviando para handleSimulateShipping:", productInfo);
-
 		if (cepDestino) {
 			handleSimulateShipping(cepDestino, productInfo)
 				.then(() => setIsFreightSimulated(true)) // 🔥 Evita simulações duplicadas
@@ -135,29 +188,26 @@ function ReviewInfoPage() {
 				}
 			});
 
+			// Criptografando o transportadoraInfo antes de salvar
+			const encryptedTransportadoraInfo = encryptData(
+				defaultTransportadoraData
+			);
+
+			// Atualiza o estado com as informações criptografadas
 			setTransportadoraInfo((prevInfo) => ({
 				...prevInfo,
 				...defaultTransportadoraData,
 			}));
 
+			// Salva no localStorage
 			localStorage.setItem(
 				"transportadoraInfo",
-				JSON.stringify({
-					...JSON.parse(
-						localStorage.getItem("transportadoraInfo") || "{}"
-					),
-					...defaultTransportadoraData,
-				})
+				JSON.stringify(encryptedTransportadoraInfo)
 			);
 		}
-	}, [productsInCart]); // 🚀 Só executa quando `productsInCart` for atualizado
+	}, [productsInCart]);
 
 	async function handleSimulateShipping(cepDestino, productInfo) {
-		console.log(
-			"Recebido em handleSimulateShipping:",
-			JSON.stringify(productInfo, null, 2)
-		);
-
 		try {
 			let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
 
@@ -297,15 +347,18 @@ function ReviewInfoPage() {
 			// 🔥 Atualizando o estado sem acumular valores antigos
 			setTransportadoraInfo(transportadoraData);
 
-			// 🔥 Salvando no localStorage
+			// 🔥 Criptografando o transportadoraData antes de salvar no localStorage
+			const encryptedTransportadoraData = encryptData(transportadoraData);
+
+			// 🔥 Salvando os dados criptografados no localStorage
 			try {
 				console.log(
 					"Salvando dados no localStorage:",
-					transportadoraData
+					encryptedTransportadoraData
 				);
 				localStorage.setItem(
 					"transportadoraInfo",
-					JSON.stringify(transportadoraData)
+					JSON.stringify(encryptedTransportadoraData)
 				);
 			} catch (error) {
 				console.error("Erro ao salvar no localStorage:", error);
@@ -361,28 +414,26 @@ function ReviewInfoPage() {
 
 						<div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
 							{user.address && user.address.length > 0 ? (
-								user.address.map((end) => (
-									<>
-										<div
-											key={end.id}
-											className="flex flex-row gap-4">
-											<GrLocation size={25} />
-											<div>
-												<h1 className="text-base font-semibold mb-2">
-													Endereço de Entrega:
-												</h1>
-												<h1 className="text-base">
-													{end.street}
-												</h1>
-												<h2>{end.complement}</h2>
-												<h2>{end.neighborhood}</h2>
-												<h2>
-													{end.city}/{end.state}
-												</h2>
-												<h2>{end.postalCode}</h2>
-											</div>
+								user.address.map((end, index) => (
+									<div
+										key={end.id || index} // Garantindo que a chave seja única (usando 'index' como fallback)
+										className="flex flex-row gap-4">
+										<GrLocation size={25} />
+										<div>
+											<h1 className="text-base font-semibold mb-2">
+												Endereço de Entrega:
+											</h1>
+											<h1 className="text-base">
+												{end.street}
+											</h1>
+											<h2>{end.complement}</h2>
+											<h2>{end.neighborhood}</h2>
+											<h2>
+												{end.city}/{end.state}
+											</h2>
+											<h2>{end.postalCode}</h2>
 										</div>
-									</>
+									</div>
 								))
 							) : (
 								<div>
@@ -392,31 +443,53 @@ function ReviewInfoPage() {
 								</div>
 							)}
 						</div>
+
 						{Object.entries(transportadoraInfo).map(
 							([key, info]) => (
 								<div
-									key={key}
+									key={`transport-${key}`}
 									className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
 									<div className="flex flex-row gap-4">
 										<LiaShippingFastSolid size={25} />
 										<div>
 											<h1>
 												Transportadora:{" "}
-												{info.transpNome}
+												{info.companyName}
 											</h1>
-
-											<h2>Prazo de Envio: 3 dias</h2>
 											<h2>
-												Previsão de Entrega: 10 dias
+												Custo do Frete:{" "}
+												{info.vlrFrete.toLocaleString(
+													"pt-BR",
+													{
+														style: "currency",
+														currency: "BRL",
+													}
+												)}
 											</h2>
+											{productsInCart.length > 0 &&
+												productsInCart.map(
+													(product, index) => (
+														<div
+															key={`product-${
+																product.id ||
+																index
+															}`}>
+															<h2>{`Prazo de Envio: ${product.daysShipping} dias`}</h2>
+															<h2>{`Previsão de Entrega: ≅ ${
+																product.daysShipping +
+																info.prazo
+															} dias`}</h2>
+														</div>
+													)
+												)}
 										</div>
 									</div>
 								</div>
 							)
 						)}
+
 						<div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
 							<div className="flex flex-col w-[650px] gap-4">
-								{/* <CiStickyNote className="font-bold" size={25} /> */}
 								<div className="flex flex-row gap-4">
 									<PiNoteBold size={25} />
 									<div>

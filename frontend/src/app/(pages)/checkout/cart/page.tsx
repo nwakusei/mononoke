@@ -23,6 +23,28 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 // Components
 import { YourOrderComp } from "@/components/YourOrderComp";
 
+import CryptoJS from "crypto-js";
+
+function encryptData(data) {
+	return CryptoJS.AES.encrypt(
+		JSON.stringify(data),
+		"chave-secreta"
+	).toString();
+}
+
+function decryptData(encryptedData) {
+	try {
+		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
+		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+	} catch (error) {
+		console.error(
+			"Erro ao descriptografar os produtos do carrinho:",
+			error
+		);
+		return null;
+	}
+}
+
 function CartPage() {
 	const { setCart, setSubtotal, transportadoraInfo, setTransportadoraInfo } =
 		useContext(CheckoutContext);
@@ -31,8 +53,15 @@ function CartPage() {
 
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
+
 		if (savedProductsInCart) {
-			setProductsInCart(JSON.parse(savedProductsInCart));
+			// Parseia e descriptografa os produtos
+			const decryptedProducts = JSON.parse(savedProductsInCart)
+				.map((product) => decryptData(product))
+				.filter((product) => product !== null);
+
+			// Armazena os produtos descriptografados no estado
+			setProductsInCart(decryptedProducts);
 		}
 	}, []);
 
@@ -85,8 +114,6 @@ function CartPage() {
 			}
 		});
 
-		console.log("🚀 Enviando para handleSimulateShipping:", productInfo);
-
 		if (cepDestino) {
 			handleSimulateShipping(cepDestino, productInfo)
 				.then(() => setIsFreightSimulated(true)) // 🔥 Evita simulações duplicadas
@@ -114,29 +141,26 @@ function CartPage() {
 				}
 			});
 
+			// Criptografando o transportadoraInfo antes de salvar
+			const encryptedTransportadoraInfo = encryptData(
+				defaultTransportadoraData
+			);
+
+			// Atualiza o estado com as informações criptografadas
 			setTransportadoraInfo((prevInfo) => ({
 				...prevInfo,
 				...defaultTransportadoraData,
 			}));
 
+			// Salva no localStorage
 			localStorage.setItem(
 				"transportadoraInfo",
-				JSON.stringify({
-					...JSON.parse(
-						localStorage.getItem("transportadoraInfo") || "{}"
-					),
-					...defaultTransportadoraData,
-				})
+				JSON.stringify(encryptedTransportadoraInfo)
 			);
 		}
-	}, [productsInCart]); // 🚀 Só executa quando `productsInCart` for atualizado
+	}, [productsInCart]);
 
 	async function handleSimulateShipping(cepDestino, productInfo) {
-		console.log(
-			"Recebido em handleSimulateShipping:",
-			JSON.stringify(productInfo, null, 2)
-		);
-
 		try {
 			let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
 
@@ -276,15 +300,18 @@ function CartPage() {
 			// 🔥 Atualizando o estado sem acumular valores antigos
 			setTransportadoraInfo(transportadoraData);
 
-			// 🔥 Salvando no localStorage
+			// 🔥 Criptografando o transportadoraData antes de salvar no localStorage
+			const encryptedTransportadoraData = encryptData(transportadoraData);
+
+			// 🔥 Salvando os dados criptografados no localStorage
 			try {
 				console.log(
 					"Salvando dados no localStorage:",
-					transportadoraData
+					encryptedTransportadoraData
 				);
 				localStorage.setItem(
 					"transportadoraInfo",
-					JSON.stringify(transportadoraData)
+					JSON.stringify(encryptedTransportadoraData)
 				);
 			} catch (error) {
 				console.error("Erro ao salvar no localStorage:", error);
@@ -373,11 +400,31 @@ function CartPage() {
 
 	const decreaseQuantity = async (productId) => {
 		try {
-			// Obter os produtos no carrinho do localStorage
-			let productsInCart =
-				JSON.parse(localStorage.getItem("productsInCart")) || [];
+			// Obter os produtos criptografados no localStorage
+			const encryptedProducts = localStorage.getItem("productsInCart");
 
-			// Encontrar o índice do produto usando apenas o productID
+			// Verificar se há produtos no localStorage
+			if (!encryptedProducts) {
+				toast.error("Nenhum produto no carrinho.");
+				return;
+			}
+
+			// Parse e descriptografar os produtos corretamente (um por um)
+			let productsInCart = JSON.parse(encryptedProducts)
+				.map((product) => decryptData(product))
+				.filter((product) => product !== null);
+
+			// Verificar se os produtos foram corretamente descriptografados
+			if (!Array.isArray(productsInCart)) {
+				console.error(
+					"Erro: produtos descriptografados não são um array",
+					productsInCart
+				);
+				toast.error("Erro ao processar produtos do carrinho.");
+				productsInCart = [];
+			}
+
+			// Encontrar o índice do produto usando productId
 			const index = productsInCart.findIndex(
 				(item) => item.productID === productId
 			);
@@ -393,16 +440,20 @@ function CartPage() {
 						productsInCart[index].quantityThisProduct *
 						productPrice;
 
-					// Atualizar os dados no armazenamento local
+					// Atualizar os dados no armazenamento local (criptografado)
 					localStorage.setItem(
 						"productsInCart",
-						JSON.stringify(productsInCart)
+						JSON.stringify(
+							productsInCart.map((product) =>
+								encryptData(product)
+							)
+						)
 					);
 
 					// Atualizar o estado com os produtos no carrinho
 					setProductsInCart([...productsInCart]);
 
-					// Filtrar os produtos para remover aqueles com frete grátis e cep vazio
+					// Filtrar os produtos para remover aqueles sem CEP
 					const filteredProducts = productsInCart.filter(
 						(product) =>
 							product.cepDestino &&
@@ -428,28 +479,28 @@ function CartPage() {
 							const quantityThisProduct =
 								product.quantityThisProduct || 0;
 							const transpID =
-								product.transportadora?.companyID || null; // Obter apenas o ID da transportadora
+								product.transportadora?.companyID || null;
 
 							if (!productInfo[partnerID]) {
 								productInfo[partnerID] = {
-									weight: weight,
-									length: length,
-									width: width,
-									height: height,
-									productPrice: productPrice,
-									productPriceTotal: productPriceTotal,
-									quantityThisProduct: quantityThisProduct,
+									weight,
+									length,
+									width,
+									height,
+									productPrice,
+									productPriceTotal,
+									quantityThisProduct,
 									transportadora: {
-										companyID: transpID, // Inicializa o ID da transportadora
+										companyID: transpID,
 									},
-									productID: productID,
+									productID,
 								};
 							} else {
-								// Acumular os valores de peso, comprimento, largura, altura e quantidade
-								productInfo[partnerID].weight = weight;
-								productInfo[partnerID].length = length;
-								productInfo[partnerID].width = width;
-								productInfo[partnerID].height = height;
+								// Acumular os valores
+								productInfo[partnerID].weight += weight;
+								productInfo[partnerID].length += length;
+								productInfo[partnerID].width += width;
+								productInfo[partnerID].height += height;
 								productInfo[partnerID].productPrice +=
 									productPrice;
 								productInfo[partnerID].productPriceTotal +=
@@ -458,7 +509,7 @@ function CartPage() {
 									quantityThisProduct;
 							}
 
-							// Atualize o cepDestino se o produto tiver um
+							// Atualize o cepDestino
 							if (
 								product.cepDestino &&
 								product.cepDestino.trim() !== ""
@@ -466,11 +517,6 @@ function CartPage() {
 								cepDestino = product.cepDestino;
 							}
 						});
-
-						console.log(
-							"Informações dos produtos por parceiro:",
-							productInfo
-						);
 
 						if (cepDestino) {
 							// Chamada da função para simular o frete
@@ -486,7 +532,11 @@ function CartPage() {
 					// Atualizar o localStorage e o estado
 					localStorage.setItem(
 						"productsInCart",
-						JSON.stringify(productsInCart)
+						JSON.stringify(
+							productsInCart.map((product) =>
+								encryptData(product)
+							)
+						)
 					);
 					setProductsInCart([...productsInCart]);
 				}
@@ -501,11 +551,31 @@ function CartPage() {
 
 	const increaseQuantity = async (productId) => {
 		try {
-			// Obter os produtos no carrinho do localStorage
-			let productsInCart =
-				JSON.parse(localStorage.getItem("productsInCart")) || [];
+			// Obter os produtos criptografados no localStorage
+			const encryptedProducts = localStorage.getItem("productsInCart");
 
-			// Encontrar o índice do produto usando productID
+			// Verificar se há produtos no localStorage
+			if (!encryptedProducts) {
+				toast.error("Nenhum produto no carrinho.");
+				return;
+			}
+
+			// Parse e descriptografar os produtos corretamente (um por um)
+			let productsInCart = JSON.parse(encryptedProducts)
+				.map((product) => decryptData(product))
+				.filter((product) => product !== null);
+
+			// Verificar se os produtos foram corretamente descriptografados
+			if (!Array.isArray(productsInCart)) {
+				console.error(
+					"Erro: produtos descriptografados não são um array",
+					productsInCart
+				);
+				toast.error("Erro ao processar produtos do carrinho.");
+				productsInCart = [];
+			}
+
+			// Encontrar o índice do produto usando productId
 			const index = productsInCart.findIndex(
 				(item) => item.productID === productId
 			);
@@ -520,10 +590,12 @@ function CartPage() {
 				productsInCart[index].productPriceTotal =
 					productsInCart[index].quantityThisProduct * productPrice;
 
-				// Atualizar os dados no armazenamento local
+				// Atualizar os dados no armazenamento local (criptografado)
 				localStorage.setItem(
 					"productsInCart",
-					JSON.stringify(productsInCart)
+					JSON.stringify(
+						productsInCart.map((product) => encryptData(product))
+					)
 				);
 
 				// Atualizar o estado com os produtos no carrinho
@@ -533,7 +605,7 @@ function CartPage() {
 				toast.error("Produto não encontrado no carrinho.");
 			}
 
-			// Filtrar os produtos para remover aqueles com frete grátis e cep vazio
+			// Filtrar os produtos para remover aqueles sem CEP
 			const filteredProducts = productsInCart.filter(
 				(product) =>
 					product.cepDestino && product.cepDestino.trim() !== ""
@@ -560,23 +632,23 @@ function CartPage() {
 
 					if (!productInfo[partnerID]) {
 						productInfo[partnerID] = {
-							weight: weight,
-							length: length,
-							width: width,
-							height: height,
-							productPrice: productPrice,
-							productPriceTotal: productPriceTotal,
-							quantityThisProduct: quantityThisProduct,
+							weight,
+							length,
+							width,
+							height,
+							productPrice,
+							productPriceTotal,
+							quantityThisProduct,
 							transportadora: {
 								companyID: transpID,
 							},
-							productID: productID,
+							productID,
 						};
 					} else {
-						productInfo[partnerID].weight = weight;
-						productInfo[partnerID].length = length;
-						productInfo[partnerID].width = width;
-						productInfo[partnerID].height = height;
+						productInfo[partnerID].weight += weight;
+						productInfo[partnerID].length += length;
+						productInfo[partnerID].width += width;
+						productInfo[partnerID].height += height;
 						productInfo[partnerID].productPrice += productPrice;
 						productInfo[partnerID].productPriceTotal +=
 							productPriceTotal;
@@ -591,11 +663,6 @@ function CartPage() {
 						cepDestino = product.cepDestino;
 					}
 				});
-
-				console.log(
-					"Informações dos produtos por parceiro:",
-					productInfo
-				);
 
 				if (cepDestino) {
 					// Chamada da função para simular o frete
@@ -612,9 +679,29 @@ function CartPage() {
 
 	const handleRemoveFromCart = async (productId, optionId) => {
 		try {
-			// Obter os produtos no carrinho do localStorage
-			let productsInCart =
-				JSON.parse(localStorage.getItem("productsInCart")) || [];
+			// Obter os produtos criptografados no localStorage
+			const encryptedProducts = localStorage.getItem("productsInCart");
+
+			// Verificar se há produtos no localStorage
+			if (!encryptedProducts) {
+				toast.error("Nenhum produto no carrinho.");
+				return;
+			}
+
+			// Parse e descriptografar os produtos corretamente (um por um)
+			let productsInCart = JSON.parse(encryptedProducts)
+				.map((product) => decryptData(product))
+				.filter((product) => product !== null);
+
+			// Verificar se os produtos foram corretamente descriptografados
+			if (!Array.isArray(productsInCart)) {
+				console.error(
+					"Erro: produtos descriptografados não são um array",
+					productsInCart
+				);
+				toast.error("Erro ao processar produtos do carrinho.");
+				productsInCart = [];
+			}
 
 			// Filtrar o carrinho para remover o item correspondente
 			const updatedCart = productsInCart.filter(
@@ -646,27 +733,27 @@ function CartPage() {
 					const productPriceTotal = product.productPriceTotal || 0;
 					const quantityThisProduct =
 						product.quantityThisProduct || 0;
-					const transpID = product.transportadora?.companyID; // Obter apenas o ID da transportadora
+					const transpID = product.transportadora?.companyID;
 
 					if (!productInfo[partnerID]) {
 						productInfo[partnerID] = {
-							weight: weight,
-							length: length,
-							width: width,
-							height: height,
-							productPrice: productPrice,
-							productPriceTotal: productPriceTotal,
-							quantityThisProduct: quantityThisProduct,
+							weight,
+							length,
+							width,
+							height,
+							productPrice,
+							productPriceTotal,
+							quantityThisProduct,
 							transportadora: {
-								id: transpID, // Inicializa o ID da transportadora
+								id: transpID,
 							},
 						};
 					} else {
-						// Acumular os valores de peso, comprimento, largura, altura e quantidade
-						productInfo[partnerID].weight = weight;
-						productInfo[partnerID].length = length;
-						productInfo[partnerID].width = width;
-						productInfo[partnerID].height = height;
+						// Acumular os valores
+						productInfo[partnerID].weight += weight;
+						productInfo[partnerID].length += length;
+						productInfo[partnerID].width += width;
+						productInfo[partnerID].height += height;
 						productInfo[partnerID].productPrice += productPrice;
 						productInfo[partnerID].productPriceTotal +=
 							productPriceTotal;
@@ -694,8 +781,13 @@ function CartPage() {
 				setTransportadoraInfo({});
 			}
 
-			// Atualizar o localStorage e os estados
-			localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
+			// Atualizar o localStorage com os produtos criptografados novamente
+			localStorage.setItem(
+				"productsInCart",
+				JSON.stringify(
+					updatedCart.map((product) => encryptData(product))
+				)
+			);
 			setProductsInCart(updatedCart);
 
 			// Limpar o localStorage quando o carrinho estiver vazio

@@ -31,6 +31,28 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import CryptoJS from "crypto-js";
+
+function encryptData(data) {
+	return CryptoJS.AES.encrypt(
+		JSON.stringify(data),
+		"chave-secreta"
+	).toString();
+}
+
+function decryptData(encryptedData) {
+	try {
+		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
+		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+	} catch (error) {
+		console.error(
+			"Erro ao descriptografar os produtos do carrinho:",
+			error
+		);
+		return null;
+	}
+}
+
 function SideComponent({ selectedVariation }) {
 	const { slug } = useParams();
 	const [product, setProduct] = useState({});
@@ -273,7 +295,6 @@ function SideComponent({ selectedVariation }) {
 	};
 
 	function handleAddProductInCart(quantity, product, selectedTransportadora) {
-		// Verifica se a quantidade é válida (maior que zero)
 		if (quantity <= 0) {
 			toast.info("A quantidade precisa ser maior que 0!");
 			return;
@@ -283,10 +304,8 @@ function SideComponent({ selectedVariation }) {
 			localStorage.getItem("selectedVariations") || "{}"
 		);
 
-		// Verifica se o produto possui variações
 		const hasVariations = product.productVariations.length > 0;
 
-		// Se o produto tiver variações, verificar se pelo menos uma foi selecionada
 		if (hasVariations) {
 			const isVariationSelected = product.productVariations.every(
 				(variation) => selectedVariations[variation._id]
@@ -300,12 +319,9 @@ function SideComponent({ selectedVariation }) {
 			}
 		}
 
-		// Verifica se alguma transportadora foi selecionada
 		const transportadoraSelecionada =
 			selectedTransportadora &&
 			Object.values(selectedTransportadora).some((value) => value);
-
-		console.log("Transportadora Selecionada:", transportadoraSelecionada);
 
 		const transpFreeShipping = {
 			companyID: 0,
@@ -317,20 +333,27 @@ function SideComponent({ selectedVariation }) {
 
 		if (
 			!transportadoraSelecionada &&
-			(product.freeShipping !== true || // Verifica se o produto não é frete grátis
-				product.freeShippingRegion !== customerStateAddress) // Ou se o estado do cliente não está na região de frete grátis
+			(product.freeShipping !== true ||
+				product.freeShippingRegion !== customerStateAddress)
 		) {
 			toast.info("Selecione uma opção de frete!");
-			return; // Retorna para evitar a adição do produto ao carrinho sem transportadora selecionada
+			return;
 		}
 
-		// Recupera os produtos já existentes no localStorage, se houver
+		// Recupera os produtos do localStorage e descriptografa
 		let productsInCart = localStorage.getItem("productsInCart");
 
-		if (!productsInCart) {
-			productsInCart = [];
+		if (productsInCart) {
+			try {
+				productsInCart = JSON.parse(productsInCart).map((p) =>
+					decryptData(p)
+				);
+				productsInCart = productsInCart.filter((p) => p !== null); // Remove valores inválidos
+			} catch {
+				productsInCart = [];
+			}
 		} else {
-			productsInCart = JSON.parse(productsInCart);
+			productsInCart = [];
 		}
 
 		let productPrice;
@@ -340,21 +363,21 @@ function SideComponent({ selectedVariation }) {
 			const selectedVariationValues = Object.values(selectedVariations);
 
 			if (selectedVariationValues.length > 0) {
-				const selectedVariation = selectedVariationValues[0]; // Considerando apenas a primeira variação selecionada
+				const selectedVariation = selectedVariationValues[0];
 
 				productPrice =
 					selectedVariation.promotionalPrice > 0
 						? selectedVariation.promotionalPrice
 						: selectedVariation.originalPrice;
 
-				stock = selectedVariation.stock; // Usa o estoque da variação selecionada
+				stock = selectedVariation.stock;
 			} else {
 				productPrice =
 					product.promotionalPrice > 0
 						? product.promotionalPrice
 						: product.originalPrice || 0;
 
-				stock = product.stock; // Usa o estoque do produto principal
+				stock = product.stock;
 			}
 		} else {
 			productPrice =
@@ -394,7 +417,7 @@ function SideComponent({ selectedVariation }) {
 				productID: product._id,
 				productTitle: product.productTitle,
 				imageProduct: product.imagesProduct[0],
-				quantityThisProduct: Math.min(quantity, stock), // Usa o estoque correto
+				quantityThisProduct: Math.min(quantity, stock),
 				productPrice: productPrice,
 				productPriceTotal: Math.min(quantity, stock) * productPrice,
 				weight: product.weight,
@@ -416,25 +439,25 @@ function SideComponent({ selectedVariation }) {
 			productsInCart.push(newProduct);
 		}
 
-		// Tenta armazenar o array de produtos no localStorage
+		// Criptografa os dados antes de armazenar no localStorage
 		try {
 			localStorage.setItem(
 				"productsInCart",
-				JSON.stringify(productsInCart)
+				JSON.stringify(productsInCart.map(encryptData)) // Agora os dados são criptografados ao serem armazenados
 			);
-			// Atualiza o estado do carrinho com o total de produtos
+
 			const totalQuantityProducts = productsInCart.reduce(
 				(total, product) => total + product.quantityThisProduct,
 				0
 			);
 
 			setCart(totalQuantityProducts);
-			// Calcula o preço total do carrinho
+
 			const totalCartValue = productsInCart.reduce(
-				(total, product) => total + product.productPrice, // Soma os preços totais de cada produto
+				(total, product) => total + product.productPriceTotal,
 				0
 			);
-			// Define o subtotal como 0 se o carrinho estiver vazio
+
 			const subtotal = productsInCart.length > 0 ? totalCartValue : 0;
 			setSubtotal(subtotal);
 			setTransportadoras([]);
