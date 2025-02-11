@@ -40,25 +40,18 @@ function encryptData(data) {
 	).toString();
 }
 
-const decryptData = (encryptedData) => {
+function decryptData(encryptedData) {
 	try {
-		// Descriptografando com a chave
 		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
-		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
-
-		// Verifica se a string descriptografada está válida
-		if (!decryptedString) {
-			throw new Error(
-				"Dados descriptografados estão vazios ou corrompidos."
-			);
-		}
-
-		return decryptedString; // Retorna uma string válida para o JSON.parse
+		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 	} catch (error) {
-		console.error("Erro na descriptografia:", error);
-		return ""; // Retorna uma string vazia caso algo dê errado
+		console.error(
+			"Erro ao descriptografar os produtos do carrinho:",
+			error
+		);
+		return null;
 	}
-};
+}
 
 function ReviewInfoPage() {
 	const { transportadoraInfo, setTransportadoraInfo } =
@@ -83,32 +76,13 @@ function ReviewInfoPage() {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
 
 		if (savedProductsInCart) {
-			try {
-				// Descriptografa os dados primeiro
-				const decryptedData = decryptData(savedProductsInCart); // Decriptografa
+			// Parseia e descriptografa os produtos
+			const decryptedProducts = JSON.parse(savedProductsInCart)
+				.map((product) => decryptData(product))
+				.filter((product) => product !== null);
 
-				// Verifica se a string descriptografada não está vazia
-				if (
-					decryptedData &&
-					typeof decryptedData === "string" &&
-					decryptedData.trim() !== ""
-				) {
-					// Agora podemos tentar parsear
-					const decryptedProducts = JSON.parse(decryptedData); // Parseia a string descriptografada para JSON
-
-					// Atualiza o estado com os produtos
-					setProductsInCart(decryptedProducts);
-				} else {
-					console.error(
-						"Erro na descriptografia dos dados. O retorno não é uma string válida."
-					);
-				}
-			} catch (error) {
-				console.error(
-					"Erro ao processar a descriptografia ou parsing:",
-					error
-				);
-			}
+			// Armazena os produtos descriptografados no estado
+			setProductsInCart(decryptedProducts);
 		}
 	}, []);
 

@@ -27,7 +27,7 @@ import CryptoJS from "crypto-js";
 
 function encryptData(data) {
 	return CryptoJS.AES.encrypt(
-		JSON.stringify(data),
+		JSON.stringify(data), // Converte o objeto inteiro para string
 		"chave-secreta"
 	).toString();
 }
@@ -35,12 +35,17 @@ function encryptData(data) {
 function decryptData(encryptedData) {
 	try {
 		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
-		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+
+		// Garantir que o dado retornado seja uma string JSON válida
+		if (decryptedString) {
+			return decryptedString; // Retorna como uma string
+		} else {
+			console.error("Falha ao descriptografar: Dado inválido.");
+			return null;
+		}
 	} catch (error) {
-		console.error(
-			"Erro ao descriptografar os produtos do carrinho:",
-			error
-		);
+		console.error("Erro ao descriptografar:", error);
 		return null;
 	}
 }
@@ -55,19 +60,54 @@ function CartPage() {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
 
 		if (savedProductsInCart) {
-			// Parseia e descriptografa os produtos
-			const decryptedProducts = JSON.parse(savedProductsInCart)
-				.map((product) => decryptData(product))
-				.filter((product) => product !== null);
+			try {
+				// Descriptografa a string antes de tentar parsear
+				const decryptedString = decryptData(savedProductsInCart);
 
-			// Armazena os produtos descriptografados no estado
-			setProductsInCart(decryptedProducts);
+				console.log(
+					"Dados descriptografados (antes do setState):",
+					decryptedString
+				);
+				console.log("Tipo de decryptedString:", typeof decryptedString);
+
+				if (decryptedString) {
+					// Teste se a string já é JSON ou precisa ser convertida
+					try {
+						const parsedData = JSON.parse(decryptedString);
+						console.log("Dados parseados:", parsedData);
+						setProductsInCart(parsedData);
+					} catch (parseError) {
+						console.error(
+							"Erro ao tentar fazer JSON.parse:",
+							parseError
+						);
+						console.error(
+							"String que causou erro:",
+							decryptedString
+						);
+					}
+				} else {
+					console.error(
+						"Erro ao descriptografar os produtos. Retorno vazio ou inválido."
+					);
+				}
+			} catch (error) {
+				console.error(
+					"Erro ao processar os produtos do carrinho:",
+					error
+				);
+			}
 		}
 	}, []);
 
 	useEffect(() => {
 		// 🚨 Se ainda não carregou os produtos ou já simulou o frete, não executa
-		if (productsInCart.length === 0 || isFreightSimulated) return;
+		if (
+			!Array.isArray(productsInCart) ||
+			productsInCart.length === 0 ||
+			isFreightSimulated
+		)
+			return;
 
 		// 🔥 Objeto para armazenar as informações dos produtos por parceiro
 		const productInfo = {};
@@ -276,11 +316,6 @@ function CartPage() {
 							vlrFrete: Number(transportadoraCorreta?.price) || 0,
 							prazo: transportadoraCorreta?.delivery_time || "-",
 						};
-
-						console.log(
-							"TransportadoraData atualizado:",
-							transportadoraData
-						);
 					} catch (error) {
 						console.error(
 							`Erro ao simular frete para o parceiro ${partnerID}:`,
@@ -320,83 +355,6 @@ function CartPage() {
 			console.error("Ocorreu um erro:", error);
 		}
 	}
-
-	// async function handleSimulateShipping(cepDestino, productInfo) {
-	// 	try {
-	// 		const transportadoraData = {};
-
-	// 		for (const partnerID in productInfo) {
-	// 			if (productInfo.hasOwnProperty(partnerID)) {
-	// 				const partnerData = productInfo[partnerID];
-
-	// 				const response = await api.post(
-	// 					"/products/simulate-melhor-enviomelhor-envio",
-	// 					{
-	// 						productID: partnerData.productID, // Incluindo o productID
-	// 						cepDestino: cepDestino,
-	// 						weight: partnerData.weight,
-	// 						height: partnerData.height,
-	// 						width: partnerData.width,
-	// 						length: partnerData.length,
-	// 						productPrice: partnerData.productPriceTotal,
-	// 						productPriceTotal: partnerData.productPriceTotal,
-	// 						quantityThisProduct:
-	// 							partnerData.quantityThisProduct,
-	// 					}
-	// 				);
-
-	// 				const transportadoraCorreta = response.data.find(
-	// 					(transportadora) => {
-	// 						return (
-	// 							transportadora.company?.id ===
-	// 							partnerData.transportadora?.companyID
-	// 						);
-	// 					}
-	// 				); // Trasnportadora Correta para Melhor Envio
-
-	// 				// const transportadoraCorreta = response.data[0]; // Trasnportadora Correta para Módico
-
-	// 				console.log(
-	// 					"DADOS DA TRANSPORTADORA CORRETA:",
-	// 					transportadoraCorreta
-	// 				);
-
-	// 				// Adicionando os dados da transportadora ao objeto transportadoraData
-	// 				transportadoraData[partnerID] = {
-	// 					partnerID: partnerID,
-	// 					companyName: transportadoraCorreta?.company?.name, // Corrigido para acessar o nome da empresa corretamente
-	// 					vlrFrete: Number(transportadoraCorreta?.price),
-	// 					prazo: transportadoraCorreta?.delivery_time,
-	// 				};
-	// 			}
-	// 		}
-
-	// 		// Verifique se transportadoraData não está vazio
-	// 		if (Object.keys(transportadoraData).length === 0) {
-	// 			console.log("Transportadora data está vazio.");
-	// 		} else {
-	// 			console.log("Transportadora data:", transportadoraData);
-	// 		}
-
-	// 		// Atualizando o estado com os dados da transportadora
-	// 		setTransportadoraInfo(transportadoraData);
-	// 		// Salvando no localStorage
-	// 		try {
-	// 			console.log(
-	// 				"Salvando dados no localStorage:",
-	// 				transportadoraData
-	// 			);
-	// 			localStorage.setItem(
-	// 				"transportadoraInfo",
-	// 				JSON.stringify(transportadoraData)
-	// 			);
-	// 		} catch (error) {
-	// 			console.error("Erro ao salvar no localStorage:", error);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error("Ocorreu um erro:", error);
-	// 	}
-	// }
 
 	const decreaseQuantity = async (productId) => {
 		try {
@@ -946,8 +904,10 @@ function CartPage() {
 
 				<div className="flex flex-row justify-between bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8 p-4 gap-4">
 					<div className="flex flex-col items-center gap-4">
-						{transportadoraInfo && productsInCart.length > 0 ? (
-							Object.values(
+						{transportadoraInfo &&
+						Array.isArray(productsInCart) &&
+						productsInCart.length > 0 ? (
+							Object.entries(
 								productsInCart.reduce((acc, product) => {
 									if (!acc[product.partnerID]) {
 										acc[product.partnerID] = [product];
@@ -956,176 +916,39 @@ function CartPage() {
 									}
 									return acc;
 								}, {})
-							).map((partnerProducts) => (
+							).map(([partnerID, partnerProducts]) => (
 								<div
-									key={partnerProducts[0].partnerID}
+									key={partnerID}
 									className="flex flex-col border-[1px] border-black border-opacity-20 bg-white rounded-md shadow-md p-2 gap-2 w-full">
-									{partnerProducts.map(
-										(productInCart, index) => (
-											<div
-												key={productInCart.productID}
-												className={`flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[672px] min-h-[100px] p-4 rounded-md shadow-md`}>
-												{/* Renderizar informações do produto */}
-												<div className="flex flex-row justify-between items-center gap-4">
-													{productInCart
-														.productVariations
-														?.length > 0 ? (
-														productInCart.productVariations.map(
-															(variation) => (
-																<div
-																	key={
-																		variation.variationID
+									{partnerProducts.map((productInCart) => (
+										<div
+											key={productInCart.productID}
+											className="flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[672px] min-h-[100px] p-4 rounded-md shadow-md">
+											{/* Renderizar informações do produto */}
+											<div className="flex flex-row justify-between items-center gap-4">
+												{productInCart.productVariations
+													?.length > 0 ? (
+													productInCart.productVariations.map(
+														(variation) => (
+															<div
+																key={
+																	variation.variationID
+																}
+																className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
+																<Image
+																	className="object-contain h-full"
+																	src={`http://localhost:5000/images/products/${variation.imageUrl}`}
+																	alt={
+																		productInCart.productTitle
 																	}
-																	className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
-																	<div
-																		key={
-																			variation.variationID
-																		}
-																		className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
-																		<Image
-																			className="object-contain h-full"
-																			src={`http://localhost:5000/images/products/${variation.imageUrl}`}
-																			alt={
-																				productInCart.productTitle
-																			}
-																			width={
-																				100
-																			}
-																			height={
-																				100
-																			}
-																			unoptimized
-																		/>
-																	</div>
-																</div>
-															)
+																	width={100}
+																	height={100}
+																	unoptimized
+																/>
+															</div>
 														)
-													) : (
-														<div className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
-															<Image
-																className="object-contain h-full"
-																src={`http://localhost:5000/images/products/${productInCart.imageProduct}`}
-																alt={
-																	productInCart.productTitle
-																}
-																width={100}
-																height={100}
-																unoptimized
-															/>
-														</div>
-													)}
-
-													<div>
-														<h1 className="text-lg text-black">
-															{
-																productInCart.productTitle
-															}
-														</h1>
-														{productInCart
-															.productVariations
-															?.length > 0 ? (
-															productInCart.productVariations.map(
-																(variation) => (
-																	<h2
-																		key={
-																			variation.variationID
-																		}
-																		className="mb-2 text-black">
-																		{
-																			variation.variationName
-																		}
-																		:{" "}
-																		{
-																			variation.name
-																		}
-																	</h2>
-																)
-															)
-														) : (
-															<h2 className="mb-2 text-black">
-																Sem variações
-															</h2>
-														)}
-														<div className="flex flex-row items-center text-black gap-2">
-															<button
-																onClick={() =>
-																	decreaseQuantity(
-																		productInCart.productID
-																	)
-																}
-																className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
-																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
-																	-
-																</h1>
-															</button>
-															<input
-																className="text-lg text-center bg-gray-300
-                            w-[60px] h-[32px]
-                            rounded"
-																type="text"
-																value={
-																	productInCart.quantityThisProduct
-																}
-																readOnly
-															/>
-															<button
-																onClick={() =>
-																	increaseQuantity(
-																		productInCart.productID
-																	)
-																} // Passando apenas o productID
-																className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
-																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
-																	+
-																</h1>
-															</button>
-														</div>
-													</div>
-													<div>
-														<h1 className="text-black">
-															{productInCart.productPrice.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}{" "}
-															x{" "}
-															{
-																productInCart.quantityThisProduct
-															}
-														</h1>
-													</div>
-													<div
-														onClick={() =>
-															handleRemoveFromCart(
-																productInCart.productID,
-																productInCart
-																	.productVariations?.[0]
-																	?.optionID // Verificação segura
-															)
-														}
-														className="text-black hover:text-white flex flex-col items-center justify-center border-dashed hover:border-solid border-[1px] border-primary hover:bg-secondary w-10 h-10 transition-all ease-in duration-200 hover:shadow-md active:scale-[.97] rounded cursor-pointer">
-														<MdOutlineDeleteOutline
-															size={25}
-														/>
-													</div>
-												</div>
-											</div>
-										)
-									)}
-									{/* {partnerProducts.map(
-										(productInCart, index) => (
-											<div
-												key={productInCart.productID}
-												className={`flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[672px] min-h-[100px] p-4 rounded-md shadow-md ${
-													index <
-													partnerProducts.length - 1
-														? "mb-2"
-														: ""
-												}`}>
-												<div className="flex flex-row justify-between items-center gap-4">
+													)
+												) : (
 													<div className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
 														<Image
 															className="object-contain h-full"
@@ -1138,85 +961,107 @@ function CartPage() {
 															unoptimized
 														/>
 													</div>
-													<div>
-														<h1 className="text-lg text-black">
-															{
-																productInCart.productTitle
-															}
-														</h1>
+												)}
+
+												<div>
+													<h1 className="text-lg text-black">
+														{
+															productInCart.productTitle
+														}
+													</h1>
+													{productInCart
+														.productVariations
+														?.length > 0 ? (
+														productInCart.productVariations.map(
+															(variation) => (
+																<h2
+																	key={
+																		variation.variationID
+																	}
+																	className="mb-2 text-black">
+																	{
+																		variation.variationName
+																	}
+																	:{" "}
+																	{
+																		variation.name
+																	}
+																</h2>
+															)
+														)
+													) : (
 														<h2 className="mb-2 text-black">
-															Variação: Preto
+															Sem variações
 														</h2>
-														<div className="flex flex-row items-center text-black gap-2">
-															<button
-																onClick={() =>
-																	decreaseQuantity(
-																		productInCart.productID
-																	)
-																}
-																className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
-																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
-																	-
-																</h1>
-															</button>
-															<input
-																className="text-lg text-center bg-gray-300
-																w-[60px] h-[32px]
-																rounded"
-																type="text"
-																value={
-																	productInCart.quantityThisProduct
-																}
-															/>
-															<button
-																onClick={() =>
-																	increaseQuantity(
-																		productInCart.productID
-																	)
-																}
-																className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
-																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
-																	+
-																</h1>
-															</button>
-														</div>
-													</div>
-													<div>
-														<h1 className="text-black">
-															{productInCart.productPrice.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}{" "}
-															x{" "}
-															{
-																productInCart.quantityThisProduct
-															}
-														</h1>
-													</div>
-													<div>
-														<div
+													)}
+													<div className="flex flex-row items-center text-black gap-2">
+														<button
 															onClick={() =>
-																handleRemoveFromCart(
+																decreaseQuantity(
 																	productInCart.productID
 																)
 															}
-															className="text-black hover:text-white flex flex-col items-center justify-center border-dashed hover:border-solid border-[1px] border-primary hover:bg-secondary w-10 h-10 transition-all ease-in duration-200 hover:shadow-md active:scale-[.97] rounded cursor-pointer">
-															<MdOutlineDeleteOutline
-																size={25}
-															/>
-														</div>
+															className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
+															<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
+																-
+															</h1>
+														</button>
+														<input
+															className="text-lg text-center bg-gray-300 w-[60px] h-[32px] rounded"
+															type="text"
+															value={
+																productInCart.quantityThisProduct
+															}
+															readOnly
+														/>
+														<button
+															onClick={() =>
+																increaseQuantity(
+																	productInCart.productID
+																)
+															}
+															className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
+															<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
+																+
+															</h1>
+														</button>
 													</div>
 												</div>
+												<div>
+													<h1 className="text-black">
+														{productInCart.productPrice.toLocaleString(
+															"pt-BR",
+															{
+																style: "currency",
+																currency: "BRL",
+															}
+														)}{" "}
+														x{" "}
+														{
+															productInCart.quantityThisProduct
+														}
+													</h1>
+												</div>
+												<div
+													onClick={() =>
+														handleRemoveFromCart(
+															productInCart.productID,
+															productInCart
+																.productVariations?.[0]
+																?.optionID
+														)
+													}
+													className="text-black hover:text-white flex flex-col items-center justify-center border-dashed hover:border-solid border-[1px] border-primary hover:bg-secondary w-10 h-10 transition-all ease-in duration-200 hover:shadow-md active:scale-[.97] rounded cursor-pointer">
+													<MdOutlineDeleteOutline
+														size={25}
+													/>
+												</div>
 											</div>
-										)
-									)} */}
+										</div>
+									))}
+									{/* Transportadora Info */}
 									{Object.entries(transportadoraInfo).map(
 										([partnerID, info]) => {
-											// Verifica se o partnerID do transporte corresponde ao partnerID atual
 											const matchingProduct =
 												partnerProducts.find(
 													(product) =>
@@ -1236,8 +1081,7 @@ function CartPage() {
 														</div>
 														<div>
 															Frete da Loja:{" "}
-															{info &&
-															info.vlrFrete
+															{info.vlrFrete
 																? info.vlrFrete.toLocaleString(
 																		"pt-BR",
 																		{
@@ -1251,7 +1095,7 @@ function CartPage() {
 													</div>
 												);
 											}
-											return null; // Retorna null para não renderizar nada se não houver correspondência
+											return null;
 										}
 									)}
 								</div>

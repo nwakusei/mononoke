@@ -35,7 +35,7 @@ import CryptoJS from "crypto-js";
 
 function encryptData(data) {
 	return CryptoJS.AES.encrypt(
-		JSON.stringify(data),
+		JSON.stringify(data), // Converte o objeto inteiro para string
 		"chave-secreta"
 	).toString();
 }
@@ -43,13 +43,13 @@ function encryptData(data) {
 function decryptData(encryptedData) {
 	try {
 		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
-		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8)); // Converte de volta para objeto
 	} catch (error) {
 		console.error(
 			"Erro ao descriptografar os produtos do carrinho:",
 			error
 		);
-		return null;
+		return [];
 	}
 }
 
@@ -70,8 +70,6 @@ function SideComponent({ selectedVariation }) {
 	const partner = partners.find(
 		(partner) => partner._id === product.partnerID
 	);
-
-	console.log("SHIPPING CONFIGURATION", partner?.shippingConfiguration);
 
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
@@ -345,11 +343,13 @@ function SideComponent({ selectedVariation }) {
 
 		if (productsInCart) {
 			try {
-				productsInCart = JSON.parse(productsInCart).map((p) =>
-					decryptData(p)
+				// Descriptografa os dados no localStorage e converte de volta para array de objetos
+				productsInCart = decryptData(productsInCart);
+			} catch (error) {
+				console.error(
+					"Erro ao processar o carrinho do localStorage:",
+					error
 				);
-				productsInCart = productsInCart.filter((p) => p !== null); // Remove valores inválidos
-			} catch {
 				productsInCart = [];
 			}
 		} else {
@@ -439,12 +439,10 @@ function SideComponent({ selectedVariation }) {
 			productsInCart.push(newProduct);
 		}
 
-		// Criptografa os dados antes de armazenar no localStorage
+		// Criptografa o carrinho inteiro como uma string única
 		try {
-			localStorage.setItem(
-				"productsInCart",
-				JSON.stringify(productsInCart.map(encryptData)) // Agora os dados são criptografados ao serem armazenados
-			);
+			const encryptedCart = encryptData(productsInCart); // Criptografa o carrinho inteiro
+			localStorage.setItem("productsInCart", encryptedCart); // Salva como string no localStorage
 
 			const totalQuantityProducts = productsInCart.reduce(
 				(total, product) => total + product.quantityThisProduct,

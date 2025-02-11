@@ -65,13 +65,20 @@ function encryptData(data) {
 function decryptData(encryptedData) {
 	try {
 		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
-		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+		const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+
+		// Verifica se a string descriptografada não está vazia
+		if (decryptedData) {
+			return JSON.parse(decryptedData);
+		} else {
+			console.error(
+				"Erro: Dados descriptografados estão vazios ou inválidos."
+			);
+			return []; // Retorna um array vazio em caso de dados inválidos
+		}
 	} catch (error) {
-		console.error(
-			"Erro ao descriptografar os produtos do carrinho:",
-			error
-		);
-		return null;
+		console.error("Erro ao descriptografar os dados:", error);
+		return []; // Retorna um array vazio em caso de erro
 	}
 }
 
@@ -105,49 +112,48 @@ function Navbar() {
 		return () => clearTimeout(timer); // Limpa o timer ao desmontar o componente
 	}, [token]);
 
-	useEffect(() => {
-		// Recupera os produtos do carrinho do localStorage
-		const encryptedProducts = localStorage.getItem("productsInCart");
+	// useEffect(() => {
+	// 	// Recupera os produtos do carrinho do localStorage
+	// 	const encryptedProducts = localStorage.getItem("productsInCart");
 
-		console.log("Dados criptografados recuperados:", encryptedProducts);
+	// 	console.log("Encrypted Products:", encryptedProducts);
 
-		if (!encryptedProducts) {
-			console.log(
-				"Nenhum dado criptografado encontrado no localStorage."
-			);
-			return;
-		}
+	// 	if (!encryptedProducts) {
+	// 		console.log(
+	// 			"Nenhum dado criptografado encontrado no localStorage."
+	// 		);
+	// 		return;
+	// 	}
 
-		const productsInCart = decryptData(encryptedProducts);
+	// 	const productsInCart = decryptData(encryptedProducts);
 
-		// Valida se produtos no carrinho é um array válido
-		if (Array.isArray(productsInCart)) {
-			console.log(
-				"Produtos no carrinho após descriptografar:",
-				productsInCart
-			);
+	// 	if (Array.isArray(productsInCart)) {
+	// 		console.log(
+	// 			"Produtos no carrinho após descriptografar:",
+	// 			productsInCart
+	// 		);
 
-			// Continue com o cálculo do total e subtotal
-			const totalQuantityProducts = productsInCart.reduce(
-				(total, product) => total + product.quantityThisProduct,
-				0
-			);
-			setCart(totalQuantityProducts);
+	// 		// Continue com o cálculo do total e subtotal
+	// 		const totalQuantityProducts = productsInCart.reduce(
+	// 			(total, product) => total + product.quantityThisProduct,
+	// 			0
+	// 		);
+	// 		setCart(totalQuantityProducts);
 
-			const totalCartValue = productsInCart.reduce(
-				(total, product) => total + product.productPriceTotal,
-				0
-			);
+	// 		const totalCartValue = productsInCart.reduce(
+	// 			(total, product) => total + product.productPriceTotal,
+	// 			0
+	// 		);
 
-			const subtotalValue =
-				productsInCart.length > 0 ? totalCartValue : 0;
-			setSubtotal(subtotalValue);
-		} else {
-			console.log(
-				"Erro ao descriptografar os dados do carrinho. Dados inválidos."
-			);
-		}
-	}, []);
+	// 		const subtotalValue =
+	// 			productsInCart.length > 0 ? totalCartValue : 0;
+	// 		setSubtotal(subtotalValue);
+	// 	} else {
+	// 		console.log(
+	// 			"Erro ao descriptografar os dados do carrinho. Dados inválidos."
+	// 		);
+	// 	}
+	// }, []);
 
 	// Função para remover itens do carrinho de compra
 	const handleRemoveFromCart = () => {
