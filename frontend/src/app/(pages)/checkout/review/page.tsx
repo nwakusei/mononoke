@@ -35,7 +35,7 @@ import CryptoJS from "crypto-js";
 
 function encryptData(data) {
 	return CryptoJS.AES.encrypt(
-		JSON.stringify(data),
+		JSON.stringify(data), // Converte o objeto inteiro para string
 		"chave-secreta"
 	).toString();
 }
@@ -43,12 +43,17 @@ function encryptData(data) {
 function decryptData(encryptedData) {
 	try {
 		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
-		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+
+		// Garantir que o dado retornado seja uma string JSON válida
+		if (decryptedString) {
+			return decryptedString; // Retorna como uma string
+		} else {
+			console.error("Falha ao descriptografar: Dado inválido.");
+			return null;
+		}
 	} catch (error) {
-		console.error(
-			"Erro ao descriptografar os produtos do carrinho:",
-			error
-		);
+		console.error("Erro ao descriptografar:", error);
 		return null;
 	}
 }
@@ -76,19 +81,48 @@ function ReviewInfoPage() {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
 
 		if (savedProductsInCart) {
-			// Parseia e descriptografa os produtos
-			const decryptedProducts = JSON.parse(savedProductsInCart)
-				.map((product) => decryptData(product))
-				.filter((product) => product !== null);
+			try {
+				// Descriptografa a string antes de tentar parsear
+				const decryptedString = decryptData(savedProductsInCart);
 
-			// Armazena os produtos descriptografados no estado
-			setProductsInCart(decryptedProducts);
+				if (decryptedString) {
+					// Teste se a string já é JSON ou precisa ser convertida
+					try {
+						const parsedData = JSON.parse(decryptedString);
+
+						setProductsInCart(parsedData);
+					} catch (parseError) {
+						console.error(
+							"Erro ao tentar fazer JSON.parse:",
+							parseError
+						);
+						console.error(
+							"String que causou erro:",
+							decryptedString
+						);
+					}
+				} else {
+					console.error(
+						"Erro ao descriptografar os produtos. Retorno vazio ou inválido."
+					);
+				}
+			} catch (error) {
+				console.error(
+					"Erro ao processar os produtos do carrinho:",
+					error
+				);
+			}
 		}
 	}, []);
 
 	useEffect(() => {
 		// 🚨 Se ainda não carregou os produtos ou já simulou o frete, não executa
-		if (productsInCart.length === 0 || isFreightSimulated) return;
+		if (
+			!Array.isArray(productsInCart) ||
+			productsInCart.length === 0 ||
+			isFreightSimulated
+		)
+			return;
 
 		// 🔥 Objeto para armazenar as informações dos produtos por parceiro
 		const productInfo = {};
@@ -176,7 +210,7 @@ function ReviewInfoPage() {
 			// Salva no localStorage
 			localStorage.setItem(
 				"transportadoraInfo",
-				JSON.stringify(encryptedTransportadoraInfo)
+				encryptedTransportadoraInfo
 			);
 		}
 	}, [productsInCart]);
@@ -297,11 +331,6 @@ function ReviewInfoPage() {
 							vlrFrete: Number(transportadoraCorreta?.price) || 0,
 							prazo: transportadoraCorreta?.delivery_time || "-",
 						};
-
-						console.log(
-							"TransportadoraData atualizado:",
-							transportadoraData
-						);
 					} catch (error) {
 						console.error(
 							`Erro ao simular frete para o parceiro ${partnerID}:`,
@@ -332,7 +361,7 @@ function ReviewInfoPage() {
 				);
 				localStorage.setItem(
 					"transportadoraInfo",
-					JSON.stringify(encryptedTransportadoraData)
+					encryptedTransportadoraData
 				);
 			} catch (error) {
 				console.error("Erro ao salvar no localStorage:", error);

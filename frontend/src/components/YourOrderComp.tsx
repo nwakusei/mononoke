@@ -20,7 +20,7 @@ import CryptoJS from "crypto-js";
 
 function encryptData(data) {
 	return CryptoJS.AES.encrypt(
-		JSON.stringify(data),
+		JSON.stringify(data), // Converte o objeto inteiro para string
 		"chave-secreta"
 	).toString();
 }
@@ -28,12 +28,17 @@ function encryptData(data) {
 function decryptData(encryptedData) {
 	try {
 		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
-		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+
+		// Garantir que o dado retornado seja uma string JSON válida
+		if (decryptedString) {
+			return decryptedString; // Retorna como uma string
+		} else {
+			console.error("Falha ao descriptografar: Dado inválido.");
+			return null;
+		}
 	} catch (error) {
-		console.error(
-			"Erro ao descriptografar os produtos do carrinho:",
-			error
-		);
+		console.error("Erro ao descriptografar:", error);
 		return null;
 	}
 }
@@ -55,17 +60,11 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 				// Descriptografa a string antes de tentar parsear
 				const decryptedString = decryptData(savedProductsInCart);
 
-				console.log(
-					"Dados descriptografados (antes do setState):",
-					decryptedString
-				);
-				console.log("Tipo de decryptedString:", typeof decryptedString);
-
 				if (decryptedString) {
 					// Teste se a string já é JSON ou precisa ser convertida
 					try {
 						const parsedData = JSON.parse(decryptedString);
-						console.log("Dados parseados:", parsedData);
+
 						setProductsInCart(parsedData);
 					} catch (parseError) {
 						console.error(
@@ -93,7 +92,12 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 
 	useEffect(() => {
 		// 🚨 Se ainda não carregou os produtos ou já simulou o frete, não executa
-		if (productsInCart.length === 0 || isFreightSimulated) return;
+		if (
+			!Array.isArray(productsInCart) ||
+			productsInCart.length === 0 ||
+			isFreightSimulated
+		)
+			return;
 
 		// 🔥 Objeto para armazenar as informações dos produtos por parceiro
 		const productInfo = {};
@@ -181,7 +185,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 			// Salva no localStorage
 			localStorage.setItem(
 				"transportadoraInfo",
-				JSON.stringify(encryptedTransportadoraInfo)
+				encryptedTransportadoraInfo
 			);
 		}
 	}, [productsInCart]);
@@ -302,11 +306,6 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 							vlrFrete: Number(transportadoraCorreta?.price) || 0,
 							prazo: transportadoraCorreta?.delivery_time || "-",
 						};
-
-						console.log(
-							"TransportadoraData atualizado:",
-							transportadoraData
-						);
 					} catch (error) {
 						console.error(
 							`Erro ao simular frete para o parceiro ${partnerID}:`,
@@ -337,7 +336,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 				);
 				localStorage.setItem(
 					"transportadoraInfo",
-					JSON.stringify(encryptedTransportadoraData)
+					encryptedTransportadoraData
 				);
 			} catch (error) {
 				console.error("Erro ao salvar no localStorage:", error);
@@ -347,114 +346,114 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 		}
 	}
 
-	// useEffect(() => {
-	// 	const calcularTotalPedido = () => {
-	// 		let subtotal = productsInfo.reduce(
-	// 			(total, productInCart) =>
-	// 				total + productInCart.productPriceTotal,
-	// 			0
-	// 		);
+	useEffect(() => {
+		const calcularTotalPedido = () => {
+			let subtotal = productsInfo.reduce(
+				(total, productInCart) =>
+					total + productInCart.productPriceTotal,
+				0
+			);
 
-	// 		let frete = calculateTotalFrete();
+			let frete = calculateTotalFrete();
 
-	// 		// Calcula o desconto total
-	// 		const descontoTotal = productsInfo.reduce(
-	// 			(totalDesconto, product) => {
-	// 				// Considera apenas produtos que têm desconto aplicado
-	// 				if (product.productPriceTotal !== product.productPrice) {
-	// 					const desconto =
-	// 						product.productPrice * product.quantityThisProduct -
-	// 						product.productPriceTotal;
-	// 					return totalDesconto + desconto;
-	// 				}
-	// 				return totalDesconto;
-	// 			},
-	// 			0
-	// 		);
+			// Calcula o desconto total
+			const descontoTotal = productsInfo.reduce(
+				(totalDesconto, product) => {
+					// Considera apenas produtos que têm desconto aplicado
+					if (product.productPriceTotal !== product.productPrice) {
+						const desconto =
+							product.productPrice * product.quantityThisProduct -
+							product.productPriceTotal;
+						return totalDesconto + desconto;
+					}
+					return totalDesconto;
+				},
+				0
+			);
 
-	// 		// Subtrai o desconto do total
-	// 		let total = subtotal + frete;
-	// 		setTotalPedido(total < 0 ? 0 : total);
+			// Subtrai o desconto do total
+			let total = subtotal + frete;
+			setTotalPedido(total < 0 ? 0 : total);
 
-	// 		// Define o desconto total aplicado
-	// 		setCouponApplied(descontoTotal);
-	// 	};
+			// Define o desconto total aplicado
+			setCouponApplied(descontoTotal);
+		};
 
-	// 	calcularTotalPedido();
-	// }, [productsInfo, shippingInfo]);
+		calcularTotalPedido();
+	}, [productsInfo, shippingInfo]);
 
-	// useEffect(() => {
-	// 	const calcularTotalPedido = () => {
-	// 		let subtotal = productsInfo.reduce(
-	// 			(total, productInCart) =>
-	// 				total +
-	// 				productInCart.productPrice *
-	// 					productInCart.quantityThisProduct, // Corrigido para "quantityThisProduct"
-	// 			0
-	// 		);
+	useEffect(() => {
+		const calcularTotalPedido = () => {
+			let subtotal = productsInfo.reduce(
+				(total, productInCart) =>
+					total +
+					productInCart.productPrice *
+						productInCart.quantityThisProduct, // Corrigido para "quantityThisProduct"
+				0
+			);
 
-	// 		let frete = calculateTotalFrete();
+			let frete = calculateTotalFrete();
 
-	// 		// Calcula o desconto total
-	// 		const descontoTotal = productsInfo.reduce(
-	// 			(totalDesconto, product) => {
-	// 				// Considera apenas produtos que têm desconto aplicado
-	// 				if (product.productPriceTotal !== product.productPrice) {
-	// 					const desconto =
-	// 						product.productPrice * product.quantityThisProduct -
-	// 						product.productPriceTotal;
-	// 					return totalDesconto + desconto;
-	// 				}
-	// 				return totalDesconto;
-	// 			},
-	// 			0
-	// 		);
+			// Calcula o desconto total
+			const descontoTotal = productsInfo.reduce(
+				(totalDesconto, product) => {
+					// Considera apenas produtos que têm desconto aplicado
+					if (product.productPriceTotal !== product.productPrice) {
+						const desconto =
+							product.productPrice * product.quantityThisProduct -
+							product.productPriceTotal;
+						return totalDesconto + desconto;
+					}
+					return totalDesconto;
+				},
+				0
+			);
 
-	// 		// Recupera e descriptografa os cupons do localStorage
-	// 		const couponsStorageEncrypted = localStorage.getItem("coupons");
-	// 		const decryptedCouponsStorage = couponsStorageEncrypted
-	// 			? decryptData(couponsStorageEncrypted)
-	// 			: "[]"; // Retorna uma string vazia se não houver cupons
+			// Recupera e descriptografa os cupons do localStorage
+			const couponsStorageEncrypted = localStorage.getItem("coupons");
+			const decryptedCouponsStorage = couponsStorageEncrypted
+				? decryptData(couponsStorageEncrypted)
+				: "[]"; // Retorna uma string vazia se não houver cupons
 
-	// 		// Certifique-se de que decryptedCouponsStorage é uma string JSON válida ou um array
-	// 		let couponsStorage = [];
+			// Certifique-se de que decryptedCouponsStorage é uma string JSON válida ou um array
+			let couponsStorage = [];
 
-	// 		// Se o valor descriptografado for uma string JSON válida, faz o parsing
-	// 		try {
-	// 			if (typeof decryptedCouponsStorage === "string") {
-	// 				couponsStorage = JSON.parse(decryptedCouponsStorage);
-	// 			} else {
-	// 				couponsStorage = decryptedCouponsStorage; // Caso seja um objeto, já pode ser usado
-	// 			}
-	// 		} catch (error) {
-	// 			console.error("Erro ao parsear os cupons:", error);
-	// 		}
+			// Se o valor descriptografado for uma string JSON válida, faz o parsing
+			try {
+				if (typeof decryptedCouponsStorage === "string") {
+					couponsStorage = JSON.parse(decryptedCouponsStorage);
+				} else {
+					couponsStorage = decryptedCouponsStorage; // Caso seja um objeto, já pode ser usado
+				}
+			} catch (error) {
+				console.error("Erro ao parsear os cupons:", error);
+			}
 
-	// 		// Certifique-se de que couponsStorage é um array antes de aplicar o .reduce
-	// 		if (Array.isArray(couponsStorage)) {
-	// 			// Soma os valores de discountAmount dos coupons
-	// 			const totalDiscountAmount = couponsStorage.reduce(
-	// 				(total, coupon) => total + coupon.discountAmount,
-	// 				0
-	// 			);
+			// Certifique-se de que couponsStorage é um array antes de aplicar o .reduce
+			if (Array.isArray(couponsStorage)) {
+				// Soma os valores de discountAmount dos coupons
+				const totalDiscountAmount = couponsStorage.reduce(
+					(total, coupon) => total + coupon.discountAmount,
+					0
+				);
 
-	// 			// Subtrai o desconto do total
-	// 			let total = subtotal + frete - totalDiscountAmount;
-	// 			setTotalPedido(total < 0 ? 0 : total);
+				// Subtrai o desconto do total
+				let total = subtotal + frete - totalDiscountAmount;
+				setTotalPedido(total < 0 ? 0 : total);
 
-	// 			// Define o desconto total aplicado
-	// 			setCouponApplied(totalDiscountAmount);
+				// Define o desconto total aplicado
+				setCouponApplied(totalDiscountAmount);
 
-	// 			// Criptografa e armazena os cupons novamente no localStorage
-	// 			const encryptedCoupons = encryptData(couponsStorage);
-	// 			localStorage.setItem("coupons", encryptedCoupons);
-	// 		} else {
-	// 			console.warn("Os cupons não estão no formato esperado");
-	// 		}
-	// 	};
+				// Criptografa e armazena os cupons novamente no localStorage
+				const encryptedCoupons = encryptData(couponsStorage);
+				localStorage.setItem("coupons", encryptedCoupons);
+			} else {
+				console.warn("Os cupons não estão no formato esperado");
+			}
+		};
 
-	// 	calcularTotalPedido();
-	// }, [productsInfo, shippingInfo, couponApplied]);
+		calcularTotalPedido();
+	}, [productsInfo, shippingInfo, couponApplied]);
 
 	// Calcular o total do frete
 	const calculateTotalFrete = () => {

@@ -33,6 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import CryptoJS from "crypto-js";
 
+// Função para criptografar dados
 function encryptData(data) {
 	return CryptoJS.AES.encrypt(
 		JSON.stringify(data), // Converte o objeto inteiro para string
@@ -40,16 +41,34 @@ function encryptData(data) {
 	).toString();
 }
 
+// Função para descriptografar dados
 function decryptData(encryptedData) {
 	try {
+		if (!encryptedData) {
+			console.error("Nenhum dado para descriptografar.");
+			return null;
+		}
+
+		// Descriptografar os dados
 		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
-		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8)); // Converte de volta para objeto
+		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+
+		if (!decryptedString) {
+			console.error(
+				"Falha ao descriptografar: String vazia ou inválida."
+			);
+			return null;
+		}
+
+		try {
+			return JSON.parse(decryptedString); // Retorna o JSON já convertido
+		} catch (parseError) {
+			console.error("Erro: A string descriptografada não é JSON válido.");
+			return null;
+		}
 	} catch (error) {
-		console.error(
-			"Erro ao descriptografar os produtos do carrinho:",
-			error
-		);
-		return [];
+		console.error("Erro ao descriptografar:", error);
+		return null;
 	}
 }
 
