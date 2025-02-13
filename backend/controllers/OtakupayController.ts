@@ -175,6 +175,8 @@ class OtakupayController {
 	static async buyOtamart(req: Request, res: Response) {
 		const { products, shippingCost, coupons } = req.body;
 
+		console.log("COUPON RECEBIDO", coupons);
+
 		// Verificar se o array de produtos é válido
 		if (!products || products.length === 0) {
 			res.status(404).json({

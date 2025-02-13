@@ -23,6 +23,7 @@ import { HiOutlineEllipsisVertical } from "react-icons/hi2";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 import api from "@/utils/api";
 import { toast } from "react-toastify";
+import { relative } from "path";
 
 function ChatPage() {
 	const inputFileRef = useRef(null);
@@ -466,7 +467,7 @@ function ChatPage() {
 												unoptimized
 											/>
 										) : (
-											<div className="chat-bubble bg-primary text-white">
+											<div className="chat-bubble bg-primary text-white break-words whitespace-pre-wrap">
 												{message.message}
 											</div>
 										)}

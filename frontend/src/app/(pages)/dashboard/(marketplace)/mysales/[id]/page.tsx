@@ -25,6 +25,7 @@ import { GrMapLocation } from "react-icons/gr";
 import { PiNoteBold } from "react-icons/pi";
 import { BsBoxSeam } from "react-icons/bs";
 import { LuPackageCheck } from "react-icons/lu";
+import { MdOutlineCancel } from "react-icons/md";
 
 // React Hook Form, Zod e ZodResolver
 import { useForm } from "react-hook-form";
@@ -207,6 +208,7 @@ function MySaleByIDPage() {
 							<></>
 						) : (
 							<button className="btn btn-error text-white shadow-md">
+								<MdOutlineCancel size={20} />
 								Cancelar Pedido
 							</button>
 						)}

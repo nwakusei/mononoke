@@ -317,15 +317,18 @@ function SideComponent({ selectedVariation }) {
 			return;
 		}
 
-		const selectedVariations = JSON.parse(
-			localStorage.getItem("selectedVariations") || "{}"
-		);
+		// Recupera e descriptografa selectedVariations
+		let selectedVariations = localStorage.getItem("selectedVariations");
+		selectedVariations = selectedVariations
+			? decryptData(selectedVariations)
+			: {};
 
 		const hasVariations = product.productVariations.length > 0;
 
 		if (hasVariations) {
 			const isVariationSelected = product.productVariations.every(
-				(variation) => selectedVariations[variation._id]
+				(variation) =>
+					selectedVariations && selectedVariations[variation._id]
 			);
 
 			if (!isVariationSelected) {
@@ -362,7 +365,6 @@ function SideComponent({ selectedVariation }) {
 
 		if (productsInCart) {
 			try {
-				// Descriptografa os dados no localStorage e converte de volta para array de objetos
 				productsInCart = decryptData(productsInCart);
 			} catch (error) {
 				console.error(
@@ -460,8 +462,8 @@ function SideComponent({ selectedVariation }) {
 
 		// Criptografa o carrinho inteiro como uma string única
 		try {
-			const encryptedCart = encryptData(productsInCart); // Criptografa o carrinho inteiro
-			localStorage.setItem("productsInCart", encryptedCart); // Salva como string no localStorage
+			const encryptedCart = encryptData(productsInCart);
+			localStorage.setItem("productsInCart", encryptedCart);
 
 			const totalQuantityProducts = productsInCart.reduce(
 				(total, product) => total + product.quantityThisProduct,

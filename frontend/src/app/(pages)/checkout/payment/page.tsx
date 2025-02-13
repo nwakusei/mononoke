@@ -101,12 +101,26 @@ function PaymentPage() {
 		daysShipping: info.prazoEnt,
 	}));
 
-	const couponsEncrypted = localStorage.getItem("coupons"); // Recupera o valor criptografado
+	// Recupera e descriptografa os cupons do localStorage
+	const couponsStorageEncrypted = localStorage.getItem("coupons");
 
-	// Verifica se a chave existe no localStorage e, em seguida, descriptografa
-	const coupons = couponsEncrypted
-		? decryptData(couponsEncrypted) // Chama sua função de descriptografar
-		: []; // Caso não tenha nada, retorna um array vazio
+	const decryptedCouponsStorage = couponsStorageEncrypted
+		? decryptData(couponsStorageEncrypted)
+		: "[]"; // Retorna uma string vazia se não houver cupons
+
+	// Certifique-se de que decryptedCouponsStorage é uma string JSON válida ou um array
+	let coupons = [];
+
+	// Se o valor descriptografado for uma string JSON válida, faz o parsing
+	try {
+		if (typeof decryptedCouponsStorage === "string") {
+			coupons = JSON.parse(decryptedCouponsStorage);
+		} else {
+			coupons = decryptedCouponsStorage; // Caso seja um objeto, já pode ser usado
+		}
+	} catch (error) {
+		console.error("Erro ao parsear os cupons:", error);
+	}
 
 	const [pix, setPix] = useState({});
 	const [qrCodeUrl, setQrCodeUrl] = useState(""); // Estado para armazenar a URL do QR Code
@@ -451,6 +465,7 @@ function PaymentPage() {
 
 			// Recupera e descriptografa os cupons do localStorage
 			const couponsEncrypted = localStorage.getItem("coupons");
+
 			let couponsStorage = [];
 
 			if (couponsEncrypted) {

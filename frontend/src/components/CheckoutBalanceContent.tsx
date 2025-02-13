@@ -35,8 +35,8 @@ function CheckoutBalanceContent({ products, shippingCost, coupons, token }) {
 				})
 			);
 
-			// Recupera os cupons do localStorage
-			const coupons = JSON.parse(localStorage.getItem("coupons") || "[]");
+			// // Recupera os cupons do localStorage
+			// const coupons = JSON.parse(localStorage.getItem("coupons") || "[]");
 
 			const response = await api.post(
 				"/otakupay/buy-otamart",
