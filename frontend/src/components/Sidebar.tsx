@@ -354,6 +354,16 @@ function Sidebar() {
 										Gerais
 									</span>
 								</Link>
+								<Link
+									className="flex flex-row items-center ml-7 gap-2"
+									href={"/dashboard/shipping-config"}>
+									<span className="text-xs text-black">
+										○
+									</span>
+									<span className="text-black hover:text-white hover:bg-secondary active:scale-[.95] px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+										Envio
+									</span>
+								</Link>
 							</div>
 						</div>
 
