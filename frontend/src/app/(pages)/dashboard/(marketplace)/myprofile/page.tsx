@@ -15,6 +15,18 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+// Axios
+import api from "@/utils/api";
+
+// Components
+import { Sidebar } from "@/components/Sidebar";
+import { LoadingPage } from "@/components/LoadingPageComponent";
+
+// Icons
+import { AddPicture, Key } from "@icon-park/react";
+import { FiInfo } from "react-icons/fi";
+
+// Zod Schema
 const updateUserFormSchema = z
 	.object({
 		profileImage: z
@@ -361,17 +373,6 @@ const updateUserFormSchema = z
 
 type TUpdateUserFormData = z.infer<typeof updateUserFormSchema>;
 
-// Axios
-import api from "@/utils/api";
-
-// Components
-import { Sidebar } from "@/components/Sidebar";
-import { LoadingPage } from "@/components/LoadingPageComponent";
-
-// Icons
-import { AddPicture, Key } from "@icon-park/react";
-import { FiInfo } from "react-icons/fi";
-
 function MyProfilePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
@@ -403,58 +404,25 @@ function MyProfilePage() {
 		name: "shippingConfiguration",
 	});
 
-	// const [selectedOperators, setSelectedOperators] = useState([]);
-
-	// // Carrega os dados do banco quando o componente é montado
-	// useEffect(() => {
-	// 	if (user?.shippingConfiguration) {
-	// 		setSelectedOperators(user.shippingConfiguration); // Preserva o formato correto
-	// 	}
-	// }, [user]);
-
-	// // Função para adicionar/remover operadores
-	// const handleAddOperator = (operator) => {
-	// 	setSelectedOperators((prev) => {
-	// 		const exists = prev.some((o) => o.shippingOperator === operator);
-	// 		if (exists) {
-	// 			// Remove o operador se já existir
-	// 			return prev.filter((o) => o.shippingOperator !== operator);
-	// 		} else {
-	// 			// Adiciona um novo operador se não existir
-	// 			return [
-	// 				...prev,
-	// 				{ shippingOperator: operator, modalityOptions: [] }, // Inicializa com modalidades vazias
-	// 			];
-	// 		}
-	// 	});
-	// };
-
-	// // Função para adicionar/remover modalidades
-	// const handleModalityChange = (operator, modality) => {
-	// 	setSelectedOperators((prev) =>
-	// 		prev.map((o) =>
-	// 			o.shippingOperator === operator
-	// 				? {
-	// 						...o,
-	// 						modalityOptions: o.modalityOptions.includes(
-	// 							modality
-	// 						)
-	// 							? o.modalityOptions.filter(
-	// 									(m) => m !== modality
-	// 							  ) // Remove se já existir
-	// 							: [...o.modalityOptions, modality], // Adiciona se não existir
-	// 				  }
-	// 				: o
-	// 		)
-	// 	);
-	// };
-
 	const [selectedOperators, setSelectedOperators] = useState([]);
 
 	const modalityMapping = {
 		MelhorEnvio: ["2", "31"], // SEDEX e Loggi
 		Modico: ["JadLog"], // JadLog para Modico
 	};
+
+	const [output, setOutput] = useState("");
+
+	useEffect(() => {
+		api.get("/otakuprime/check-user", {
+			headers: {
+				Authorization: `Bearer ${JSON.parse(token)}`,
+			},
+		}).then((response) => {
+			setUser(response.data);
+			setIsLoading(false);
+		});
+	}, [token]);
 
 	// Carrega os dados do banco quando o componente é montado
 	useEffect(() => {
@@ -495,19 +463,6 @@ function MyProfilePage() {
 			)
 		);
 	};
-
-	const [output, setOutput] = useState("");
-
-	useEffect(() => {
-		api.get("/otakuprime/check-user", {
-			headers: {
-				Authorization: `Bearer ${JSON.parse(token)}`,
-			},
-		}).then((response) => {
-			setUser(response.data);
-			setIsLoading(false);
-		});
-	}, [token]);
 
 	useEffect(() => {
 		if (user) {
