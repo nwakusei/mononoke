@@ -23,4 +23,8 @@ router.post(
 	ShippingController.simulateShippingCorreiosModico
 );
 
+router.patch("/edit-shipping", verifyToken, ShippingController.editShipping);
+
+router.get("/tracking-melhor-envio", ShippingController.trackingMelhorEnvio);
+
 export default router;

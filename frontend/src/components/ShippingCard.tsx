@@ -7,9 +7,15 @@ import Swal from "sweetalert2";
 
 // Logos Transportadoras
 import MelhorEnvioLogo from "../../public/melhorenvio-logo.png";
+import CorreiosLogo from "../../public/correios-logo.png";
 import LoggiLogo from "../../public/loggi-logo.png";
-import JapanPostLogo from "../../public/japanpost-logo.png";
+import JadLogLogo from "../../public/jadlog-logo.png";
+import JeT from "../../public/jet-logo.png";
+import Buslog from "../../public/buslog-logo.png";
+import LatamCargo from "../../public/latamcargo-logo.png";
 import AzulCargoLogo from "../../public/azulcargo-logo.png";
+import ModicoLogo from "../../public/modico-logo.png";
+import JapanPostLogo from "../../public/japanpost-logo.png";
 
 // Biblioteca de Sanitização
 import DOMPurify from "dompurify";
@@ -38,14 +44,30 @@ function ShippingCard({
 	modalityMapping,
 }) {
 	const operatorImages = {
+		Correios: CorreiosLogo,
 		Loggi: LoggiLogo,
-		JapanPost: JapanPostLogo,
+		Jadlog: JadLogLogo,
+		JeT: JeT,
+		Buslog: Buslog,
+		LatamCargo: LatamCargo,
 		AzulCargo: AzulCargoLogo,
+		RegistroModico: ModicoLogo,
+		JapanPost: JapanPostLogo,
 	};
 
 	return (
 		<>
-			{["Loggi", "JapanPost", "AzulCargo"].map((operator) => (
+			{[
+				"Correios",
+				"Loggi",
+				"Jadlog",
+				"JeT",
+				"Buslog",
+				"LatamCargo",
+				"AzulCargo",
+				"RegistroModico",
+				"JapanPost",
+			].map((operator) => (
 				<div
 					key={operator}
 					className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
@@ -61,8 +83,9 @@ function ShippingCard({
 									className="checkbox"
 								/>
 								{/* <span className="ml-2">{operator}</span> */}
+
 								<Image
-									className="object-contain w-[100px] rounded"
+									className="object-contain w-[100px]"
 									src={operatorImages[operator]}
 									alt="Tranportadora Logo"
 									width={100}
@@ -71,14 +94,19 @@ function ShippingCard({
 								/>
 							</div>
 
-							<Image
-								className="object-contain w-[80px] rounded"
-								src={MelhorEnvioLogo}
-								alt="Melhor Envio Logo"
-								width={150}
-								height={150}
-								unoptimized
-							/>
+							{operator === "RegistroModico" ||
+							operator === "JapanPost" ? (
+								<></>
+							) : (
+								<Image
+									className="object-contain w-[80px]"
+									src={MelhorEnvioLogo}
+									alt="Melhor Envio Logo"
+									width={150}
+									height={150}
+									unoptimized
+								/>
+							)}
 						</label>
 
 						{selectedOperators.some(
@@ -111,13 +139,7 @@ function ShippingCard({
 											className="checkbox"
 										/>
 
-										<span className="ml-2">
-											{modality === "2"
-												? "SEDEX"
-												: modality === "31"
-												? "Loggi (Express)"
-												: "Small Packet"}
-										</span>
+										<span className="ml-2">{modality}</span>
 									</label>
 								))}
 							</div>

@@ -485,50 +485,142 @@ function SideComponent({ selectedVariation }) {
 		}
 	}
 
-	// Função para Calcular o Frete
-	// async function handleSimulateShipping(cep: number) {
-	// 	console.log(selectedVariation.originalPrice);
+	// // Requisição De simulação Funciona, porém estou ajustando para evitar redundancia
+	// async function handleSimulateShipping(cep: number, quantity: number) {
+	// 	if (quantity <= 0) {
+	// 		toast.info("A quantidade precisa ser maior que 0!");
+	// 		return;
+	// 	}
 
 	// 	if (product.productVariations.length > 0 && !selectedVariation) {
 	// 		return toast.info("Selecione a variação!");
+	// 	} else if (
+	// 		product.productVariations.length > 0 &&
+	// 		selectedVariation.stock === 0
+	// 	) {
+	// 		return toast.info("Estoque indisponível para essa variação!");
 	// 	}
 
 	// 	setIsCalculating(true);
+	// 	setTransportadoras([]); // 🔥 Resetando o estado antes de adicionar novos fretes
 
 	// 	let productPrice;
 
-	// 	if (product.promotionalPrice && Number(product.promotionalPrice) > 0) {
-	// 		// Se houver um preço promocional válido, use-o como preço do produto
-	// 		productPrice = Number(product.promotionalPrice);
-	// 	} else if (product.originalPrice && Number(product.originalPrice) > 0) {
-	// 		// Se não houver preço promocional válido, mas houver um preço original válido, use-o como preço do produto
-	// 		productPrice = Number(product.originalPrice);
+	// 	if (selectedVariation) {
+	// 		const variationPrice =
+	// 			selectedVariation.promotionalPrice ||
+	// 			selectedVariation.originalPrice;
+	// 		productPrice =
+	// 			Number(variationPrice) > 0
+	// 				? Number(variationPrice)
+	// 				: Number(product.promotionalPrice) ||
+	// 				  Number(product.originalPrice) ||
+	// 				  0;
 	// 	} else {
-	// 		// Se não houver nenhum preço válido, retorne um erro ou defina o preço como 0
+	// 		productPrice =
+	// 			Number(product.promotionalPrice) > 0
+	// 				? Number(product.promotionalPrice)
+	// 				: Number(product.originalPrice) || 0;
+	// 	}
+
+	// 	if (productPrice === 0) {
 	// 		console.error("Preço do produto inválido:", product);
 	// 		return;
 	// 	}
-	// 	try {
-	// 		const response = await api.post("/products/simulate-shipping", {
-	// 			productID: product._id,
-	// 			cepDestino: cep,
-	// 			weight: product.weight, // Adicione o peso do produto
-	// 			height: product.height, // Adicione a altura do produto
-	// 			width: product.width, // Adicione a largura do produto
-	// 			length: product.length, // Adicione o comprimento do produto
-	// 			productPrice: productPrice, // Adicione o preço unitário do produto
-	// 			productPriceTotal: productPrice * quantity, // Adicione o preço total do produto
-	// 			quantityThisProduct: quantity, // Adicione a quantidade do produto
-	// 		}); // Passar cep como parte do corpo da solicitação
-	// 		setTransportadoras(response.data);
+
+	// 	if (!Array.isArray(partner.shippingConfiguration)) {
+	// 		console.error("shippingConfiguration não é um array válido.");
 	// 		setIsCalculating(false);
-	// 	} catch (error) {
-	// 		console.error("Ocorreu um erro:", error);
-	// 		toast.error(
-	// 			"Ocorreu um erro ao simular o frete. Verifique o CEP e tente novamente!"
-	// 		); // Mostra uma mensagem de erro ao usuário
+	// 		return;
+	// 	}
+
+	// 	const melhorEnvioOperators = ["Correios", "Loggi"];
+
+	// 	const melhorEnvioOperator = partner.shippingConfiguration.find(
+	// 		(service) => melhorEnvioOperators.includes(service.shippingOperator)
+	// 	);
+	// 	const modicoOperator = partner.shippingConfiguration.find(
+	// 		(service) => service.shippingOperator === "Modico"
+	// 	);
+
+	// 	let fretesRecebidos: any[] = [];
+
+	// 	try {
+	// 		if (!melhorEnvioOperator) {
+	// 			console.error(
+	// 				"🚨 Nenhuma configuração de envio encontrada para Melhor Envio!",
+	// 				partner.shippingConfiguration
+	// 			);
+	// 		}
+
+	// 		// 🔹 Simula frete pelo Melhor Envio
+	// 		if (melhorEnvioOperator) {
+	// 			console.log("Iniciando requisição para MelhorEnvio...");
+	// 			try {
+	// 				const responseMelhorEnvio = await api.post(
+	// 					"/shippings/simulate-melhor-envio",
+	// 					{
+	// 						productID: product._id,
+	// 						cepDestino: cep,
+	// 						weight: product.weight,
+	// 						height: product.height,
+	// 						width: product.width,
+	// 						length: product.length,
+	// 						productPrice: productPrice,
+	// 						quantityThisProduct: quantity,
+	// 					}
+	// 				);
+
+	// 				fretesRecebidos = [
+	// 					...fretesRecebidos,
+	// 					...responseMelhorEnvio.data,
+	// 				];
+	// 			} catch (error) {
+	// 				console.error("Erro ao simular com MelhorEnvio:", error);
+	// 				toast.warn("Falha ao calcular frete com MelhorEnvio.");
+	// 			}
+	// 		}
+
+	// 		// 🔹 Simula frete pelo Modico
+	// 		if (modicoOperator) {
+	// 			console.log("Iniciando requisição para Modico...");
+	// 			try {
+	// 				const responseModico = await api.post(
+	// 					"/shippings/simulate-modico",
+	// 					{
+	// 						productID: product._id,
+	// 						cepDestino: cep,
+	// 						weight: product.weight,
+	// 						height: product.height,
+	// 						width: product.width,
+	// 						length: product.length,
+	// 						productPrice: productPrice,
+	// 						quantityThisProduct: quantity,
+	// 					}
+	// 				);
+
+	// 				if (responseModico?.data) {
+	// 					fretesRecebidos = [
+	// 						...fretesRecebidos,
+	// 						...responseModico.data,
+	// 					];
+	// 				} else {
+	// 					throw new Error("Resposta inválida do Modico.");
+	// 				}
+	// 			} catch (error) {
+	// 				console.error("Erro ao simular com Modico:", error);
+	// 				toast.warn("Falha ao calcular frete com Modico.");
+	// 			}
+	// 		}
+
+	// 		// 🔥 Atualiza o estado com os fretes disponíveis, ordenados pelo menor preço
+	// 		setTransportadoras(
+	// 			fretesRecebidos.sort(
+	// 				(a, b) => Number(a.price) - Number(b.price)
+	// 			)
+	// 		);
 	// 	} finally {
-	// 		setIsCalculating(false); // Certifica-se de que o loading seja removido independentemente do sucesso ou erro
+	// 		setIsCalculating(false);
 	// 	}
 	// }
 
@@ -537,6 +629,11 @@ function SideComponent({ selectedVariation }) {
 			toast.info("A quantidade precisa ser maior que 0!");
 			return;
 		}
+
+		console.log("🚀 handleSimulateShipping foi chamada!", {
+			cep,
+			quantity,
+		});
 
 		if (product.productVariations.length > 0 && !selectedVariation) {
 			return toast.info("Selecione a variação!");
@@ -551,6 +648,7 @@ function SideComponent({ selectedVariation }) {
 		setTransportadoras([]); // 🔥 Resetando o estado antes de adicionar novos fretes
 
 		let productPrice;
+
 		if (selectedVariation) {
 			const variationPrice =
 				selectedVariation.promotionalPrice ||
@@ -573,56 +671,44 @@ function SideComponent({ selectedVariation }) {
 			return;
 		}
 
-		if (!Array.isArray(partner.shippingConfiguration)) {
-			console.error("shippingConfiguration não é um array válido.");
-			setIsCalculating(false);
-			return;
-		}
-
-		const melhorEnvioOperator = partner.shippingConfiguration.find(
-			(service) => service.shippingOperator === "MelhorEnvio"
-		);
-		const modicoOperator = partner.shippingConfiguration.find(
-			(service) => service.shippingOperator === "Modico"
-		);
+		setIsCalculating(true);
+		setTransportadoras([]); // 🔥 Resetando o estado antes de adicionar novos fretes
 
 		let fretesRecebidos: any[] = [];
 
 		try {
 			// 🔹 Simula frete pelo Melhor Envio
-			if (melhorEnvioOperator) {
-				console.log("Iniciando requisição para MelhorEnvio...");
-				try {
-					const responseMelhorEnvio = await api.post(
-						"/shippings/simulate-melhor-envio",
-						{
-							productID: product._id,
-							cepDestino: cep,
-							weight: product.weight,
-							height: product.height,
-							width: product.width,
-							length: product.length,
-							productPrice: productPrice,
-							quantityThisProduct: quantity,
-						}
-					);
+			console.log("Iniciando requisição para MelhorEnvio...");
+			try {
+				const responseMelhorEnvio = await api.post(
+					"/shippings/simulate-melhor-envio",
+					{
+						productID: product._id,
+						cepDestino: cep,
+						weight: product.weight,
+						height: product.height,
+						width: product.width,
+						length: product.length,
+						productPrice: productPrice,
+						quantityThisProduct: quantity,
+					}
+				);
 
-					console.log(
-						"Resposta do MelhorEnvio:",
-						responseMelhorEnvio.data
-					);
-					fretesRecebidos = [
-						...fretesRecebidos,
-						...responseMelhorEnvio.data,
-					];
-				} catch (error) {
-					console.error("Erro ao simular com MelhorEnvio:", error);
-					toast.warn("Falha ao calcular frete com MelhorEnvio.");
-				}
+				fretesRecebidos = [
+					...fretesRecebidos,
+					...responseMelhorEnvio.data,
+				];
+			} catch (error) {
+				console.error("Erro ao simular com MelhorEnvio:", error);
+				toast.warn("Falha ao calcular frete com MelhorEnvio.");
 			}
 
-			// 🔹 Simula frete pelo Modico
-			if (modicoOperator) {
+			// 🔹 Simula frete pelo Modico apenas se o operador estiver configurado
+			if (
+				partner.shippingConfiguration.some(
+					(service) => service.shippingOperator === "Modico"
+				)
+			) {
 				console.log("Iniciando requisição para Modico...");
 				try {
 					const responseModico = await api.post(

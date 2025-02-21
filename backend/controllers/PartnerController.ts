@@ -332,8 +332,6 @@ class PartnerController {
 			viewAdultContent,
 			cashback,
 			shippingConfiguration,
-			shippingOperator,
-			modalityOptions,
 			credential,
 			password,
 			confirmPassword,
@@ -344,8 +342,6 @@ class PartnerController {
 			state,
 			postalCode,
 		} = req.body;
-
-		console.log(req.body);
 
 		// Upload de imagens de Perfil Logo da Loja
 		const files = req.files as { [key: string]: Express.Multer.File[] };

@@ -12,6 +12,7 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "react-toastify";
 
 // Zod Schema
 const updateShippingFormSchema = z.object({
@@ -39,10 +40,15 @@ function ShippingConfigPage() {
 	console.log("Operators", selectedOperators);
 
 	const modalityMapping = {
-		MelhorEnvio: ["2", "31"],
-		Loggi: ["Loggi (Ponto)"],
-		JapanPost: ["Small Packet"],
-		AzulCargo: ["Loggi (Ponto)"],
+		Correios: ["Mini Envios", "PAC", "SEDEX"],
+		Loggi: ["Ponto", "Express", "Coleta"],
+		Jadlog: [".Package", ".Com", ".Package Centralizado"],
+		JeT: ["Standard"],
+		Buslog: ["Rodoviário"],
+		LatamCargo: ["éFácil"],
+		AzulCargo: ["Expresso", "e-commerce"],
+		RegistroModico: ["Registro Módico"],
+		JapanPost: ["Airmail (Registred)", "EMS"],
 	};
 
 	const {
@@ -122,81 +128,32 @@ function ShippingConfigPage() {
 	}
 
 	async function updateShipping(data: TUpdateShippingFormData) {
-		alert("Funcionou");
+		if (!selectedOperators || selectedOperators.length === 0) {
+			console.error("Erro: selectedOperators está vazio ou indefinido.");
+			return;
+		}
 
-		console.log(data);
+		const shippingConfiguration = {
+			shippingConfiguration: selectedOperators,
+		};
 
-		// // Certifique-se de que selectedOperators seja atribuído ao shippingConfiguration diretamente
-		// const selectedOperatorsData = selectedOperators;
+		try {
+			setLoadingButton(true);
 
-		// // Sanitiza os dados antes de usá-los
-		// const sanitizedData = Object.fromEntries(
-		// 	Object.entries(data).map(([key, value]) => {
-		// 		if (
-		// 			typeof value === "string" &&
-		// 			key !== "shippingConfiguration"
-		// 		) {
-		// 			return [key, DOMPurify.sanitize(value)];
-		// 		}
-		// 		return [key, value];
-		// 	})
-		// );
+			const response = await api.patch(
+				"/shippings/edit-shipping",
+				shippingConfiguration
+			);
 
-		// // Adiciona selectedOperators diretamente ao campo shippingConfiguration
-		// sanitizedData.shippingConfiguration = selectedOperatorsData;
-
-		// // Verifique os dados após sanitização
-		// setOutput(JSON.stringify(sanitizedData, null, 2));
-		// console.log("Dados sanitizados:", sanitizedData);
-
-		// // Cria um novo FormData
-		// const formData = new FormData();
-
-		// // Adiciona a configuração de envio (shippingConfiguration) como JSON stringificado
-		// formData.append(
-		// 	"shippingConfiguration",
-		// 	JSON.stringify(sanitizedData.shippingConfiguration)
-		// );
-		// console.log(
-		// 	`Adicionado ao FormData: shippingConfiguration - ${JSON.stringify(
-		// 		sanitizedData.shippingConfiguration
-		// 	)}`
-		// );
-
-		// // Adiciona os outros dados no FormData
-		// Object.entries(sanitizedData).forEach(([key, value]) => {
-		// 	if (key !== "shippingConfiguration" && key !== "modalityOptions") {
-		// 		if (key === "profileImage" && value instanceof File) {
-		// 			formData.append(key, value);
-		// 			console.log(
-		// 				`Adicionado ao FormData: ${key} - [Imagem de Perfil]`
-		// 			);
-		// 		} else if (key === "LogoImage" && value instanceof File) {
-		// 			formData.append(key, value);
-		// 			console.log(`Adicionado ao FormData: ${key} - [Logo]`);
-		// 		} else {
-		// 			formData.append(key, value);
-		// 			console.log(`Adicionado ao FormData: ${key} - ${value}`);
-		// 		}
-		// 	}
-		// });
-
-		// try {
-		// 	setLoadingButton(true);
-
-		// 	// Envio para o servidor
-		// 	if (user?.accountType === "partner") {
-		// 		const response = await api.patch("/partners/edit", formData);
-		// 		toast.success(response.data.message);
-		// 	} else if (user?.accountType === "customer") {
-		// 		const response = await api.patch("/customers/edit", formData);
-		// 		toast.success(response.data.message);
-		// 	}
-		// 	setLoadingButton(false);
-		// } catch (error: any) {
-		// 	toast.error(error.response.data.message);
-		// 	setLoadingButton(false);
-		// }
+			toast.success(response.data.message);
+			setLoadingButton(false);
+		} catch (error: any) {
+			console.error("Erro na requisição:", error.response?.data || error);
+			toast.error(
+				error.response?.data?.message || "Erro ao atualizar o envio"
+			);
+			setLoadingButton(false);
+		}
 	}
 
 	return (
@@ -211,6 +168,22 @@ function ShippingConfigPage() {
 							<h1 className="text-2xl font-semibold text-black">
 								Configurações de Envio
 							</h1>
+						</div>
+					</div>
+					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">
+						<div className="flex flex-row items-center gap-4">
+							<p className="text-base text-black">
+								Atenção: O frete é pago pelo cliente na compra,
+								portanto o envio é responssabilidade da Loja
+								(atualmente o Mononoke não oferece um sistema
+								interno de logística). Após a compra ser feita
+								pelo cliente, verifique corretamente o frete
+								escolhido e prossiga de acordo com o operador
+								logístico responsável (Caso seja Melhor Envio,
+								acesse a sua conta, simule o frete, selecione a
+								opção escolhida pelo cliente e compre a
+								etiqueta).
+							</p>
 						</div>
 					</div>
 					{/* Formulário */}

@@ -85,42 +85,21 @@ function MyRafflesPage() {
 												<tr key={myraffle?._id}>
 													<td>
 														<div className="flex items-center gap-3 mb-2">
-															{Array.isArray(
-																myraffle?.imagesRaffle
-															) &&
-																myraffle
-																	?.imagesRaffle
-																	.length >
-																	0 &&
-																myraffle?.imagesRaffle.map(
-																	(
-																		item,
-																		index
-																	) => (
-																		<div
-																			key={
-																				index
-																			}
-																			className="avatar">
-																			<div className="mask mask-squircle w-12 h-12">
-																				<Image
-																					src={`http://localhost:5000/images/raffles/${item}`}
-																					alt={
-																						item
-																					}
-																					width={
-																						280
-																					}
-																					height={
-																						280
-																					} // Altere a altura conforme necessário
-																					unoptimized
-																				/>
-																			</div>
-																		</div>
-																	)
-																)}
-
+															<div className="avatar">
+																<div className="mask mask-squircle w-12 h-12">
+																	<Image
+																		src={`http://localhost:5000/images/raffles/${myraffle?.imagesRaffle[0]}`}
+																		alt={`Image`}
+																		width={
+																			280
+																		}
+																		height={
+																			280
+																		} // Altere a altura conforme necessário
+																		unoptimized
+																	/>
+																</div>
+															</div>
 															<div>
 																<div className="font-bold text-black">
 																	<h2 className="w-[230px] overflow-x-hidden mb-2">
