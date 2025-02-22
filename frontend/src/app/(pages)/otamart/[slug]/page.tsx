@@ -7,10 +7,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
+// Style Sheet
 import "./otamartId.css";
 
 // Axios
@@ -27,7 +27,7 @@ import { SideComponent } from "@/components/SideComponent";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
-// Importe suas imagens e ícones aqui
+// Imagens
 import Amora from "../../../../../public/amora.jpg";
 import imageProfile from "../../../../../public/Kon.jpg";
 
@@ -63,108 +63,6 @@ function ProductPage() {
 	});
 
 	const [selectedVariation, setSelectedVariation] = useState(0);
-
-	// useEffect(() => {
-	// 	if (!slug) return;
-
-	// 	const fetchProduct = async () => {
-	// 		try {
-	// 			// Faz o lookup para obter o ID correspondente à slug
-	// 			const response = await api.get(`/products/convert/${slug}`);
-
-	// 			const id = response.data.id;
-
-	// 			const responseProduct = await api.get(`/products/${id}`);
-
-	// 			setProduct(responseProduct.data.product);
-	// 		} catch (error) {
-	// 			console.error("Error fetching product:", error);
-	// 		} finally {
-	// 			setIsLoading(false);
-	// 		}
-	// 	};
-
-	// 	const fetchRecommendedProducts = async () => {
-	// 		try {
-	// 			// Faz o lookup para obter o ID correspondente à slug
-	// 			const response = await api.get(`/products/convert/${slug}`);
-
-	// 			const id = response.data.id;
-
-	// 			const responseRecommendedProduct = await api.get(
-	// 				`/products/recommended-product/${id}`
-	// 			);
-	// 			setRecommendedProducts(
-	// 				responseRecommendedProduct.data.recommendedProducts
-	// 			); // Certifique-se de usar a chave correta
-	// 		} catch (error) {
-	// 			console.error("Error fetching product:", error);
-	// 		}
-	// 	};
-	// 	fetchProduct();
-
-	// 	fetchRecommendedProducts();
-	// }, [slug]);
-
-	// useEffect(() => {
-	// 	if (!slug) return;
-
-	// 	const fetchData = async () => {
-	// 		try {
-	// 			// Faz o lookup para obter o ID correspondente à slug
-	// 			const response = await api.get(`/products/convert/${slug}`);
-	// 			const id = response.data.id;
-
-	// 			// Busca os dados do produto
-	// 			const productPromise = api.get(`/products/${id}`);
-	// 			// Busca os produtos recomendados
-	// 			const recommendedPromise = api.get(
-	// 				`/products/recommended-product/${id}`
-	// 			);
-	// 			// Busca os dados do usuário
-	// 			const userPromise = api.get("/otakuprime/check-user", {
-	// 				headers: {
-	// 					Authorization: `Bearer ${JSON.parse(token)}`,
-	// 				},
-	// 			});
-
-	// 			// Aguarda todas as promessas
-	// 			const [productResponse, recommendedResponse, userResponse] =
-	// 				await Promise.all([
-	// 					productPromise,
-	// 					recommendedPromise,
-	// 					userPromise,
-	// 				]);
-
-	// 			// Atualiza os estados com os dados obtidos
-	// 			setProduct(productResponse.data.product);
-	// 			setProductAdult(productResponse.data.product.productAdult);
-	// 			setRecommendedProducts(
-	// 				recommendedResponse.data.recommendedProducts
-	// 			);
-
-	// 			setUser(userResponse.data);
-
-	// 			// Só exibe o modal se o produto for adulto e o usuário não puder ver conteúdo adulto
-	// 			if (
-	// 				productResponse.data.product.productAdult === true &&
-	// 				userResponse.data.viewAdultContent === false
-	// 			) {
-	// 				setShowAgeModal(true);
-	// 			} else {
-	// 				setShowAgeModal(false);
-	// 			}
-
-	// 		} catch (error) {
-	// 			console.error("Error fetching data:", error);
-	// 		} finally {
-	// 			setIsLoading(false); // Encerra o estado de carregamento
-	// 		}
-	// 	};
-
-	// 	setIsLoading(true); // Ativa o estado de carregamento antes de iniciar a busca
-	// 	fetchData();
-	// }, [slug]);
 
 	useEffect(() => {
 		if (!slug) return;
@@ -688,7 +586,7 @@ function ProductPage() {
 																		currency:
 																			"BRL",
 																	}
-																)} - ${Number(
+																)} ~ ${Number(
 																	highestPrice
 																).toLocaleString(
 																	"pt-BR",
@@ -710,7 +608,7 @@ function ProductPage() {
 																		currency:
 																			"BRL",
 																	}
-																)} - ${Number(
+																)} ~ ${Number(
 																	highestPrice
 																).toLocaleString(
 																	"pt-BR",
@@ -737,7 +635,7 @@ function ProductPage() {
 																		currency:
 																			"BRL",
 																	}
-																)} - ${Number(
+																)} ~ ${Number(
 																	highestOriginalPriceWithPromo
 																).toLocaleString(
 																	"pt-BR",
@@ -815,7 +713,7 @@ function ProductPage() {
 									<span>
 										<p className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
 											<Currency size={18} />{" "}
-											{`${partner?.cashback}% de Cashback`}
+											<span className="mb-[2px]">{`${partner?.cashback}% de Cashback`}</span>
 										</p>
 									</span>
 								</div>

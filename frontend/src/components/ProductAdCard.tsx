@@ -1,15 +1,14 @@
-"use client";
-
+// Imports Essenciais
 import Image from "next/image";
 import Link from "next/link";
-
-// Images
-import AdultProductCover from "../../public/adult-content-cover.png";
 
 // Icons
 import { Currency } from "@icon-park/react";
 import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
 import { LiaShippingFastSolid } from "react-icons/lia";
+
+// Imagens
+import AdultProductCover from "../../public/adult-content-cover.png";
 
 function ProductAdCard({
 	viewAdultContent,
@@ -84,49 +83,6 @@ function ProductAdCard({
 		);
 		return discount !== null ? `${discount}%` : ""; // Retorna vazio se não houver desconto
 	};
-
-	// const calculateDiscountPercentage = (product) => {
-	// 	if (!product) {
-	// 		return 0; // Retorna 0 se o produto não estiver definido
-	// 	}
-
-	// 	// Função auxiliar para calcular a porcentagem de desconto
-	// 	const calculatePercentage = (original, promotional) => {
-	// 		if (original === 0 || promotional === 0) {
-	// 			return 0;
-	// 		}
-	// 		const discountPercentage =
-	// 			((original - promotional) / original) * 100;
-	// 		return Math.round(discountPercentage);
-	// 	};
-
-	// 	if (product.productVariations?.length > 0) {
-	// 		// Extrai os preços das variações
-	// 		const prices = product.productVariations.flatMap((variation) =>
-	// 			variation.options.map((option) => ({
-	// 				original: option.originalPrice,
-	// 				promotional: option.promotionalPrice,
-	// 			}))
-	// 		);
-
-	// 		// Filtra para encontrar a maior diferença percentual entre os preços
-	// 		const highestDiscount = prices.reduce(
-	// 			(max, { original, promotional }) => {
-	// 				const discount = calculatePercentage(original, promotional);
-	// 				return discount > max ? discount : max;
-	// 			},
-	// 			0
-	// 		);
-
-	// 		return highestDiscount;
-	// 	}
-
-	// 	// Caso não haja variações, usa os preços principais
-	// 	return calculatePercentage(
-	// 		product.originalPrice,
-	// 		product.promotionalPrice
-	// 	);
-	// };
 
 	const discountPercentage = calculateDiscountPercentage(product);
 
@@ -441,7 +397,8 @@ function ProductAdCard({
 						)}
 					</h1>
 					<h2 className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
-						<Currency size={18} /> {`${cashback}% de Cashback`}
+						<Currency size={18} />
+						<span className="mb-[2px]">{`${cashback}% de Cashback`}</span>
 					</h2>
 					<h2 className="text-yellow-500 text-sm flex flex-row items-center gap-2">
 						{renderRatingIcons()}

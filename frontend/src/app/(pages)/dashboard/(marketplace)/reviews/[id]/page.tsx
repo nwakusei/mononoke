@@ -161,6 +161,25 @@ function ReviewByIdPage() {
 		setInputValue(newValue.toFixed(1));
 	};
 
+	const handleInputChange = (e) => {
+		let value = e.target.value.replace(",", "."); // Substitui vírgula por ponto
+
+		// Permitir que o usuário digite livremente números decimais, mas sem múltiplos pontos
+		if (!/^\d*\.?\d*$/.test(value)) return;
+
+		setInputValue(value);
+	};
+
+	const handleBlur = () => {
+		let numericValue = parseFloat(inputValue);
+
+		if (isNaN(numericValue)) {
+			setInputValue("0.0"); // Se estiver vazio ou inválido, volta para 0.0
+		} else {
+			setInputValue(Math.min(5, Math.max(0, numericValue)).toFixed(1)); // Ajusta limite e mantém 1 casa decimal
+		}
+	};
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Função para enviar a avaliação
 	async function handleSubmitReview(data: { [key: string]: any }) {
@@ -246,7 +265,8 @@ function ReviewByIdPage() {
 																		<Image
 																			src={`http://localhost:5000/images/products/${item.productImage}`}
 																			alt={
-																				item.productName
+																				item.productName ||
+																				"Nome do Produto"
 																			}
 																			width={
 																				10
@@ -291,7 +311,7 @@ function ReviewByIdPage() {
 									<div className="flex flex-row items-center text-black gap-2">
 										<button
 											onClick={decrement}
-											className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
+											className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
 											<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-primary text-white rounded cursor-pointer active:scale-[.97]">
 												-
 											</h1>
@@ -302,20 +322,21 @@ function ReviewByIdPage() {
 												errors.reviewRating
 													? `input-error`
 													: `input-success`
-											} text-lg text-center bg-gray-300
-																w-[60px] h-[32px]
-																rounded`}
+											} text-lg text-center bg-gray-300 w-[60px] h-[32px] rounded`}
 											type="text"
 											min="0"
 											max="5"
 											step="0.1"
 											value={inputValue}
-											{...register("reviewRating")}
+											{...register("reviewRating", {
+												onBlur: handleBlur,
+												onChange: handleInputChange,
+											})} // Ao sair do campo, corrige valores inválidos
 										/>
 
 										<button
 											onClick={increment}
-											className="flex items-center justify-center  w-[30px] h-[30px] select-none font-mono">
+											className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
 											<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-primary text-white rounded cursor-pointer active:scale-[.97]">
 												+
 											</h1>

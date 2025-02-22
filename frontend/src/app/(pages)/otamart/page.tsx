@@ -1,26 +1,25 @@
 "use client";
 
+// Imports Essenciais
 import { useState, useEffect, useContext } from "react";
+import Image from "next/image";
+
+// Axios
 import api from "@/utils/api";
 
 // Context
 import { Context } from "@/context/UserContext";
 
-// Icons
-import { GiEvilBook, GiBattleMech } from "react-icons/gi";
-import { IoGameControllerOutline } from "react-icons/io5";
-import { LuDisc3 } from "react-icons/lu";
-import { PiTShirt } from "react-icons/pi";
-import { BsSmartwatch } from "react-icons/bs";
-import { TbCards } from "react-icons/tb";
-import { RiPencilRuler2Line } from "react-icons/ri";
-import { GiProtectionGlasses } from "react-icons/gi";
-import { FiInfo } from "react-icons/fi";
-
 // Components
 import { ProductAdCard } from "@/components/ProductAdCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 import { CategoryButton } from "@/components/CategoryButton";
+
+// Icons
+import { FiInfo } from "react-icons/fi";
+
+// Imagens
+import Banner from "../../../../public/banner-midara.jpg";
 
 function OtamartPage() {
 	const [products, setProducts] = useState<
@@ -41,14 +40,6 @@ function OtamartPage() {
 	const categories = [
 		...new Set(products.map((product) => product.category)),
 	];
-
-	// LÓGICA INICIAL DE BUSCA DE PRODUTOS
-	// useEffect(() => {
-	// 	api.get("/products/").then((response) => {
-	// 		setProducts(response.data.products);
-	// 		setIsLoading(false);
-	// 	});
-	// }, []);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -143,7 +134,7 @@ function OtamartPage() {
 			} else {
 				setNoResults(true);
 			}
-		} catch (error) {
+		} catch (error: any) {
 			if (error.response && error.response.status === 404) {
 				setNoResults(true); // Define como true se o status for 404
 			} else {
@@ -155,8 +146,8 @@ function OtamartPage() {
 	};
 
 	// Função para lidar com o pressionamento da tecla Enter
-	const handleKeyDown = (e) => {
-		if (e.key === "Enter") {
+	const handleKeyDown = (evt) => {
+		if (evt.key === "Enter") {
 			handleSearch();
 		}
 	};
@@ -167,6 +158,18 @@ function OtamartPage() {
 
 	return (
 		<section className="min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4">
+			{/* <div className="flex flex-col items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6">
+				<div className="w-[1100px] md:text-2xl py-2 mt-8 select-none">
+					<Image
+						className="rounded-md"
+						src={Banner}
+						width={1100}
+						height={50}
+						alt="Banner Principal"
+						unoptimized
+					/>
+				</div>
+			</div> */}
 			<div className="flex flex-col items-center col-start-2 col-span-4 md:col-start-2 md:col-span-6">
 				<div className="bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold py-2 mt-8 mb-2 rounded-md shadow-md select-none">
 					Categorias
