@@ -34,6 +34,7 @@ interface IPartner {
 	cashback: number;
 	followers: number;
 	rating: number;
+	numberOfReviews: number;
 	totalProducts: number;
 	productsSold: number;
 	viewAdultContent: boolean;
@@ -100,6 +101,9 @@ const partnerSchema = new Schema<IPartner>(
 			type: Number,
 		},
 		rating: {
+			type: Number,
+		},
+		numberOfReviews: {
 			type: Number,
 		},
 		totalProducts: {

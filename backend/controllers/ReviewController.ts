@@ -228,6 +228,9 @@ class ReviewController {
 			// Atualizar productsSold do partner
 			partner.productsSold = totalProductsSold;
 
+			// Atualizar Quantidade de Avaliações do partner
+			partner.numberOfReviews += 1;
+
 			order.statusOrder = "Concluído";
 
 			// VERICAÇÃO DE QUANTIDADE DE PRODUTOS VENDIDOS PELA LOJA, E ATUALIZAÇÃO DO TIPO DE SELO

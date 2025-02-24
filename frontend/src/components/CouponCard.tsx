@@ -46,7 +46,7 @@ function CouponCard({
 
 			<div className="divider before:bg-black after:bg-black text-black mx-2">
 				<Link
-					className="flex felx-row items-center text-primary transition-all ease-in duration-200 hover:text-secondary gap-2"
+					className="flex felx-row items-center text-primary active:scale-[.95] transition-all ease-in duration-200 hover:text-secondary gap-2"
 					href={`/otamart/store/${partnerNickname}`}>
 					<span>{partnerName}</span> <PiCursorClickBold size={20} />
 				</Link>

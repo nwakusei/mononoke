@@ -1182,16 +1182,31 @@ function MyProfilePage() {
 												<div
 													className={`text-black hover:text-white flex flex-col justify-center items-center w-[300px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 													{selectedLogoImage ? (
-														<Image
-															className="object-contain w-full h-full rounded"
-															src={
-																selectedLogoImage
-															}
-															alt="Imagem selecionada"
-															width={300}
-															height={150}
-															unoptimized
-														/>
+														<>
+															<Image
+																className="object-contain w-full h-full rounded"
+																src={
+																	selectedLogoImage
+																}
+																alt="Imagem selecionada"
+																width={300}
+																height={150}
+																unoptimized
+															/>
+															<button
+																type="button"
+																className="absolute top-1 right-1 bg-red-500 text-white p-1 w-8 h-8 rounded-md z-50"
+																onClick={(
+																	e
+																) => {
+																	e.preventDefault(); // Previne o comportamento padrão
+																	setSelectedLogoImage(
+																		null
+																	); // Limpa a imagem renderizada
+																}}>
+																X
+															</button>
+														</>
 													) : (
 														<div
 															className="flex flex-col justify-center items-center"

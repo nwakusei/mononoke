@@ -44,10 +44,21 @@ function ProductPage() {
 	const [product, setProduct] = useState({});
 	const [productAdult, setProductAdult] = useState(false);
 	const [recommendedProducts, setRecommendedProducts] = useState([]);
-	const [maximizedImageProduct, setMaximizedImageProduct] = useState(null);
-	const [maximizedImage, setMaximizedImage] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [buttonLoading, setbuttonLoading] = useState(false);
+
+	// Estado para armazenar a imagem expandida por avaliação
+	const [expandedImages, setExpandedImages] = useState<{
+		[key: number]: string | null;
+	}>({});
+
+	// Função para manipular a seleção da imagem ampliada para cada avaliação
+	const handleImageClick = (reviewIndex: number, image: string) => {
+		setExpandedImages((prev) => ({
+			...prev,
+			[reviewIndex]: prev[reviewIndex] === image ? null : image, // Toggle entre expandir ou minimizar a imagem
+		}));
+	};
 
 	const [token] = useState(() => localStorage.getItem("token") || "");
 	const [followedStores, setFollowedStores] = useState([]);
@@ -170,22 +181,6 @@ function ProductPage() {
 		(partner) => partner._id === product.partnerID
 	);
 
-	// const handleOpenImagesProduct = (image) => {
-	// 	setMaximizedImageProduct(image);
-	// };
-
-	// const handleCloseImagesProduct = () => {
-	// 	setMaximizedImageProduct(null);
-	// };
-
-	// const handleOpen = (image) => {
-	// 	setMaximizedImage(image);
-	// };
-
-	// const handleClose = () => {
-	// 	setMaximizedImage(null);
-	// };
-
 	// Calcular a porcentagem de desconto
 	const calculateDiscountPercentage = () => {
 		if (product.originalPrice === 0 || product.promotionalPrice === 0) {
@@ -198,7 +193,7 @@ function ProductPage() {
 		return Math.round(discountPercentage);
 	};
 
-	const discountPercentage = calculateDiscountPercentage();
+	// const discountPercentage = calculateDiscountPercentage();
 
 	// Função para renderizar os ícones de classificação com base no rating
 	const renderRatingIcons = () => {
@@ -335,6 +330,25 @@ function ProductPage() {
 			// Notas menores que 0.5 renderizam estrela vazia
 			return <BsStar className="text-yellow-400" size={14} />;
 		}
+	};
+
+	const formatReviewsCount = (count: number) => {
+		if (count >= 1000000) {
+			// Formata números acima de 1 milhão
+			const formattedCount = (count / 1000000)
+				.toFixed(1)
+				.replace(/\.0$/, ""); // Converte para milhões com uma casa decimal
+			return `${formattedCount} milh${
+				formattedCount !== "1" ? "ões" : "ão"
+			}`; // Singular ou plural
+		} else if (count >= 1000) {
+			// Formata números a partir de 1000
+			const formattedCount = (count / 1000)
+				.toFixed(1)
+				.replace(/\.0$/, ""); // Converte para milhar com uma casa decimal
+			return `${formattedCount} mil`;
+		}
+		return count?.toString();
 	};
 
 	const handleFollow = async () => {
@@ -852,12 +866,14 @@ function ProductPage() {
 								<div className="flex flex-col justify-center">
 									<div>
 										<span className="text-black">
-											Total de Avaliações: 5.1mil
+											{`Total de Avaliações: ${formatReviewsCount(
+												partner?.numberOfReviews
+											)}`}
 										</span>
 									</div>
 									<div>
 										<span className="text-black">
-											Produtos: {partner?.totalProducts}
+											{`Produtos: ${partner?.totalProducts}`}
 										</span>
 									</div>
 									<div className="mt-3 opacity-0">
@@ -899,7 +915,6 @@ function ProductPage() {
 
 											<div className="flex flex-col">
 												<div>
-													{/* Avaliações e Vendidos */}
 													<h1 className="text-sm">
 														{item?.customerName}
 													</h1>
@@ -930,72 +945,52 @@ function ProductPage() {
 												</div>
 
 												{/* Fotos das avaliações */}
-												<div className="flex flex-row gap-2 mb-2">
-													<div>
-														{/* Renderizar imagens em miniatura */}
-														<div className="flex flex-row gap-2 mb-2">
-															{item?.imagesReview &&
-																item?.imagesReview.map(
-																	(
-																		image,
-																		id
-																	) => (
-																		<div
-																			key={
-																				id
+												<div className="flex flex-col mb-6">
+													{/* Miniaturas */}
+													<div className="flex flex-row gap-2 mb-2">
+														{item?.imagesReview?.map(
+															(image, id) => (
+																<div
+																	key={id}
+																	className="w-[74px] bg-white border-black border-solid border-[1px] border-opacity-20 rounded relative shadow-md cursor-pointer"
+																	onClick={() =>
+																		handleImageClick(
+																			index,
+																			image
+																		)
+																	} // Passando index para a avaliação específica
+																>
+																	<div className="h-[74px] flex items-center justify-center">
+																		<Image
+																			className="object-contain h-full cursor-pointer"
+																			src={`http://localhost:5000/images/reviews/${image}`}
+																			alt="Imagem da avaliação"
+																			width={
+																				55
 																			}
-																			className="bg-base-100 w-[74px] rounded relative shadow-lg">
-																			<div className="h-[74px] flex items-center justify-center">
-																				<Image
-																					className="object-contain h-full cursor-pointer"
-																					src={`http://localhost:5000/images/reviews/${image}`}
-																					alt="Shoes"
-																					width={
-																						55
-																					}
-																					height={
-																						55
-																					}
-																					unoptimized
-																					onClick={() =>
-																						handleOpen(
-																							image
-																						)
-																					}
-																				/>
-																			</div>
-																		</div>
-																	)
-																)}
-														</div>
-
-														{/* Renderizar imagem maximizada se existir */}
-														{maximizedImage && (
-															<div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center">
-																<div className="relative max-w-full max-h-full">
-																	<Image
-																		className="object-contain max-w-full max-h-full rounded-md"
-																		src={`http://localhost:5000/images/reviews/${maximizedImage}`}
-																		alt="Maximized Image"
-																		width={
-																			400
-																		}
-																		height={
-																			200
-																		}
-																		unoptimized
-																	/>
-																	<button
-																		className="absolute top-4 right-4 bg-error px-3 py-1 rounded shadow-md text-white"
-																		onClick={
-																			handleClose
-																		}>
-																		✕
-																	</button>
+																			height={
+																				55
+																			}
+																			unoptimized
+																		/>
+																	</div>
 																</div>
-															</div>
+															)
 														)}
 													</div>
+													{/* Exibição da imagem maior, SOMENTE SE selectedImage NÃO FOR NULL */}
+													{expandedImages[index] && (
+														<div className="mt-4">
+															<Image
+																className="w-[300px] object-contain border-black border-solid border-[1px] border-opacity-20 rounded shadow-md"
+																src={`http://localhost:5000/images/reviews/${expandedImages[index]}`}
+																alt="Imagem ampliada"
+																width={10}
+																height={10}
+																unoptimized
+															/>
+														</div>
+													)}
 												</div>
 											</div>
 										</div>

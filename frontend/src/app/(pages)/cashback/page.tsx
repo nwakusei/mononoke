@@ -38,7 +38,7 @@ function CashbackPage() {
 
 				<div className="flex justify-center">
 					<p className="bg-primary w-[850px] text-center py-1 rounded shadow-md mb-6 select-none">
-						※ Compre em nossos parceiros (loja online e física),
+						※ Compre em nossos parceiros (lojas online e físicas),
 						pagando em OtakuPay, e receba Cashback em Otaku Point ※
 					</p>
 				</div>

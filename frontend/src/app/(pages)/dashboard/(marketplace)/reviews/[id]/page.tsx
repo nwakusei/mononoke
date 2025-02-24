@@ -42,7 +42,13 @@ const createReviewFormSchema = z.object({
 				return files !== null && files.length > 0;
 			},
 			{
-				message: "※ Insira pelo menos 1 imagem!",
+				message: "※ Insira pelo menos 1 foto!",
+			}
+		)
+		.refine(
+			(files) => files.length <= 5, // ✅ Limita a 5 arquivos
+			{
+				message: "※ Você pode enviar no máximo 5 fotos!",
 			}
 		)
 		.refine(
@@ -64,7 +70,7 @@ const createReviewFormSchema = z.object({
 			},
 			{
 				message:
-					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+					"※ Insira apenas fotos com extensão .JPG, .JPEG ou .PNG!",
 			}
 		),
 	reviewRating: z
@@ -77,10 +83,57 @@ const createReviewFormSchema = z.object({
 				return numberValue > 0.0;
 			},
 			{
-				message: "Insirá um valor maior do que 0,1",
+				message: "※ Insira um valor maior do que 0.0!",
 			}
 		),
-	reviewDescription: z.string().min(1, "A descrição é obrigatória!"),
+	reviewDescription: z
+		.string()
+		.min(1, "A descrição é obrigatória!")
+		.max(1000, "※ A descrição precisa conter no máximo 1000 caracteres!")
+		.trim()
+		.refine(
+			(desc) => {
+				// Lista de tags HTML permitidas para formatação básica
+				const allowedTags = [
+					"b",
+					"i",
+					"u",
+					"strong",
+					"em",
+					"p",
+					"ul",
+					"ol",
+					"li",
+					"br",
+					"a",
+					"span",
+				];
+
+				// Sanitizar a descrição, permitindo apenas as tags especificadas
+				const sanitized = DOMPurify.sanitize(desc, {
+					ALLOWED_TAGS: allowedTags,
+				});
+
+				// Checar se a descrição contém algum conteúdo não permitido (tags ilegais já são removidas pelo DOMPurify)
+				const isValid = sanitized.length > 0;
+
+				return isValid;
+			},
+			{
+				message: "※ A descrição possui caracteres inválidos!",
+			}
+		)
+		.refine(
+			(value) => {
+				if (value === undefined || value === "") {
+					return true;
+				}
+				return value.length >= 100;
+			},
+			{
+				message: "※ A descrição precisa ter no mínimo 100 caracteres!",
+			}
+		),
 });
 
 type TCreateReviewFormSchema = z.infer<typeof createReviewFormSchema>;
@@ -103,9 +156,10 @@ function ReviewByIdPage() {
 		mode: "onBlur",
 	});
 
-	const [imagemSelecionada, setImagemSelecionada] = useState<
-		string | ArrayBuffer | null
-	>(null);
+	const [imagensSelecionadas, setImagensSelecionadas] = useState<
+		string[] | ArrayBuffer[]
+	>([]);
+	const MAX_IMAGENS = 5;
 
 	useEffect(() => {
 		const fetchOrder = async () => {
@@ -133,13 +187,24 @@ function ReviewByIdPage() {
 	const handleImagemSelecionada = (
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
-		const file = event.target.files?.[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = () => {
-				setImagemSelecionada(reader.result);
-			};
-			reader.readAsDataURL(file);
+		const files = event.target.files;
+		if (files) {
+			const readers: Promise<string | ArrayBuffer>[] = [];
+
+			for (const file of Array.from(files)) {
+				const reader = new FileReader();
+				readers.push(
+					new Promise((resolve) => {
+						reader.onload = () =>
+							resolve(reader.result as string | ArrayBuffer);
+						reader.readAsDataURL(file);
+					})
+				);
+			}
+
+			Promise.all(readers).then((images) => {
+				setImagensSelecionadas((prev) => [...prev, ...images]); // Adiciona ao estado existente
+			});
 		}
 	};
 
@@ -343,13 +408,9 @@ function ReviewByIdPage() {
 										</button>
 									</div>
 									<div className="label">
-										{errors.reviewRating ? (
+										{errors.reviewRating && (
 											<span className="label-text-alt text-red-500">
 												{errors.reviewRating.message}
-											</span>
-										) : (
-											<span className="label-text-alt text-black">
-												Exemplo
 											</span>
 										)}
 									</div>
@@ -372,13 +433,9 @@ function ReviewByIdPage() {
 										"reviewDescription"
 									)}></textarea>
 								<div className="label">
-									{errors.reviewDescription ? (
+									{errors.reviewDescription && (
 										<span className="label-text-alt text-red-500">
 											{errors.reviewDescription.message}
-										</span>
-									) : (
-										<span className="label-text-alt text-black">
-											Exemplo
 										</span>
 									)}
 								</div>
@@ -398,23 +455,33 @@ function ReviewByIdPage() {
 										Foto Principal
 									</span>
 								</div>
-								<div
-									className={`${
-										errors.imagesReview
-											? `border-error`
-											: `border-success`
-									} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-									{imagemSelecionada ? (
-										<Image
-											src={imagemSelecionada}
-											alt="Imagem selecionada"
-											className="object-contain w-full h-full rounded-sm"
-											width={10}
-											height={10}
-										/>
-									) : (
+
+								<div className="flex flex-wrap gap-2">
+									{imagensSelecionadas.map((img, index) => (
 										<div
-											className="flex flex-col justify-center items-center "
+											key={index}
+											className={`${
+												errors.imagesReview
+													? `border-error`
+													: `border-success`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+											<Image
+												src={img as string}
+												alt={`Imagem selecionada ${
+													index + 1
+												}`}
+												className="object-contain w-full h-full rounded-sm"
+												width={100}
+												height={100}
+											/>
+										</div>
+									))}
+
+									{/* Quadrado de seleção visível somente se não atingiu o limite */}
+									{imagensSelecionadas.length <
+										MAX_IMAGENS && (
+										<div
+											className="flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative"
 											onChange={handleImagemSelecionada}>
 											<h2 className="text-xs mb-2">
 												Add Imagem
@@ -430,6 +497,7 @@ function ReviewByIdPage() {
 										</div>
 									)}
 								</div>
+
 								<div className="label">
 									{errors.imagesReview && (
 										<span className="label-text-alt text-red-500">

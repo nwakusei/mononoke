@@ -177,12 +177,29 @@ function StorePage() {
 	};
 
 	const rating =
-		partner?.rating > 0
-			? `${(partner?.rating).toFixed(1)} (XX Notas)`
-			: "N/A";
+		partner?.rating > 0 ? `${(partner?.rating).toFixed(1)}` : "N/A";
 	const followers = partner?.followers;
 	const totalProducts = partner?.totalProducts;
 	const productsSold = partner?.productsSold;
+
+	const formatReviewsCount = (count: number) => {
+		if (count >= 1000000) {
+			// Formata números acima de 1 milhão
+			const formattedCount = (count / 1000000)
+				.toFixed(1)
+				.replace(/\.0$/, ""); // Converte para milhões com uma casa decimal
+			return `${formattedCount} milh${
+				formattedCount !== "1" ? "ões" : "ão"
+			}`; // Singular ou plural
+		} else if (count >= 1000) {
+			// Formata números a partir de 1000
+			const formattedCount = (count / 1000)
+				.toFixed(1)
+				.replace(/\.0$/, ""); // Converte para milhar com uma casa decimal
+			return `${formattedCount} mil`;
+		}
+		return count?.toString();
+	};
 
 	const renderPartnerRatingIcons = (partnerRating) => {
 		// Convertendo a nota para número
@@ -431,7 +448,11 @@ function StorePage() {
 						</div>
 						<div className="flex flex-row items-center gap-2 mb-2">
 							<span>{renderPartnerRatingIcons(rating)}</span>
-							<h1>Avaliações: {rating}</h1>
+							<h1>
+								{`Avaliações: ${rating} (${formatReviewsCount(
+									partner?.numberOfReviews
+								)})`}
+							</h1>
 						</div>
 						<div className="flex flex-row items-center gap-2 mb-2">
 							<span>

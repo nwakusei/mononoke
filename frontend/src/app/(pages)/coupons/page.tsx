@@ -44,8 +44,8 @@ function CoupomPage() {
 
 				<div className="flex justify-center">
 					<p className="bg-primary w-[550px] text-center py-1 rounded shadow-md mb-6 select-none">
-						※ Cupons exclusivos para uso nas lojas parceira em nosso
-						site! ※
+						※ Cupons exclusivos para uso nas lojas parceiras em
+						nosso site! ※
 					</p>
 				</div>
 
