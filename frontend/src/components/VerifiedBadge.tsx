@@ -7,6 +7,7 @@ interface IVerifiedBadgeProps {
 
 function VerifiedBadge({ partnerVerifiedBadge }: IVerifiedBadgeProps) {
 	const badges = [
+		{ name: "AzulComprado", hex: "#80c6ff", salesQuantity: "500" },
 		{ name: "Azul", hex: "#2196f3", salesQuantity: "500" },
 		{ name: "Bronze", hex: "#CD7F32", salesQuantity: "1 mil" },
 		{ name: "Prata", hex: "#C0C0C0", salesQuantity: "2 mil" },

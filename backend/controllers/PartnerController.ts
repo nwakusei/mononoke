@@ -164,6 +164,7 @@ class PartnerController {
 				cashback: "1",
 				followers: 0,
 				rating: 0,
+				numberOfReviews: 0,
 				totalProducts: 0,
 				productsSold: 0,
 				viewAdultContent: false,

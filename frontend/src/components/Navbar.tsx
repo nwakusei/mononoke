@@ -340,19 +340,6 @@ function Navbar() {
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
-														<ImMakeGroup
-															size={16}
-														/>
-														OtaClub 2
-													</span>
-													<span className="badge badge-secondary border border-white">
-														New
-													</span>
-												</a>
-											</li>
-											<li>
-												<a className="flex flex-row items-center justify-between text-white">
-													<span className="flex flex-row items-center gap-2">
 														<HiOutlineGiftTop
 															size={20}
 														/>

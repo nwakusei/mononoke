@@ -32,10 +32,11 @@ import Amora from "../../../../../public/amora.jpg";
 import imageProfile from "../../../../../public/Kon.jpg";
 
 // Icons
-import { Currency } from "@icon-park/react";
-import { BsStar, BsStarHalf, BsStarFill } from "react-icons/bs";
+import { Currency, Peoples } from "@icon-park/react";
+import { BsStar, BsStarHalf, BsStarFill, BsBagCheck } from "react-icons/bs";
 import { MdVerified } from "react-icons/md";
 import { ProductAdCard } from "@/components/ProductAdCard";
+import { CgBox } from "react-icons/cg";
 
 function ProductPage() {
 	const { slug } = useParams();
@@ -332,7 +333,7 @@ function ProductPage() {
 		}
 	};
 
-	const formatReviewsCount = (count: number) => {
+	const formatHighValues = (count: number) => {
 		if (count >= 1000000) {
 			// Formata números acima de 1 milhão
 			const formattedCount = (count / 1000000)
@@ -492,14 +493,20 @@ function ProductPage() {
 										? "1 Avaliação"
 										: product?.reviews &&
 										  Array.isArray(product?.reviews)
-										? `${product?.reviews.length} Avaliações`
+										? `${formatHighValues(
+												product?.reviews.length
+										  )} Avaliações`
 										: "0 Avaliações"}
 								</div>
 								<span>|</span>
 								<div>
 									{product?.productsSold > 1
-										? `${product?.productsSold} Vendidos`
-										: `${product?.productsSold} Vendido`}
+										? `${formatHighValues(
+												product?.productsSold
+										  )} Vendidos`
+										: `${formatHighValues(
+												product?.productsSold
+										  )} Vendido`}
 								</div>
 							</div>
 							{/* Preço */}
@@ -766,7 +773,7 @@ function ProductPage() {
 						{partner && (
 							<div className="flex flex-row gap-4">
 								<div className="flex flex-col gap-2">
-									<div className="w-[260px] h-[130px] bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
+									<div className="w-[258px] h-[129x] bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
 										<Image
 											className="object-contain w-full h-full pointer-events-none"
 											src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
@@ -791,22 +798,64 @@ function ProductPage() {
 										)}
 									</div>
 									<div className="flex flex-row items-center mb-2">
-										{renderPartnerRatingIcons(
-											partner?.rating
-										)}
+										<span>
+											{renderPartnerRatingIcons(
+												partner?.rating
+											)}
+										</span>
 										<span className="text-black ml-1 mr-2">
 											{Number.isInteger(partner?.rating)
 												? `${partner?.rating}.0`
 												: `${(partner?.rating).toFixed(
 														1
-												  )}`}
+												  )} (${formatHighValues(
+														partner?.numberOfReviews
+												  )})`}
 										</span>
 										<span className="text-black mb-1">
 											|
 										</span>
-										<span className="text-black ml-2">
-											{`${partner?.followers} Seguidores`}
+										<span className="flex flex-row items-center gap-2 mx-2">
+											<span>
+												<Peoples size={16} />
+												{/* <BsPersonCheckFill size={20} /> */}
+											</span>
+											<h1>
+												{`Seguidores: ${formatHighValues(
+													partner?.followers
+												)}`}
+											</h1>
 										</span>
+										<span className="text-black mb-1">
+											|
+										</span>
+										<div className="flex flex-row items-center gap-2 mx-2">
+											<span>
+												<CgBox size={16} />
+												{/* <BsBox2Heart size={17} /> */}
+											</span>
+											<h1>
+												{`Produtos: ${formatHighValues(
+													partner?.totalProducts
+												)}`}
+											</h1>
+										</div>
+
+										<span className="text-black mb-1">
+											|
+										</span>
+										<div className="flex flex-row items-center gap-2 ml-2">
+											<span>
+												{/* <BsBox2Heart size={18} /> */}
+												<BsBagCheck size={16} />
+												{/* <BsBagHeart size={18} /> */}
+											</span>
+											<h1>
+												{`Produtos vendidos: ${formatHighValues(
+													partner?.productsSold
+												)}`}
+											</h1>
+										</div>
 									</div>
 									<div className="flex flex-row gap-2">
 										<div>
@@ -860,29 +909,6 @@ function ProductPage() {
 												</button>
 											)}
 										</div>
-									</div>
-								</div>
-								<div className="border border-y-[1px] border-black"></div>
-								<div className="flex flex-col justify-center">
-									<div>
-										<span className="text-black">
-											{`Total de Avaliações: ${formatReviewsCount(
-												partner?.numberOfReviews
-											)}`}
-										</span>
-									</div>
-									<div>
-										<span className="text-black">
-											{`Produtos: ${partner?.totalProducts}`}
-										</span>
-									</div>
-									<div className="mt-3 opacity-0">
-										<button className="text-black hover:text-white border border-solid cursor-default border-primary hover:bg-primary active:scale-[.95] transition-all ease-in duration-200 h-[36px] px-10 py-1 rounded-md hover:shadow-md">
-											{/* <Link
-											href={`/otamart/store/${partner._id}`}>
-											Ver Loja
-										</Link> */}
-										</button>
 									</div>
 								</div>
 							</div>

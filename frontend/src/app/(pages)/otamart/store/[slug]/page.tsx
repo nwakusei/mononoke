@@ -182,7 +182,7 @@ function StorePage() {
 	const totalProducts = partner?.totalProducts;
 	const productsSold = partner?.productsSold;
 
-	const formatReviewsCount = (count: number) => {
+	const formatHighValues = (count: number) => {
 		if (count >= 1000000) {
 			// Formata números acima de 1 milhão
 			const formattedCount = (count / 1000000)
@@ -377,7 +377,7 @@ function StorePage() {
 				<div className="flex flex-col lg:flex-row gap-2 lg:gap-8 bg-white text-black w-[350px] lg:w-[1100px] min-h-[200px] p-4 mt-8 mb-8 rounded-md shadow-md select-none">
 					{/* Card Store Info 1 */}
 					<div className="flex flex-col gap-2">
-						<div className="w-[300px] h-[150px] bg-pink-200 border border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
+						<div className="w-[297px] h-[149px] bg-pink-200 border border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
 							<Image
 								className="object-contain w-full h-full pointer-events-none"
 								src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
@@ -390,7 +390,7 @@ function StorePage() {
 						{buttonLoading ? (
 							<button
 								disabled
-								className="button w-[300px] h-[50px] bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+								className="button w-[297px] h-[50px] bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
 								<span className="loading loading-spinner loading-md"></span>
 							</button>
 						) : followedStores?.some(
@@ -398,7 +398,7 @@ function StorePage() {
 						  ) ? (
 							<button
 								// Função para deixar de seguir - não implementada ainda
-								className="button w-[300px] h-[50px] follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+								className="button w-[297px] h-[50px] follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
 								<span className="text-following">
 									Deixar de seguir
 								</span>
@@ -411,13 +411,13 @@ function StorePage() {
 						) : (
 							<button
 								onClick={handleFollow}
-								className="w-[300px] h-[50px] bg-violet-900 transition-all ease-in duration-100 hover:bg-black text-white rounded-md shadow-md flex items-center justify-center">
+								className="w-[297px] h-[50px] bg-violet-900 transition-all ease-in duration-100 hover:bg-black text-white rounded-md shadow-md flex items-center justify-center">
 								Seguir Loja
 							</button>
 						)}
 					</div>
 
-					<div className="flex flex-col w-[230px]">
+					<div className="flex flex-col w-[245px]">
 						{/* Titulo e Selo de verificado */}
 						<div className="flex flex-row items-center gap-1 mb-4">
 							<div className="text-lg font-semibold">
@@ -437,19 +437,23 @@ function StorePage() {
 								<CgBox size={18} />
 								{/* <BsBox2Heart size={17} /> */}
 							</span>
-							<h1>Produtos: {totalProducts}</h1>
+							<h1>
+								{`Produtos: ${formatHighValues(totalProducts)}`}
+							</h1>
 						</div>
 						<div className="flex flex-row items-center gap-2">
 							<span>
 								<Peoples size={18} />
 								{/* <BsPersonCheckFill size={20} /> */}
 							</span>
-							<h1>Seguidores: {followers}</h1>
+							<h1>
+								{`Seguidores: ${formatHighValues(followers)}`}
+							</h1>
 						</div>
 						<div className="flex flex-row items-center gap-2 mb-2">
 							<span>{renderPartnerRatingIcons(rating)}</span>
 							<h1>
-								{`Avaliações: ${rating} (${formatReviewsCount(
+								{`Avaliações: ${rating} (${formatHighValues(
 									partner?.numberOfReviews
 								)})`}
 							</h1>
@@ -460,7 +464,11 @@ function StorePage() {
 								<BsBagCheck size={18} />
 								{/* <BsBagHeart size={18} /> */}
 							</span>
-							<h1>Produtos vendidos: {productsSold}</h1>
+							<h1>
+								{`Produtos vendidos: ${formatHighValues(
+									productsSold
+								)}`}
+							</h1>
 						</div>
 					</div>
 					<div className="border-r-[1px] border-r-black"></div>
@@ -569,9 +577,13 @@ function StorePage() {
 									cashback={cashback}
 									rating={returnedProduct.rating}
 									quantitySold={
-										partner.productsSold > 1
-											? `${partner.productsSold} Vendidos`
-											: `${partner.productsSold} Vendido`
+										returnedProduct.productsSold > 1
+											? `${formatHighValues(
+													returnedProduct.productsSold
+											  )} Vendidos`
+											: `${formatHighValues(
+													returnedProduct.productsSold
+											  )} Vendido`
 									}
 									linkProductPage={`/otamart/${returnedProduct.slugTitle}`}
 								/>
@@ -608,8 +620,12 @@ function StorePage() {
 									rating={product.rating}
 									quantitySold={
 										product.productsSold > 1
-											? `${product.productsSold} Vendidos`
-											: `${product.productsSold} Vendido`
+											? `${formatHighValues(
+													product.productsSold
+											  )} Vendidos`
+											: `${formatHighValues(
+													product.productsSold
+											  )} Vendido`
 									}
 									linkProductPage={`/otamart/${product.slugTitle}`}
 								/>
@@ -717,7 +733,7 @@ function StorePage() {
 												unoptimized
 											/>
 										) : (
-											<div className="chat-bubble">
+											<div className="chat-bubble break-words whitespace-pre-wrap">
 												{message.message}
 											</div>
 										)}

@@ -41,6 +41,25 @@ function OtamartPage() {
 		...new Set(products.map((product) => product.category)),
 	];
 
+	const formatHighValues = (count: number) => {
+		if (count >= 1000000) {
+			// Formata números acima de 1 milhão
+			const formattedCount = (count / 1000000)
+				.toFixed(1)
+				.replace(/\.0$/, ""); // Converte para milhões com uma casa decimal
+			return `${formattedCount} milh${
+				formattedCount !== "1" ? "ões" : "ão"
+			}`; // Singular ou plural
+		} else if (count >= 1000) {
+			// Formata números a partir de 1000
+			const formattedCount = (count / 1000)
+				.toFixed(1)
+				.replace(/\.0$/, ""); // Converte para milhar com uma casa decimal
+			return `${formattedCount} mil`;
+		}
+		return count?.toString();
+	};
+
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -309,8 +328,12 @@ function OtamartPage() {
 									rating={returnedProduct.rating}
 									quantitySold={
 										returnedProduct.productsSold > 1
-											? `${returnedProduct.productsSold} Vendidos`
-											: `${returnedProduct.productsSold} Vendido`
+											? `${formatHighValues(
+													returnedProduct.productsSold
+											  )} Vendidos`
+											: `${formatHighValues(
+													returnedProduct.productsSold
+											  )} Vendido`
 									}
 									linkProductPage={`/otamart/${returnedProduct.slugTitle}`}
 								/>
@@ -346,8 +369,12 @@ function OtamartPage() {
 									rating={product.rating}
 									quantitySold={
 										product.productsSold > 1
-											? `${product.productsSold} Vendidos`
-											: `${product.productsSold} Vendido`
+											? `${formatHighValues(
+													product.productsSold
+											  )} Vendidos`
+											: `${formatHighValues(
+													product.productsSold
+											  )} Vendido`
 									}
 									linkProductPage={`/otamart/${product.slugTitle}`}
 								/>
