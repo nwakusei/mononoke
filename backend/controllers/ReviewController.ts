@@ -234,10 +234,10 @@ class ReviewController {
 			order.statusOrder = "Concluído";
 
 			// VERICAÇÃO DE QUANTIDADE DE PRODUTOS VENDIDOS PELA LOJA, E ATUALIZAÇÃO DO TIPO DE SELO
-			if (partner.productsSold >= 18) {
-				partner.verifiedBadge = "Esmeralda";
-			} else if (partner.productsSold >= 15) {
+			if (partner.productsSold >= 500) {
 				partner.verifiedBadge = "Blue";
+			} else if (partner.productsSold >= 1000) {
+				partner.verifiedBadge = "Bronze";
 			}
 
 			await order.save();

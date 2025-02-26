@@ -1513,6 +1513,9 @@ function MyProfilePage() {
 											<option value="AC">
 												Acre (AC)
 											</option>
+											<option value="JP">
+												Japão (JP)
+											</option>
 										</select>
 										{/* <input
 											type="text"

@@ -22,6 +22,7 @@ import { LuCalendarRange } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
 import { Peoples } from "@icon-park/react";
 import { Coupon } from "@icon-park/react";
+import Link from "next/link";
 
 function RafflePage() {
 	const [token] = useState(() => localStorage.getItem("token") || "");
@@ -263,12 +264,13 @@ function RafflePage() {
 
 								<div className="flex flex-row items-center gap-2 mb-4">
 									<MdOutlineStore size={18} />
-									<div>
-										Organizado por:{" "}
-										<span className="text-primary transition-all ease-in duration-200 hover:text-secondary cursor-pointer">
-											{/* <Link href={`/otamart/store/${idStore}`}></Link> */}
+									<div className="flex flex-row gap-1">
+										<span>Organizado por:</span>
+										<Link
+											className="text-primary transition-all ease-in duration-200 hover:text-secondary active:scale-[.97] cursor-pointer"
+											href={`/otamart/store/${raffle?.raffleOrganizerNickname}`}>
 											{raffle?.raffleOrganizer}
-										</span>
+										</Link>
 									</div>
 								</div>
 								<div className="">

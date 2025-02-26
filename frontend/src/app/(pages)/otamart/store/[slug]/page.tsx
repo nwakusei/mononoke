@@ -453,9 +453,25 @@ function StorePage() {
 						<div className="flex flex-row items-center gap-2 mb-2">
 							<span>{renderPartnerRatingIcons(rating)}</span>
 							<h1>
-								{`Avaliações: ${rating} (${formatHighValues(
-									partner?.numberOfReviews
-								)})`}
+								{partner?.numberOfReviews === 0
+									? "Avaliações: N/A"
+									: partner?.numberOfReviews > 1
+									? `Avaliações: ${
+											Number.isInteger(partner?.rating)
+												? `${partner?.rating}.0`
+												: `${partner?.rating?.toFixed(
+														1
+												  )}`
+									  } (1 Avaliação)`
+									: `Avaliações: ${
+											Number.isInteger(partner?.rating)
+												? `${partner?.rating}.0`
+												: `${partner?.rating?.toFixed(
+														1
+												  )}`
+									  } (${formatHighValues(
+											partner?.numberOfReviews
+									  )} Avaliações)`}
 							</h1>
 						</div>
 						<div className="flex flex-row items-center gap-2 mb-2">
@@ -636,7 +652,7 @@ function StorePage() {
 
 				{/* CAIXA DE CHAT */}
 				{isChatOpen && (
-					<div className="flex flex-col justify-between chat-box fixed bottom-16 right-5 bg-white shadow-lg p-4 rounded-md border border-gray-300 z-40 ">
+					<div className="flex flex-col justify-between chat-box fixed bottom-16 right-5 bg-white shadow-lg p-4 rounded-md border border-gray-300 z-40">
 						<div className="chat-header w-full bg-primary flex flex-row items-center rounded-t-md">
 							<div className="flex flex-row items-center gap-2 pl-[16px] py-[8px]">
 								<div className="chat-image avatar">

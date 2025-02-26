@@ -773,7 +773,7 @@ function ProductPage() {
 						{partner && (
 							<div className="flex flex-row gap-4">
 								<div className="flex flex-col gap-2">
-									<div className="w-[258px] h-[129x] bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
+									<div className="w-[258px] h-[129px] bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
 										<Image
 											className="object-contain w-full h-full pointer-events-none"
 											src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
@@ -804,13 +804,29 @@ function ProductPage() {
 											)}
 										</span>
 										<span className="text-black ml-1 mr-2">
-											{Number.isInteger(partner?.rating)
-												? `${partner?.rating}.0`
-												: `${(partner?.rating).toFixed(
-														1
-												  )} (${formatHighValues(
+											{partner?.numberOfReviews === 0
+												? "N/A"
+												: partner?.numberOfReviews === 1
+												? `${
+														Number.isInteger(
+															partner?.rating
+														)
+															? `${partner?.rating}.0`
+															: `${partner?.rating?.toFixed(
+																	1
+															  )}`
+												  } (1 Avaliação)`
+												: `${
+														Number.isInteger(
+															partner?.rating
+														)
+															? `${partner?.rating}.0`
+															: `${partner?.rating?.toFixed(
+																	1
+															  )}`
+												  } (${formatHighValues(
 														partner?.numberOfReviews
-												  )})`}
+												  )} Avaliações)`}
 										</span>
 										<span className="text-black mb-1">
 											|

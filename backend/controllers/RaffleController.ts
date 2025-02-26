@@ -163,6 +163,7 @@ class RaffleController {
 				raffleRules: raffleRules,
 				minNumberParticipants: minNumberParticipants,
 				raffleOrganizer: partner.name,
+				raffleOrganizerNickname: partner.nickname,
 				adultRaffle: adultRaffle,
 				partnerID: partner.id,
 				// winner: {},
@@ -633,7 +634,7 @@ class RaffleController {
 
 			if (!participants || participants.length === 0) {
 				res.status(422).json({
-					message: "Nenhum participante localizado!",
+					message: "Nenhum ticket localizado!",
 				});
 				return;
 			}
