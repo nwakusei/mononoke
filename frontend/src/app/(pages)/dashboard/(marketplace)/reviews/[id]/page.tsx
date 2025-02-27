@@ -75,7 +75,7 @@ const createReviewFormSchema = z.object({
 		),
 	reviewRating: z
 		.string()
-		.min(1, "A nota é obrigatória!")
+		.min(1, "※ A nota é obrigatória!")
 		.refine(
 			(note) => {
 				const numberValue = Number(note);
@@ -88,7 +88,7 @@ const createReviewFormSchema = z.object({
 		),
 	reviewDescription: z
 		.string()
-		.min(1, "A descrição é obrigatória!")
+		.min(1, "※ A descrição é obrigatória!")
 		.max(1000, "※ A descrição precisa conter no máximo 1000 caracteres!")
 		.trim()
 		.refine(
@@ -312,14 +312,16 @@ function ReviewByIdPage() {
 											<th className="text-base">
 												Status
 											</th>
-											<th className="text-base">
-												Favorite Color
-											</th>
+											<th></th>
+											<th></th>
+											<th></th>
+											<th></th>
+											<th></th>
 										</tr>
 									</thead>
 									<tbody>
 										{/* row 1 */}
-										{myorder.itemsList &&
+										{/* {myorder.itemsList &&
 											myorder.itemsList.map(
 												(item, index) => (
 													<tr key={index}>
@@ -346,7 +348,7 @@ function ReviewByIdPage() {
 																<div>
 																	<div className="font-bold">
 																		{
-																			item.productName
+																			item.productTitle
 																		}
 																	</div>
 																</div>
@@ -358,6 +360,81 @@ function ReviewByIdPage() {
 															}
 														</td>
 														<td>Purple</td>
+													</tr>
+												)
+											)} */}
+
+										{Array.isArray(myorder?.itemsList) &&
+											myorder?.itemsList.length > 0 &&
+											myorder?.itemsList.map(
+												(item, index) => (
+													<tr key={index}>
+														<td>
+															<div className="flex items-center gap-3 mb-2">
+																<div>
+																	<div className="w-[60px] pointer-events-none">
+																		<Image
+																			src={`http://localhost:5000/images/products/${item.productImage}`}
+																			alt={
+																				item.productTitle
+																			}
+																			width={
+																				280
+																			}
+																			height={
+																				10
+																			}
+																			unoptimized
+																		/>
+																	</div>
+																</div>
+																<div>
+																	<div className="font-bold">
+																		<h2 className="w-[230px] overflow-x-hidden mb-2">
+																			{
+																				item.productTitle
+																			}
+																		</h2>
+																	</div>
+																	<div>
+																		<h2>
+																			{
+																				item.productVariation
+																			}
+																		</h2>
+																	</div>
+																</div>
+															</div>
+														</td>
+
+														<td>
+															<div>
+																{
+																	myorder.statusOrder
+																}
+															</div>
+														</td>
+														{/* <td>
+															<div>
+																{
+																	item.productQuantity
+																}{" "}
+																un
+															</div>
+														</td> */}
+														{/* <td className="w-[200px] overflow-x-auto">
+															{(
+																item.productQuantity *
+																item.productPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}
+														</td> */}
 													</tr>
 												)
 											)}

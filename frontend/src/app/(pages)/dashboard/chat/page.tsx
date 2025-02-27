@@ -3,10 +3,15 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 import { format, formatDistanceToNow, differenceInHours } from "date-fns";
 import { ptBR } from "date-fns/locale"; // Localização para Português
 
+// Axios
+import api from "@/utils/api";
+
+// Style Sheet
 import "./chat.css";
 
 // Components
@@ -17,13 +22,10 @@ import { Sidebar } from "@/components/Sidebar";
 // Icons
 import { NewPicture, SendOne } from "@icon-park/react";
 import { IoIosSearch } from "react-icons/io";
-import { BsCheck2All, BsCheck2 } from "react-icons/bs";
+import { BsCheck2All, BsCheck2, BsChatSquareText } from "react-icons/bs";
 import { IoIosArrowDown } from "react-icons/io";
 import { HiOutlineEllipsisVertical } from "react-icons/hi2";
 import { LoadingPage } from "@/components/LoadingPageComponent";
-import api from "@/utils/api";
-import { toast } from "react-toastify";
-import { relative } from "path";
 
 function ChatPage() {
 	const inputFileRef = useRef(null);
@@ -205,9 +207,12 @@ function ChatPage() {
 					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">
 						{/* Outro Saldos */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<h1 className="text-2xl font-semibold text-black">
-								Chat App
-							</h1>
+							<div className="flex flex-row items-center gap-4">
+								<BsChatSquareText className="mt-1" size={18} />
+								<h1 className="text-2xl font-semibold text-black">
+									Chat App
+								</h1>
+							</div>
 							<h2 className="text-sm text-black">Messenger</h2>
 						</div>
 					</div>

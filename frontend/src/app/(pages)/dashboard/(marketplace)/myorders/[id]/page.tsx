@@ -114,21 +114,29 @@ function MyOrderByIDPage() {
 
 	// Função para Descriptografar dados sensíveis no Banco de Dados
 	function decrypt(encryptedBalance: string): number | null {
-		let decrypted = ""; // Declarando a variável fora do bloco try
+		let decrypted = "";
 
 		try {
+			// Divide o IV do texto criptografado
+			const [ivHex, encryptedData] = encryptedBalance.split(":");
+			if (!ivHex || !encryptedData) {
+				throw new Error("Formato inválido do texto criptografado.");
+			}
+
+			const iv = Buffer.from(ivHex, "hex");
+
 			const decipher = crypto.createDecipheriv(
 				"aes-256-cbc",
 				Buffer.from(secretKey, "utf-8"),
-				Buffer.alloc(16, 0)
+				iv
 			);
 
 			decipher.setAutoPadding(false);
 
-			decrypted = decipher.update(encryptedBalance, "hex", "utf8");
+			decrypted = decipher.update(encryptedData, "hex", "utf8");
 			decrypted += decipher.final("utf8");
 
-			const balanceNumber = parseFloat(decrypted);
+			const balanceNumber = parseFloat(decrypted.trim()); // Remove espaços em branco extras
 			if (isNaN(balanceNumber)) {
 				return null;
 			}
@@ -210,12 +218,12 @@ function MyOrderByIDPage() {
 													<tr key={index}>
 														<td>
 															<div className="flex items-center gap-3 mb-2">
-																<div className="avatar">
-																	<div className="mask mask-squircle w-12 h-12">
+																<div>
+																	<div className="w-[60px] pointer-events-none">
 																		<Image
-																			src={`http://localhost:5000/images/products/${item?.productImage}`}
+																			src={`http://localhost:5000/images/products/${item.productImage}`}
 																			alt={
-																				item?.productTitle
+																				item.productTitle
 																			}
 																			width={
 																				280
@@ -228,10 +236,17 @@ function MyOrderByIDPage() {
 																	</div>
 																</div>
 																<div>
-																	<div className="font-bold text-black">
+																	<div className="font-bold">
 																		<h2 className="w-[230px] overflow-x-hidden mb-2">
 																			{
-																				item?.productTitle
+																				item.productTitle
+																			}
+																		</h2>
+																	</div>
+																	<div>
+																		<h2>
+																			{
+																				item.productVariation
 																			}
 																		</h2>
 																	</div>
@@ -240,8 +255,8 @@ function MyOrderByIDPage() {
 														</td>
 
 														<td>
-															<div className="text-black">
-																{item?.productPrice.toLocaleString(
+															<div>
+																{item.productPrice.toLocaleString(
 																	"pt-BR",
 																	{
 																		style: "currency",
@@ -252,24 +267,25 @@ function MyOrderByIDPage() {
 															</div>
 														</td>
 														<td>
-															<div className="text-black">
-																{`${item?.productQuantity} un`}
+															<div>
+																{
+																	item.productQuantity
+																}{" "}
+																un
 															</div>
 														</td>
 														<td className="w-[200px] overflow-x-auto">
-															<div className="text-black">
-																{(
-																	item?.productQuantity *
-																	item?.productPrice
-																).toLocaleString(
-																	"pt-BR",
-																	{
-																		style: "currency",
-																		currency:
-																			"BRL",
-																	}
-																)}
-															</div>
+															{(
+																item.productQuantity *
+																item.productPrice
+															).toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}
 														</td>
 													</tr>
 												)

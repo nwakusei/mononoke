@@ -1095,7 +1095,7 @@ class OtakupayController {
 						}
 
 						// Criar uma nova Order para cada PartnerID
-						const order = new OrderModel({
+						const newOrder = new OrderModel({
 							orderID: new ObjectId().toHexString().toUpperCase(),
 							statusOrder: "Confirmado",
 							paymentMethod: "Saldo em conta",
@@ -1135,6 +1135,81 @@ class OtakupayController {
 						});
 
 						// Adicionar os itens do pedido
+						// for (const product of partnerProducts) {
+						// 	// Encontrar o produto correspondente na lista de produtos do banco de dados
+						// 	const productFromDB = productsFromDB.find(
+						// 		(p: any) =>
+						// 			p._id.toString() ===
+						// 			product.productID.toString()
+						// 	);
+
+						// 	// Se o produto correspondente não for encontrado, continuar para o próximo produto
+						// 	if (!productFromDB) {
+						// 		continue;
+						// 	}
+
+						// 	let productCost;
+						// 	let productImage = product.productImage;
+
+						// 	// Verificar se o produto tem variações
+						// 	if (
+						// 		product.productVariations &&
+						// 		product.productVariations.length > 0 &&
+						// 		productFromDB.productVariations &&
+						// 		productFromDB.productVariations.length > 0
+						// 	) {
+						// 		// Encontrar a variação no banco de dados
+						// 		const variation =
+						// 			productFromDB.productVariations.find(
+						// 				(v: any) =>
+						// 					v._id.toString() ===
+						// 					product.productVariations[0].variationID.toString()
+						// 			);
+
+						// 		if (variation) {
+						// 			// Encontrar a opção correspondente dentro da variação
+						// 			const option = variation.options.find(
+						// 				(o: any) =>
+						// 					o._id.toString() ===
+						// 					product.productVariations[0].optionID.toString()
+						// 			);
+
+						// 			if (option) {
+						// 				// Utilizar o preço da opção
+						// 				productCost =
+						// 					option.promotionalPrice > 0
+						// 						? option.promotionalPrice
+						// 						: option.originalPrice;
+
+						// 				// Atualizar a imagem para a imagem da opção
+						// 				if (option.imageUrl) {
+						// 					productImage = option.imageUrl;
+						// 				}
+						// 			}
+						// 		}
+						// 	}
+
+						// 	// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
+						// 	if (!productCost) {
+						// 		productCost =
+						// 			productFromDB.promotionalPrice > 0
+						// 				? productFromDB.promotionalPrice
+						// 				: productFromDB.originalPrice;
+						// 	}
+
+						// 	// Adicionar o item ao pedido
+						// 	newOrder.itemsList.push({
+						// 		productID: product.productID,
+						// 		productTitle: product.productTitle,
+						// 		productImage: productImage,
+						// 		productPrice: productCost,
+						// 		productVariation: "Volumes 1 e 2",
+						// 		daysShipping:
+						// 			shippingCostForPartner.daysShipping,
+						// 		productQuantity: product.productQuantity,
+						// 	});
+						// }
+
 						for (const product of partnerProducts) {
 							// Encontrar o produto correspondente na lista de produtos do banco de dados
 							const productFromDB = productsFromDB.find(
@@ -1150,6 +1225,7 @@ class OtakupayController {
 
 							let productCost;
 							let productImage = product.productImage;
+							let productVariationName = ""; // Variável para armazenar a variação
 
 							// Verificar se o produto tem variações
 							if (
@@ -1185,6 +1261,9 @@ class OtakupayController {
 										if (option.imageUrl) {
 											productImage = option.imageUrl;
 										}
+
+										// Definir o nome da variação (exemplo: "Tamanho: M")
+										productVariationName = `${variation.title}: ${option.name}`;
 									}
 								}
 							}
@@ -1198,11 +1277,13 @@ class OtakupayController {
 							}
 
 							// Adicionar o item ao pedido
-							order.itemsList.push({
+							newOrder.itemsList.push({
 								productID: product.productID,
 								productTitle: product.productTitle,
 								productImage: productImage,
 								productPrice: productCost,
+								productVariation:
+									productVariationName || "Sem variação", // Se não houver variação, definir um padrão
 								daysShipping:
 									shippingCostForPartner.daysShipping,
 								productQuantity: product.productQuantity,
@@ -1210,7 +1291,7 @@ class OtakupayController {
 						}
 
 						// Adicionar a Order ao array de ordens
-						orders.push(order);
+						orders.push(newOrder);
 					} else {
 						console.error(
 							`Custo de envio não encontrado para o parceiro ${partnerID}`
@@ -2453,7 +2534,7 @@ class OtakupayController {
 						}
 
 						// Criar uma nova Order para cada PartnerID
-						const order = new OrderModel({
+						const newOrder = new OrderModel({
 							orderID: new ObjectId().toHexString().toUpperCase(),
 							statusOrder: "Confirmado",
 							paymentMethod: "Cartão de Crédito",
@@ -2493,6 +2574,74 @@ class OtakupayController {
 						});
 
 						// Adicionar os itens do pedido
+						// for (const product of partnerProducts) {
+						// 	// Encontrar o produto correspondente na lista de produtos do banco de dados
+						// 	const productFromDB = productsFromDB.find(
+						// 		(p: any) =>
+						// 			p._id.toString() ===
+						// 			product.productID.toString()
+						// 	);
+
+						// 	// Se o produto correspondente não for encontrado, continuar para o próximo produto
+						// 	if (!productFromDB) {
+						// 		continue;
+						// 	}
+
+						// 	let productCost;
+
+						// 	// Verificar se o produto tem variações
+						// 	if (
+						// 		product.productVariations &&
+						// 		product.productVariations.length > 0 &&
+						// 		productFromDB.productVariations &&
+						// 		productFromDB.productVariations.length > 0
+						// 	) {
+						// 		// Encontrar a variação no banco de dados
+						// 		const variation =
+						// 			productFromDB.productVariations.find(
+						// 				(v: any) =>
+						// 					v._id.toString() ===
+						// 					product.productVariations[0].variationID.toString()
+						// 			);
+
+						// 		if (variation) {
+						// 			// Encontrar a opção correspondente dentro da variação
+						// 			const option = variation.options.find(
+						// 				(o: any) =>
+						// 					o._id.toString() ===
+						// 					product.productVariations[0].optionID.toString()
+						// 			);
+
+						// 			if (option) {
+						// 				// Utilizar o preço da opção
+						// 				productCost =
+						// 					option.promotionalPrice > 0
+						// 						? option.promotionalPrice
+						// 						: option.originalPrice;
+						// 			}
+						// 		}
+						// 	}
+
+						// 	// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
+						// 	if (!productCost) {
+						// 		productCost =
+						// 			productFromDB.promotionalPrice > 0
+						// 				? productFromDB.promotionalPrice
+						// 				: productFromDB.originalPrice;
+						// 	}
+
+						// 	// Adicionar o item ao pedido
+						// 	order.itemsList.push({
+						// 		productID: product.productID,
+						// 		productTitle: product.productTitle,
+						// 		productImage: product.productImage,
+						// 		productPrice: productCost,
+						// 		daysShipping:
+						// 			shippingCostForPartner.daysShipping,
+						// 		productQuantity: product.productQuantity,
+						// 	});
+						// }
+
 						for (const product of partnerProducts) {
 							// Encontrar o produto correspondente na lista de produtos do banco de dados
 							const productFromDB = productsFromDB.find(
@@ -2507,6 +2656,8 @@ class OtakupayController {
 							}
 
 							let productCost;
+							let productImage = product.productImage;
+							let productVariationName = ""; // Variável para armazenar a variação
 
 							// Verificar se o produto tem variações
 							if (
@@ -2537,6 +2688,14 @@ class OtakupayController {
 											option.promotionalPrice > 0
 												? option.promotionalPrice
 												: option.originalPrice;
+
+										// Atualizar a imagem para a imagem da opção
+										if (option.imageUrl) {
+											productImage = option.imageUrl;
+										}
+
+										// Definir o nome da variação (exemplo: "Tamanho: M")
+										productVariationName = `${variation.title}: ${option.name}`;
 									}
 								}
 							}
@@ -2550,11 +2709,13 @@ class OtakupayController {
 							}
 
 							// Adicionar o item ao pedido
-							order.itemsList.push({
+							newOrder.itemsList.push({
 								productID: product.productID,
 								productTitle: product.productTitle,
-								productImage: product.productImage,
+								productImage: productImage,
 								productPrice: productCost,
+								productVariation:
+									productVariationName || "Sem variação", // Se não houver variação, definir um padrão
 								daysShipping:
 									shippingCostForPartner.daysShipping,
 								productQuantity: product.productQuantity,
@@ -2562,7 +2723,7 @@ class OtakupayController {
 						}
 
 						// Adicionar a Order ao array de ordens
-						orders.push(order);
+						orders.push(newOrder);
 					} else {
 						console.error(
 							`Custo de envio não encontrado para o parceiro ${partnerID}`
@@ -4215,57 +4376,147 @@ class OtakupayController {
 												}
 
 												// Criar uma nova Order para cada PartnerID
-												const order = new OrderModel({
-													orderID: new ObjectId()
-														.toHexString()
-														.toUpperCase(),
-													statusOrder: "Confirmado",
-													paymentMethod: "Pix",
-													shippingCostTotal: vlrFrete,
-													customerOrderCostTotal:
-														partnerOrderCostTotal,
-													partnerCommissionOtamart:
-														encryptedPartnerCommissions.find(
-															(commission) =>
-																commission.partnerID ===
-																partnerID
-														)
-															?.encryptedCommissionAmount,
-													customerOtakuPointsEarned:
-														encryptedCustomerCashbacks.find(
-															(cashback) =>
-																cashback.partnerID ===
-																partnerID
-														)
-															?.encryptedCustomerCashback,
-													itemsList: [],
-													partnerID: partnerID,
-													partnerName: partner.name,
-													customerID: customer._id,
-													customerName: customer.name,
-													customerCPF: customer.cpf,
-													customerAddress: [
-														{
-															street: customerAddress.street,
-															complement:
-																customerAddress.complement,
-															neighborhood:
-																customerAddress.neighborhood,
-															city: customerAddress.city,
-															state: customerAddress.state,
-															postalCode:
-																customerAddress.postalCode,
-														},
-													],
-													shippingMethod:
-														transportadora,
-													trackingCode: "",
-													statusShipping: "Pendente",
-													discountsApplied: 0,
-													orderNote: "",
-												});
+												const newOrder = new OrderModel(
+													{
+														orderID: new ObjectId()
+															.toHexString()
+															.toUpperCase(),
+														statusOrder:
+															"Confirmado",
+														paymentMethod: "Pix",
+														shippingCostTotal:
+															vlrFrete,
+														customerOrderCostTotal:
+															partnerOrderCostTotal,
+														partnerCommissionOtamart:
+															encryptedPartnerCommissions.find(
+																(commission) =>
+																	commission.partnerID ===
+																	partnerID
+															)
+																?.encryptedCommissionAmount,
+														customerOtakuPointsEarned:
+															encryptedCustomerCashbacks.find(
+																(cashback) =>
+																	cashback.partnerID ===
+																	partnerID
+															)
+																?.encryptedCustomerCashback,
+														itemsList: [],
+														partnerID: partnerID,
+														partnerName:
+															partner.name,
+														customerID:
+															customer._id,
+														customerName:
+															customer.name,
+														customerCPF:
+															customer.cpf,
+														customerAddress: [
+															{
+																street: customerAddress.street,
+																complement:
+																	customerAddress.complement,
+																neighborhood:
+																	customerAddress.neighborhood,
+																city: customerAddress.city,
+																state: customerAddress.state,
+																postalCode:
+																	customerAddress.postalCode,
+															},
+														],
+														shippingMethod:
+															transportadora,
+														trackingCode: "",
+														statusShipping:
+															"Pendente",
+														discountsApplied: 0,
+														orderNote: "",
+													}
+												);
 
 												// Adicionar os itens do pedido
+												// for (const product of partnerProducts) {
+												// 	// Encontrar o produto correspondente na lista de produtos do banco de dados
+												// 	const productFromDB =
+												// 		productsFromDB.find(
+												// 			(p: any) =>
+												// 				p._id.toString() ===
+												// 				product.productID.toString()
+												// 		);
+
+												// 	// Se o produto correspondente não for encontrado, continuar para o próximo produto
+												// 	if (!productFromDB) {
+												// 		continue;
+												// 	}
+
+												// 	let productCost;
+
+												// 	// Verificar se o produto tem variações
+												// 	if (
+												// 		product.productVariations &&
+												// 		product
+												// 			.productVariations
+												// 			.length > 0 &&
+												// 		productFromDB.productVariations &&
+												// 		productFromDB
+												// 			.productVariations
+												// 			.length > 0
+												// 	) {
+												// 		// Encontrar a variação no banco de dados
+												// 		const variation =
+												// 			productFromDB.productVariations.find(
+												// 				(v: any) =>
+												// 					v._id.toString() ===
+												// 					product.productVariations[0].variationID.toString()
+												// 			);
+
+												// 		if (variation) {
+												// 			// Encontrar a opção correspondente dentro da variação
+												// 			const option =
+												// 				variation.options.find(
+												// 					(o: any) =>
+												// 						o._id.toString() ===
+												// 						product.productVariations[0].optionID.toString()
+												// 				);
+
+												// 			if (option) {
+												// 				// Utilizar o preço da opção
+												// 				productCost =
+												// 					option.promotionalPrice >
+												// 					0
+												// 						? option.promotionalPrice
+												// 						: option.originalPrice;
+												// 			}
+												// 		}
+												// 	}
+
+												// 	// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
+												// 	if (!productCost) {
+												// 		productCost =
+												// 			productFromDB.promotionalPrice >
+												// 			0
+												// 				? productFromDB.promotionalPrice
+												// 				: productFromDB.originalPrice;
+												// 	}
+
+												// 	// Adicionar o item ao pedido
+												// 	order.itemsList.push({
+												// 		productID:
+												// 			product.productID,
+												// 		productTitle:
+												// 			product.productTitle,
+												// 		productImage:
+												// 			product.productImage,
+												// 		productPrice:
+												// 			productCost,
+												// 		daysShipping:
+												// 			shippingCostForPartner.daysShipping,
+												// 		productQuantity:
+												// 			product.productQuantity,
+												// 	});
+												// }
+
 												for (const product of partnerProducts) {
 													// Encontrar o produto correspondente na lista de produtos do banco de dados
 													const productFromDB =
@@ -4281,6 +4532,10 @@ class OtakupayController {
 													}
 
 													let productCost;
+													let productImage =
+														product.productImage;
+													let productVariationName =
+														""; // Variável para armazenar a variação
 
 													// Verificar se o produto tem variações
 													if (
@@ -4317,6 +4572,17 @@ class OtakupayController {
 																	0
 																		? option.promotionalPrice
 																		: option.originalPrice;
+
+																// Atualizar a imagem para a imagem da opção
+																if (
+																	option.imageUrl
+																) {
+																	productImage =
+																		option.imageUrl;
+																}
+
+																// Definir o nome da variação (exemplo: "Tamanho: M")
+																productVariationName = `${variation.title}: ${option.name}`;
 															}
 														}
 													}
@@ -4331,15 +4597,18 @@ class OtakupayController {
 													}
 
 													// Adicionar o item ao pedido
-													order.itemsList.push({
+													newOrder.itemsList.push({
 														productID:
 															product.productID,
 														productTitle:
 															product.productTitle,
 														productImage:
-															product.productImage,
+															productImage,
 														productPrice:
 															productCost,
+														productVariation:
+															productVariationName ||
+															"Sem variação", // Se não houver variação, definir um padrão
 														daysShipping:
 															shippingCostForPartner.daysShipping,
 														productQuantity:
@@ -4348,7 +4617,7 @@ class OtakupayController {
 												}
 
 												// Adicionar a Order ao array de ordens
-												orders.push(order);
+												orders.push(newOrder);
 											} else {
 												console.error(
 													`Custo de envio não encontrado para o parceiro ${partnerID}`

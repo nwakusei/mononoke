@@ -95,47 +95,46 @@ function MyOrdersPage() {
 											myorders.map((myorder) => (
 												<tr key={myorder._id}>
 													<td>
-														{myorder.itemsList.map(
-															(item, index) => (
-																<div
-																	key={index}
-																	className="flex items-center gap-3 mb-2">
-																	<div className="avatar">
-																		<div className="mask mask-squircle w-12 h-12">
-																			<Image
-																				src={`http://localhost:5000/images/products/${item.productImage}`}
-																				alt={
-																					item.productTitle
-																				}
-																				width={
-																					280
-																				}
-																				height={
-																					10
-																				}
-																				unoptimized
-																			/>
-																		</div>
-																	</div>
-
-																	<div>
-																		<div className="font-bold text-black">
-																			<h2 className="w-[230px] overflow-x-hidden mb-2">
-																				<span>
-																					{
-																						item.productTitle
-																					}
-																					{index !==
-																						myorder
-																							.itemsList
-																							.length -
-																							1}
-																				</span>
-																			</h2>
-																		</div>
+														{myorder
+															.itemsList[0] && ( // Verifica se há pelo menos um item
+															<div className="flex items-center gap-3 mb-2">
+																<div className="avatar">
+																	<div className="mask mask-squircle w-12 h-12">
+																		<Image
+																			src={`http://localhost:5000/images/products/${myorder.itemsList[0].productImage}`}
+																			alt={
+																				myorder
+																					.itemsList[0]
+																					.productTitle
+																			}
+																			width={
+																				280
+																			}
+																			height={
+																				10
+																			}
+																			unoptimized
+																		/>
 																	</div>
 																</div>
-															)
+
+																<div>
+																	<div className="font-bold">
+																		<h2 className="w-[230px] overflow-x-hidden">
+																			<span className="text-black">
+																				{
+																					myorder
+																						.itemsList[0]
+																						.productTitle
+																				}
+																			</span>
+																		</h2>
+																		<span className="badge badge-info badge-sm text-white py-2">
+																			{`Total de ${myorder.itemsList.length} produtos`}
+																		</span>
+																	</div>
+																</div>
+															</div>
 														)}
 													</td>
 													<td>

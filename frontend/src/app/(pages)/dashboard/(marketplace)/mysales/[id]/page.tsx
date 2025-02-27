@@ -160,21 +160,29 @@ function MySaleByIDPage() {
 
 	// Função para Descriptografar dados sensíveis no Banco de Dados
 	function decrypt(encryptedBalance: string): number | null {
-		let decrypted = ""; // Declarando a variável fora do bloco try
+		let decrypted = "";
 
 		try {
+			// Divide o IV do texto criptografado
+			const [ivHex, encryptedData] = encryptedBalance.split(":");
+			if (!ivHex || !encryptedData) {
+				throw new Error("Formato inválido do texto criptografado.");
+			}
+
+			const iv = Buffer.from(ivHex, "hex");
+
 			const decipher = crypto.createDecipheriv(
 				"aes-256-cbc",
 				Buffer.from(secretKey, "utf-8"),
-				Buffer.alloc(16, 0)
+				iv
 			);
 
 			decipher.setAutoPadding(false);
 
-			decrypted = decipher.update(encryptedBalance, "hex", "utf8");
+			decrypted = decipher.update(encryptedData, "hex", "utf8");
 			decrypted += decipher.final("utf8");
 
-			const balanceNumber = parseFloat(decrypted);
+			const balanceNumber = parseFloat(decrypted.trim()); // Remove espaços em branco extras
 			if (isNaN(balanceNumber)) {
 				return null;
 			}
@@ -281,8 +289,9 @@ function MySaleByIDPage() {
 																	</div>
 																	<div>
 																		<h2>
-																			Variação:
-																			Default
+																			{
+																				item.productVariation
+																			}
 																		</h2>
 																	</div>
 																</div>

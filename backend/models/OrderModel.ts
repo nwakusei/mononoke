@@ -7,6 +7,7 @@ interface IOrderItem {
 	productTitle: string;
 	productImage: string;
 	productPrice: number;
+	productVariation: string;
 	productQuantity: number;
 	daysShipping: number;
 }
@@ -88,6 +89,9 @@ const orderSchema = new Schema<IOrder>(
 				},
 				productPrice: {
 					type: Number,
+				},
+				productVariation: {
+					type: String,
 				},
 				productQuantity: {
 					type: Number,

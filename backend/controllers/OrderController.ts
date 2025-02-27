@@ -212,7 +212,6 @@ class OrderController {
 
 		// Transformar o partnerID em string
 		const partnerIDAsString = order.partnerID.toString();
-		console.log(partnerIDAsString);
 
 		// Verificar se o usuário da requisição é o proprietário do Pedido
 		if (partner.id !== partnerIDAsString) {
