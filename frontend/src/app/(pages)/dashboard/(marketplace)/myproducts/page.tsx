@@ -327,7 +327,34 @@ function MyProductsPage() {
 														<br />
 													</td>
 													<td className="text-black">
-														{product.stock} un
+														{`${
+															product.productVariations &&
+															product
+																.productVariations
+																.length > 0
+																? product.productVariations.reduce(
+																		(
+																			total,
+																			variation
+																		) => {
+																			// Somando o estoque das variações
+																			return (
+																				total +
+																				variation.options.reduce(
+																					(
+																						subTotal,
+																						option
+																					) =>
+																						subTotal +
+																						option.stock,
+																					0
+																				)
+																			);
+																		},
+																		0
+																  )
+																: product.stock
+														} un`}
 													</td>
 													<th>
 														{/* <button className="flex items-center btn btn-primary btn-xs shadow-md">
