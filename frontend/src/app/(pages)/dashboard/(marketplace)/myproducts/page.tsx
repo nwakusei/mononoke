@@ -43,6 +43,69 @@ function MyProductsPage() {
 		return <LoadingPage />;
 	}
 
+	// Função para calcular o menor e maior preço, considerando o preço promocional
+	const getPriceRange = (product) => {
+		if (!product?.productVariations?.length)
+			return {
+				minPrice: 0,
+				maxPrice: 0,
+				originalPriceMin: 0,
+				originalPriceMax: 0,
+			};
+
+		let minPrice = null;
+		let maxPrice = null;
+		let originalPriceMin = null;
+		let originalPriceMax = null;
+		let hasPromotion = false;
+
+		// Percorre todas as variações para calcular o menor e maior preço promocional e original
+		product.productVariations.forEach((variation) => {
+			variation.options.forEach((option) => {
+				const promoPrice =
+					option.promotionalPrice > 0
+						? option.promotionalPrice
+						: option.originalPrice;
+				const original = option.originalPrice;
+
+				// Verificando se existe promoção
+				if (option.promotionalPrice > 0) {
+					hasPromotion = true;
+				}
+
+				// Calculando o menor e maior preço promocional
+				if (promoPrice > 0) {
+					minPrice =
+						minPrice === null
+							? promoPrice
+							: Math.min(minPrice, promoPrice);
+					maxPrice =
+						maxPrice === null
+							? promoPrice
+							: Math.max(maxPrice, promoPrice);
+				}
+
+				// Calculando o intervalo de preços originais
+				originalPriceMin =
+					originalPriceMin === null
+						? original
+						: Math.min(originalPriceMin, original);
+				originalPriceMax =
+					originalPriceMax === null
+						? original
+						: Math.max(originalPriceMax, original);
+			});
+		});
+
+		return {
+			minPrice: minPrice !== null ? minPrice : 0,
+			maxPrice: maxPrice !== null ? maxPrice : 0,
+			originalPriceMin: originalPriceMin !== null ? originalPriceMin : 0,
+			originalPriceMax: originalPriceMax !== null ? originalPriceMax : 0,
+			hasPromotion,
+		};
+	};
+
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
@@ -111,13 +174,20 @@ function MyProductsPage() {
 														</div>
 													</td>
 													<td className="text-black">
-														{product.promotionalPrice >
-														0 ? (
+														{/* Verifica se o produto tem variações com preço promocional */}
+														{product.productVariations &&
+														product
+															.productVariations
+															.length > 0 ? (
 															<div className="flex flex-col">
-																<div className="flex flex-row items-center gap-2 mb-2">
-																	<span className="line-through">
+																{/* Exibe o intervalo de preços promocionais */}
+																<div className="flex flex-row items-center gap-2">
+																	<span>
 																		{Number(
-																			product.originalPrice
+																			getPriceRange(
+																				product
+																			)
+																				.minPrice
 																		).toLocaleString(
 																			"pt-BR",
 																			{
@@ -125,11 +195,13 @@ function MyProductsPage() {
 																				currency:
 																					"BRL",
 																			}
-																		)}
-																	</span>
-																	<span>
+																		)}{" "}
+																		~{" "}
 																		{Number(
-																			product.promotionalPrice
+																			getPriceRange(
+																				product
+																			)
+																				.maxPrice
 																		).toLocaleString(
 																			"pt-BR",
 																			{
@@ -140,22 +212,118 @@ function MyProductsPage() {
 																		)}
 																	</span>
 																</div>
-																<span className="badge badge-accent badge-sm shadow-md">
-																	Em Promoção
-																</span>
+
+																{/* Exibe o intervalo de preços originais riscado apenas se houver promoção */}
+																{getPriceRange(
+																	product
+																)
+																	.hasPromotion && (
+																	<div className="flex flex-row items-center gap-2 mb-2">
+																		<span className="line-through text-xs">
+																			{Number(
+																				getPriceRange(
+																					product
+																				)
+																					.originalPriceMin
+																			).toLocaleString(
+																				"pt-BR",
+																				{
+																					style: "currency",
+																					currency:
+																						"BRL",
+																				}
+																			)}{" "}
+																			~{" "}
+																			{Number(
+																				getPriceRange(
+																					product
+																				)
+																					.originalPriceMax
+																			).toLocaleString(
+																				"pt-BR",
+																				{
+																					style: "currency",
+																					currency:
+																						"BRL",
+																				}
+																			)}
+																		</span>
+																	</div>
+																)}
+
+																{/* Badge de promoção */}
+																{getPriceRange(
+																	product
+																)
+																	.hasPromotion && (
+																	<span className="badge badge-accent badge-sm shadow-md">
+																		Em
+																		Promoção
+																	</span>
+																)}
 															</div>
 														) : (
-															Number(
-																product.originalPrice
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)
+															// Caso não tenha variações, exibe o preço promocional ou o preço original
+															<div className="flex flex-col">
+																<div className="flex flex-row items-center gap-2">
+																	{/* Exibe o preço promocional se existir e for maior que zero, senão exibe o preço original */}
+																	{product.promotionalPrice >
+																	0 ? (
+																		<span>
+																			{Number(
+																				product.promotionalPrice
+																			).toLocaleString(
+																				"pt-BR",
+																				{
+																					style: "currency",
+																					currency:
+																						"BRL",
+																				}
+																			)}
+																		</span>
+																	) : (
+																		<span>
+																			{Number(
+																				product.originalPrice
+																			).toLocaleString(
+																				"pt-BR",
+																				{
+																					style: "currency",
+																					currency:
+																						"BRL",
+																				}
+																			)}
+																		</span>
+																	)}
+																</div>
+
+																{/* Exibe o preço original riscado apenas se o preço promocional for maior que zero */}
+																{product.promotionalPrice >
+																	0 && (
+																	<>
+																		<div className="flex flex-row items-center gap-2">
+																			<span className="line-through text-xs">
+																				{Number(
+																					product.originalPrice
+																				).toLocaleString(
+																					"pt-BR",
+																					{
+																						style: "currency",
+																						currency:
+																							"BRL",
+																					}
+																				)}
+																			</span>
+																		</div>
+																		<span className="badge badge-error badge-sm shadow-md mt-1">
+																			Em
+																			Promoção
+																		</span>
+																	</>
+																)}
+															</div>
 														)}
+
 														<br />
 													</td>
 													<td className="text-black">
@@ -189,8 +357,8 @@ function MyProductsPage() {
 												</tr>
 											))}
 									</tbody>
-									{/* foot */}
-									<tfoot>
+									{/* Table footer */}
+									{/* <tfoot>
 										<tr>
 											<th></th>
 											<th>Name</th>
@@ -198,7 +366,7 @@ function MyProductsPage() {
 											<th>Favorite Color</th>
 											<th></th>
 										</tr>
-									</tfoot>
+									</tfoot> */}
 								</table>
 							</div>
 						</div>
