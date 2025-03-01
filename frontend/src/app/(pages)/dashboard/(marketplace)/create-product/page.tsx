@@ -205,22 +205,6 @@ const createProductFormSchema = z
 											"※ Insira somente números inteiros!",
 									}
 								),
-							//// Essa é a solução que funcionava, mas dava o erro de Image not instance of Filelist
-							// imageUrl: z
-							// 	.instanceof(FileList)
-							// 	.transform((list) => list.item(0))
-							// 	.refine(
-							// 		(file) =>
-							// 			file === null ||
-							// 			file!.size <= 2 * 1024 * 1024, // Verifica se é null ou se o tamanho está dentro do limite
-							// 		"※ O arquivo precisa ter no máximo 2Mb!"
-							// 	)
-							// 	.refine(
-							// 		(file) =>
-							// 			file === null ||
-							// 			/\.(jpg|jpeg|png)$/i.test(file!.name), // Verifica se a extensão é JPG, JPEG ou PNG
-							// 		"※ O arquivo precisa ser do tipo JPG, JPEG ou PNG!"
-							// 	),imageUrl: z
 							imageUrl: z
 								.any()
 								.refine(
@@ -716,37 +700,6 @@ function CreateProductPage() {
 
 	const [displayVariations, setDiisplayVariations] = useState(false);
 
-	// const [variations, setVariations] = useState([]);
-
-	// const handleAddVariation = () => {
-	// 	// Adiciona uma nova variação com um campo vazio
-	// 	setVariations([
-	// 		...variations,
-	// 		{ title: "", options: [{ name: "", imageUrl: "" }] },
-	// 	]);
-	// };
-
-	// const handleOptionChange = (variationIndex, optionIndex, field, value) => {
-	// 	const newVariations = [...variations];
-	// 	newVariations[variationIndex].options[optionIndex][field] = value;
-	// 	setVariations(newVariations);
-	// };
-
-	// const handleAddOption = (variationIndex) => {
-	// 	const newVariations = [...variations];
-	// 	newVariations[variationIndex].options.push({
-	// 		name: "",
-	// 		imageUrl: "",
-	// 	});
-	// 	setVariations(newVariations);
-	// };
-
-	// const handleVariationChange = (index, value) => {
-	// 	const newVariations = [...variations];
-	// 	newVariations[index].title = value;
-	// 	setVariations(newVariations);
-	// };
-
 	const {
 		register,
 		handleSubmit,
@@ -755,9 +708,19 @@ function CreateProductPage() {
 		setError,
 		clearErrors,
 		control,
+		getValues, // Adicione aqui
 	} = useForm<TCreateProductFormData>({
 		resolver: zodResolver(createProductFormSchema),
 		mode: "onBlur",
+		defaultValues: {
+			category: "",
+			adultProduct: "false",
+			condition: "",
+			preOrder: "",
+			freeShipping: "",
+			freeShippingRegion: "",
+			productVariations: [],
+		},
 	});
 
 	const handleFreeShippingChange = (event) => {
@@ -781,45 +744,6 @@ function CreateProductPage() {
 		// Limpar o timeout se o componente for desmontado antes do timeout ser concluído
 		return () => clearTimeout(timer);
 	}, []); // Executa apenas uma vez na montagem do componente
-
-	// // Solução para armazenamento de apenas 1 imagem
-	// const handleImagemSelecionada = (
-	// 	event: React.ChangeEvent<HTMLInputElement>
-	// ) => {
-	// 	const file = event.target.files?.[0];
-	// 	if (file) {
-	// 		const reader = new FileReader();
-	// 		reader.onload = () => {
-	// 			setImagemSelecionada(reader.result);
-	// 		};
-	// 		reader.readAsDataURL(file);
-	// 	}
-	// };
-
-	// // Solução para armazenamento de Array de imagens
-	// const handleImagemSelecionada = (
-	// 	event: React.ChangeEvent<HTMLInputElement>
-	// ) => {
-	// 	const files = event.target.files;
-	// 	if (files) {
-	// 		const fileArray = Array.from(files); // Converte o FileList em um array
-	// 		setImagensSelecionadas((prev) => [...prev, ...fileArray]); // Adiciona novos arquivos ao estado
-	// 	}
-	// };
-
-	// // Solução para armazenamento de Array de imagens em um Estado, para então armazenar no banco de dados.
-	// const handleImagemSelecionada = (
-	// 	event: React.ChangeEvent<HTMLInputElement>
-	// ) => {
-	// 	const files = event.target.files;
-	// 	if (files) {
-	// 		const fileArray = Array.from(files); // Converte o FileList em um array
-
-	// 		// Aqui, você já fez a validação com Zod, então assumimos que se o arquivo chegou aqui, passou pelas validações.
-	// 		setImagensSelecionadas((prev) => [...prev, ...fileArray]); // Adiciona novos arquivos ao estado
-	// 		clearErrors("imagesProduct"); // Limpa erros anteriores, se houver
-	// 	}
-	// };
 
 	const handleImagemSelecionada = (
 		event: React.ChangeEvent<HTMLInputElement>
@@ -929,112 +853,7 @@ function CreateProductPage() {
 
 	const router = useRouter();
 
-	// // Função para adicionar uma nova variação
-	// const handleAddVariation = () => {
-	// 	setVariations([
-	// 		...variations,
-	// 		{ id: variations.length, name: "", types: [""] },
-	// 	]);
-	// };
-
-	// // Função para adicionar um novo tipo a uma variação existente
-	// const handleAddType = (variationId) => {
-	// 	const updatedVariations = variations.map((variation) =>
-	// 		variation.id === variationId
-	// 			? { ...variation, types: [...variation.types, ""] }
-	// 			: variation
-	// 	);
-	// 	setVariations(updatedVariations);
-	// };
-
-	// // Função para atualizar o valor do nome da variação
-	// const handleNameChange = (variationId, value) => {
-	// 	const updatedVariations = variations.map((variation) =>
-	// 		variation.id === variationId
-	// 			? { ...variation, name: value }
-	// 			: variation
-	// 	);
-	// 	setVariations(updatedVariations);
-	// };
-
-	// // Função para atualizar o valor de um tipo
-	// const handleTypeChange = (variationId, typeId, value) => {
-	// 	const updatedVariations = variations.map((variation) =>
-	// 		variation.id === variationId
-	// 			? {
-	// 					...variation,
-	// 					types: variation.types.map((type, index) =>
-	// 						index === typeId ? value : type
-	// 					),
-	// 			  }
-	// 			: variation
-	// 	);
-	// 	setVariations(updatedVariations);
-	// };
-
 	const [output, setOutput] = useState("");
-
-	// // REQUISIÇÃO ATUAL QUE FUNCIONA PARA CRIAÇÃO DO PRODUTO
-	// async function handleCreateProduct(productData: { [key: string]: any }) {
-	// 	setOutput(JSON.stringify(productData, null, 2));
-
-	// 	console.log(productData);
-
-	// 	// Sanitiza os dados antes de usá-los
-	// 	const sanitizedData = Object.fromEntries(
-	// 		Object.entries(productData).map(([key, value]) => {
-	// 			// Verifica se o valor é uma string (ou outro tipo que precise de sanitização)
-	// 			if (typeof value === "string") {
-	// 				return [key, DOMPurify.sanitize(value)];
-	// 			}
-	// 			return [key, value]; // Retorna o valor original se não for uma string
-	// 		})
-	// 	);
-
-	// 	console.log(sanitizedData);
-
-	// 	const formData = new FormData();
-
-	// 	// Itera sobre os campos de texto e adiciona ao FormData
-	// 	Object.entries(sanitizedData).forEach(([key, value]) => {
-	// 		if (key === "productVariations") {
-	// 			// Converte productVariations para uma string JSON
-	// 			formData.append(key, JSON.stringify(value));
-	// 		} else if (key !== "imagesProduct") {
-	// 			formData.append(key, value);
-	// 		}
-	// 	});
-
-	// 	// Adiciona as imagens ao FormData
-	// 	if (imagensSelecionadas.length === 0) {
-	// 		setError("imagesProduct", {
-	// 			message: "※ Insira pelo menos 1 imagem!",
-	// 		});
-	// 		return; // Se não houver imagens, retorna
-	// 	}
-
-	// 	imagensSelecionadas.forEach((image) => {
-	// 		formData.append("imagesProduct", image);
-	// 	});
-
-	// 	console.log(formData);
-
-	// 	try {
-	// 		const response = await api.post("/products/create", formData, {
-	// 			headers: {
-	// 				Authorization: `Bearer ${JSON.parse(token)}`,
-	// 			},
-	// 		});
-	// 		// Exibe toast de sucesso
-	// 		toast.success(response.data.message);
-
-	// 		router.push("/dashboard/myproducts");
-	// 		return response.data;
-	// 	} catch (error: any) {
-	// 		toast.error(error.response.data.message);
-	// 		return error.response.data;
-	// 	}
-	// }
 
 	async function handleCreateProduct(productData: { [key: string]: any }) {
 		setOutput(JSON.stringify(productData, null, 2));
@@ -1251,10 +1070,7 @@ function CreateProductPage() {
 														: `select-success`
 												} w-full`}
 												{...register("category")}>
-												<option
-													disabled
-													selected
-													value="">
+												<option disabled value="">
 													Escolha a categoria do
 													Produto
 												</option>
@@ -1294,10 +1110,7 @@ function CreateProductPage() {
 														: `select-success`
 												}  w-full max-w-xs`}
 												{...register("adultProduct")}>
-												<option
-													disabled
-													selected
-													value="">
+												<option disabled value="">
 													Selecione uma opção
 												</option>
 												<option value="false">
@@ -1503,9 +1316,6 @@ function CreateProductPage() {
 																							Imagem
 																						</span>
 																					</div>
-																					{/* <h1 className="text-black text-sm mb-2">
-																						Imagem
-																					</h1> */}
 																					<div
 																						className={`${
 																							errors
@@ -1545,17 +1355,6 @@ function CreateProductPage() {
 																						</span>
 																					</div>
 																					<div className="join">
-																						{/* <div className="indicator">
-																							<button
-																								type="button"
-																								className="btn join-item flex flex-row items-center">
-																								<TbCurrencyReal
-																									size={
-																										20
-																									}
-																								/>
-																							</button>
-																						</div> */}
 																						<div>
 																							<div>
 																								<input
@@ -1576,9 +1375,35 @@ function CreateProductPage() {
 																									{...register(
 																										`productVariations.${variationIndex}.options.${optionIndex}.name`
 																									)}
-																									defaultValue={
+																									value={
 																										option.name
 																									}
+																									onChange={(
+																										e
+																									) => {
+																										// Recupera o valor de productVariations e garante que seja um array válido
+																										const productVariations =
+																											getValues(
+																												"productVariations"
+																											) ||
+																											[];
+
+																										const updatedVariations =
+																											[
+																												...productVariations,
+																											];
+																										updatedVariations[
+																											variationIndex
+																										].options[
+																											optionIndex
+																										].name =
+																											e.target.value;
+
+																										setValue(
+																											"productVariations",
+																											updatedVariations
+																										);
+																									}}
 																								/>
 																							</div>
 																						</div>
@@ -1608,38 +1433,6 @@ function CreateProductPage() {
 																						)}
 																					</div>
 																				</label>
-
-																				{/* <div className="flex flex-col">
-																					<div className="label">
-																						<span className="label-text text-black">
-																							Nome
-																							da
-																							Opção
-																						</span>
-																					</div>
-																					<input
-																						className={`input input-bordered ${
-																							errors
-																								.productVariations?.[
-																								variationIndex
-																							]
-																								?.options?.[
-																								optionIndex
-																							]
-																								?.name
-																								? `input-error`
-																								: `input-success`
-																						} w-[400px]`}
-																						type="text"
-																						placeholder="Nome da opção"
-																						{...register(
-																							`productVariations.${variationIndex}.options.${optionIndex}.name`
-																						)}
-																						defaultValue={
-																							option.name
-																						}
-																					/>
-																				</div> */}
 
 																				<label className="form-control">
 																					<div className="label">
@@ -1680,9 +1473,72 @@ function CreateProductPage() {
 																									{...register(
 																										`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`
 																									)}
-																									defaultValue={
-																										option.originalPrice
+																									value={
+																										option.originalPrice ||
+																										""
 																									}
+																									onChange={(
+																										e
+																									) => {
+																										const inputValue =
+																											e
+																												.target
+																												.value;
+
+																										// Permite a digitação de números e vírgula, mas não faz a conversão aqui
+																										if (
+																											/^\d*([.,]?\d*)$/.test(
+																												inputValue
+																											)
+																										) {
+																											const updatedVariations =
+																												getValues(
+																													"productVariations"
+																												)?.map(
+																													(
+																														variation,
+																														idx
+																													) => {
+																														if (
+																															idx ===
+																															variationIndex
+																														) {
+																															const updatedOptions =
+																																variation.options.map(
+																																	(
+																																		option,
+																																		optIdx
+																																	) => {
+																																		if (
+																																			optIdx ===
+																																			optionIndex
+																																		) {
+																																			return {
+																																				...option,
+																																				originalPrice:
+																																					inputValue, // Mantemos a string aqui
+																																			};
+																																		}
+																																		return option;
+																																	}
+																																);
+
+																															return {
+																																...variation,
+																																options:
+																																	updatedOptions,
+																															};
+																														}
+																														return variation;
+																													}
+																												);
+
+																											setValue(
+																												"productVariations",
+																												updatedVariations
+																											); // Atualiza o formulário
+																										}
+																									}}
 																								/>
 																							</div>
 																						</div>
@@ -1752,9 +1608,72 @@ function CreateProductPage() {
 																									{...register(
 																										`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`
 																									)}
-																									defaultValue={
-																										option.promotionalPrice
+																									value={
+																										option.promotionalPrice ||
+																										""
 																									}
+																									onChange={(
+																										e
+																									) => {
+																										const inputValue =
+																											e
+																												.target
+																												.value;
+
+																										// Permite a digitação de números e vírgula, mas não faz a conversão aqui
+																										if (
+																											/^\d*([.,]?\d*)$/.test(
+																												inputValue
+																											)
+																										) {
+																											const updatedVariations =
+																												getValues(
+																													"productVariations"
+																												)?.map(
+																													(
+																														variation,
+																														idx
+																													) => {
+																														if (
+																															idx ===
+																															variationIndex
+																														) {
+																															const updatedOptions =
+																																variation.options.map(
+																																	(
+																																		option,
+																																		optIdx
+																																	) => {
+																																		if (
+																																			optIdx ===
+																																			optionIndex
+																																		) {
+																																			return {
+																																				...option,
+																																				promotionalPrice:
+																																					inputValue, // Mantemos a string aqui
+																																			};
+																																		}
+																																		return option;
+																																	}
+																																);
+
+																															return {
+																																...variation,
+																																options:
+																																	updatedOptions,
+																															};
+																														}
+																														return variation;
+																													}
+																												);
+
+																											setValue(
+																												"productVariations",
+																												updatedVariations
+																											); // Atualiza o formulário
+																										}
+																									}}
 																								/>
 																							</div>
 																						</div>
@@ -1812,9 +1731,36 @@ function CreateProductPage() {
 																									{...register(
 																										`productVariations.${variationIndex}.options.${optionIndex}.stock`
 																									)}
-																									defaultValue={
-																										option.stock
+																									value={
+																										option.stock ||
+																										""
 																									}
+																									onChange={(
+																										e
+																									) => {
+																										// Recupera o valor de productVariations e garante que seja um array válido
+																										const productVariations =
+																											getValues(
+																												"productVariations"
+																											) ||
+																											[];
+
+																										const updatedVariations =
+																											[
+																												...productVariations,
+																											];
+																										updatedVariations[
+																											variationIndex
+																										].options[
+																											optionIndex
+																										].stock =
+																											e.target.value;
+
+																										setValue(
+																											"productVariations",
+																											updatedVariations
+																										);
+																									}}
 																								/>
 																							</div>
 																						</div>
@@ -2127,11 +2073,11 @@ function CreateProductPage() {
 													: `select-success`
 											}  w-full max-w-xs`}
 											{...register("condition")}>
-											<option disabled selected value="">
+											<option disabled value="">
 												Selecione a condição do Produto
 											</option>
-											<option>Novo</option>
-											<option>Usado</option>
+											<option value="Novo">Novo</option>
+											<option value="Usado">Usado</option>
 										</select>
 										{errors.condition && (
 											<div className="label">
@@ -2157,7 +2103,7 @@ function CreateProductPage() {
 													: `select-success`
 											}  w-full max-w-xs`}
 											{...register("preOrder")}>
-											<option disabled selected value="">
+											<option disabled value="">
 												Selecione uma opção
 											</option>
 											<option value="false">Não</option>
@@ -2425,14 +2371,13 @@ function CreateProductPage() {
 										<select
 											{...register("freeShipping")}
 											onChange={handleFreeShippingChange}
-											defaultValue=""
 											value={offerFreeShipping}
 											className={`select select-success w-full max-w-xs ${
 												errors.freeShipping
 													? "select-error"
 													: "select-success"
 											}`}>
-											<option value="" disabled selected>
+											<option value="" disabled>
 												Escolha uma opção
 											</option>
 											<option value="true">Sim</option>
