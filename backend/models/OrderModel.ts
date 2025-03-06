@@ -26,8 +26,8 @@ interface IOrder {
 	orderID: string;
 	statusOrder: string;
 	paymentMethod: string;
-	shippingCostTotal: number;
-	customerOrderCostTotal: number;
+	shippingCostTotal: string;
+	customerOrderCostTotal: string;
 	partnerCommissionOtamart: String;
 	customerOtakuPointsEarned: string;
 	partnerOtakuPointsPaid: string;
@@ -61,10 +61,10 @@ const orderSchema = new Schema<IOrder>(
 			type: String,
 		},
 		shippingCostTotal: {
-			type: Number,
+			type: String,
 		},
 		customerOrderCostTotal: {
-			type: Number,
+			type: String,
 		},
 		partnerCommissionOtamart: {
 			type: String,

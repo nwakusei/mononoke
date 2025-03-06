@@ -305,20 +305,12 @@ function CreateCouponPage() {
 										/>
 									</span>
 									<p className="text-black">
-										Atenção: Criar cupons de desconto é uma
-										função PAGA. Esse é um serviço de
-										marketing que permite criar cupons para
-										atrair mais clientes, com a opção de
-										direcionar para o seu site caso possua
-										um. Também exibimos em uma área
-										exclusiva em nosso aumentando a
-										visibilidade da sua loja, além de
-										divulgação em redes sociais de acordo
-										com regras estratégicas. 1. Os cupons
-										serão válidos tanto em seu site quanto
-										em sua loja no OtaMart. 2. O comprador
-										só receberá os cashbacks caso faça o
-										pagamento usando OtakuPay.
+										Atenção: Atualmente só é possível criar
+										um cupom de desconto para uma campanha
+										de 7 dias. Ao longo dos meses vamos
+										melhorar o sistema, para que seja
+										possível criar campampanhas para um
+										período maior
 										<Link
 											className="flex flex-row items-center gap-2 text-purple-300 transition-all ease-in duration-200 hover:text-purple-500"
 											href="https://www.kangu.com.br/ponto-kangu/"

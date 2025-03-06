@@ -8,7 +8,7 @@ interface IUser {
 }
 
 const createUserToken = async (user: IUser, req: Request, res: Response) => {
-	// Criar Token
+	// Criar Token de Acesso ao criar cadastro
 	const token = jwt.sign(
 		{
 			name: user.name,
@@ -19,7 +19,7 @@ const createUserToken = async (user: IUser, req: Request, res: Response) => {
 
 	// Retornar Token
 	res.status(200).json({
-		message: "Você está autenticado!",
+		message: "Cadastro realizado com sucesso!",
 		token: token,
 		userId: user._id.toString(), // Convertendo ObjectId para string
 	});

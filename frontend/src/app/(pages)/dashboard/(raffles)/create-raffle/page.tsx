@@ -617,10 +617,7 @@ function CreateRafflePage() {
 														: `select-success`
 												}  w-full max-w-xs`}
 												{...register("adultRaffle")}>
-												<option
-													disabled
-													selected
-													value="">
+												<option disabled value="">
 													Selecione uma opção
 												</option>
 												<option value="false">

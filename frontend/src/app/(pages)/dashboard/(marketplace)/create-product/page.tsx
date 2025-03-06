@@ -1225,6 +1225,7 @@ function CreateProductPage() {
 													{
 														name: "",
 														imageUrl: null,
+														stock: "",
 													},
 												],
 											},

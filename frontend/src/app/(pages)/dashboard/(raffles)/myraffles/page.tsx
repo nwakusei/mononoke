@@ -63,16 +63,16 @@ function MyRafflesPage() {
 									{/* head */}
 									<thead>
 										<tr>
-											<th className="text-base text-black">
+											<th className="text-sm text-black">
 												Prêmio
 											</th>
-											<th className="text-base text-black">
+											<th className="text-sm text-black">
 												Custo da inscrição
 											</th>
-											<th className="text-base text-black">
+											<th className="text-sm text-black">
 												Data de realização
 											</th>
-											<th className="text-base text-black">
+											<th className="text-sm text-black">
 												ID do Sorteio
 											</th>
 											<th></th>

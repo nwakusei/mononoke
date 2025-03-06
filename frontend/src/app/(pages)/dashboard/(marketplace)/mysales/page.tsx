@@ -38,7 +38,7 @@ function MySalesPage() {
 					console.error("Dados de pedidos inválidos:", response.data);
 				}
 			} catch (error) {
-				console.error("Erro ao obter dados do usuário:", error);
+				console.error("Erro ao tentar obter dados dos pedidos:", error);
 			}
 		};
 		fetchData();
@@ -94,7 +94,7 @@ function MySalesPage() {
 									</thead>
 									<tbody>
 										{/* row 1 */}
-										{mysales.length > 0 &&
+										{mysales.length > 0 ? (
 											mysales.map((mysale) => (
 												<tr key={mysale._id}>
 													<td>
@@ -198,7 +198,10 @@ function MySalesPage() {
 														)}
 													</th>
 												</tr>
-											))}
+											))
+										) : (
+											<></>
+										)}
 									</tbody>
 
 									{/* Table footer */}

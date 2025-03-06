@@ -39,9 +39,6 @@ function MyOrderByIDPage() {
 	const [tracking2, setTracking2] = useState({});
 	const [isLoading, setIsLoading] = useState(true);
 
-	console.log(tracking);
-	console.log(tracking2.tracks);
-
 	const dateCreatedOrder = myorder.createdAt
 		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy - HH:mm")} hs`
 		: "";
@@ -350,17 +347,12 @@ function MyOrderByIDPage() {
 											</td>
 											<td>
 												<div className="text-black">
-													{myorder?.shippingCostTotal >
-													0
-														? myorder?.shippingCostTotal.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-														  )
-														: `R$ 0,00`}
+													{`${decrypt(
+														myorder?.shippingCostTotal
+													)?.toLocaleString("pt-BR", {
+														style: "currency",
+														currency: "BRL",
+													})}`}
 												</div>
 											</td>
 
@@ -384,12 +376,24 @@ function MyOrderByIDPage() {
 																					item.productQuantity,
 																			0
 																		);
+
+																	// Descriptografa os valores necessários
+																	const decryptedShippingCost =
+																		decrypt(
+																			myorder?.shippingCostTotal
+																		);
+																	const decryptedCustomerOrderCostTotal =
+																		decrypt(
+																			myorder?.customerOrderCostTotal
+																		);
+
+																	// Calcula o total com frete
 																	const totalWithShipping =
 																		productTotal +
-																		myorder?.shippingCostTotal;
+																		decryptedShippingCost;
 																	const discount =
 																		totalWithShipping -
-																		myorder?.customerOrderCostTotal;
+																		decryptedCustomerOrderCostTotal;
 
 																	// Formata o desconto para o formato de moeda brasileira (BRL)
 																	const formattedDiscount =
@@ -415,15 +419,12 @@ function MyOrderByIDPage() {
 
 											<td>
 												<div className="text-black">
-													{myorder?.customerOrderCostTotal >
-														0 &&
-														myorder?.customerOrderCostTotal.toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-														)}
+													{`${decrypt(
+														myorder?.customerOrderCostTotal
+													)?.toLocaleString("pt-BR", {
+														style: "currency",
+														currency: "BRL",
+													})}`}
 												</div>
 											</td>
 
@@ -494,13 +495,12 @@ function MyOrderByIDPage() {
 								</h1>
 								{myorder?.shippingCostTotal ? (
 									<h2>
-										{`Custo do Frete: ${myorder?.shippingCostTotal.toLocaleString(
-											"pt-BR",
-											{
-												style: "currency",
-												currency: "BRL",
-											}
-										)}`}
+										{`Custo do Frete: ${`${decrypt(
+											myorder?.shippingCostTotal
+										)?.toLocaleString("pt-BR", {
+											style: "currency",
+											currency: "BRL",
+										})}`}`}
 									</h2>
 								) : (
 									`Custo do Frete: R$ 0,00`

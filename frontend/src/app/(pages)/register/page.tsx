@@ -181,7 +181,7 @@ function RegisterPage() {
 											: "focus:outline-none focus:ring focus:ring-green-500"
 									} w-full max-w-xs`}
 									{...register("accountType")}>
-									<option value="" disabled selected>
+									<option value="" disabled>
 										Escolha uma opção
 									</option>
 									<option value="customer">

@@ -1084,6 +1084,36 @@ class OtakupayController {
 						const { transportadora, vlrFrete } =
 							shippingCostForPartner;
 
+						console.log(
+							"VALOR TOTAL DO PEDIDO COM FRETE ANTES DE CRIPTOGRAFAR",
+							partnerOrderCostTotal
+						);
+
+						// Valor total do pedido Cripitografado
+						const orderTotalCostEncrypted = encrypt(
+							partnerOrderCostTotal.toString()
+						);
+
+						console.log(
+							"VALOR TOTAL DO PEDIDO COM FRETE CRIPTOGRAFADO",
+							orderTotalCostEncrypted
+						);
+
+						console.log(
+							"VALOR DO FRETE ANTES DE CRIPTOGRAFAR",
+							vlrFrete
+						);
+
+						// Valor do Frete Cripitografado
+						const shippingCostEncrypted = encrypt(
+							vlrFrete.toString()
+						);
+
+						console.log(
+							"VALOR DO FRETE CRYPITOGRAFADO",
+							shippingCostEncrypted
+						);
+
 						const customerAddress: any = customer.address[0];
 
 						if (!customerAddress) {
@@ -1099,8 +1129,8 @@ class OtakupayController {
 							orderID: new ObjectId().toHexString().toUpperCase(),
 							statusOrder: "Confirmado",
 							paymentMethod: "Saldo em conta",
-							shippingCostTotal: vlrFrete,
-							customerOrderCostTotal: partnerOrderCostTotal,
+							shippingCostTotal: shippingCostEncrypted,
+							customerOrderCostTotal: orderTotalCostEncrypted,
 							partnerCommissionOtamart:
 								encryptedPartnerCommissions.find(
 									(commission) =>
@@ -2523,6 +2553,36 @@ class OtakupayController {
 						const { transportadora, vlrFrete } =
 							shippingCostForPartner;
 
+						console.log(
+							"VALOR TOTAL DO PEDIDO COM FRETE ANTES DE CRIPTOGRAFAR",
+							partnerOrderCostTotal
+						);
+
+						// Valor total do pedido Cripitografado
+						const orderTotalCostEncrypted = encrypt(
+							partnerOrderCostTotal.toString()
+						);
+
+						console.log(
+							"VALOR TOTAL DO PEDIDO COM FRETE CRIPTOGRAFADO",
+							orderTotalCostEncrypted
+						);
+
+						console.log(
+							"VALOR DO FRETE ANTES DE CRIPTOGRAFAR",
+							vlrFrete
+						);
+
+						// Valor do Frete Cripitografado
+						const shippingCostEncrypted = encrypt(
+							vlrFrete.toString()
+						);
+
+						console.log(
+							"VALOR DO FRETE CRYPITOGRAFADO",
+							shippingCostEncrypted
+						);
+
 						const customerAddress: any = customer.address[0];
 
 						if (!customerAddress) {
@@ -2538,8 +2598,8 @@ class OtakupayController {
 							orderID: new ObjectId().toHexString().toUpperCase(),
 							statusOrder: "Confirmado",
 							paymentMethod: "Cartão de Crédito",
-							shippingCostTotal: vlrFrete,
-							customerOrderCostTotal: partnerOrderCostTotal,
+							shippingCostTotal: shippingCostEncrypted,
+							customerOrderCostTotal: orderTotalCostEncrypted,
 							partnerCommissionOtamart:
 								encryptedPartnerCommissions.find(
 									(commission) =>
@@ -4364,6 +4424,38 @@ class OtakupayController {
 													vlrFrete,
 												} = shippingCostForPartner;
 
+												console.log(
+													"VALOR TOTAL DO PEDIDO COM FRETE ANTES DE CRIPTOGRAFAR",
+													partnerOrderCostTotal
+												);
+
+												// Valor total do pedido Cripitografado
+												const orderTotalCostEncrypted =
+													encrypt(
+														partnerOrderCostTotal.toString()
+													);
+
+												console.log(
+													"VALOR TOTAL DO PEDIDO COM FRETE CRIPTOGRAFADO",
+													orderTotalCostEncrypted
+												);
+
+												console.log(
+													"VALOR DO FRETE ANTES DE CRIPTOGRAFAR",
+													vlrFrete
+												);
+
+												// Valor do Frete Cripitografado
+												const shippingCostEncrypted =
+													encrypt(
+														vlrFrete.toString()
+													);
+
+												console.log(
+													"VALOR DO FRETE CRYPITOGRAFADO",
+													shippingCostEncrypted
+												);
+
 												const customerAddress: any =
 													customer.address[0];
 
@@ -4385,9 +4477,9 @@ class OtakupayController {
 															"Confirmado",
 														paymentMethod: "Pix",
 														shippingCostTotal:
-															vlrFrete,
+															shippingCostEncrypted,
 														customerOrderCostTotal:
-															partnerOrderCostTotal,
+															orderTotalCostEncrypted,
 														partnerCommissionOtamart:
 															encryptedPartnerCommissions.find(
 																(commission) =>

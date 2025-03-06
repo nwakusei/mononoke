@@ -565,6 +565,7 @@ function MyProfilePage() {
 	// }
 
 	async function updateUser(data: TUpdateUserFormData) {
+		console.log("Dados recebidos:", data);
 		// Certifique-se de que selectedOperators seja atribuído ao shippingConfiguration diretamente
 		const selectedOperatorsData = selectedOperators;
 
@@ -622,6 +623,8 @@ function MyProfilePage() {
 
 		try {
 			setLoadingButton(true);
+
+			console.log(user?.accountType);
 
 			// Envio para o servidor
 			if (user?.accountType === "partner") {

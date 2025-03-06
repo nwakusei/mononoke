@@ -158,13 +158,10 @@ class OrderController {
 				partnerID: partnerID,
 			}).sort("-createdAt");
 
-			console.log(orders); // Adicione esta linha para verificar as orders
-
 			// Verificar se há orders
 			if (orders.length === 0) {
-				return res
-					.status(404)
-					.json({ message: "Você não possui Orders!" });
+				res.status(200).json({ orders: [] });
+				return;
 			}
 
 			res.status(200).json({ orders: orders });
@@ -855,11 +852,13 @@ class OrderController {
 				return;
 			}
 
-			const customerOtakuPointPedingCrypted =
+			// Otaku Points Pendente do Customer - Criptografado
+			const customerOtakuPointPendingEncrypted =
 				customerOtakuPay.otakuPointsPending;
 
+			// Otaku Points Pendente do Customer - Descriptografado
 			const customerOtakuPointPedingDecrypted = decrypt(
-				customerOtakuPointPedingCrypted
+				customerOtakuPointPendingEncrypted
 			);
 
 			console.log(
@@ -875,9 +874,11 @@ class OrderController {
 				return;
 			}
 
+			// Otaku Points que Seriam ganhos pelo Pedido - Criptografado
 			const orderOtakuPointsEarnedEncrypted =
 				order.customerOtakuPointsEarned;
 
+			// Otaku Points que Seriam ganhos pelo Pedido - Descriptografado
 			const orderOtakuPointsEarnedDecrypted = decrypt(
 				orderOtakuPointsEarnedEncrypted
 			);
@@ -895,13 +896,16 @@ class OrderController {
 				return;
 			}
 
+			// Subtrair os Pontos que seriam ganhos de Customer Otaku Points Pending
 			const subtractPointsEarned = roundTo(
 				customerOtakuPointPedingDecrypted -
 					orderOtakuPointsEarnedDecrypted,
 				2
 			).toString();
 
-			const subtractPointsEarnedCrypted = encrypt("702.56");
+			// Novo Otaku Point - Criptografado
+			const newCustomerOtakuPointPendingEncrypted =
+				encrypt(subtractPointsEarned);
 
 			console.log(
 				"OTAKU POINT PENDING DO CUSTOMER APÓS A SUBTRAÇÃO DO VALOR QUE SERIA GANHO:",
@@ -910,28 +914,51 @@ class OrderController {
 
 			console.log(
 				"OTAKU POINT PENDING DO CUSTOMER APÓS A SUBTRAÇÃO DO VALOR QUE SERIA GANHO - CRIPTOGRAFADO:",
-				subtractPointsEarnedCrypted
+				newCustomerOtakuPointPendingEncrypted
 			);
 
-			const customerOrderCostTotal = roundTo(
-				order.customerOrderCostTotal,
-				2
-			);
+			// Valor total do pedido que foi pago pelo Customer - Criptografado
+			const customerOrderCostTotalEncrypted =
+				order.customerOrderCostTotal;
 
 			console.log(
-				"VALOR TOTAL DO PEDIDO A SER CANCELADO:",
-				customerOrderCostTotal
+				"VALOR TOTAL DO PEDIDO A SER CANCELADO - CRIPTOGRAFADO:",
+				customerOrderCostTotalEncrypted
 			);
 
-			const customerBalanceAvailableCrypted =
+			// Valor total do pedido que foi pago pelo Customer - Descriptografado
+			const customerOrderCostTotalDecrypted = decrypt(
+				customerOrderCostTotalEncrypted
+			);
+
+			if (customerOrderCostTotalDecrypted === null) {
+				res.status(500).json({
+					message: "Erro ao descriptografar o valor total do pedido!",
+				});
+				return;
+			}
+
+			console.log(
+				"VALOR TOTAL DO PEDIDO A SER CANCELADO - DESCRIPTOGRAFADO:",
+				customerOrderCostTotalDecrypted
+			);
+
+			// Saldo Disponível do Customer - Criptografado
+			const customerBalanceAvailableEncrypted =
 				customerOtakuPay.balanceAvailable;
 
+			console.log(
+				"BALANCE AVAILABLE DO CUSTOMER ANTES DO REEMBOLSO - CRIPTOGRAFADO:",
+				customerBalanceAvailableEncrypted
+			);
+
+			// Saldo Disponível do Customer - Descriptografado
 			const customerBalanceAvailableDecrypted = decrypt(
-				customerBalanceAvailableCrypted
+				customerBalanceAvailableEncrypted
 			);
 
 			console.log(
-				"BALANCE AVAILABLE DO CUSTOMER ANTES DO REEMBOLSO:",
+				"BALANCE AVAILABLE DO CUSTOMER ANTES DO REEMBOLSO - DESCRIPTOGRAFADO:",
 				customerBalanceAvailableDecrypted
 			);
 
@@ -942,8 +969,10 @@ class OrderController {
 				return;
 			}
 
+			// Calculo do Reembolso do Customer
 			const refundCustomer = roundTo(
-				customerBalanceAvailableDecrypted + customerOrderCostTotal,
+				customerBalanceAvailableDecrypted +
+					customerOrderCostTotalDecrypted,
 				2
 			).toString();
 
@@ -952,23 +981,28 @@ class OrderController {
 				refundCustomer
 			);
 
-			const refundCustomerCrypted = encrypt(refundCustomer);
+			const newCustomerBalanceAvailableEncrypted =
+				encrypt(refundCustomer);
 
 			console.log(
 				"BALANCE AVAILABLE DO CUSTOMER APÓS O REEMBOLSO - CRIPTOGRAFADO:",
-				refundCustomerCrypted
+				newCustomerBalanceAvailableEncrypted
 			);
+
+			///////////////////////////   PARTNER   ///////////////////////////
 
 			const partnerOtakuPayID = partner.otakupayID;
 			const partnerOtakupay = await OtakupayModel.findById({
 				_id: partnerOtakuPayID,
 			});
 
-			const partnerBalancePendingCrypted =
+			// Partner Balance Pending - Criptografado
+			const partnerBalancePendingEncrypted =
 				partnerOtakupay?.balancePending;
 
+			// Partner Balance Pending - Descriptografado
 			const partnerBalancePendingDecrypted = decrypt(
-				partnerBalancePendingCrypted as string
+				partnerBalancePendingEncrypted as string
 			);
 
 			console.log(
@@ -976,15 +1010,17 @@ class OrderController {
 				partnerBalancePendingDecrypted
 			);
 
-			if (!partnerBalancePendingDecrypted) {
+			if (!partnerBalancePendingDecrypted === null) {
 				res.status(404).json({
-					message: "Partner Balance Pending não encontrado!",
+					message: "Erro ao descriptografar Partner Balance Pending!",
 				});
 				return;
 			}
 
+			// Calculo para subtrair valor do Pedido do Partner Balance Pending
 			const subtractPartnerSale = roundTo(
-				partnerBalancePendingDecrypted - customerOrderCostTotal,
+				(partnerBalancePendingDecrypted as number) -
+					customerOrderCostTotalDecrypted,
 				2
 			).toString();
 
@@ -993,31 +1029,73 @@ class OrderController {
 				subtractPartnerSale
 			);
 
-			const subtractPartnerSaleCrypted = encrypt(subtractPartnerSale);
+			const newPartnerBalancePendingEncrypted =
+				encrypt(subtractPartnerSale);
 
 			console.log(
 				"NOVO BALANCE PENDING DO PARTNER - CRIPTOGRAFADO",
-				subtractPartnerSaleCrypted
+				newPartnerBalancePendingEncrypted
 			);
 
-			customerOtakuPay.otakuPointsPending = subtractPointsEarnedCrypted;
+			// Atualizar estoque dos produtos
+			for (const item of order.itemsList) {
+				const product = await ProductModel.findById(item.productID);
+				if (!product) continue; // Caso o produto não exista, pula para o próximo item
 
-			customerOtakuPay.balanceAvailable = refundCustomerCrypted;
+				if (item.productVariation === "Sem variação") {
+					// Produto sem variação → atualizar estoque principal
+					product.stock = (product.stock || 0) + item.productQuantity;
+				} else {
+					// Encontrar o último ":" e separar corretamente title e name
+					const lastColonIndex =
+						item.productVariation.lastIndexOf(":");
+					const variationTitle = item.productVariation
+						.slice(0, lastColonIndex)
+						.trim();
+					const variationName = item.productVariation
+						.slice(lastColonIndex + 1)
+						.trim();
 
-			if (partnerOtakupay) {
-				partnerOtakupay.balancePending = subtractPartnerSaleCrypted;
+					const variation = product.productVariations
+						?.find(
+							(variation) => variation.title === variationTitle
+						) // Busca a variação correta
+						?.options.find(
+							(opt: any) => opt.name === variationName
+						); // Busca a opção dentro dessa variação
+
+					if (variation) {
+						variation.stock =
+							(variation.stock || 0) + item.productQuantity;
+					}
+				}
+
+				await product.save(); // Salvar produto atualizado no banco
 			}
 
-			// await customerOtakuPay.save();
-			// await partnerOtakupay?.save();
-			// await order.deleteOne(order)
+			if (partnerOtakupay) {
+				partnerOtakupay.balancePending =
+					newPartnerBalancePendingEncrypted;
+			}
+
+			// Salvar Novo Otaku Points Pending do Customer no Banco de Dados
+			customerOtakuPay.otakuPointsPending =
+				newCustomerOtakuPointPendingEncrypted;
+
+			// Salvar Novo Balance Available do Customer no Banco de Dados
+			customerOtakuPay.balanceAvailable =
+				newCustomerBalanceAvailableEncrypted;
+
+			await customerOtakuPay.save();
+			await partnerOtakupay?.save();
+			await order.deleteOne(order._id);
 
 			res.status(200).json({
 				message: "Pedido Cancelado com sucesso!",
 			});
 		} catch (err) {
 			console.error(err);
-			res.status(500).json({ message: "Erro ao buscar pedido!" });
+			res.status(500).json({ message: "Erro ao cancelar pedido!" });
 		}
 	}
 

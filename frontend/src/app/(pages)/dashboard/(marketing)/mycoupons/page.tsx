@@ -167,8 +167,8 @@ function MyCouponsPage() {
 										))}
 									</tbody>
 
-									{/* foot */}
-									<tfoot>
+									{/* Table footer */}
+									{/* <tfoot>
 										<tr>
 											<th></th>
 											<th>Name</th>
@@ -176,7 +176,7 @@ function MyCouponsPage() {
 											<th>Favorite Color</th>
 											<th></th>
 										</tr>
-									</tfoot>
+									</tfoot> */}
 								</table>
 							</div>
 						</div>
