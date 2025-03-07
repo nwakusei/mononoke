@@ -387,30 +387,56 @@ function MyOrderByIDPage() {
 																			myorder?.customerOrderCostTotal
 																		);
 
+																	// Se qualquer um dos valores for null, o desconto será NaN para alertar inconsistência
+																	if (
+																		decryptedShippingCost ===
+																			null ||
+																		decryptedCustomerOrderCostTotal ===
+																			null
+																	) {
+																		return "Erro ao calcular desconto";
+																	}
+
 																	// Calcula o total com frete
 																	const totalWithShipping =
 																		productTotal +
 																		decryptedShippingCost;
-																	const discount =
+																	let discount =
 																		totalWithShipping -
 																		decryptedCustomerOrderCostTotal;
 
-																	// Formata o desconto para o formato de moeda brasileira (BRL)
-																	const formattedDiscount =
-																		discount.toLocaleString(
-																			"pt-BR",
-																			{
-																				style: "currency",
-																				currency:
-																					"BRL",
-																			}
-																		);
+																	// 🔥 CORREÇÃO: Arredondar para evitar erros de ponto flutuante
+																	discount =
+																		Math.round(
+																			discount *
+																				100
+																		) / 100;
 
-																	// Adiciona o sinal de menos diretamente ao valor do desconto se necessário
-																	return discount >
+																	// Apenas formata se o desconto for maior que 0
+																	let formattedDiscount =
+																		discount >
 																		0
+																			? discount.toLocaleString(
+																					"pt-BR",
+																					{
+																						style: "currency",
+																						currency:
+																							"BRL",
+																					}
+																			  )
+																			: null;
+
+																	console.log(
+																		"Desconto:",
+																		discount,
+																		"Formatado:",
+																		formattedDiscount
+																	);
+
+																	// Retorna o valor formatado com o sinal de negativo se houver desconto
+																	return formattedDiscount
 																		? `- ${formattedDiscount}`
-																		: formattedDiscount;
+																		: "R$ 0,00";
 																})()}
 															</div>
 														)}

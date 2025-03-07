@@ -1,11 +1,15 @@
+// Imports Importantes
+import crypto from "crypto";
+import { isValidObjectId } from "mongoose";
+
+// Models
 import { Request, Response } from "express";
 import { CustomerModel } from "../models/CustomerModel.js";
 import { PartnerModel } from "../models/PartnerModel.js";
 import { OtakupayModel } from "../models/OtakupayModel.js";
 import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
-import crypto from "crypto";
-import mongoose, { isValidObjectId } from "mongoose";
+import { TransactionModel } from "../models/TransactionModel.js";
 
 // Middlewares
 import getToken from "../helpers/get-token.js";
@@ -18,18 +22,7 @@ if (secretKey.length !== 32) {
 	throw new Error("A chave precisa ter 32 caracteres para o AES-256");
 }
 
-// // Função para Criptografar dados sensíveis no Banco de Dados
-// function encrypt(balance: string): string {
-// 	const cipher = crypto.createCipheriv(
-// 		"aes-256-cbc",
-// 		Buffer.from(secretKey, "utf-8"),
-// 		Buffer.alloc(16, 0) // Alteração aqui: criando um IV nulo
-// 	);
-// 	let encrypted = cipher.update(balance, "utf8", "hex");
-// 	encrypted += cipher.final("hex");
-// 	return encrypted;
-// }
-
+// Função para Criptografar dados sensíveis no Banco de Dados
 function encrypt(balance: string): string {
 	const iv = crypto.randomBytes(16); // Gera um IV aleatório
 	const cipher = crypto.createCipheriv(
@@ -77,59 +70,10 @@ function decrypt(encryptedBalance: string): number | null {
 	}
 }
 
-// // Função para Descriptografar dados sensíveis no Banco de Dados
-// function decrypt(encryptedBalance: string): number | null {
-// 	let decrypted = ""; // Declarando a variável fora do bloco try
-
-// 	try {
-// 		const decipher = crypto.createDecipheriv(
-// 			"aes-256-cbc",
-// 			Buffer.from(secretKey, "utf-8"),
-// 			Buffer.alloc(16, 0)
-// 		);
-
-// 		decipher.setAutoPadding(false);
-
-// 		decrypted = decipher.update(encryptedBalance, "hex", "utf8");
-// 		decrypted += decipher.final("utf8");
-
-// 		const balanceNumber = parseFloat(decrypted);
-// 		if (isNaN(balanceNumber)) {
-// 			return null;
-// 		}
-// 		return parseFloat(balanceNumber.toFixed(2));
-// 	} catch (error) {
-// 		console.error("Erro ao descriptografar o saldo:", error);
-// 		return null;
-// 	}
-// }
-
 // Função para arredondar valores
 function roundTo(num: number, decimals: number): number {
 	return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
-
-// // Função para Descriptografar dados sensíveis no Banco de Dados em String
-// function decryptString(encryptedData: string): string | null {
-// 	let decrypted = ""; // Declare a variável fora do bloco try
-// 	try {
-// 		const decipher = crypto.createDecipheriv(
-// 			"aes-256-cbc",
-// 			Buffer.from(secretKey, "utf-8"),
-// 			Buffer.alloc(16, 0)
-// 		);
-
-// 		decipher.setAutoPadding(false);
-
-// 		decrypted = decipher.update(encryptedData, "hex", "utf8");
-// 		decrypted += decipher.final("utf8");
-
-// 		return decrypted;
-// 	} catch (error) {
-// 		console.error("Erro ao descriptografar os dados:", error);
-// 		return null;
-// 	}
-// }
 
 class OrderController {
 	static async getAllPartnerOrders(req: Request, res: Response) {
@@ -1037,16 +981,32 @@ class OrderController {
 				newPartnerBalancePendingEncrypted
 			);
 
+			// Verificar se o pedido já foi cancelado
+			if (order.status === "cancelado") {
+				console.log(
+					"Pedido já foi cancelado anteriormente, evitando atualização duplicada."
+				);
+				return;
+			}
+
 			// Atualizar estoque dos produtos
 			for (const item of order.itemsList) {
 				const product = await ProductModel.findById(item.productID);
-				if (!product) continue; // Caso o produto não exista, pula para o próximo item
+
+				if (!product) {
+					console.log(
+						`❌ Produto não encontrado! ID: ${item.productID}`
+					);
+					continue;
+				}
+
+				console.log(
+					`🛠 Produto encontrado: ${product._id}, Estoque antes do ajuste: ${product.stock}`
+				);
 
 				if (item.productVariation === "Sem variação") {
-					// Produto sem variação → atualizar estoque principal
 					product.stock = (product.stock || 0) + item.productQuantity;
 				} else {
-					// Encontrar o último ":" e separar corretamente title e name
 					const lastColonIndex =
 						item.productVariation.lastIndexOf(":");
 					const variationTitle = item.productVariation
@@ -1059,16 +1019,22 @@ class OrderController {
 					const variation = product.productVariations
 						?.find(
 							(variation) => variation.title === variationTitle
-						) // Busca a variação correta
-						?.options.find(
-							(opt: any) => opt.name === variationName
-						); // Busca a opção dentro dessa variação
+						)
+						?.options.find((opt) => opt.name === variationName);
 
 					if (variation) {
 						variation.stock =
 							(variation.stock || 0) + item.productQuantity;
+					} else {
+						console.log(
+							`⚠️ Variação não encontrada para produto ${product._id}, Título: ${variationTitle}, Nome: ${variationName}`
+						);
 					}
 				}
+
+				console.log(
+					`✅ Produto atualizado: ${product._id}, Estoque depois do ajuste: ${product.stock}`
+				);
 
 				await product.save(); // Salvar produto atualizado no banco
 			}
@@ -1085,6 +1051,22 @@ class OrderController {
 			// Salvar Novo Balance Available do Customer no Banco de Dados
 			customerOtakuPay.balanceAvailable =
 				newCustomerBalanceAvailableEncrypted;
+
+			const newTransaction = new TransactionModel({
+				transactionType: "Cancelamento",
+				transactionTitle: "Pedido Cancelado",
+				transactionDescription: `Reembolso do Pedido ${order._id} cancelado`,
+				transactionValue: customerOrderCostTotalEncrypted,
+				transactionDetails: {
+					orderID: order._id,
+				},
+				payerID: customer._id,
+				payerName: customer.name,
+				receiverID: partner._id,
+				receiverName: partner.name,
+			});
+
+			await newTransaction.save();
 
 			await customerOtakuPay.save();
 			await partnerOtakupay?.save();

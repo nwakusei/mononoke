@@ -7,11 +7,12 @@ import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import crypto from "crypto";
+import { useRouter } from "next/navigation";
+
+const secretKey = "chaveSuperSecretaDe32charsdgklot";
 
 // Axios
 import api from "@/utils/api";
-
-const secretKey = "chaveSuperSecretaDe32charsdgklot";
 
 // Bliblioteca de Sanitização
 import DOMPurify from "dompurify";
@@ -31,7 +32,7 @@ import { MdOutlineCancel } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { register } from "module";
+import Swal from "sweetalert2";
 
 const updateTrackingForm = z.object({
 	logisticOperator: z
@@ -77,6 +78,9 @@ function MySaleByIDPage() {
 	const [trackingLoading, setTrackingLoading] = useState(false);
 	const [packedLoading, setPackedLoading] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [loadingButton, setLoadingButton] = useState(false);
+
+	const router = useRouter();
 
 	const dateCreatedOrder = mysale.createdAt
 		? `${format(new Date(mysale.createdAt), "dd/MM - HH:mm")} hs`
@@ -111,6 +115,28 @@ function MySaleByIDPage() {
 		};
 		fetchOrder();
 	}, [token, id]);
+
+	async function handleCancelOrder(SaleID: string) {
+		setLoadingButton(true);
+
+		try {
+			const response = await api.delete(
+				`/orders/partner-cancel-order/${SaleID}`
+			);
+
+			Swal.fire({
+				title: response.data.message,
+				icon: "success",
+				confirmButtonText: "OK",
+			});
+
+			setLoadingButton(false);
+
+			router.push("/dashboard/mysales");
+		} catch (error) {
+			console.error("Erro ao cancelar pedido:", error);
+		}
+	}
 
 	async function handleTracking(data) {
 		const logisticOperator = data.logisticOperator;
@@ -214,8 +240,14 @@ function MySaleByIDPage() {
 					<div>
 						{mysale?.statusShipping === "Enviado" ? (
 							<></>
+						) : loadingButton ? (
+							<button className="btn btn-error w-[165px] text-white shadow-md">
+								<span className="loading loading-spinner loading-md"></span>
+							</button>
 						) : (
-							<button className="btn btn-error text-white shadow-md">
+							<button
+								onClick={() => handleCancelOrder(mysale?._id)}
+								className="btn btn-error w-[165px] text-white shadow-md">
 								<MdOutlineCancel size={20} />
 								Cancelar Pedido
 							</button>
@@ -391,17 +423,12 @@ function MySaleByIDPage() {
 											</td>
 											<td>
 												<div>
-													{mysale?.shippingCostTotal >
-													0
-														? mysale?.shippingCostTotal.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-														  )
-														: `R$ 0,00`}
+													{`${decrypt(
+														mysale?.shippingCostTotal
+													)?.toLocaleString("pt-BR", {
+														style: "currency",
+														currency: "BRL",
+													})}`}
 												</div>
 											</td>
 
@@ -413,7 +440,6 @@ function MySaleByIDPage() {
 														0 && (
 														<div>
 															{(() => {
-																// Calcula o total dos produtos considerando a quantidade
 																const productTotal =
 																	mysale?.itemsList.reduce(
 																		(
@@ -422,36 +448,69 @@ function MySaleByIDPage() {
 																		) =>
 																			total +
 																			item.productPrice *
-																				item.productQuantity, // Multiplica pelo quantity
+																				item.productQuantity,
 																		0
 																	);
 
-																// Soma o custo do frete ao total dos produtos
-																const totalWithShipping =
-																	productTotal +
-																	mysale?.shippingCostTotal;
-
-																// Calcula o desconto
-																const discount =
-																	totalWithShipping -
-																	mysale?.customerOrderCostTotal;
-
-																// Formata o desconto para o formato de moeda brasileira (BRL)
-																const formattedDiscount =
-																	discount.toLocaleString(
-																		"pt-BR",
-																		{
-																			style: "currency",
-																			currency:
-																				"BRL",
-																		}
+																// Descriptografa os valores necessários
+																const decryptedShippingCost =
+																	decrypt(
+																		mysale?.shippingCostTotal
+																	);
+																const decryptedCustomerOrderCostTotal =
+																	decrypt(
+																		mysale?.customerOrderCostTotal
 																	);
 
-																// Retorna o valor formatado com um sinal de menos, se necessário
-																return discount >
-																	0
+																// Se qualquer um dos valores for null, o desconto será NaN para alertar inconsistência
+																if (
+																	decryptedShippingCost ===
+																		null ||
+																	decryptedCustomerOrderCostTotal ===
+																		null
+																) {
+																	return "Erro ao calcular desconto";
+																}
+
+																// Calcula o total com frete
+																const totalWithShipping =
+																	productTotal +
+																	decryptedShippingCost;
+																let discount =
+																	totalWithShipping -
+																	decryptedCustomerOrderCostTotal;
+
+																// 🔥 CORREÇÃO: Arredondar para evitar erros de ponto flutuante
+																discount =
+																	Math.round(
+																		discount *
+																			100
+																	) / 100;
+
+																// Apenas formata se o desconto for maior que 0
+																let formattedDiscount =
+																	discount > 0
+																		? discount.toLocaleString(
+																				"pt-BR",
+																				{
+																					style: "currency",
+																					currency:
+																						"BRL",
+																				}
+																		  )
+																		: null;
+
+																console.log(
+																	"Desconto:",
+																	discount,
+																	"Formatado:",
+																	formattedDiscount
+																);
+
+																// Retorna o valor formatado com o sinal de negativo se houver desconto
+																return formattedDiscount
 																	? `- ${formattedDiscount}`
-																	: formattedDiscount;
+																	: "R$ 0,00";
 															})()}
 														</div>
 													)}
@@ -459,15 +518,12 @@ function MySaleByIDPage() {
 
 											<td>
 												<div>
-													{mysale?.customerOrderCostTotal >
-														0 &&
-														mysale?.customerOrderCostTotal.toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-														)}
+													{`${decrypt(
+														mysale?.customerOrderCostTotal
+													)?.toLocaleString("pt-BR", {
+														style: "currency",
+														currency: "BRL",
+													})}`}
 												</div>
 											</td>
 										</tr>
@@ -503,15 +559,44 @@ function MySaleByIDPage() {
 											</td>
 
 											<td>
-												{(
-													mysale?.customerOrderCostTotal -
-													decrypt(
-														mysale?.partnerCommissionOtamart
-													)
-												)?.toLocaleString("pt-BR", {
-													style: "currency",
-													currency: "BRL",
-												})}
+												{(() => {
+													// Descriptografa os valores
+													const decryptedCustomerOrderCostTotal =
+														decrypt(
+															mysale?.customerOrderCostTotal
+														);
+													const decryptedPartnerCommissionOtamart =
+														decrypt(
+															mysale?.partnerCommissionOtamart
+														);
+
+													// Se algum valor for null, interrompe e exibe erro
+													if (
+														decryptedCustomerOrderCostTotal ===
+															null ||
+														decryptedPartnerCommissionOtamart ===
+															null
+													) {
+														return "Erro no cálculo";
+													}
+
+													// Calcula e arredonda para evitar erro de ponto flutuante
+													const finalValue =
+														Math.round(
+															(decryptedCustomerOrderCostTotal -
+																decryptedPartnerCommissionOtamart) *
+																100
+														) / 100;
+
+													// Retorna o valor formatado corretamente
+													return finalValue.toLocaleString(
+														"pt-BR",
+														{
+															style: "currency",
+															currency: "BRL",
+														}
+													);
+												})()}
 											</td>
 										</tr>
 									</tbody>

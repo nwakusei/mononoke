@@ -8,7 +8,7 @@ interface IVerifiedBadgeProps {
 // Morganita = Morganite | Ambar = Amber | Safira = Sapphire | Âmbar = Amber
 function VerifiedBadge({ partnerVerifiedBadge }: IVerifiedBadgeProps) {
 	const badges = [
-		{ name: "AzulComprado", hex: "#80c6ff", salesQuantity: "xx" },
+		{ name: "Bluebought", hex: "#80c6ff", salesQuantity: "xx" },
 		{ name: "Blue", hex: "#2196f3", salesQuantity: "500" },
 		{ name: "Bronze", hex: "#CD7F32", salesQuantity: "1 mil" },
 		{ name: "Silver", hex: "#C0C0C0", salesQuantity: "2 mil" },
