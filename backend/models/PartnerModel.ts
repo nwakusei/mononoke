@@ -57,14 +57,13 @@ const partnerSchema = new Schema<IPartner>(
 		logoImage: {
 			type: String,
 		},
-
 		name: {
 			type: String,
 			requered: true,
 		},
 		nickname: {
 			type: String,
-			required: false,
+			unique: true,
 		},
 		verifiedBadge: {
 			type: String,

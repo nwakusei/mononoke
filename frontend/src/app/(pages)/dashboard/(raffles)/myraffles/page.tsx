@@ -129,14 +129,13 @@ function MyRafflesPage() {
 													</td>
 													<td>
 														<div className="text-black">
-															{myraffle?.raffleDate
-																? format(
-																		new Date(
-																			myraffle?.raffleDate
-																		),
-																		"dd/MM/yyyy"
-																  )
-																: ""}
+															{myraffle?.raffleDate &&
+																format(
+																	new Date(
+																		myraffle?.raffleDate
+																	),
+																	"dd/MM/yyyy"
+																)}
 														</div>
 													</td>
 													<td className="text-xs">

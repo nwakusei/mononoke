@@ -22,6 +22,8 @@ function MyOrdersPage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingButtonId, setLoadingButtonId] = useState(null);
 
+	console.log(myorders);
+
 	const router = useRouter();
 
 	useEffect(() => {
@@ -235,7 +237,7 @@ function MyOrdersPage() {
 									</tbody>
 
 									{/* foot */}
-									<tfoot>
+									{/* <tfoot>
 										<tr>
 											<th></th>
 											<th>Name</th>
@@ -243,7 +245,7 @@ function MyOrdersPage() {
 											<th>Favorite Color</th>
 											<th></th>
 										</tr>
-									</tfoot>
+									</tfoot> */}
 								</table>
 							</div>
 						</div>

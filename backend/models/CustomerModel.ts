@@ -43,6 +43,7 @@ const customerSchema = new Schema<ICustomer>(
 		},
 		nickname: {
 			type: String,
+			unique: true,
 		},
 		email: {
 			type: String,

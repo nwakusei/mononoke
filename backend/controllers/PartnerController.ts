@@ -168,7 +168,7 @@ class PartnerController {
 				totalProducts: 0,
 				productsSold: 0,
 				viewAdultContent: false,
-				otakupayID: newOtakupay._id,
+				otakupayID: newOtakupay._id.toString(),
 			});
 
 			const newPartner = await partner.save();

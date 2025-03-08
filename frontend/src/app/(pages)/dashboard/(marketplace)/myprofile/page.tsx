@@ -265,13 +265,13 @@ const updateUserFormSchema = z
 					message: "※ O CEP deve ser um número válido!",
 				}
 			),
-		shippingConfiguration: z.array(
-			z.object({
-				shippingOperator: z.enum(["MelhorEnvio", "Modico"]),
-				modalityOptions: z.array(z.string()).optional(),
-			})
-		), // Garante que modalityOptions é um array de strings
-		credential: z.string(), // Torna opcional inicialmente
+		// shippingConfiguration: z.array(
+		// 	z.object({
+		// 		shippingOperator: z.enum(["MelhorEnvio", "Modico"]),
+		// 		modalityOptions: z.array(z.string()).optional(),
+		// 	})
+		// ), // Garante que modalityOptions é um array de strings
+		// credential: z.string(), // Torna opcional inicialmente
 		cashback: z
 			.string()
 			.trim()
@@ -350,16 +350,16 @@ const updateUserFormSchema = z
 			path: ["cpf", "cpfCnpj"], // Onde o erro será associado
 		}
 	)
-	.refine(
-		(data) => {
-			const hasCpfCnpj = !!data.cpfCnpj;
-			return !hasCpfCnpj || !!data.credential; // Credencial deve ser preenchido se CPF/CNPJ estiver preenchido
-		},
-		{
-			message: "※ A Credencial Kangu é obrigatória!",
-			path: ["credential"], // Mensagem associada ao campo credential
-		}
-	)
+	// .refine(
+	// 	(data) => {
+	// 		const hasCpfCnpj = !!data.cpfCnpj;
+	// 		return !hasCpfCnpj || !!data.credential; // Credencial deve ser preenchido se CPF/CNPJ estiver preenchido
+	// 	},
+	// 	{
+	// 		message: "※ A Credencial Kangu é obrigatória!",
+	// 		path: ["credential"], // Mensagem associada ao campo credential
+	// 	}
+	// )
 	.refine(
 		(data) => {
 			const hasCpfCnpj = !!data.cpfCnpj;
@@ -394,22 +394,7 @@ function MyProfilePage() {
 		watch,
 	} = useForm<TUpdateUserFormData>({
 		resolver: zodResolver(updateUserFormSchema),
-		defaultValues: {
-			shippingConfiguration: [],
-		},
 	});
-
-	const { fields, append, remove, update } = useFieldArray({
-		control,
-		name: "shippingConfiguration",
-	});
-
-	const [selectedOperators, setSelectedOperators] = useState([]);
-
-	const modalityMapping = {
-		MelhorEnvio: ["2", "31"], // SEDEX e Loggi
-		Modico: ["JadLog"], // JadLog para Modico
-	};
 
 	const [output, setOutput] = useState("");
 
@@ -423,46 +408,6 @@ function MyProfilePage() {
 			setIsLoading(false);
 		});
 	}, [token]);
-
-	// Carrega os dados do banco quando o componente é montado
-	useEffect(() => {
-		if (user?.shippingConfiguration) {
-			setSelectedOperators(user.shippingConfiguration);
-		}
-	}, [user]);
-
-	const handleAddOperator = (operator) => {
-		setSelectedOperators((prev) => {
-			const exists = prev.some((o) => o.shippingOperator === operator);
-			if (exists) {
-				return prev.filter((o) => o.shippingOperator !== operator);
-			} else {
-				return [
-					...prev,
-					{ shippingOperator: operator, modalityOptions: [] },
-				];
-			}
-		});
-	};
-
-	const handleModalityChange = (operator, modality) => {
-		setSelectedOperators((prev) =>
-			prev.map((o) =>
-				o.shippingOperator === operator
-					? {
-							...o,
-							modalityOptions: o.modalityOptions.includes(
-								modality
-							)
-								? o.modalityOptions.filter(
-										(m) => m !== modality
-								  )
-								: [...o.modalityOptions, modality],
-					  }
-					: o
-			)
-		);
-	};
 
 	useEffect(() => {
 		if (user) {
@@ -498,40 +443,100 @@ function MyProfilePage() {
 		}
 	};
 
-	handleSelectedImage;
+	// Requisição anterior que funcionava antes das alterações
+	async function updateUser(data: TUpdateUserFormData) {
+		// Sanitiza os dados antes de usá-los
+		const sanitizedData = Object.fromEntries(
+			Object.entries(data).map(([key, value]) => {
+				if (typeof value === "string") {
+					return [key, DOMPurify.sanitize(value)];
+				}
+				return [key, value];
+			})
+		);
 
-	// // Requisição anterior que funcionava antes das alterações
+		setOutput(JSON.stringify(sanitizedData, null, 2));
+		console.log("Dados sanitizados:", sanitizedData);
+
+		// Cria um novo FormData
+		const formData = new FormData();
+
+		// Adiciona outros dados no FormData
+		Object.entries(sanitizedData).forEach(([key, value]) => {
+			// Ignora a propriedade 'modalityOptions' aqui, pois já tratamos dela
+			if (key === "profileImage" && value instanceof File) {
+				formData.append(key, value);
+				console.log(
+					`Adicionado ao FormData: ${key} - [Imagem de Perfil]`
+				);
+			} else if (key === "LogoImage" && value instanceof File) {
+				formData.append(key, value);
+				console.log(`Adicionado ao FormData: ${key} - [Logo]`);
+			} else {
+				formData.append(key, value);
+				console.log(`Adicionado ao FormData: ${key} - ${value}`);
+			}
+		});
+
+		try {
+			setLoadingButton(true);
+
+			if (user?.accountType === "partner") {
+				const response = await api.patch("/partners/edit", formData);
+				toast.success(response.data.message);
+			} else if (user?.accountType === "customer") {
+				const response = await api.patch("/customers/edit", formData);
+				toast.success(response.data.message);
+			}
+			setLoadingButton(false);
+		} catch (error: any) {
+			toast.error(error.response.data.message);
+			setLoadingButton(false);
+		}
+	}
+
 	// async function updateUser(data: TUpdateUserFormData) {
+	// 	console.log("Dados recebidos:", data);
+	// 	// Certifique-se de que selectedOperators seja atribuído ao shippingConfiguration diretamente
+	// 	const selectedOperatorsData = selectedOperators;
+
 	// 	// Sanitiza os dados antes de usá-los
 	// 	const sanitizedData = Object.fromEntries(
 	// 		Object.entries(data).map(([key, value]) => {
-	// 			if (typeof value === "string") {
+	// 			if (
+	// 				typeof value === "string" &&
+	// 				key !== "shippingConfiguration"
+	// 			) {
 	// 				return [key, DOMPurify.sanitize(value)];
 	// 			}
 	// 			return [key, value];
 	// 		})
 	// 	);
 
+	// 	// Adiciona selectedOperators diretamente ao campo shippingConfiguration
+	// 	sanitizedData.shippingConfiguration = selectedOperatorsData;
+
+	// 	// Verifique os dados após sanitização
 	// 	setOutput(JSON.stringify(sanitizedData, null, 2));
 	// 	console.log("Dados sanitizados:", sanitizedData);
 
 	// 	// Cria um novo FormData
 	// 	const formData = new FormData();
 
-	// 	// Asegura que modalityOptions é um array
-	// 	if (Array.isArray(sanitizedData.modalityOptions)) {
-	// 		sanitizedData.modalityOptions.forEach((option) => {
-	// 			formData.append("modalityOptions[]", option); // 'modalityOptions[]' para enviar como array
-	// 			console.log(
-	// 				`Adicionado ao FormData: modalityOptions[] - ${option}`
-	// 			);
-	// 		});
-	// 	}
+	// 	// Adiciona a configuração de envio (shippingConfiguration) como JSON stringificado
+	// 	formData.append(
+	// 		"shippingConfiguration",
+	// 		JSON.stringify(sanitizedData.shippingConfiguration)
+	// 	);
+	// 	console.log(
+	// 		`Adicionado ao FormData: shippingConfiguration - ${JSON.stringify(
+	// 			sanitizedData.shippingConfiguration
+	// 		)}`
+	// 	);
 
-	// 	// Adiciona outros dados no FormData
+	// 	// Adiciona os outros dados no FormData
 	// 	Object.entries(sanitizedData).forEach(([key, value]) => {
-	// 		if (key !== "modalityOptions") {
-	// 			// Ignora a propriedade 'modalityOptions' aqui, pois já tratamos dela
+	// 		if (key !== "shippingConfiguration" && key !== "modalityOptions") {
 	// 			if (key === "profileImage" && value instanceof File) {
 	// 				formData.append(key, value);
 	// 				console.log(
@@ -550,6 +555,9 @@ function MyProfilePage() {
 	// 	try {
 	// 		setLoadingButton(true);
 
+	// 		console.log(user?.accountType);
+
+	// 		// Envio para o servidor
 	// 		if (user?.accountType === "partner") {
 	// 			const response = await api.patch("/partners/edit", formData);
 	// 			toast.success(response.data.message);
@@ -563,83 +571,6 @@ function MyProfilePage() {
 	// 		setLoadingButton(false);
 	// 	}
 	// }
-
-	async function updateUser(data: TUpdateUserFormData) {
-		console.log("Dados recebidos:", data);
-		// Certifique-se de que selectedOperators seja atribuído ao shippingConfiguration diretamente
-		const selectedOperatorsData = selectedOperators;
-
-		// Sanitiza os dados antes de usá-los
-		const sanitizedData = Object.fromEntries(
-			Object.entries(data).map(([key, value]) => {
-				if (
-					typeof value === "string" &&
-					key !== "shippingConfiguration"
-				) {
-					return [key, DOMPurify.sanitize(value)];
-				}
-				return [key, value];
-			})
-		);
-
-		// Adiciona selectedOperators diretamente ao campo shippingConfiguration
-		sanitizedData.shippingConfiguration = selectedOperatorsData;
-
-		// Verifique os dados após sanitização
-		setOutput(JSON.stringify(sanitizedData, null, 2));
-		console.log("Dados sanitizados:", sanitizedData);
-
-		// Cria um novo FormData
-		const formData = new FormData();
-
-		// Adiciona a configuração de envio (shippingConfiguration) como JSON stringificado
-		formData.append(
-			"shippingConfiguration",
-			JSON.stringify(sanitizedData.shippingConfiguration)
-		);
-		console.log(
-			`Adicionado ao FormData: shippingConfiguration - ${JSON.stringify(
-				sanitizedData.shippingConfiguration
-			)}`
-		);
-
-		// Adiciona os outros dados no FormData
-		Object.entries(sanitizedData).forEach(([key, value]) => {
-			if (key !== "shippingConfiguration" && key !== "modalityOptions") {
-				if (key === "profileImage" && value instanceof File) {
-					formData.append(key, value);
-					console.log(
-						`Adicionado ao FormData: ${key} - [Imagem de Perfil]`
-					);
-				} else if (key === "LogoImage" && value instanceof File) {
-					formData.append(key, value);
-					console.log(`Adicionado ao FormData: ${key} - [Logo]`);
-				} else {
-					formData.append(key, value);
-					console.log(`Adicionado ao FormData: ${key} - ${value}`);
-				}
-			}
-		});
-
-		try {
-			setLoadingButton(true);
-
-			console.log(user?.accountType);
-
-			// Envio para o servidor
-			if (user?.accountType === "partner") {
-				const response = await api.patch("/partners/edit", formData);
-				toast.success(response.data.message);
-			} else if (user?.accountType === "customer") {
-				const response = await api.patch("/customers/edit", formData);
-				toast.success(response.data.message);
-			}
-			setLoadingButton(false);
-		} catch (error: any) {
-			toast.error(error.response.data.message);
-			setLoadingButton(false);
-		}
-	}
 
 	const handleCancelar = () => {
 		// Redirecionar para outra página ao clicar em Cancelar
@@ -655,7 +586,12 @@ function MyProfilePage() {
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mt-4 mb-8">
-					<form onSubmit={handleSubmit(updateUser)}>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							console.log("🔥 FORM SUBMETIDO!");
+							handleSubmit(updateUser)(e);
+						}}>
 						{/* Gadget 1 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
@@ -855,7 +791,7 @@ function MyProfilePage() {
 													: ""
 											}
 											{...register("viewAdultContent")}>
-											<option value="">
+											<option value="" disabled>
 												Selecione uma opção
 											</option>
 											<option value="false">Não</option>

@@ -2,15 +2,25 @@ import otakupayDB from "../db/otakupayconn.js";
 import mongoose, { Schema } from "mongoose";
 import crypto from "crypto";
 
+interface ITransactionDetails {
+	detailProductServiceTitle: string;
+	detailCost: string;
+	detailPaymentMethod: string;
+	detailShippingCost: string;
+	detailSalesFee: string;
+	detailCashback: string;
+}
+
 interface ITransaction {
 	transactionType: string;
 	transactionTitle: string;
 	transactionDescription: string;
 	transactionValue: string;
-	transactionDetails: object;
-	payerID: mongoose.Schema.Types.ObjectId;
+	transactionDetails: {};
+	plataformName: string;
+	payerID: string;
 	payerName: string;
-	receiverID: mongoose.Schema.Types.ObjectId;
+	receiverID: string;
 	receiverName: string;
 	transactionHash: string;
 }
@@ -33,11 +43,19 @@ const transactionSchema = new Schema<ITransaction>(
 			required: true,
 		},
 		transactionDetails: {
-			type: Object,
+			detailProductServiceTitle: { type: String, required: true },
+			detailCost: { type: String, required: true },
+			detailPaymentMethod: { type: String, required: true },
+			detailShippingCost: { type: String, required: true },
+			detailSalesFee: { type: String, required: true },
+			detailCashback: { type: String, required: true },
+		},
+		plataformName: {
+			type: String,
 			required: true,
 		},
 		payerID: {
-			type: mongoose.Schema.Types.ObjectId,
+			type: String,
 			required: true,
 		},
 		payerName: {
@@ -45,7 +63,7 @@ const transactionSchema = new Schema<ITransaction>(
 			required: true,
 		},
 		receiverID: {
-			type: mongoose.Schema.Types.ObjectId,
+			type: String,
 			required: true,
 		},
 		receiverName: {
@@ -61,14 +79,19 @@ const transactionSchema = new Schema<ITransaction>(
 
 // Middleware para gerar hash antes de salvar
 transactionSchema.pre("save", function (next) {
-	// Se o createdAt ainda não foi definido, usamos a data atual
 	const createdAt = Date.now();
 
-	const transactionData = `${this.transactionTitle}|${this.transactionDescription}|${this.transactionValue}|${this.transactionDetails}|${this.payerID}|${this.payerName}|${this.receiverID}|${this.receiverName}|${createdAt}`;
+	// Converte transactionDetails para uma string JSON para garantir consistência
+	const transactionDetailsStr = JSON.stringify(this.transactionDetails);
+
+	// Concatenate all data for the hash generation
+	const transactionData = `${this.transactionTitle}|${this.transactionDescription}|${this.transactionValue}|${transactionDetailsStr}|${this.plataformName}|${this.payerID}|${this.payerName}|${this.receiverID}|${this.receiverName}|${createdAt}`;
+
 	this.transactionHash = crypto
 		.createHash("sha256")
 		.update(transactionData)
 		.digest("hex");
+
 	next();
 });
 

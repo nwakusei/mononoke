@@ -52,4 +52,10 @@ router.post(
 
 router.post("/realease-values", OtakupayController.releaseOfValues);
 
+router.get(
+	"/transactions",
+	verifyToken,
+	OtakupayController.getAllUserTransactions
+);
+
 export default router;

@@ -40,6 +40,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 import { CouponModel } from "../models/CouponModel.js";
 import { error } from "console";
 import { CustomerModel } from "../models/CustomerModel.js";
+import { TransactionModel } from "../models/TransactionModel.js";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -1144,7 +1145,7 @@ class OtakupayController {
 							itemsList: [],
 							partnerID: partnerID,
 							partnerName: partner.name,
-							customerID: customer._id,
+							customerID: customer._id.toString(),
 							customerName: customer.name,
 							customerCPF: customer.cpf,
 							customerAddress: [
@@ -5232,6 +5233,58 @@ class OtakupayController {
 		console.log("Valores liberados com sucesso!");
 		// Adicione uma resposta ao cliente
 		res.status(200).json({ message: "Valores liberados com sucesso!" });
+	}
+
+	static async getAllUserTransactions(req: Request, res: Response) {
+		// Obtém o token do usuário
+		const token: any = getToken(req);
+
+		// Recupera o usuário associado ao token
+		const user = await getUserByToken(token);
+
+		// Se o usuário não for encontrado, retorna erro
+		if (!user) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		// Extrai o ID do usuário e converte para string (garante que estamos comparando como string)
+		const userID = user.otakupayID.toString(); // Conversão para string (MUDAR PARA user.otakupayID APENAS, SE PARAR DE FUNCIONAR)
+		console.log("ID do usuário:", userID); // Log para verificar o ID
+
+		// Verifica se o userID está correto
+		if (!userID) {
+			res.status(422).json({ message: "ID do usuário não encontrado!" });
+			return;
+		}
+
+		try {
+			// Executa a query para buscar as transações onde o usuário é o remetente ou destinatário
+			const transactions = await TransactionModel.find({
+				$or: [
+					{ payerID: userID }, // Comparação direta com a string
+					{ receiverID: userID }, // Comparação direta com a string
+				],
+			}).sort("-createdAt");
+
+			// Log para verificar as transações encontradas
+			console.log("Transações encontradas:", transactions); // Log para verificar o que o banco retorna
+
+			// Verifique se as transações são retornadas corretamente
+			if (transactions.length === 0) {
+				console.log(
+					"Nenhuma transação encontrada para o usuário:",
+					userID
+				);
+			}
+
+			// Retorna as transações para o cliente
+			res.status(200).json({ transactions });
+		} catch (error) {
+			// Caso ocorra erro, loga e retorna o erro para o cliente
+			console.error("Erro ao buscar transações:", error);
+			res.status(500).json({ message: "Erro ao buscar transações." });
+		}
 	}
 }
 

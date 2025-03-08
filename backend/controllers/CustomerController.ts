@@ -156,7 +156,7 @@ class CustomerController {
 				password: passwordHash,
 				viewAdultContent: false,
 				newsletters: true,
-				otakupayID: newOtakupay._id,
+				otakupayID: newOtakupay._id.toString(),
 			});
 
 			const newCustomer = await customer.save();
@@ -636,6 +636,8 @@ class CustomerController {
 		}
 
 		try {
+			console.log("Dados recebidos na requisição", req.body);
+
 			// Verifique se o customer é de fato um parceiro e não um cliente
 			if (customer instanceof CustomerModel) {
 				customer.name = name;

@@ -1054,15 +1054,30 @@ class OrderController {
 
 			const newTransaction = new TransactionModel({
 				transactionType: "Cancelamento",
-				transactionTitle: "Pedido Cancelado",
-				transactionDescription: `Reembolso do Pedido ${order._id} cancelado`,
+				transactionTitle: "Compra no OtaMart",
+				transactionDescription: `Reembolso do Pedido. Cancelado.`,
 				transactionValue: customerOrderCostTotalEncrypted,
 				transactionDetails: {
-					orderID: order._id,
+					detailProductServiceTitle: order.itemsList[0]?.productTitle,
+					detailCost: encrypt(
+						String(
+							order.itemsList.reduce((accumulator, item) => {
+								return (
+									accumulator +
+									item.productPrice * item.productQuantity
+								);
+							}, 0)
+						)
+					),
+					detailPaymentMethod: order.paymentMethod,
+					detailShippingCost: order.shippingCostTotal,
+					detailSalesFee: order.partnerCommissionOtamart,
+					detailCashback: order.customerOtakuPointsEarned,
 				},
-				payerID: customer._id,
+				plataformName: "Mononoke - OtaMart",
+				payerID: customer.otakupayID,
 				payerName: customer.name,
-				receiverID: partner._id,
+				receiverID: partner.otakupayID,
 				receiverName: partner.name,
 			});
 
