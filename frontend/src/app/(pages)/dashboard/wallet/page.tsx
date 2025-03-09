@@ -26,6 +26,8 @@ import { RiMoneyCnyCircleLine, RiRotateLockLine } from "react-icons/ri";
 import { LiaHandshake, LiaShippingFastSolid } from "react-icons/lia";
 import { CiCreditCard2 } from "react-icons/ci";
 import { FiInfo } from "react-icons/fi";
+import { RiRefund2Fill } from "react-icons/ri";
+import { PiCreditCardBold } from "react-icons/pi";
 
 function WalletPage() {
 	const [user, setUser] = useState({});
@@ -291,8 +293,10 @@ function WalletPage() {
 
 						<tbody className="p-10">
 							{/* rows */}
-							{transactions.length > 0 &&
-								transactions.map((transaction) => (
+							{transactions.map((transaction) => {
+								const modalId = `modal_${transaction._id}`; // ID único para cada modal
+
+								return (
 									<tr key={transaction._id}>
 										<td>
 											<div className="flex items-center gap-3">
@@ -400,25 +404,26 @@ function WalletPage() {
 											</div>
 										</td>
 										<th>
-											{/* Modal de Detalhes da Transação */}
+											{/* Botão para abrir o modal específico dessa transação */}
 											<button
 												className="btn btn-primary hover:btn-secondary btn-xs text-white shadow-md"
 												onClick={() =>
 													document
-														.getElementById(
-															"my_modal_1"
-														)
-														.showModal()
+														.getElementById(modalId)
+														?.showModal()
 												}>
 												+ Detalhes
 											</button>
+
+											{/* Modal com ID dinâmico */}
 											<dialog
-												id="my_modal_1"
+												id={modalId}
 												className="modal">
 												<div className="modal-box bg-secondary">
 													<h2 className="font-bold text-lg mb-4">
-														Detalhes da Transação{" "}
+														Detalhes da Transação
 													</h2>
+
 													<p className="flex flex-row items-center gap-2">
 														<RiMoneyCnyCircleLine
 															size={16}
@@ -436,7 +441,7 @@ function WalletPage() {
 															size={16}
 														/>
 														<span>
-															{`Valor do Produto: ${decrypt(
+															{`Subtotal dos Produtos: ${decrypt(
 																transaction
 																	.transactionDetails
 																	.detailCost
@@ -450,11 +455,11 @@ function WalletPage() {
 															)}`}
 														</span>
 													</p>
+
 													<p className="flex flex-row items-center gap-2">
 														<LiaShippingFastSolid
 															size={16}
 														/>
-
 														<span>
 															{`Custo de Envio: ${decrypt(
 																transaction
@@ -470,32 +475,14 @@ function WalletPage() {
 															)}`}
 														</span>
 													</p>
+
 													<p className="flex flex-row items-center gap-2">
-														<LiaHandshake
+														<RiRefund2Fill
 															size={16}
 														/>
 														<span>
-															{`Tarifa de Venda: ${decrypt(
-																transaction
-																	.transactionDetails
-																	.detailSalesFee
-															)?.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}`}
-														</span>
-													</p>
-													<p className="flex flex-row items-center gap-2 mb-2">
-														<Currency size={16} />
-														<span className="mb-[1px]">
-															{`Cashback: ${decrypt(
-																transaction
-																	.transactionDetails
-																	.detailCashback
+															{`Total Reembolsado: ${decrypt(
+																transaction.transactionValue
 															)?.toLocaleString(
 																"pt-BR",
 																{
@@ -507,21 +494,71 @@ function WalletPage() {
 														</span>
 													</p>
 
+													{String(user?.otakupayID) ==
+														String(
+															transaction.receiverID
+														) && (
+														<p className="flex flex-row items-center gap-2">
+															<LiaHandshake
+																size={16}
+															/>
+															<span>
+																{`Tarifa de Venda (Cancelada): ${decrypt(
+																	transaction
+																		.transactionDetails
+																		.detailSalesFee
+																)?.toLocaleString(
+																	"pt-BR",
+																	{
+																		style: "currency",
+																		currency:
+																			"BRL",
+																	}
+																)}`}
+															</span>
+														</p>
+													)}
+													<hr className="my-2" />
+													{String(user?.otakupayID) ==
+														String(
+															transaction.payerID
+														) && (
+														<p className="flex flex-row items-center gap-2">
+															<Currency
+																size={16}
+															/>
+															<span className="mb-[1px]">
+																{`Cashback (Cancelado): ${decrypt(
+																	transaction
+																		.transactionDetails
+																		.detailCashback
+																)?.toLocaleString()} OP`}
+															</span>
+														</p>
+													)}
+
 													<p className="flex flex-row items-center gap-2 mb-2">
-														<CiCreditCard2
+														<PiCreditCardBold
 															size={16}
 														/>
-														<span>
+														<span className="mb-[2px]">
 															{`Método de Pagamento: ${transaction.transactionDetails.detailPaymentMethod}`}
 														</span>
 													</p>
 
 													<p className="flex flex-row items-center gap-2 mb-2">
 														<FiInfo size={15} />
-														<span className="mb-[1px]">
-															Devolvemos o
+														<span className="mb-[2px]">
+															{String(
+																user?.otakupayID
+															) ==
+															String(
+																transaction.payerID
+															)
+																? `Devolvemos o seu dinheiro`
+																: `Devolvemos o
 															dinheiro ao
-															comprador.
+															comprador`}
 														</span>
 													</p>
 
@@ -530,13 +567,12 @@ function WalletPage() {
 															size={20}
 														/>
 														<span className="break-all overflow-hidden text-ellipsis -mb-[16px]">
-															{`Hash: ${transaction.transactionHash}`}
+															{`Hash da Transação: ${transaction.transactionHash}`}
 														</span>
 													</p>
 
 													<div className="modal-action">
 														<form method="dialog">
-															{/* if there is a button in form, it will close the modal */}
 															<button className="btn btn-primary">
 																Fechar
 															</button>
@@ -546,7 +582,8 @@ function WalletPage() {
 											</dialog>
 										</th>
 									</tr>
-								))}
+								);
+							})}
 						</tbody>
 
 						{/* foot */}

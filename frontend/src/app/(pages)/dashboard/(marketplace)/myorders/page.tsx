@@ -22,8 +22,6 @@ function MyOrdersPage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingButtonId, setLoadingButtonId] = useState(null);
 
-	console.log(myorders);
-
 	const router = useRouter();
 
 	useEffect(() => {

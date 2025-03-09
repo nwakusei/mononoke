@@ -22,7 +22,11 @@ import {
 	RiAuctionLine,
 	RiCopperCoinLine,
 } from "react-icons/ri";
-import { MdOutlineLocalActivity, MdOutlineWarehouse } from "react-icons/md";
+import {
+	MdOutlineLocalActivity,
+	MdOutlineWarehouse,
+	MdVerified,
+} from "react-icons/md";
 import { BsShopWindow, BsChatSquareText } from "react-icons/bs";
 import { GoArrowUpRight } from "react-icons/go";
 import { PiHandHeartDuotone, PiChatCenteredText } from "react-icons/pi";
@@ -316,6 +320,37 @@ function Sidebar() {
 									</span>
 									<span className="text-black hover:text-white hover:bg-secondary active:scale-[.95] px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
 										Wallet
+									</span>
+								</Link>
+							</div>
+						</div>
+
+						<div className="flex flex-col ml-8 mb-4">
+							<h2 className="text-black flex flex-row items-center gap-2 mb-3">
+								<MdVerified size={18} />
+								Loja Verificada
+							</h2>
+							<div className="flex flex-col">
+								<Link
+									className="flex flex-row items-center ml-7 gap-2"
+									href={"/dashboard/#"}>
+									<span className="text-xs text-black">
+										○
+									</span>
+									<span className="text-black hover:text-white hover:bg-secondary active:scale-[.95] px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+										Tipos de Selo
+									</span>
+								</Link>
+							</div>
+							<div className="flex flex-col">
+								<Link
+									className="flex flex-row items-center ml-7 gap-2"
+									href={"/dashboard/#"}>
+									<span className="text-xs text-black">
+										○
+									</span>
+									<span className="text-black hover:text-white hover:bg-secondary active:scale-[.95] px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
+										Comprar Selo
 									</span>
 								</Link>
 							</div>

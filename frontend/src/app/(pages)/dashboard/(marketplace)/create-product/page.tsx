@@ -689,10 +689,10 @@ const createProductFormSchema = z
 type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
 
 function CreateProductPage() {
-	const [imagensSelecionadas, setImagensSelecionadas] = useState<File[]>([]);
-	const [imagensSelecionadas2, setImagensSelecionadas2] = useState<File[]>(
+	const [selectedImagesProduct, setSelectedImagesProduct] = useState<File[]>(
 		[]
 	);
+
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -745,7 +745,7 @@ function CreateProductPage() {
 		return () => clearTimeout(timer);
 	}, []); // Executa apenas uma vez na montagem do componente
 
-	const handleImagemSelecionada = (
+	const handleSelectedImagesProduct = (
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const files = event.target.files;
@@ -778,7 +778,7 @@ function CreateProductPage() {
 			// Verifica se há imagens válidas
 			if (validFiles.length > 0) {
 				// Se houver imagens válidas, atualiza o estado
-				setImagensSelecionadas((prev) => [...prev, ...validFiles]);
+				setSelectedImagesProduct((prev) => [...prev, ...validFiles]);
 				clearErrors("imagesProduct"); // Limpa os erros anteriores
 			} else {
 				// Caso não haja imagens válidas, define uma mensagem de erro
@@ -798,57 +798,24 @@ function CreateProductPage() {
 		}
 	};
 
-	const handleImagemSelecionada2 = (
-		event: React.ChangeEvent<HTMLInputElement>
-	) => {
-		const files = event.target.files;
+	const handleRemoveImageProduct = (index: number) => {
+		setSelectedImagesProduct((prev) => {
+			const updatedImages = prev.filter((_, i) => i !== index);
 
-		if (files) {
-			const fileArray = Array.from(files); // Converte o FileList em um array
+			// Atualiza o estado sem disparar validação
+			setValue("imagesProduct", updatedImages, { shouldValidate: false });
 
-			// Filtra as imagens válidas
-			const validFiles = fileArray.filter((file) => {
-				const isValidSize = file.size <= 2 * 1024 * 1024; // Tamanho menor que 2MB
-				const isValidFormat = /\.(jpg|jpeg|png)$/i.test(file.name); // Extensão válida
-
-				// Define os erros conforme a validade
-				if (!isValidSize) {
-					setError("imagesProduct", {
-						message: "※ Cada arquivo precisa ter no máximo 2Mb!",
-					});
-				}
-
-				if (!isValidFormat) {
-					setError("imagesProduct", {
-						message:
-							"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
-					});
-				}
-
-				return isValidSize && isValidFormat; // Retorna apenas arquivos válidos
-			});
-
-			// Verifica se há imagens válidas
-			if (validFiles.length > 0) {
-				// Se houver imagens válidas, atualiza o estado
-				setImagensSelecionadas2((prev) => [...prev, ...validFiles]);
-				clearErrors("imagesProduct"); // Limpa os erros anteriores
-			} else {
-				// Caso não haja imagens válidas, define uma mensagem de erro
+			// Apenas dispara erro se o array ficar vazio
+			if (updatedImages.length === 0) {
 				setError("imagesProduct", {
-					message: errors.imagesProduct
-						? errors.imagesProduct.message
-						: "Nenhuma imagem válida selecionada!",
+					message: "※ Insira pelo menos 1 imagem!",
 				});
+			} else {
+				clearErrors("imagesProduct");
 			}
 
-			// // Adiciona a validação para garantir que pelo menos uma imagem foi selecionada
-			// if (validFiles.length === 0) {
-			// 	setError("imagesProduct", {
-			// 		message: "※ Insira pelo menos 1 imagem!",
-			// 	});
-			// }
-		}
+			return updatedImages;
+		});
 	};
 
 	const router = useRouter();
@@ -947,14 +914,14 @@ function CreateProductPage() {
 		});
 
 		// Adiciona as imagens do produto principal ao FormData
-		if (imagensSelecionadas.length === 0) {
+		if (selectedImagesProduct.length === 0) {
 			setError("imagesProduct", {
 				message: "※ Insira pelo menos 1 imagem!",
 			});
 			return;
 		}
 
-		imagensSelecionadas.forEach((image) => {
+		selectedImagesProduct.forEach((image) => {
 			formData.append("imagesProduct", image);
 		});
 
@@ -1154,10 +1121,10 @@ function CreateProductPage() {
 								<label className="form-control w-full">
 									{/* Container das imagens */}
 									<div className="flex flex-wrap items-center gap-2">
-										{imagensSelecionadas.map(
+										{selectedImagesProduct.map(
 											(imagem, index) => {
 												const imageUrl =
-													URL.createObjectURL(imagem); // Cria a URL para a imagem
+													URL.createObjectURL(imagem);
 												return (
 													<div
 														key={index}
@@ -1169,6 +1136,19 @@ function CreateProductPage() {
 															}`}
 															className="object-contain w-full h-full rounded-sm"
 														/>
+
+														{/* Botão para remover a imagem */}
+														<button
+															type="button"
+															className="absolute top-1 right-1 bg-red-500 text-white p-1 w-6 h-6 rounded-md z-50"
+															onClick={(e) => {
+																e.preventDefault(); // Evita submit acidental
+																handleRemoveImageProduct(
+																	index
+																);
+															}}>
+															X
+														</button>
 													</div>
 												);
 											}
@@ -1191,7 +1171,7 @@ function CreateProductPage() {
 												className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
 												{...register("imagesProduct")} // Conecta o input ao react-hook-form
 												onChange={
-													handleImagemSelecionada
+													handleSelectedImagesProduct
 												} // Manuseia arquivos selecionados
 											/>
 										</div>
