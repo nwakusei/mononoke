@@ -86,7 +86,7 @@ const createProductFormSchema = z
 				(pName) => {
 					const sanitized = DOMPurify.sanitize(pName);
 
-					const isValid = /^[A-Za-zÀ-ÿ\s\.,—~\-0-9\[\]\(\)]+$/.test(
+					const isValid = /^[A-Za-zÀ-ÿ\s\.,—~\-0-9\[\]\(\):]+$/.test(
 						sanitized
 					);
 
@@ -800,22 +800,39 @@ function CreateProductPage() {
 
 	const handleRemoveImageProduct = (index: number) => {
 		setSelectedImagesProduct((prev) => {
+			// Filtra a imagem removida
 			const updatedImages = prev.filter((_, i) => i !== index);
 
-			// Atualiza o estado sem disparar validação
-			setValue("imagesProduct", updatedImages, { shouldValidate: false });
-
-			// Apenas dispara erro se o array ficar vazio
+			// Atualiza o estado com as imagens restantes (sem revalidação)
 			if (updatedImages.length === 0) {
+				// Se não houver imagens restantes, adicione o erro
 				setError("imagesProduct", {
 					message: "※ Insira pelo menos 1 imagem!",
 				});
 			} else {
+				// Se houver imagens, remove o erro
 				clearErrors("imagesProduct");
 			}
 
-			return updatedImages;
+			return updatedImages; // Apenas retorna o novo array de imagens
 		});
+	};
+
+	const [variationImages, setVariationImages] = useState({});
+
+	const handleVariationImageChange = (event, variationIndex, optionIndex) => {
+		const file = event.target.files[0];
+		if (file) {
+			const imageUrl = URL.createObjectURL(file);
+			setVariationImages((prev) => ({
+				...prev,
+				[`${variationIndex}-${optionIndex}`]: imageUrl,
+			}));
+			// Limpa o erro do campo de imagem para esta variação/opção
+			clearErrors(
+				`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
+			);
+		}
 	};
 
 	const router = useRouter();
@@ -980,9 +997,10 @@ function CreateProductPage() {
 											type="text"
 											placeholder="Ex: One Piece Vol.1"
 											className={`${
-												errors.productTitle &&
-												`input-error`
-											} input input-bordered input-success w-full`}
+												errors.productTitle
+													? `input-error`
+													: `input-success`
+											} input input-bordered w-full`}
 											{...register("productTitle")}
 										/>
 										<div className="label">
@@ -1140,7 +1158,7 @@ function CreateProductPage() {
 														{/* Botão para remover a imagem */}
 														<button
 															type="button"
-															className="absolute top-1 right-1 bg-red-500 text-white p-1 w-6 h-6 rounded-md z-50"
+															className="absolute top-1 right-1 bg-red-500 text-white p-1 w-6 h-6 rounded z-50 flex items-center justify-center"
 															onClick={(e) => {
 																e.preventDefault(); // Evita submit acidental
 																handleRemoveImageProduct(
@@ -1291,6 +1309,70 @@ function CreateProductPage() {
 																				optionIndex
 																			}>
 																			<div className="flex flex-row gap-2">
+																				{/* <div className="flex flex-col">
+																					<div className="label">
+																						<span className="label-text text-black">
+																							Imagem
+																						</span>
+																					</div>
+																					<div
+																						className={`${
+																							errors
+																								.productVariations?.[
+																								variationIndex
+																							]
+																								?.options?.[
+																								optionIndex
+																							]
+																								?.imageUrl
+																								? "border-error"
+																								: "border-success"
+																						} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+																						{variationImages[
+																							`${variationIndex}-${optionIndex}`
+																						] ? (
+																							<img
+																								src={
+																									variationImages[
+																										`${variationIndex}-${optionIndex}`
+																									]
+																								}
+																								alt="Preview"
+																								className="w-full h-full object-cover rounded-sm"
+																							/>
+																						) : (
+																							<>
+																								<AddPicture
+																									size={
+																										20
+																									}
+																								/>
+																								<input
+																									type="file"
+																									accept="image/*"
+																									multiple
+																									className="absolute inset-0 opacity-0 cursor-pointer"
+																									{...register(
+																										`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`,
+																										{
+																											onChange:
+																												(
+																													event: React.ChangeEvent<HTMLInputElement>
+																												) => {
+																													handleVariationImageChange(
+																														event,
+																														variationIndex,
+																														optionIndex
+																													);
+																												},
+																										}
+																									)}
+																								/>
+																							</>
+																						)}
+																					</div>
+																				</div> */}
+
 																				<div className="flex flex-col">
 																					<div className="label">
 																						<span className="label-text text-black">
@@ -1307,23 +1389,84 @@ function CreateProductPage() {
 																								optionIndex
 																							]
 																								?.imageUrl
-																								? `border-error`
-																								: `border-success`
-																						} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-																						<AddPicture
-																							size={
-																								20
-																							}
-																						/>
-																						<input
-																							type="file"
-																							accept="image/*"
-																							multiple
-																							className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
-																							{...register(
-																								`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
-																							)}
-																						/>
+																								? "border-error"
+																								: "border-success"
+																						} text-black flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 relative ${
+																							!variationImages[
+																								`${variationIndex}-${optionIndex}`
+																							]
+																								? "hover:bg-[#8357e5] hover:text-white cursor-pointer"
+																								: ""
+																						}`}>
+																						{variationImages[
+																							`${variationIndex}-${optionIndex}`
+																						] ? (
+																							<>
+																								<img
+																									src={
+																										variationImages[
+																											`${variationIndex}-${optionIndex}`
+																										]
+																									}
+																									alt="Preview"
+																									className="w-full h-full object-contain rounded-sm"
+																								/>
+																								{/* Botão para remover a imagem */}
+																								<button
+																									type="button"
+																									className="absolute top-1 right-1 bg-red-500 text-white active:scale-[.97] p-1 w-4 h-4 rounded-sm z-50 flex items-center justify-center text-xs"
+																									onClick={() => {
+																										setVariationImages(
+																											(
+																												prev
+																											) => {
+																												const updatedImages =
+																													{
+																														...prev,
+																													};
+																												delete updatedImages[
+																													`${variationIndex}-${optionIndex}`
+																												]; // Remove a imagem
+																												return updatedImages;
+																											}
+																										);
+																										// Limpar o erro, caso haja
+																										clearErrors(
+																											`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`
+																										);
+																									}}>
+																									x
+																								</button>
+																							</>
+																						) : (
+																							<>
+																								<AddPicture
+																									size={
+																										20
+																									}
+																								/>
+																								<input
+																									type="file"
+																									accept="image/*"
+																									className="absolute inset-0 opacity-0 cursor-pointer"
+																									{...register(
+																										`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`,
+																										{
+																											onChange:
+																												(
+																													event: React.ChangeEvent<HTMLInputElement>
+																												) => {
+																													handleVariationImageChange(
+																														event,
+																														variationIndex,
+																														optionIndex
+																													);
+																												},
+																										}
+																									)}
+																								/>
+																							</>
+																						)}
 																					</div>
 																				</div>
 
