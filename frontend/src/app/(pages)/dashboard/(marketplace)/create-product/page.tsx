@@ -700,6 +700,96 @@ function CreateProductPage() {
 
 	const [displayVariations, setDiisplayVariations] = useState(false);
 
+	// const [isFocused, setIsFocused] = useState(false); // Para controlar se o campo está em foco
+
+	// const handleInputChange = () => {
+	// 	trigger("productTitle"); // Valida enquanto digita
+	// };
+
+	// // Lógica para as classes de foco
+	// const getInputClass = () => {
+	// 	const value = getValues("productTitle");
+
+	// 	if (isFocused) {
+	// 		// Se estiver vazio, foco vermelho
+	// 		if (!value) {
+	// 			return "input-error"; // Foco vermelho se vazio
+	// 		}
+
+	// 		// Se tiver erro, foco vermelho; se estiver correto, foco verde
+	// 		return errors.productTitle ? "input-error" : "input-success";
+	// 	}
+
+	// 	// Quando o campo perde o foco:
+	// 	if (!value && !errors.productTitle) {
+	// 		return ""; // Sem cor, se vazio e sem erro
+	// 	}
+
+	// 	// Quando estiver vazio e tiver erro, foco vermelho
+	// 	if (!value && errors.productTitle) {
+	// 		return "input-error"; // Foco vermelho se vazio e erro
+	// 	}
+
+	// 	return ""; // Sem cor se o campo tiver conteúdo válido
+	// };
+
+	const [focusStates, setFocusStates] = useState({
+		productTitle: false,
+		originalPrice: false,
+		// adicione mais campos conforme necessário
+	});
+
+	// Função que altera o foco de cada campo individualmente
+	const handleFocus = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: true,
+		}));
+	};
+
+	// Função que remove o foco de cada campo individualmente
+	const handleBlur = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: false,
+		}));
+	};
+
+	// Função para determinar a classe de cada campo com base no foco e na validação
+	const getInputClass = (fieldName: string) => {
+		const value = getValues(fieldName); // Obtém o valor do campo
+		const isFocused = focusStates[fieldName]; // Verifica se o campo está focado
+
+		if (isFocused) {
+			if (!value) {
+				return "input-error"; // Foco vermelho se estiver vazio
+			}
+			return errors[fieldName] ? "input-error" : "input-success"; // Foco verde ou vermelho com base na validação
+		}
+
+		// Quando o campo perde o foco:
+		if (!value && !errors[fieldName]) {
+			return ""; // Sem cor se estiver vazio e sem erro
+		}
+
+		// Quando estiver vazio e tiver erro, foco vermelho
+		if (!value && errors[fieldName]) {
+			return "input-error"; // Foco vermelho se vazio e erro
+		}
+
+		// Quando o campo estiver incorreto (com erro) e perder o foco, foco vermelho
+		if (errors[fieldName]) {
+			return "input-error"; // Foco vermelho se tiver erro
+		}
+
+		// Quando o campo estiver válido e sem erro após perder o foco, foco verde
+		if (value && !errors[fieldName]) {
+			return "input-success"; // Foco verde se estiver preenchido corretamente e sem erro
+		}
+
+		return ""; // Sem cor se o campo tiver conteúdo válido
+	};
+
 	const {
 		register,
 		handleSubmit,
@@ -708,10 +798,11 @@ function CreateProductPage() {
 		setError,
 		clearErrors,
 		control,
-		getValues, // Adicione aqui
+		getValues,
+		trigger,
 	} = useForm<TCreateProductFormData>({
 		resolver: zodResolver(createProductFormSchema),
-		mode: "onBlur",
+		// mode: "onChange",
 		defaultValues: {
 			category: "",
 			adultProduct: "false",
@@ -996,12 +1087,19 @@ function CreateProductPage() {
 										<input
 											type="text"
 											placeholder="Ex: One Piece Vol.1"
-											className={`${
-												errors.productTitle
-													? `input-error`
-													: `input-success`
-											} input input-bordered w-full`}
-											{...register("productTitle")}
+											className={`input input-bordered w-full ${getInputClass(
+												"productTitle"
+											)}`}
+											{...register("productTitle", {
+												onChange: () =>
+													trigger("productTitle"),
+											})}
+											onFocus={() =>
+												handleFocus("productTitle")
+											}
+											onBlur={() =>
+												handleBlur("productTitle")
+											}
 										/>
 										<div className="label">
 											{errors.productTitle && (
@@ -2043,14 +2141,30 @@ function CreateProductPage() {
 												<div>
 													<div>
 														<input
-															className={`${
-																errors.originalPrice &&
-																`input-error`
-															} input input-bordered input-success join-item`}
+															className={`input input-bordered w-full ${getInputClass(
+																"originalPrice"
+															)} join-item`}
 															placeholder="0,00"
 															{...register(
-																"originalPrice"
+																"originalPrice",
+																{
+																	onChange:
+																		() =>
+																			trigger(
+																				"originalPrice"
+																			),
+																}
 															)}
+															onFocus={() =>
+																handleFocus(
+																	"originalPrice"
+																)
+															}
+															onBlur={() =>
+																handleBlur(
+																	"originalPrice"
+																)
+															}
 														/>
 													</div>
 												</div>
