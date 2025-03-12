@@ -736,6 +736,7 @@ function CreateProductPage() {
 	const [focusStates, setFocusStates] = useState({
 		productTitle: false,
 		originalPrice: false,
+		freeShipping: false,
 		// adicione mais campos conforme necessário
 	});
 
@@ -755,39 +756,65 @@ function CreateProductPage() {
 		}));
 	};
 
-	// Função para determinar a classe de cada campo com base no foco e na validação
-	const getInputClass = (fieldName: string) => {
+	// // Função para determinar a classe de cada campo com base no foco e na validação
+	// const getInputClass = (fieldName: string) => {
+	// 	const value = getValues(fieldName); // Obtém o valor do campo
+	// 	const isFocused = focusStates[fieldName]; // Verifica se o campo está focado
+
+	// 	if (isFocused) {
+	// 		if (!value) {
+	// 			return "input-error"; // Foco vermelho se estiver vazio
+	// 		}
+	// 		return errors[fieldName] ? "input-error" : "input-success"; // Foco verde ou vermelho com base na validação
+	// 	}
+
+	// 	// Quando o campo perde o foco:
+	// 	if (!value && !errors[fieldName]) {
+	// 		return ""; // Sem cor se estiver vazio e sem erro
+	// 	}
+
+	// 	// Quando estiver vazio e tiver erro, foco vermelho
+	// 	if (!value && errors[fieldName]) {
+	// 		return "input-error"; // Foco vermelho se vazio e erro
+	// 	}
+
+	// 	// Quando o campo estiver incorreto (com erro) e perder o foco, foco vermelho
+	// 	if (errors[fieldName]) {
+	// 		return "input-error"; // Foco vermelho se tiver erro
+	// 	}
+
+	// 	// Quando o campo estiver válido e sem erro após perder o foco, foco verde
+	// 	if (value && !errors[fieldName]) {
+	// 		return "input-success"; // Foco verde se estiver preenchido corretamente e sem erro
+	// 	}
+
+	// 	return ""; // Sem cor se o campo tiver conteúdo válido
+	// };
+
+	// Função para obter a classe com base no foco e erro
+	const getInputClass = (fieldName: string, fieldType: string) => {
 		const value = getValues(fieldName); // Obtém o valor do campo
 		const isFocused = focusStates[fieldName]; // Verifica se o campo está focado
 
 		if (isFocused) {
-			if (!value) {
-				return "input-error"; // Foco vermelho se estiver vazio
+			if (!value && !errors[fieldName]) {
+				return `${fieldType}-success`; // Foco verde se estiver vazio e sem erro (primeiro clique)
 			}
-			return errors[fieldName] ? "input-error" : "input-success"; // Foco verde ou vermelho com base na validação
+			return errors[fieldName]
+				? `${fieldType}-error`
+				: `${fieldType}-success`; // Foco vermelho se erro, verde se válido
 		}
 
 		// Quando o campo perde o foco:
-		if (!value && !errors[fieldName]) {
-			return ""; // Sem cor se estiver vazio e sem erro
-		}
-
-		// Quando estiver vazio e tiver erro, foco vermelho
 		if (!value && errors[fieldName]) {
-			return "input-error"; // Foco vermelho se vazio e erro
+			return `${fieldType}-error`; // Foco vermelho se vazio e erro
 		}
 
-		// Quando o campo estiver incorreto (com erro) e perder o foco, foco vermelho
-		if (errors[fieldName]) {
-			return "input-error"; // Foco vermelho se tiver erro
-		}
-
-		// Quando o campo estiver válido e sem erro após perder o foco, foco verde
 		if (value && !errors[fieldName]) {
-			return "input-success"; // Foco verde se estiver preenchido corretamente e sem erro
+			return `${fieldType}-success`; // Foco verde se estiver preenchido corretamente e sem erro
 		}
 
-		return ""; // Sem cor se o campo tiver conteúdo válido
+		return ""; // Sem cor se não há erro e o campo estiver vazio
 	};
 
 	const {
@@ -805,7 +832,7 @@ function CreateProductPage() {
 		// mode: "onChange",
 		defaultValues: {
 			category: "",
-			adultProduct: "false",
+			adultProduct: "",
 			condition: "",
 			preOrder: "",
 			freeShipping: "",
@@ -814,6 +841,7 @@ function CreateProductPage() {
 		},
 	});
 
+	// Função para manipular o valor do "freeShipping"
 	const handleFreeShippingChange = (event) => {
 		const value = event.target.value;
 		setOfferFreeShipping(value);
@@ -1085,11 +1113,12 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<input
+											className={`input input-bordered w-full ${getInputClass(
+												"productTitle",
+												"input"
+											)}`}
 											type="text"
 											placeholder="Ex: One Piece Vol.1"
-											className={`input input-bordered w-full ${getInputClass(
-												"productTitle"
-											)}`}
 											{...register("productTitle", {
 												onChange: () =>
 													trigger("productTitle"),
@@ -1122,14 +1151,21 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<textarea
-											className={`${
-												errors.description &&
-												`textarea-error`
-											} textarea textarea-success w-[885px] h-[200px]`}
 											placeholder="Descreva todos os detalhes do produto..."
-											{...register(
-												"description"
-											)}></textarea>
+											className={`textarea textarea-bordered ${getInputClass(
+												"description",
+												"textarea"
+											)} w-[885px] h-[200px]`}
+											{...register("description", {
+												onChange: () =>
+													trigger("description"),
+											})}
+											onFocus={() =>
+												handleFocus("description")
+											}
+											onBlur={() =>
+												handleBlur("description")
+											}></textarea>
 										<div className="label">
 											{errors.description && (
 												<span className="label-text-alt text-red-500">
@@ -1147,12 +1183,20 @@ function CreateProductPage() {
 												</span>
 											</div>
 											<select
-												className={`select ${
-													errors.category
-														? `select-error`
-														: `select-success`
-												} w-full`}
-												{...register("category")}>
+												className={`select select-bordered ${getInputClass(
+													"category",
+													"select"
+												)} w-full`}
+												{...register("category", {
+													onChange: () =>
+														trigger("category"),
+												})}
+												onFocus={() =>
+													handleFocus("category")
+												}
+												onBlur={() =>
+													handleBlur("category")
+												}>
 												<option disabled value="">
 													Escolha a categoria do
 													Produto
@@ -1187,12 +1231,20 @@ function CreateProductPage() {
 											</div>
 
 											<select
-												className={`select ${
-													errors.adultProduct
-														? `select-error`
-														: `select-success`
-												}  w-full max-w-xs`}
-												{...register("adultProduct")}>
+												className={`select select-bordered ${getInputClass(
+													"adultProduct",
+													"select"
+												)} w-full max-w-xs`}
+												{...register("adultProduct", {
+													onChange: () =>
+														trigger("adultProduct"),
+												})}
+												onFocus={() =>
+													handleFocus("adultProduct")
+												}
+												onBlur={() =>
+													handleBlur("adultProduct")
+												}>
 												<option disabled value="">
 													Selecione uma opção
 												</option>
@@ -2141,9 +2193,11 @@ function CreateProductPage() {
 												<div>
 													<div>
 														<input
-															className={`input input-bordered w-full ${getInputClass(
-																"originalPrice"
-															)} join-item`}
+															className={`input input-bordered ${getInputClass(
+																"originalPrice",
+																"input"
+															)} w-full join-item`}
+															type="text"
 															placeholder="0,00"
 															{...register(
 																"originalPrice",
@@ -2205,15 +2259,32 @@ function CreateProductPage() {
 												<div>
 													<div>
 														<input
-															className={`input input-bordered ${
-																errors.promotionalPrice
-																	? `input-error`
-																	: `input-success`
-															} join-item`}
+															className={`input input-bordered w-full ${getInputClass(
+																"promotionalPrice",
+																"input"
+															)} join-item`}
+															type="text"
 															placeholder="0,00"
 															{...register(
-																"promotionalPrice"
+																"promotionalPrice",
+																{
+																	onChange:
+																		() =>
+																			trigger(
+																				"promotionalPrice"
+																			),
+																}
 															)}
+															onFocus={() =>
+																handleFocus(
+																	"promotionalPrice"
+																)
+															}
+															onBlur={() =>
+																handleBlur(
+																	"promotionalPrice"
+																)
+															}
 														/>
 													</div>
 												</div>
@@ -2246,14 +2317,32 @@ function CreateProductPage() {
 												<div>
 													<div>
 														<input
-															className={`${
-																errors.stock &&
-																`input-error`
-															} input input-bordered input-success join-item`}
+															className={`input input-bordered w-full ${getInputClass(
+																"stock",
+																"input"
+															)} join-item`}
+															type="text"
 															placeholder="0"
 															{...register(
-																"stock"
+																"stock",
+																{
+																	onChange:
+																		() =>
+																			trigger(
+																				"stock"
+																			),
+																}
 															)}
+															onFocus={() =>
+																handleFocus(
+																	"stock"
+																)
+															}
+															onBlur={() =>
+																handleBlur(
+																	"stock"
+																)
+															}
 														/>
 													</div>
 												</div>
@@ -2305,12 +2394,20 @@ function CreateProductPage() {
 										</div>
 
 										<select
-											className={`select ${
-												errors.condition
-													? `select-error`
-													: `select-success`
-											}  w-full max-w-xs`}
-											{...register("condition")}>
+											className={`select select-bordered ${getInputClass(
+												"condition",
+												"select"
+											)} w-full max-w-xs`}
+											{...register("condition", {
+												onChange: () =>
+													trigger("condition"),
+											})}
+											onFocus={() =>
+												handleFocus("condition")
+											}
+											onBlur={() =>
+												handleBlur("condition")
+											}>
 											<option disabled value="">
 												Selecione a condição do Produto
 											</option>
@@ -2335,12 +2432,20 @@ function CreateProductPage() {
 										</div>
 
 										<select
-											className={`select ${
-												errors.preOrder
-													? `select-error`
-													: `select-success`
-											}  w-full max-w-xs`}
-											{...register("preOrder")}>
+											className={`select select-bordered ${getInputClass(
+												"preOrder",
+												"select"
+											)} w-full max-w-xs`}
+											{...register("preOrder", {
+												onChange: () =>
+													trigger("preOrder"),
+											})}
+											onFocus={() =>
+												handleFocus("preOrder")
+											}
+											onBlur={() =>
+												handleBlur("preOrder")
+											}>
 											<option disabled value="">
 												Selecione uma opção
 											</option>
@@ -2368,14 +2473,30 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`${
-															errors.daysShipping &&
-															`input-error`
-														} input input-bordered input-success join-item`}
+														className={`input input-bordered ${getInputClass(
+															"daysShipping",
+															"input"
+														)} join-item`}
 														placeholder="0"
 														{...register(
-															"daysShipping"
+															"daysShipping",
+															{
+																onChange: () =>
+																	trigger(
+																		"daysShipping"
+																	),
+															}
 														)}
+														onFocus={() =>
+															handleFocus(
+																"daysShipping"
+															)
+														}
+														onBlur={() =>
+															handleBlur(
+																"daysShipping"
+															)
+														}
 													/>
 												</div>
 											</div>
@@ -2421,12 +2542,25 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`${
-															errors.weight &&
-															`input-error`
-														} input input-bordered input-success join-item max-w-[120px]`}
+														className={`input input-bordered ${getInputClass(
+															"weight",
+															"input"
+														)} max-w-[120px] join-item`}
 														placeholder="0,000"
-														{...register("weight")}
+														{...register("weight", {
+															onChange: () =>
+																trigger(
+																	"weight"
+																),
+														})}
+														onFocus={() =>
+															handleFocus(
+																"weight"
+															)
+														}
+														onBlur={() =>
+															handleBlur("weight")
+														}
 													/>
 												</div>
 											</div>
@@ -2462,12 +2596,25 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`${
-															errors.length &&
-															`input-error`
-														} input input-bordered input-success join-item max-w-[120px]`}
+														className={`input input-bordered ${getInputClass(
+															"length",
+															"input"
+														)} max-w-[120px] join-item`}
 														placeholder="0"
-														{...register("length")}
+														{...register("length", {
+															onChange: () =>
+																trigger(
+																	"length"
+																),
+														})}
+														onFocus={() =>
+															handleFocus(
+																"length"
+															)
+														}
+														onBlur={() =>
+															handleBlur("length")
+														}
 													/>
 												</div>
 											</div>
@@ -2515,12 +2662,23 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`${
-															errors.width &&
-															`input-error`
-														} input input-bordered input-success join-item max-w-[120px]`}
+														className={`input input-bordered ${getInputClass(
+															"width",
+															"input"
+														)} max-w-[120px] join-item`}
 														placeholder="0"
-														{...register("width")}
+														{...register("width", {
+															onChange: () =>
+																trigger(
+																	"width"
+																),
+														})}
+														onFocus={() =>
+															handleFocus("width")
+														}
+														onBlur={() =>
+															handleBlur("width")
+														}
 													/>
 												</div>
 											</div>
@@ -2568,12 +2726,25 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`${
-															errors.height &&
-															`input-error`
-														} input input-bordered input-success join-item max-w-[120px]`}
+														className={`input input-bordered ${getInputClass(
+															"height",
+															"input"
+														)} max-w-[120px] join-item`}
 														placeholder="0"
-														{...register("height")}
+														{...register("height", {
+															onChange: () =>
+																trigger(
+																	"width"
+																),
+														})}
+														onFocus={() =>
+															handleFocus(
+																"height"
+															)
+														}
+														onBlur={() =>
+															handleBlur("height")
+														}
 													/>
 												</div>
 											</div>
@@ -2607,14 +2778,25 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<select
-											{...register("freeShipping")}
-											onChange={handleFreeShippingChange}
+											className={`select select-bordered ${getInputClass(
+												"freeShipping",
+												"select"
+											)} w-full max-w-xs`}
+											placeholder="0"
 											value={offerFreeShipping}
-											className={`select select-success w-full max-w-xs ${
-												errors.freeShipping
-													? "select-error"
-													: "select-success"
-											}`}>
+											{...register("freeShipping", {
+												onChange: (e) => {
+													handleFreeShippingChange(e);
+													trigger("freeShipping"); // Garante que a validação seja disparada após a mudança
+												},
+											})}
+											onFocus={() =>
+												handleFocus("freeShipping")
+											} // Mantém o foco
+											onBlur={() =>
+												handleBlur("freeShipping")
+											} // Remove o foco
+										>
 											<option value="" disabled>
 												Escolha uma opção
 											</option>
@@ -2644,12 +2826,10 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<select
-											{...register("freeShippingRegion")}
-											className={`select ${
-												errors.freeShippingRegion
-													? `select-error`
-													: `select-success`
-											} w-full max-w-xs`}
+											className={`select select-bordered ${getInputClass(
+												"freeShippingRegion",
+												"select"
+											)} w-full max-w-xs`}
 											disabled={
 												offerFreeShipping === "false"
 											} // Desabilita se "Não" for selecionado
@@ -2657,6 +2837,15 @@ function CreateProductPage() {
 												offerFreeShipping === "false"
 													? "Nenhuma"
 													: ""
+											}
+											{...register("freeShippingRegion")}
+											onFocus={() =>
+												handleFocus(
+													"freeShippingRegion"
+												)
+											}
+											onBlur={() =>
+												handleBlur("freeShippingRegion")
 											}>
 											<option value="" disabled>
 												Escolha a região
