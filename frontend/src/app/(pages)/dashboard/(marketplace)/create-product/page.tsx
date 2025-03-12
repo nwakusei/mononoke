@@ -756,61 +756,82 @@ function CreateProductPage() {
 		}));
 	};
 
-	// // Função para determinar a classe de cada campo com base no foco e na validação
-	// const getInputClass = (fieldName: string) => {
+	// // Função para obter a classe com base no foco e erro
+	// const getInputClass = (fieldName: string, fieldType: string) => {
 	// 	const value = getValues(fieldName); // Obtém o valor do campo
 	// 	const isFocused = focusStates[fieldName]; // Verifica se o campo está focado
 
 	// 	if (isFocused) {
-	// 		if (!value) {
-	// 			return "input-error"; // Foco vermelho se estiver vazio
+	// 		if (!value && !errors[fieldName]) {
+	// 			return `${fieldType}-success`; // Foco verde se estiver vazio e sem erro (primeiro clique)
 	// 		}
-	// 		return errors[fieldName] ? "input-error" : "input-success"; // Foco verde ou vermelho com base na validação
+	// 		return errors[fieldName]
+	// 			? `${fieldType}-error`
+	// 			: `${fieldType}-success`; // Foco vermelho se erro, verde se válido
 	// 	}
 
 	// 	// Quando o campo perde o foco:
-	// 	if (!value && !errors[fieldName]) {
-	// 		return ""; // Sem cor se estiver vazio e sem erro
-	// 	}
-
-	// 	// Quando estiver vazio e tiver erro, foco vermelho
 	// 	if (!value && errors[fieldName]) {
-	// 		return "input-error"; // Foco vermelho se vazio e erro
+	// 		return `${fieldType}-error`; // Foco vermelho se vazio e erro
 	// 	}
 
-	// 	// Quando o campo estiver incorreto (com erro) e perder o foco, foco vermelho
-	// 	if (errors[fieldName]) {
-	// 		return "input-error"; // Foco vermelho se tiver erro
-	// 	}
-
-	// 	// Quando o campo estiver válido e sem erro após perder o foco, foco verde
 	// 	if (value && !errors[fieldName]) {
-	// 		return "input-success"; // Foco verde se estiver preenchido corretamente e sem erro
+	// 		return `${fieldType}-success`; // Foco verde se estiver preenchido corretamente e sem erro
 	// 	}
 
-	// 	return ""; // Sem cor se o campo tiver conteúdo válido
+	// 	return ""; // Sem cor se não há erro e o campo estiver vazio
 	// };
 
-	// Função para obter a classe com base no foco e erro
 	const getInputClass = (fieldName: string, fieldType: string) => {
-		const value = getValues(fieldName); // Obtém o valor do campo
-		const isFocused = focusStates[fieldName]; // Verifica se o campo está focado
+		// Obtém o valor do campo com o fieldName dinâmico
+		const value = getValues(fieldName);
+		const isFocused = focusStates[fieldName];
 
-		if (isFocused) {
-			if (!value && !errors[fieldName]) {
-				return `${fieldType}-success`; // Foco verde se estiver vazio e sem erro (primeiro clique)
+		// Acessando o erro de acordo com o padrão do fieldName
+		let error;
+
+		// Verifica se o fieldName pertence a um campo de variação
+		if (fieldName.startsWith("productVariations")) {
+			const fieldPath = fieldName.split(".");
+
+			if (fieldPath.length === 3) {
+				// Acesso ao título da variação: productVariations.${variationIndex}.title
+				const variationIndex = fieldPath[1];
+				const key = fieldPath[2];
+				error = errors?.productVariations?.[variationIndex]?.[key];
+			} else if (fieldPath.length === 5) {
+				// Acesso à opção de variação: productVariations.${variationIndex}.options.${optionIndex}.name
+				const variationIndex = fieldPath[1];
+				const optionIndex = fieldPath[3];
+				const key = fieldPath[4];
+				error =
+					errors?.productVariations?.[variationIndex]?.options?.[
+						optionIndex
+					]?.[key];
 			}
-			return errors[fieldName]
-				? `${fieldType}-error`
-				: `${fieldType}-success`; // Foco vermelho se erro, verde se válido
+		} else {
+			// Para campos simples (não relacionados a variações)
+			error = errors?.[fieldName];
+		}
+
+		// Lógica para determinar a classe do campo com base no foco e erro
+		if (isFocused) {
+			if (!value && !error) {
+				return `${fieldType}-success`; // Foco verde se vazio e sem erro
+			}
+			return error ? `${fieldType}-error` : `${fieldType}-success`; // Foco vermelho se erro, verde se válido
 		}
 
 		// Quando o campo perde o foco:
-		if (!value && errors[fieldName]) {
+		if (!value && error) {
 			return `${fieldType}-error`; // Foco vermelho se vazio e erro
 		}
 
-		if (value && !errors[fieldName]) {
+		if (value && error) {
+			return `${fieldType}-error`; // Foco vermelho se preenchido e erro
+		}
+
+		if (value && !error) {
 			return `${fieldType}-success`; // Foco verde se estiver preenchido corretamente e sem erro
 		}
 
@@ -1096,7 +1117,9 @@ function CreateProductPage() {
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
-					<form onSubmit={handleSubmit(handleCreateProduct)}>
+					<form
+						onSubmit={handleSubmit(handleCreateProduct)}
+						autoComplete="off">
 						{/* Gadget 1 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mt-4 mr-4 mb-4">
 							{/* Adicionar Porduto */}
@@ -1401,20 +1424,32 @@ function CreateProductPage() {
 
 																<div className="flex flex-col">
 																	<input
-																		className={`w-[360px] input input-bordered ${
-																			errors
-																				.productVariations?.[
-																				variationIndex
-																			]
-																				?.title
-																				? `input-error`
-																				: `input-success`
-																		}`}
+																		className={`input input-bordered ${getInputClass(
+																			`productVariations.${variationIndex}.title`,
+																			"select"
+																		)} w-[360px]`}
 																		type="text"
 																		placeholder="Ex.: Cores"
 																		{...register(
-																			`productVariations.${variationIndex}.title`
+																			`productVariations.${variationIndex}.title`,
+																			{
+																				onChange:
+																					() =>
+																						trigger(
+																							`productVariations.${variationIndex}.title`
+																						),
+																			}
 																		)}
+																		onFocus={() =>
+																			handleFocus(
+																				`productVariations.${variationIndex}.title`
+																			)
+																		}
+																		onBlur={() =>
+																			handleBlur(
+																				`productVariations.${variationIndex}.title`
+																			)
+																		}
 																		defaultValue={
 																			variation.title
 																		}
@@ -1632,52 +1667,65 @@ function CreateProductPage() {
 																						<div>
 																							<div>
 																								<input
-																									className={`input input-bordered ${
-																										errors
-																											.productVariations?.[
-																											variationIndex
-																										]
-																											?.options?.[
-																											optionIndex
-																										]
-																											?.name
-																											? `input-error`
-																											: `input-success`
-																									} w-[400px] join-item`}
+																									className={`input input-bordered ${getInputClass(
+																										`productVariations.${variationIndex}.options.${optionIndex}.name`,
+																										"select"
+																									)} w-[400px] join-item`}
 																									type="text"
 																									placeholder="Ex.: Preto"
 																									{...register(
-																										`productVariations.${variationIndex}.options.${optionIndex}.name`
+																										`productVariations.${variationIndex}.options.${optionIndex}.name`,
+																										{
+																											onChange:
+																												() =>
+																													trigger(
+																														`productVariations.${variationIndex}.options.${optionIndex}.name`
+																													),
+																										}
 																									)}
-																									value={
+																									onFocus={() =>
+																										handleFocus(
+																											`productVariations.${variationIndex}.options.${optionIndex}.name`
+																										)
+																									}
+																									onBlur={() =>
+																										handleBlur(
+																											`productVariations.${variationIndex}.options.${optionIndex}.name`
+																										)
+																									}
+																									// defaultValue={
+																									// 	variation.title
+																									// }
+
+																									defaultValue={
 																										option.name
 																									}
-																									onChange={(
-																										e
-																									) => {
-																										// Recupera o valor de productVariations e garante que seja um array válido
-																										const productVariations =
-																											getValues(
-																												"productVariations"
-																											) ||
-																											[];
+																									// onChange={(
+																									// 	e
+																									// ) => {
+																									// 	// Recupera o valor de productVariations e garante que seja um array válido
+																									// 	const productVariations =
+																									// 		getValues(
+																									// 			"productVariations"
+																									// 		) ||
+																									// 		[];
 
-																										const updatedVariations =
-																											[
-																												...productVariations,
-																											];
-																										updatedVariations[
-																											variationIndex
-																										].options[
-																											optionIndex
-																										].name =
-																											e.target.value;
+																									// 	const updatedVariations =
+																									// 		[
+																									// 			...productVariations,
+																									// 		];
+																									// 	updatedVariations[
+																									// 		variationIndex
+																									// 	].options[
+																									// 		optionIndex
+																									// 	].name =
+																									// 		e.target.value;
 
-																										setValue(
-																											"productVariations",
-																											updatedVariations
-																										);
-																									}}
+																									// 	setValue(
+																									// 		"productVariations",
+																									// 		updatedVariations
+																									// 	);
+																									// }}
 																								/>
 																							</div>
 																						</div>
@@ -1730,89 +1778,98 @@ function CreateProductPage() {
 																						<div>
 																							<div>
 																								<input
-																									className={`input input-bordered ${
-																										errors
-																											.productVariations?.[
-																											variationIndex
-																										]
-																											?.options?.[
-																											optionIndex
-																										]
-																											?.originalPrice
-																											? `input-error`
-																											: `input-success`
-																									} w-[150px] join-item`}
+																									className={`input input-bordered ${getInputClass(
+																										`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`,
+																										"select"
+																									)} w-[150px] join-item`}
 																									type="text"
 																									placeholder="0,00"
 																									{...register(
-																										`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`
+																										`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`,
+																										{
+																											onChange:
+																												() =>
+																													trigger(
+																														`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`
+																													),
+																										}
 																									)}
-																									value={
+																									onFocus={() =>
+																										handleFocus(
+																											`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`
+																										)
+																									}
+																									onBlur={() =>
+																										handleBlur(
+																											`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`
+																										)
+																									}
+																									defaultValue={
 																										option.originalPrice ||
 																										""
 																									}
-																									onChange={(
-																										e
-																									) => {
-																										const inputValue =
-																											e
-																												.target
-																												.value;
+																									// onChange={(
+																									// 	e
+																									// ) => {
+																									// 	const inputValue =
+																									// 		e
+																									// 			.target
+																									// 			.value;
 
-																										// Permite a digitação de números e vírgula, mas não faz a conversão aqui
-																										if (
-																											/^\d*([.,]?\d*)$/.test(
-																												inputValue
-																											)
-																										) {
-																											const updatedVariations =
-																												getValues(
-																													"productVariations"
-																												)?.map(
-																													(
-																														variation,
-																														idx
-																													) => {
-																														if (
-																															idx ===
-																															variationIndex
-																														) {
-																															const updatedOptions =
-																																variation.options.map(
-																																	(
-																																		option,
-																																		optIdx
-																																	) => {
-																																		if (
-																																			optIdx ===
-																																			optionIndex
-																																		) {
-																																			return {
-																																				...option,
-																																				originalPrice:
-																																					inputValue, // Mantemos a string aqui
-																																			};
-																																		}
-																																		return option;
-																																	}
-																																);
+																									// 	// Permite a digitação de números e vírgula, mas não faz a conversão aqui
+																									// 	if (
+																									// 		/^\d*([.,]?\d*)$/.test(
+																									// 			inputValue
+																									// 		)
+																									// 	) {
+																									// 		const updatedVariations =
+																									// 			getValues(
+																									// 				"productVariations"
+																									// 			)?.map(
+																									// 				(
+																									// 					variation,
+																									// 					idx
+																									// 				) => {
+																									// 					if (
+																									// 						idx ===
+																									// 						variationIndex
+																									// 					) {
+																									// 						const updatedOptions =
+																									// 							variation.options.map(
+																									// 								(
+																									// 									option,
+																									// 									optIdx
+																									// 								) => {
+																									// 									if (
+																									// 										optIdx ===
+																									// 										optionIndex
+																									// 									) {
+																									// 										return {
+																									// 											...option,
+																									// 											originalPrice:
+																									// 												inputValue, // Mantemos a string aqui
+																									// 										};
+																									// 									}
+																									// 									return option;
+																									// 								}
+																									// 							);
 
-																															return {
-																																...variation,
-																																options:
-																																	updatedOptions,
-																															};
-																														}
-																														return variation;
-																													}
-																												);
+																									// 						return {
+																									// 							...variation,
+																									// 							options:
+																									// 								updatedOptions,
+																									// 						};
+																									// 					}
+																									// 					return variation;
+																									// 				}
+																									// 			);
 
-																											setValue(
-																												"productVariations",
-																												updatedVariations
-																											); // Atualiza o formulário
-																										}
-																									}}
+																									// 		setValue(
+																									// 			"productVariations",
+																									// 			updatedVariations
+																									// 		); // Atualiza o formulário
+																									// 	}
+																									// }}
 																								/>
 																							</div>
 																						</div>
@@ -1865,89 +1922,98 @@ function CreateProductPage() {
 																						<div>
 																							<div>
 																								<input
-																									className={`input input-bordered ${
-																										errors
-																											.productVariations?.[
-																											variationIndex
-																										]
-																											?.options?.[
-																											optionIndex
-																										]
-																											?.promotionalPrice
-																											? `input-error`
-																											: `input-success`
-																									} w-[150px] join-item`}
+																									className={`input input-bordered ${getInputClass(
+																										`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`,
+																										"select"
+																									)} w-[150px] join-item`}
 																									type="text"
 																									placeholder="0,00"
 																									{...register(
-																										`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`
+																										`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`,
+																										{
+																											onChange:
+																												() =>
+																													trigger(
+																														`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`
+																													),
+																										}
 																									)}
-																									value={
+																									onFocus={() =>
+																										handleFocus(
+																											`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`
+																										)
+																									}
+																									onBlur={() =>
+																										handleBlur(
+																											`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`
+																										)
+																									}
+																									defaultValue={
 																										option.promotionalPrice ||
 																										""
 																									}
-																									onChange={(
-																										e
-																									) => {
-																										const inputValue =
-																											e
-																												.target
-																												.value;
+																									// onChange={(
+																									// 	e
+																									// ) => {
+																									// 	const inputValue =
+																									// 		e
+																									// 			.target
+																									// 			.value;
 
-																										// Permite a digitação de números e vírgula, mas não faz a conversão aqui
-																										if (
-																											/^\d*([.,]?\d*)$/.test(
-																												inputValue
-																											)
-																										) {
-																											const updatedVariations =
-																												getValues(
-																													"productVariations"
-																												)?.map(
-																													(
-																														variation,
-																														idx
-																													) => {
-																														if (
-																															idx ===
-																															variationIndex
-																														) {
-																															const updatedOptions =
-																																variation.options.map(
-																																	(
-																																		option,
-																																		optIdx
-																																	) => {
-																																		if (
-																																			optIdx ===
-																																			optionIndex
-																																		) {
-																																			return {
-																																				...option,
-																																				promotionalPrice:
-																																					inputValue, // Mantemos a string aqui
-																																			};
-																																		}
-																																		return option;
-																																	}
-																																);
+																									// 	// Permite a digitação de números e vírgula, mas não faz a conversão aqui
+																									// 	if (
+																									// 		/^\d*([.,]?\d*)$/.test(
+																									// 			inputValue
+																									// 		)
+																									// 	) {
+																									// 		const updatedVariations =
+																									// 			getValues(
+																									// 				"productVariations"
+																									// 			)?.map(
+																									// 				(
+																									// 					variation,
+																									// 					idx
+																									// 				) => {
+																									// 					if (
+																									// 						idx ===
+																									// 						variationIndex
+																									// 					) {
+																									// 						const updatedOptions =
+																									// 							variation.options.map(
+																									// 								(
+																									// 									option,
+																									// 									optIdx
+																									// 								) => {
+																									// 									if (
+																									// 										optIdx ===
+																									// 										optionIndex
+																									// 									) {
+																									// 										return {
+																									// 											...option,
+																									// 											promotionalPrice:
+																									// 												inputValue, // Mantemos a string aqui
+																									// 										};
+																									// 									}
+																									// 									return option;
+																									// 								}
+																									// 							);
 
-																															return {
-																																...variation,
-																																options:
-																																	updatedOptions,
-																															};
-																														}
-																														return variation;
-																													}
-																												);
+																									// 						return {
+																									// 							...variation,
+																									// 							options:
+																									// 								updatedOptions,
+																									// 						};
+																									// 					}
+																									// 					return variation;
+																									// 				}
+																									// 			);
 
-																											setValue(
-																												"productVariations",
-																												updatedVariations
-																											); // Atualiza o formulário
-																										}
-																									}}
+																									// 		setValue(
+																									// 			"productVariations",
+																									// 			updatedVariations
+																									// 		); // Atualiza o formulário
+																									// 	}
+																									// }}
 																								/>
 																							</div>
 																						</div>
@@ -1988,23 +2054,32 @@ function CreateProductPage() {
 																						<div>
 																							<div>
 																								<input
-																									className={`input input-bordered ${
-																										errors
-																											.productVariations?.[
-																											variationIndex
-																										]
-																											?.options?.[
-																											optionIndex
-																										]
-																											?.stock
-																											? `input-error`
-																											: `input-success`
-																									} w-[130px] join-item`}
+																									className={`input input-bordered ${getInputClass(
+																										`productVariations.${variationIndex}.options.${optionIndex}.stock`,
+																										"select"
+																									)} w-[130px] join-item`}
 																									type="text"
 																									placeholder="0"
 																									{...register(
-																										`productVariations.${variationIndex}.options.${optionIndex}.stock`
+																										`productVariations.${variationIndex}.options.${optionIndex}.stock`,
+																										{
+																											onChange:
+																												() =>
+																													trigger(
+																														`productVariations.${variationIndex}.options.${optionIndex}.stock`
+																													),
+																										}
 																									)}
+																									onFocus={() =>
+																										handleFocus(
+																											`productVariations.${variationIndex}.options.${optionIndex}.stock`
+																										)
+																									}
+																									onBlur={() =>
+																										handleBlur(
+																											`productVariations.${variationIndex}.options.${optionIndex}.stock`
+																										)
+																									}
 																									value={
 																										option.stock ||
 																										""
