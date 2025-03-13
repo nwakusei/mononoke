@@ -14,13 +14,13 @@ import DOMPurify from "dompurify";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
+import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Icons
 import { Coupon } from "@icon-park/react";
 import { GoLinkExternal } from "react-icons/go";
 import { CiWarning } from "react-icons/ci";
 import { FaPercent } from "react-icons/fa";
-import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // React Hook Form, Zod e ZodResolver
 import { useForm } from "react-hook-form";
@@ -30,7 +30,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const createCouponFormSchema = z.object({
 	discountPercentage: z
 		.string()
-		.min(1, "A porcentagem de desconto é obrigatória!")
+		.min(1, "※ A porcentagem de desconto é obrigatória!")
 		.trim()
 		.refine((value) => /^\d+(\.\d+)?$/.test(value), {
 			message: "※ Insira um número válido!",
@@ -88,17 +88,96 @@ type TCreateCouponFormSchema = z.infer<typeof createCouponFormSchema>;
 function CreateCouponPage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [partner, setPartner] = useState({});
-	const [isLoading, setIsLoading] = useState(true);
+	const [loadingPage, setLoadingPage] = useState(true);
+	const [loadingButton, setLoadingButton] = useState(false);
+
 	const router = useRouter();
 
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
+		getValues,
+		trigger,
 	} = useForm<TCreateCouponFormSchema>({
 		resolver: zodResolver(createCouponFormSchema),
-		mode: "onBlur",
+		// mode: "onBlur",
+		defaultValues: {},
 	});
+
+	const [focusStates, setFocusStates] = useState({});
+
+	// Função que altera o foco de cada campo individualmente
+	const handleFocus = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: true,
+		}));
+	};
+
+	// Função que remove o foco de cada campo individualmente
+	const handleBlur = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: false,
+		}));
+	};
+
+	const getFieldClass = (fieldName: string, fieldType: string) => {
+		// Obtém o valor do campo com o fieldName dinâmico
+		const value = getValues(fieldName);
+		const isFocused = focusStates[fieldName];
+
+		// Acessando o erro de acordo com o padrão do fieldName
+		let error;
+
+		// Verifica se o fieldName pertence a um campo de variação
+		if (fieldName.startsWith("productVariations")) {
+			const fieldPath = fieldName.split(".");
+
+			if (fieldPath.length === 3) {
+				// Acesso ao título da variação: productVariations.${variationIndex}.title
+				const variationIndex = fieldPath[1];
+				const key = fieldPath[2];
+				error = errors?.productVariations?.[variationIndex]?.[key];
+			} else if (fieldPath.length === 5) {
+				// Acesso à opção de variação: productVariations.${variationIndex}.options.${optionIndex}.name
+				const variationIndex = fieldPath[1];
+				const optionIndex = fieldPath[3];
+				const key = fieldPath[4];
+				error =
+					errors?.productVariations?.[variationIndex]?.options?.[
+						optionIndex
+					]?.[key];
+			}
+		} else {
+			// Para campos simples (não relacionados a variações)
+			error = errors?.[fieldName];
+		}
+
+		// Lógica para determinar a classe do campo com base no foco e erro
+		if (isFocused) {
+			if (!value && !error) {
+				return `${fieldType}-success`; // Foco verde se vazio e sem erro
+			}
+			return error ? `${fieldType}-error` : `${fieldType}-success`; // Foco vermelho se erro, verde se válido
+		}
+
+		// Quando o campo perde o foco:
+		if (!value && error) {
+			return `${fieldType}-error`; // Foco vermelho se vazio e erro
+		}
+
+		if (value && error) {
+			return `${fieldType}-error`; // Foco vermelho se preenchido e erro
+		}
+
+		if (value && !error) {
+			return `${fieldType}-success`; // Foco verde se estiver preenchido corretamente e sem erro
+		}
+
+		return ""; // Sem cor se não há erro e o campo estiver vazio
+	};
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -107,11 +186,13 @@ function CreateCouponPage() {
 			},
 		}).then((responser) => {
 			setPartner(responser.data);
-			setIsLoading(false);
+			setLoadingPage(false);
 		});
 	}, [token]);
 
 	async function handleCreateCoupon(CouponData) {
+		setLoadingButton(true);
+
 		try {
 			const response = await api.post("/coupons/create", CouponData, {
 				headers: {
@@ -119,17 +200,18 @@ function CreateCouponPage() {
 				},
 			});
 
+			setLoadingButton(false);
 			toast.success(response.data.message);
+			// router.push("/dashboard/mycoupons");
 
-			router.push("/dashboard/mycoupons");
 			return response.data;
-		} catch (error) {
+		} catch (error: any) {
 			toast.error(error.response.data.message);
 			return error.response.data;
 		}
 	}
 
-	if (isLoading) {
+	if (loadingPage) {
 		return <LoadingPage />;
 	}
 
@@ -138,7 +220,9 @@ function CreateCouponPage() {
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
-					<form onSubmit={handleSubmit(handleCreateCoupon)}>
+					<form
+						onSubmit={handleSubmit(handleCreateCoupon)}
+						autoComplete="off">
 						{/* Gadget 1 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mt-4 mb-4 shadow-md">
 							{/* Adicionar Porduto */}
@@ -146,22 +230,6 @@ function CreateCouponPage() {
 								<h1 className="text-2xl font-semibold text-black">
 									Criar Cupom de Desconto
 								</h1>
-
-								{/* <div className="flex flex-row gap-10">
-									<label className="form-control w-full">
-										<div className="label">
-											<span className="label-text text-black">
-												Site da Loja
-											</span>
-										</div>
-										<input
-											type="text"
-											placeholder={`${partner.site}`}
-											className="input input-bordered input-success"
-											disabled
-										/>
-									</label>
-								</div> */}
 
 								<div className="flex flex-row items-center gap-4">
 									{/* Cashback Atual */}
@@ -208,14 +276,31 @@ function CreateCouponPage() {
 											<div>
 												<div>
 													<input
-														className={`${
-															errors.discountPercentage &&
-															`input-error`
-														} input input-bordered input-success join-item w-[325px]`}
+														type="text"
+														className={`input input-bordered ${getFieldClass(
+															"discountPercentage",
+															"input"
+														)} w-[325px] join-item`}
 														placeholder="0"
 														{...register(
-															"discountPercentage"
+															"discountPercentage",
+															{
+																onChange: () =>
+																	trigger(
+																		"discountPercentage"
+																	),
+															}
 														)}
+														onFocus={() =>
+															handleFocus(
+																"discountPercentage"
+															)
+														}
+														onBlur={() =>
+															handleBlur(
+																"discountPercentage"
+															)
+														}
 													/>
 												</div>
 											</div>
@@ -255,14 +340,31 @@ function CreateCouponPage() {
 											<div>
 												<div>
 													<input
-														className={`${
-															errors.couponCode &&
-															`input-error`
-														} input input-bordered input-success join-item w-[325px]`}
+														type="text"
+														className={`input input-bordered ${getFieldClass(
+															"couponCode",
+															"input"
+														)} w-[325px] join-item`}
 														placeholder="..."
 														{...register(
-															"couponCode"
+															"couponCode",
+															{
+																onChange: () =>
+																	trigger(
+																		"couponCode"
+																	),
+															}
 														)}
+														onFocus={() =>
+															handleFocus(
+																"couponCode"
+															)
+														}
+														onBlur={() =>
+															handleBlur(
+																"couponCode"
+															)
+														}
 													/>
 												</div>
 											</div>
@@ -291,7 +393,7 @@ function CreateCouponPage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4 shadow-md">
+						{/* <div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4 shadow-md">
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
 									Importante!
@@ -324,7 +426,7 @@ function CreateCouponPage() {
 									</p>
 								</div>
 							</div>
-						</div>
+						</div> */}
 
 						{/* Gadget 3 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 shadow-md">
@@ -341,11 +443,20 @@ function CreateCouponPage() {
 										className="btn btn-outline btn-error hover:shadow-md">
 										Cancelar
 									</button>
-									<button
-										type="submit"
-										className="btn btn-primary shadow-md">
-										Criar e Publicar
-									</button>
+
+									{loadingButton ? (
+										<button
+											type="submit"
+											className="btn btn-primary w-[150px] text-white shadow-md">
+											<span className="loading loading-spinner loading-md"></span>
+										</button>
+									) : (
+										<button
+											type="submit"
+											className="btn btn-primary w-[150px] shadow-md">
+											Criar e Publicar
+										</button>
+									)}
 								</div>
 							</div>
 						</div>

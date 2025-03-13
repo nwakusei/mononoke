@@ -694,51 +694,14 @@ function CreateProductPage() {
 	);
 
 	const [token] = useState(localStorage.getItem("token") || "");
-	const [isLoading, setIsLoading] = useState(true);
+	const [loadingPage, setLoadingPage] = useState(true);
+	const [loadingButton, setLoadingButton] = useState(false);
 
 	const [offerFreeShipping, setOfferFreeShipping] = useState("");
 
 	const [displayVariations, setDiisplayVariations] = useState(false);
 
-	// const [isFocused, setIsFocused] = useState(false); // Para controlar se o campo está em foco
-
-	// const handleInputChange = () => {
-	// 	trigger("productTitle"); // Valida enquanto digita
-	// };
-
-	// // Lógica para as classes de foco
-	// const getInputClass = () => {
-	// 	const value = getValues("productTitle");
-
-	// 	if (isFocused) {
-	// 		// Se estiver vazio, foco vermelho
-	// 		if (!value) {
-	// 			return "input-error"; // Foco vermelho se vazio
-	// 		}
-
-	// 		// Se tiver erro, foco vermelho; se estiver correto, foco verde
-	// 		return errors.productTitle ? "input-error" : "input-success";
-	// 	}
-
-	// 	// Quando o campo perde o foco:
-	// 	if (!value && !errors.productTitle) {
-	// 		return ""; // Sem cor, se vazio e sem erro
-	// 	}
-
-	// 	// Quando estiver vazio e tiver erro, foco vermelho
-	// 	if (!value && errors.productTitle) {
-	// 		return "input-error"; // Foco vermelho se vazio e erro
-	// 	}
-
-	// 	return ""; // Sem cor se o campo tiver conteúdo válido
-	// };
-
-	const [focusStates, setFocusStates] = useState({
-		productTitle: false,
-		originalPrice: false,
-		freeShipping: false,
-		// adicione mais campos conforme necessário
-	});
+	const [focusStates, setFocusStates] = useState({});
 
 	// Função que altera o foco de cada campo individualmente
 	const handleFocus = (fieldName: string) => {
@@ -756,33 +719,7 @@ function CreateProductPage() {
 		}));
 	};
 
-	// // Função para obter a classe com base no foco e erro
-	// const getInputClass = (fieldName: string, fieldType: string) => {
-	// 	const value = getValues(fieldName); // Obtém o valor do campo
-	// 	const isFocused = focusStates[fieldName]; // Verifica se o campo está focado
-
-	// 	if (isFocused) {
-	// 		if (!value && !errors[fieldName]) {
-	// 			return `${fieldType}-success`; // Foco verde se estiver vazio e sem erro (primeiro clique)
-	// 		}
-	// 		return errors[fieldName]
-	// 			? `${fieldType}-error`
-	// 			: `${fieldType}-success`; // Foco vermelho se erro, verde se válido
-	// 	}
-
-	// 	// Quando o campo perde o foco:
-	// 	if (!value && errors[fieldName]) {
-	// 		return `${fieldType}-error`; // Foco vermelho se vazio e erro
-	// 	}
-
-	// 	if (value && !errors[fieldName]) {
-	// 		return `${fieldType}-success`; // Foco verde se estiver preenchido corretamente e sem erro
-	// 	}
-
-	// 	return ""; // Sem cor se não há erro e o campo estiver vazio
-	// };
-
-	const getInputClass = (fieldName: string, fieldType: string) => {
+	const getFieldClass = (fieldName: string, fieldType: string) => {
 		// Obtém o valor do campo com o fieldName dinâmico
 		const value = getValues(fieldName);
 		const isFocused = focusStates[fieldName];
@@ -878,7 +815,7 @@ function CreateProductPage() {
 	useEffect(() => {
 		// Simular um atraso no carregamento
 		const timer = setTimeout(() => {
-			setIsLoading(false);
+			setLoadingPage(false);
 		}, 2000); // 2000 ms = 2 segundos
 
 		// Limpar o timeout se o componente for desmontado antes do timeout ser concluído
@@ -980,8 +917,9 @@ function CreateProductPage() {
 	const [output, setOutput] = useState("");
 
 	async function handleCreateProduct(productData: { [key: string]: any }) {
+		setLoadingButton(true);
+
 		setOutput(JSON.stringify(productData, null, 2));
-		console.log("Dados do produto:", productData);
 
 		// Sanitiza os dados antes de usá-los
 		const sanitizedData = Object.fromEntries(
@@ -1094,6 +1032,9 @@ function CreateProductPage() {
 					Authorization: `Bearer ${JSON.parse(token)}`,
 				},
 			});
+
+			setLoadingButton(false);
+
 			toast.success(response.data.message);
 			// router.push("/dashboard/myproducts");
 			return response.data;
@@ -1108,7 +1049,7 @@ function CreateProductPage() {
 		router.push("/dashboard/myproducts");
 	};
 
-	if (isLoading) {
+	if (loadingPage) {
 		return <LoadingPage />;
 	}
 
@@ -1136,10 +1077,10 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<input
-											className={`input input-bordered w-full ${getInputClass(
+											className={`input input-bordered ${getFieldClass(
 												"productTitle",
 												"input"
-											)}`}
+											)} bg-slate-200 text-black w-full`}
 											type="text"
 											placeholder="Ex: One Piece Vol.1"
 											{...register("productTitle", {
@@ -1175,7 +1116,7 @@ function CreateProductPage() {
 										</div>
 										<textarea
 											placeholder="Descreva todos os detalhes do produto..."
-											className={`textarea textarea-bordered ${getInputClass(
+											className={`textarea textarea-bordered ${getFieldClass(
 												"description",
 												"textarea"
 											)} w-[885px] h-[200px]`}
@@ -1206,7 +1147,7 @@ function CreateProductPage() {
 												</span>
 											</div>
 											<select
-												className={`select select-bordered ${getInputClass(
+												className={`select select-bordered ${getFieldClass(
 													"category",
 													"select"
 												)} w-full`}
@@ -1254,7 +1195,7 @@ function CreateProductPage() {
 											</div>
 
 											<select
-												className={`select select-bordered ${getInputClass(
+												className={`select select-bordered ${getFieldClass(
 													"adultProduct",
 													"select"
 												)} w-full max-w-xs`}
@@ -1350,7 +1291,7 @@ function CreateProductPage() {
 											className={`${
 												errors.imagesProduct &&
 												`border-error`
-											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md cursor-pointer relative`}>
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-sky-950 hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md cursor-pointer relative`}>
 											<span className="text-xs">
 												Add Imagem
 											</span>
@@ -1424,7 +1365,7 @@ function CreateProductPage() {
 
 																<div className="flex flex-col">
 																	<input
-																		className={`input input-bordered ${getInputClass(
+																		className={`input input-bordered ${getFieldClass(
 																			`productVariations.${variationIndex}.title`,
 																			"select"
 																		)} w-[360px]`}
@@ -1494,70 +1435,6 @@ function CreateProductPage() {
 																				optionIndex
 																			}>
 																			<div className="flex flex-row gap-2">
-																				{/* <div className="flex flex-col">
-																					<div className="label">
-																						<span className="label-text text-black">
-																							Imagem
-																						</span>
-																					</div>
-																					<div
-																						className={`${
-																							errors
-																								.productVariations?.[
-																								variationIndex
-																							]
-																								?.options?.[
-																								optionIndex
-																							]
-																								?.imageUrl
-																								? "border-error"
-																								: "border-success"
-																						} text-black hover:text-white flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-																						{variationImages[
-																							`${variationIndex}-${optionIndex}`
-																						] ? (
-																							<img
-																								src={
-																									variationImages[
-																										`${variationIndex}-${optionIndex}`
-																									]
-																								}
-																								alt="Preview"
-																								className="w-full h-full object-cover rounded-sm"
-																							/>
-																						) : (
-																							<>
-																								<AddPicture
-																									size={
-																										20
-																									}
-																								/>
-																								<input
-																									type="file"
-																									accept="image/*"
-																									multiple
-																									className="absolute inset-0 opacity-0 cursor-pointer"
-																									{...register(
-																										`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`,
-																										{
-																											onChange:
-																												(
-																													event: React.ChangeEvent<HTMLInputElement>
-																												) => {
-																													handleVariationImageChange(
-																														event,
-																														variationIndex,
-																														optionIndex
-																													);
-																												},
-																										}
-																									)}
-																								/>
-																							</>
-																						)}
-																					</div>
-																				</div> */}
-
 																				<div className="flex flex-col">
 																					<div className="label">
 																						<span className="label-text text-black">
@@ -1667,7 +1544,7 @@ function CreateProductPage() {
 																						<div>
 																							<div>
 																								<input
-																									className={`input input-bordered ${getInputClass(
+																									className={`input input-bordered ${getFieldClass(
 																										`productVariations.${variationIndex}.options.${optionIndex}.name`,
 																										"select"
 																									)} w-[400px] join-item`}
@@ -1778,7 +1655,7 @@ function CreateProductPage() {
 																						<div>
 																							<div>
 																								<input
-																									className={`input input-bordered ${getInputClass(
+																									className={`input input-bordered ${getFieldClass(
 																										`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`,
 																										"select"
 																									)} w-[150px] join-item`}
@@ -1922,7 +1799,7 @@ function CreateProductPage() {
 																						<div>
 																							<div>
 																								<input
-																									className={`input input-bordered ${getInputClass(
+																									className={`input input-bordered ${getFieldClass(
 																										`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`,
 																										"select"
 																									)} w-[150px] join-item`}
@@ -2054,7 +1931,7 @@ function CreateProductPage() {
 																						<div>
 																							<div>
 																								<input
-																									className={`input input-bordered ${getInputClass(
+																									className={`input input-bordered ${getFieldClass(
 																										`productVariations.${variationIndex}.options.${optionIndex}.stock`,
 																										"select"
 																									)} w-[130px] join-item`}
@@ -2268,7 +2145,7 @@ function CreateProductPage() {
 												<div>
 													<div>
 														<input
-															className={`input input-bordered ${getInputClass(
+															className={`input input-bordered ${getFieldClass(
 																"originalPrice",
 																"input"
 															)} w-full join-item`}
@@ -2334,7 +2211,7 @@ function CreateProductPage() {
 												<div>
 													<div>
 														<input
-															className={`input input-bordered w-full ${getInputClass(
+															className={`input input-bordered w-full ${getFieldClass(
 																"promotionalPrice",
 																"input"
 															)} join-item`}
@@ -2392,7 +2269,7 @@ function CreateProductPage() {
 												<div>
 													<div>
 														<input
-															className={`input input-bordered w-full ${getInputClass(
+															className={`input input-bordered w-full ${getFieldClass(
 																"stock",
 																"input"
 															)} join-item`}
@@ -2469,7 +2346,7 @@ function CreateProductPage() {
 										</div>
 
 										<select
-											className={`select select-bordered ${getInputClass(
+											className={`select select-bordered ${getFieldClass(
 												"condition",
 												"select"
 											)} w-full max-w-xs`}
@@ -2507,7 +2384,7 @@ function CreateProductPage() {
 										</div>
 
 										<select
-											className={`select select-bordered ${getInputClass(
+											className={`select select-bordered ${getFieldClass(
 												"preOrder",
 												"select"
 											)} w-full max-w-xs`}
@@ -2548,7 +2425,7 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`input input-bordered ${getInputClass(
+														className={`input input-bordered ${getFieldClass(
 															"daysShipping",
 															"input"
 														)} join-item`}
@@ -2617,7 +2494,7 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`input input-bordered ${getInputClass(
+														className={`input input-bordered ${getFieldClass(
 															"weight",
 															"input"
 														)} max-w-[120px] join-item`}
@@ -2671,7 +2548,7 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`input input-bordered ${getInputClass(
+														className={`input input-bordered ${getFieldClass(
 															"length",
 															"input"
 														)} max-w-[120px] join-item`}
@@ -2737,7 +2614,7 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`input input-bordered ${getInputClass(
+														className={`input input-bordered ${getFieldClass(
 															"width",
 															"input"
 														)} max-w-[120px] join-item`}
@@ -2801,7 +2678,7 @@ function CreateProductPage() {
 											<div>
 												<div>
 													<input
-														className={`input input-bordered ${getInputClass(
+														className={`input input-bordered ${getFieldClass(
 															"height",
 															"input"
 														)} max-w-[120px] join-item`}
@@ -2853,7 +2730,7 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<select
-											className={`select select-bordered ${getInputClass(
+											className={`select select-bordered ${getFieldClass(
 												"freeShipping",
 												"select"
 											)} w-full max-w-xs`}
@@ -2901,7 +2778,7 @@ function CreateProductPage() {
 											</span>
 										</div>
 										<select
-											className={`select select-bordered ${getInputClass(
+											className={`select select-bordered ${getFieldClass(
 												"freeShippingRegion",
 												"select"
 											)} w-full max-w-xs`}
@@ -3039,11 +2916,19 @@ function CreateProductPage() {
 										className="btn btn-outline btn-error hover:shadow-md">
 										Cancelar
 									</button>
-									<button
-										type="submit"
-										className="btn btn-primary shadow-md">
-										Publicar Produto
-									</button>
+									{loadingButton ? (
+										<button
+											type="submit"
+											className="btn btn-primary w-[150px] text-white shadow-md">
+											<span className="loading loading-spinner loading-md"></span>
+										</button>
+									) : (
+										<button
+											type="submit"
+											className="btn btn-primary w-[150px] shadow-md">
+											Publicar Produto
+										</button>
+									)}
 								</div>
 							</div>
 						</div>

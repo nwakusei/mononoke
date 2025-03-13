@@ -132,6 +132,9 @@ function RegisterPage() {
 		formState: { errors },
 	} = useForm<TCreateUserFormData>({
 		resolver: zodResolver(createUserFormSchema),
+		defaultValues: {
+			accountType: "",
+		},
 	});
 	const { registerCustomer, registerPartner } = useContext(Context);
 
@@ -165,7 +168,7 @@ function RegisterPage() {
 			<div className="flex flex-col items-center justify-center bg-primary w-[500px] h-[820px] rounded-md shadow-md m-4">
 				<Image src={Logo} width={200} alt="logo" unoptimized />
 				<h1 className="text-center text-2xl mt-2 mb-4">Cadastre-se</h1>
-				<form onSubmit={handleSubmit(createUser)}>
+				<form onSubmit={handleSubmit(createUser)} autoComplete="off">
 					<div className="mb-2">
 						<div>
 							<div className="label">

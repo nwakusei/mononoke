@@ -55,16 +55,16 @@ function LoginPage() {
 
 	const { loginUser } = useContext(Context);
 
-	const [btnLoading, setBtnLoading] = useState(false);
+	const [loadingButton, setLoadingButton] = useState(false);
 
 	const signinUser = async (data: TCreateUserFormData) => {
-		setBtnLoading(true); // Define o estado como true quando o login é iniciado
+		setLoadingButton(true); // Define o estado como true quando o login é iniciado
 		try {
 			await loginUser(data); // Chama o método de login
 		} catch (error) {
 			console.error("Erro no login:", error);
 		} finally {
-			setBtnLoading(false); // Define o estado como false após o login, independentemente do sucesso ou falha
+			setLoadingButton(false); // Define o estado como false após o login, independentemente do sucesso ou falha
 		}
 	};
 
@@ -79,7 +79,7 @@ function LoginPage() {
 					unoptimized
 				/>
 				<h1 className="text-center text-2xl mt-2 mb-4">Login</h1>
-				<form onSubmit={handleSubmit(signinUser)}>
+				<form onSubmit={handleSubmit(signinUser)} autoComplete="off">
 					<InputUserForm
 						htmlFor="email"
 						labelTitle="Email"
@@ -97,7 +97,7 @@ function LoginPage() {
 						errors={errors}
 					/>
 
-					{btnLoading ? (
+					{loadingButton ? (
 						<button className="flex flex-row justify-center items-center btn btn-secondary w-[320px] mt-4 select-none shadow-md">
 							{/* <span className="loading loading-dots loading-md"></span> */}
 							<span className="loading loading-spinner loading-md"></span>

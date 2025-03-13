@@ -93,7 +93,7 @@ function useAuth() {
 	async function authUser(data: any) {
 		setUserAuthenticated(true);
 		localStorage.setItem("token", JSON.stringify(data.token));
-		router.push("/");
+		router.push("/dashboard");
 	}
 
 	// async function authCustomer(data: any) {

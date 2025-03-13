@@ -382,9 +382,12 @@ function MyProfilePage() {
 	const [selectedLogoImage, setSelectedLogoImage] = useState<string | null>(
 		null
 	);
-	const [isLoading, setIsLoading] = useState(true);
+	const [loadingPage, setLoadingPage] = useState(true);
 	const [loadingButton, setLoadingButton] = useState(false);
+
 	const router = useRouter();
+
+	const [output, setOutput] = useState("");
 
 	const {
 		register,
@@ -392,11 +395,85 @@ function MyProfilePage() {
 		formState: { errors },
 		control,
 		watch,
+		getValues,
+		trigger,
 	} = useForm<TUpdateUserFormData>({
 		resolver: zodResolver(updateUserFormSchema),
 	});
 
-	const [output, setOutput] = useState("");
+	const [focusStates, setFocusStates] = useState({});
+
+	// Função que altera o foco de cada campo individualmente
+	const handleFocus = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: true,
+		}));
+	};
+
+	// Função que remove o foco de cada campo individualmente
+	const handleBlur = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: false,
+		}));
+	};
+
+	const getFieldClass = (fieldName: string, fieldType: string) => {
+		// Obtém o valor do campo com o fieldName dinâmico
+		const value = getValues(fieldName);
+		const isFocused = focusStates[fieldName];
+
+		// Acessando o erro de acordo com o padrão do fieldName
+		let error;
+
+		// Verifica se o fieldName pertence a um campo de variação
+		if (fieldName.startsWith("productVariations")) {
+			const fieldPath = fieldName.split(".");
+
+			if (fieldPath.length === 3) {
+				// Acesso ao título da variação: productVariations.${variationIndex}.title
+				const variationIndex = fieldPath[1];
+				const key = fieldPath[2];
+				error = errors?.productVariations?.[variationIndex]?.[key];
+			} else if (fieldPath.length === 5) {
+				// Acesso à opção de variação: productVariations.${variationIndex}.options.${optionIndex}.name
+				const variationIndex = fieldPath[1];
+				const optionIndex = fieldPath[3];
+				const key = fieldPath[4];
+				error =
+					errors?.productVariations?.[variationIndex]?.options?.[
+						optionIndex
+					]?.[key];
+			}
+		} else {
+			// Para campos simples (não relacionados a variações)
+			error = errors?.[fieldName];
+		}
+
+		// Lógica para determinar a classe do campo com base no foco e erro
+		if (isFocused) {
+			if (!value && !error) {
+				return `${fieldType}-success`; // Foco verde se vazio e sem erro
+			}
+			return error ? `${fieldType}-error` : `${fieldType}-success`; // Foco vermelho se erro, verde se válido
+		}
+
+		// Quando o campo perde o foco:
+		if (!value && error) {
+			return `${fieldType}-error`; // Foco vermelho se vazio e erro
+		}
+
+		if (value && error) {
+			return `${fieldType}-error`; // Foco vermelho se preenchido e erro
+		}
+
+		if (value && !error) {
+			return `${fieldType}-success`; // Foco verde se estiver preenchido corretamente e sem erro
+		}
+
+		return ""; // Sem cor se não há erro e o campo estiver vazio
+	};
 
 	useEffect(() => {
 		api.get("/otakuprime/check-user", {
@@ -405,7 +482,7 @@ function MyProfilePage() {
 			},
 		}).then((response) => {
 			setUser(response.data);
-			setIsLoading(false);
+			setLoadingPage(false);
 		});
 	}, [token]);
 
@@ -577,7 +654,7 @@ function MyProfilePage() {
 		router.push("/dashboard");
 	};
 
-	if (isLoading) {
+	if (loadingPage) {
 		return <LoadingPage />;
 	}
 
@@ -591,7 +668,8 @@ function MyProfilePage() {
 							e.preventDefault();
 							console.log("🔥 FORM SUBMETIDO!");
 							handleSubmit(updateUser)(e);
-						}}>
+						}}
+						autoComplete="off">
 						{/* Gadget 1 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 							{/* Adicionar Porduto */}
@@ -614,16 +692,17 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											// name="name"
+											className={`input input-bordered ${getFieldClass(
+												"name",
+												"input"
+											)} w-full max-w-3xl`}
 											placeholder={`...`}
-											autoComplete="off"
 											defaultValue={user?.name}
-											className={`input input-bordered ${
-												errors.name
-													? `input-error`
-													: `input-success`
-											} w-full max-w-3xl`}
-											{...register("name")}
+											{...register("name", {
+												onChange: () => trigger("name"),
+											})}
+											onFocus={() => handleFocus("name")}
+											onBlur={() => handleBlur("name")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -646,16 +725,22 @@ function MyProfilePage() {
 											</div>
 											<input
 												type="text"
-												// name="cpfCnpj"
+												className={`input input-bordered ${getFieldClass(
+													"cpfCnpj",
+													"input"
+												)} w-full max-w-3xl`}
 												placeholder={`...`}
-												autoComplete="off"
 												defaultValue={user?.cpfCnpj}
-												className={`input input-bordered ${
-													errors.cpfCnpj
-														? `input-error`
-														: `input-success`
-												} w-full max-w-3xl`}
-												{...register("cpfCnpj")}
+												{...register("cpfCnpj", {
+													onChange: () =>
+														trigger("cpfCnpj"),
+												})}
+												onFocus={() =>
+													handleFocus("cpfCnpj")
+												}
+												onBlur={() =>
+													handleBlur("cpfCnpj")
+												}
 											/>
 											<div className="label">
 												<span className="label-text-alt text-red-500">
@@ -679,16 +764,20 @@ function MyProfilePage() {
 											</div>
 											<input
 												type="text"
-												// name="cpfCnpj"
+												className={`input input-bordered ${getFieldClass(
+													"cpf",
+													"input"
+												)} w-full max-w-3xl`}
 												placeholder={`...`}
-												autoComplete="off"
 												defaultValue={user?.cpf}
-												className={`input input-bordered ${
-													errors.cpf
-														? `input-error`
-														: `input-success`
-												} w-full max-w-3xl`}
-												{...register("cpf")}
+												{...register("cpf", {
+													onChange: () =>
+														trigger("cpf"),
+												})}
+												onFocus={() =>
+													handleFocus("cpf")
+												}
+												onBlur={() => handleBlur("cpf")}
 											/>
 											<div className="label">
 												<span className="label-text-alt text-red-500">
@@ -712,16 +801,22 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											// name="email"
+											className={`input input-bordered ${getFieldClass(
+												"nickname",
+												"input"
+											)} w-[300px]`}
 											placeholder={`...`}
-											autoComplete="off"
 											defaultValue={user?.nickname}
-											className={`input input-bordered ${
-												errors.nickname
-													? `input-error`
-													: `input-success`
-											} w-[300px]`}
-											{...register("nickname")}
+											{...register("nickname", {
+												onChange: () =>
+													trigger("nickname"),
+											})}
+											onFocus={() =>
+												handleFocus("nickname")
+											}
+											onBlur={() =>
+												handleBlur("nickname")
+											}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -746,16 +841,18 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="email"
-											// name="email"
+											className={`input input-bordered ${getFieldClass(
+												"email",
+												"input"
+											)} w-[500px]`}
 											placeholder={`...`}
-											autoComplete="off"
 											defaultValue={user?.email}
-											className={`input input-bordered ${
-												errors.email
-													? `input-error`
-													: `input-success`
-											} w-[500px]`}
-											{...register("email")}
+											{...register("email", {
+												onChange: () =>
+													trigger("email"),
+											})}
+											onFocus={() => handleFocus("email")}
+											onBlur={() => handleBlur("email")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -777,11 +874,11 @@ function MyProfilePage() {
 										</div>
 
 										<select
-											className={`select ${
-												errors.viewAdultContent
-													? `select-error`
-													: `select-success`
-											}  w-full max-w-xs`}
+											className={`select select-bordered ${getFieldClass(
+												"viewAdultContent",
+												"select"
+											)} w-full max-w-xs`}
+											placeholder={`...`}
 											defaultValue={
 												user?.viewAdultContent !==
 												undefined
@@ -790,7 +887,16 @@ function MyProfilePage() {
 													  )
 													: ""
 											}
-											{...register("viewAdultContent")}>
+											{...register("viewAdultContent", {
+												onChange: () =>
+													trigger("viewAdultContent"),
+											})}
+											onFocus={() =>
+												handleFocus("viewAdultContent")
+											}
+											onBlur={() =>
+												handleBlur("viewAdultContent")
+											}>
 											<option value="" disabled>
 												Selecione uma opção
 											</option>
@@ -814,26 +920,6 @@ function MyProfilePage() {
 									<></>
 								) : (
 									<>
-										{/* <div className="flex flex-row gap-4">
-											<label className="form-control w-full max-w-3xl">
-												<div className="label">
-													<span className="label-text text-black">
-														Site Oficial da Loja
-													</span>
-												</div>
-												<input
-													type="text"
-													placeholder={`...`}
-													className={`input input-bordered input-success w-fullmax-w-3xl`}
-												/>
-												<div className="label">
-													<span className="label-text-alt text-red-500">
-														Erro
-													</span>
-												</div>
-											</label>
-										</div> */}
-
 										<div className="flex flex-row gap-4">
 											{/* Descrição da Loja */}
 											<label className="form-control w-full max-w-3xl">
@@ -843,18 +929,33 @@ function MyProfilePage() {
 													</span>
 												</div>
 												<textarea
-													className={`textarea ${
-														errors.description
-															? `textarea-error`
-															: `textarea-success`
-													} h-[150px]`}
+													className={`textarea textarea-bordered ${getFieldClass(
+														"description",
+														"textarea"
+													)} h-[150px]`}
 													placeholder={`...`}
 													defaultValue={
 														user?.description
 													}
 													{...register(
-														"description"
-													)}></textarea>
+														"description",
+														{
+															onChange: () =>
+																trigger(
+																	"description"
+																),
+														}
+													)}
+													onFocus={() =>
+														handleFocus(
+															"description"
+														)
+													}
+													onBlur={() =>
+														handleBlur(
+															"description"
+														)
+													}></textarea>
 												<div className="label">
 													<span className="label-text-alt text-red-500">
 														{errors.description && (
@@ -1220,17 +1321,22 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											placeholder="..."
-											autoComplete="off"
+											className={`input input-bordered ${getFieldClass(
+												"street",
+												"input"
+											)} w-full max-w-3xl`}
+											placeholder={`...`}
 											defaultValue={
 												user.address[0]?.street
 											}
-											className={`input input-bordered ${
-												errors.street
-													? `input-error`
-													: `input-success`
-											} w-fullmax-w-3xl`}
-											{...register("street")}
+											{...register("street", {
+												onChange: () =>
+													trigger("street"),
+											})}
+											onFocus={() =>
+												handleFocus("street")
+											}
+											onBlur={() => handleBlur("street")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -1252,18 +1358,24 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											// name="complemento"
-											placeholder="..."
-											autoComplete="off"
+											className={`input input-bordered ${getFieldClass(
+												"complement",
+												"input"
+											)} w-full max-w-3xl`}
+											placeholder={`...`}
 											defaultValue={
 												user.address[0]?.complement
 											}
-											className={`input input-bordered ${
-												errors.complement
-													? `input-error`
-													: `input-success`
-											} w-fullmax-w-3xl`}
-											{...register("complement")}
+											{...register("complement", {
+												onChange: () =>
+													trigger("complement"),
+											})}
+											onFocus={() =>
+												handleFocus("complement")
+											}
+											onBlur={() =>
+												handleBlur("complement")
+											}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -1288,18 +1400,24 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											// name="bairro"
-											placeholder="..."
-											autoComplete="off"
+											className={`input input-bordered ${getFieldClass(
+												"neighborhood",
+												"input"
+											)} w-full max-w-3xl`}
+											placeholder={`...`}
 											defaultValue={
 												user.address[0]?.neighborhood
 											}
-											className={`input input-bordered ${
-												errors.neighborhood
-													? `input-error`
-													: `input-success`
-											} w-fullmax-w-3xl`}
-											{...register("neighborhood")}
+											{...register("neighborhood", {
+												onChange: () =>
+													trigger("neighborhood"),
+											})}
+											onFocus={() =>
+												handleFocus("neighborhood")
+											}
+											onBlur={() =>
+												handleBlur("neighborhood")
+											}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -1326,16 +1444,17 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											// name="cidade"
-											placeholder="..."
-											autoComplete="off"
+											className={`input input-bordered ${getFieldClass(
+												"city",
+												"input"
+											)} w-full max-w-3xl`}
+											placeholder={`...`}
 											defaultValue={user.address[0]?.city}
-											className={`input input-bordered ${
-												errors.city
-													? `input-error`
-													: `input-success`
-											} w-fullmax-w-3xl`}
-											{...register("city")}
+											{...register("city", {
+												onChange: () => trigger("city"),
+											})}
+											onFocus={() => handleFocus("city")}
+											onBlur={() => handleBlur("city")}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -1356,17 +1475,21 @@ function MyProfilePage() {
 											</span>
 										</div>
 										<select
-											className={`select ${
-												errors.state
-													? `select-error`
-													: `select-success`
-											} w-full max-w-3xl`}
-											{...register("state")}
+											className={`select select-bordered ${getFieldClass(
+												"state",
+												"select"
+											)} w-full max-w-3xl`}
 											defaultValue={
 												user.address
 													? user.address[0]?.state
-													: "default"
-											}>
+													: ""
+											}
+											{...register("state", {
+												onChange: () =>
+													trigger("state"),
+											})}
+											onFocus={() => handleFocus("state")}
+											onBlur={() => handleBlur("state")}>
 											<option disabled value="">
 												Em qual estado sua loja está
 												localizada?
@@ -1490,18 +1613,24 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="text"
-											// name="cep"
+											className={`input input-bordered ${getFieldClass(
+												"postalCode",
+												"input"
+											)} w-full max-w-3xl`}
 											placeholder="..."
-											autoComplete="off"
 											defaultValue={
 												user.address[0]?.postalCode
 											}
-											className={`input input-bordered ${
-												errors.postalCode
-													? `input-error`
-													: `input-success`
-											} w-full max-w-3xl`}
-											{...register("postalCode")}
+											{...register("postalCode", {
+												onChange: () =>
+													trigger("postalCode"),
+											})}
+											onFocus={() =>
+												handleFocus("postalCode")
+											}
+											onBlur={() =>
+												handleBlur("postalCode")
+											}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -1581,14 +1710,22 @@ function MyProfilePage() {
 											</div>
 											<input
 												type="text"
-												placeholder={`...`}
+												className={`input input-bordered ${getFieldClass(
+													"cashback",
+													"input"
+												)} w-full max-w-3xl`}
+												placeholder="..."
 												defaultValue={user?.cashback}
-												className={`input input-bordered ${
-													errors.cashback
-														? `input-error`
-														: `input-success`
-												} w-full max-w-3xl`}
-												{...register("cashback")}
+												{...register("cashback", {
+													onChange: () =>
+														trigger("cashback"),
+												})}
+												onFocus={() =>
+													handleFocus("cashback")
+												}
+												onBlur={() =>
+													handleBlur("cashback")
+												}
 											/>
 											<div className="label">
 												<span className="label-text-alt text-red-500">
@@ -1626,15 +1763,22 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="password"
-											// name="password"
+											className={`input input-bordered ${getFieldClass(
+												"password",
+												"input"
+											)} w-full max-w-3xl`}
 											placeholder="Digite a nova senha"
-											autoComplete="off"
-											className={`input input-bordered ${
-												errors.password
-													? `input-error`
-													: `input-success`
-											} w-full max-w-3xl`}
-											{...register("password")}
+											// defaultValue={user?.password}
+											{...register("password", {
+												onChange: () =>
+													trigger("password"),
+											})}
+											onFocus={() =>
+												handleFocus("password")
+											}
+											onBlur={() =>
+												handleBlur("password")
+											}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -1659,15 +1803,22 @@ function MyProfilePage() {
 										</div>
 										<input
 											type="password"
-											// name="confirmPassword"
+											className={`input input-bordered ${getFieldClass(
+												"confirmPassword",
+												"input"
+											)} max-w-4xl`}
 											placeholder="Confirme a senha"
-											autoComplete="off"
-											className={`input input-bordered ${
-												errors.confirmPassword
-													? `input-error`
-													: `input-success`
-											} max-w-4xl`}
-											{...register("confirmPassword")}
+											// defaultValue={user?.confirmPassword}
+											{...register("confirmPassword", {
+												onChange: () =>
+													trigger("confirmPassword"),
+											})}
+											onFocus={() =>
+												handleFocus("confirmPassword")
+											}
+											onBlur={() =>
+												handleBlur("confirmPassword")
+											}
 										/>
 										<div className="label">
 											<span className="label-text-alt text-red-500">
@@ -1694,8 +1845,6 @@ function MyProfilePage() {
 								<h1 className="text-2xl font-semibold mb-4 text-black">
 									Deseja atualizar as informações de perfil?
 								</h1>
-								{/* Nome e Descrição */}
-
 								<div className="flex flex-row gap-4">
 									<button
 										type="button"

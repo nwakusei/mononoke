@@ -57,10 +57,12 @@ function ShippingConfigPage() {
 		formState: { errors },
 		control,
 		watch,
+		getValues,
+		trigger,
 	} = useForm<TUpdateShippingFormData>({
 		resolver: zodResolver(updateShippingFormSchema),
 		defaultValues: {
-			shippingConfiguration: [],
+			// shippingConfiguration: [],
 		},
 	});
 

@@ -224,7 +224,7 @@ function ChatPage() {
 								<input
 									type="text"
 									placeholder="Pesquisar"
-									className="input input-bordered input-success w-full max-w-xs"
+									className="input input-primary w-full max-w-xs"
 									value={searchName}
 									onChange={(e) =>
 										setSearchName(e.target.value)
@@ -527,7 +527,7 @@ function ChatPage() {
 								)}
 
 								<textarea
-									className="textarea w-full h-[100px] mt-2"
+									className="textarea textarea-primary w-full h-[100px] mt-2"
 									placeholder="Digite a mensagem..."
 									value={message}
 									onChange={(e) =>
@@ -535,7 +535,7 @@ function ChatPage() {
 									}></textarea>
 
 								<div className="flex flex-row items-center gap-2">
-									<label className="bg-blue-500 flex flex-col justify-center items-center w-[40px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded shadow-md mt-2 relative cursor-pointer">
+									<label className="bg-primary flex flex-col justify-center items-center w-[40px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded shadow-md mt-2 relative cursor-pointer">
 										<NewPicture size={20} />
 										<input
 											type="file"
@@ -556,7 +556,7 @@ function ChatPage() {
 											<span className="loading loading-dots loading-sm"></span>
 										</button>
 									) : (
-										<button className="flex flex-row justify-center items-center gap-2 bg-blue-500 w-[100px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded-md shadow-md mt-2">
+										<button className="flex flex-row justify-center items-center gap-2 bg-primary w-[100px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded-md shadow-md mt-2">
 											<SendOne
 												className="cursor-pointer"
 												size={20}

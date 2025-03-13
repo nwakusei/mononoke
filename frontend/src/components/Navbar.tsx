@@ -330,7 +330,7 @@ function Navbar() {
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
 														<Blockchain size={18} />
-														Blockchain
+														OtaCrypto
 													</span>
 													<span className="badge badge-secondary border border-white">
 														New
@@ -727,12 +727,27 @@ function Navbar() {
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
 														<Blockchain size={18} />
-														Blockchain
+														OtaCrypto
 													</span>
 													<span className="badge badge-secondary border border-white">
 														New
 													</span>
 												</a>
+											</li>
+											<li>
+												<Link
+													href="/raffles"
+													className="flex flex-row justify-between items-center text-white active:!bg-secondary">
+													<span className="flex items-center gap-2">
+														<MdOutlineLocalActivity
+															size={20}
+														/>
+														<span>Sorteio</span>
+													</span>
+													<span className="badge badge-secondary border border-white">
+														New
+													</span>
+												</Link>
 											</li>
 										</ul>
 									</div>
