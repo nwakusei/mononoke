@@ -229,12 +229,16 @@ function WalletPage() {
 									</h2>
 									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
 										{parseFloat(
-											userOtakupay?.otakuPointsAvailable
+											userOtakupay?.otakuPointsAvailable ||
+												0
 										) === 0
 											? `0,00 OP`
 											: `${parseFloat(
-													userOtakupay?.otakuPointsAvailable
-											  ).toLocaleString("pt-BR")} OP`}
+													userOtakupay?.otakuPointsAvailable ||
+														0
+											  )
+													.toFixed(2)
+													.replace(".", ",")} OP`}
 									</h1>
 								</div>
 							</div>

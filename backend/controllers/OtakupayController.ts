@@ -172,6 +172,80 @@ class OtakupayController {
 		}
 	}
 
+	static async addOtakuPoints(req: Request, res: Response) {
+		const { value } = req.body;
+
+		if (!value) {
+			res.status(422).json({
+				message: "O valor a ser adicionado é obrigatório!",
+			});
+			return;
+		}
+
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!(customer instanceof CustomerModel)) {
+			return res.status(422).json({
+				message: "Usuário não encontrado ou não é um cliente válido!",
+			});
+		}
+
+		try {
+			const customerOtakupay: any = await OtakupayModel.findOne({
+				_id: customer.otakupayID,
+			});
+
+			const currentCustomerOtakuPointsAvailable =
+				customerOtakupay.otakuPointsAvailable;
+
+			const currentCustomerOtakuPointsAvailableDecrypted = decrypt(
+				currentCustomerOtakuPointsAvailable
+			);
+
+			if (currentCustomerOtakuPointsAvailableDecrypted === null) {
+				res.status(500).json({
+					message:
+						"Erro ao descriptografar o Customer Balance Available!",
+				});
+				return;
+			}
+
+			console.log(
+				"Balance Available Atual do Customer",
+				currentCustomerOtakuPointsAvailableDecrypted?.toFixed(2)
+			);
+
+			const newCustomerOtakuPointsAvailable =
+				currentCustomerOtakuPointsAvailableDecrypted +
+				parseFloat(value);
+
+			console.log(
+				"Novo Balance Available Atual do Customer",
+				newCustomerOtakuPointsAvailable?.toFixed(2)
+			);
+
+			const newCustomerOtakuPointsAvailableEncrypted = encrypt(
+				newCustomerOtakuPointsAvailable.toString()
+			);
+
+			console.log(
+				"Novo Balance Available Atual do Customer Criptografado",
+				newCustomerOtakuPointsAvailableEncrypted
+			);
+
+			customerOtakupay.otakuPointsAvailable =
+				newCustomerOtakuPointsAvailableEncrypted;
+
+			await customerOtakupay.save();
+
+			res.status(200).json({ messsage: "Saldo Adicionado com Sucesso!" });
+		} catch (error) {
+			console.error("Erro ao adicionar saldo:", error);
+			return;
+		}
+	}
+
 	// accountBalanceOtamart
 	static async buyOtamart(req: Request, res: Response) {
 		const { products, shippingCost, coupons } = req.body;

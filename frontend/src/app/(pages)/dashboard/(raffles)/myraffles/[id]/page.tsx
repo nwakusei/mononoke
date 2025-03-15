@@ -197,17 +197,15 @@ function MyRafflesByID() {
 
 						<div className="">
 							<p className="whitespace-pre-wrap break-words mb-2">
-								<span className="font-semibold">
-									Descrição:
-								</span>{" "}
-								{myraffle?.raffleDescription}
+								<span className="font-semibold"></span>
+								{`Descrição: ${myraffle?.raffleDescription}`}
 							</p>
 						</div>
 						<div className="divider">E</div>
 						<div className="">
-							<p className="whitespace-pre-wrap break-words">
-								<span className="font-semibold">Regras:</span>{" "}
-								{myraffle?.raffleRules}
+							<p className="whitespace-pre-wrap break-words mb-2">
+								<span className="font-semibold"></span>
+								{`Regras: ${myraffle?.raffleRules}`}
 							</p>
 						</div>
 					</div>
@@ -220,10 +218,10 @@ function MyRafflesByID() {
 					</div>
 					{raffleStatus === "completed" && myraffle?.winner ? (
 						<div className="flex flex-row justify-center my-4 mx-4 gap-2">
-							<div className="border-[1px] border-black border-opacity-20 bg-white flex flex-row justify-center p-2 rounded-md shadow-md gap-2">
+							<div className="border-[1px] border-black border-opacity-20 bg-white flex flex-row justify-center py-2 px-4 rounded-md shadow-md gap-2">
 								<div className="w-[100px] h-[100px]">
 									<Image
-										className="object-contain w-full h-full pointer-events-none rounded-md shadow-md"
+										className="object-contain w-full h-full pointer-events-none rounded shadow-md"
 										src={`http://localhost:5000/images/customers/${myraffle.winner.customerProfileImage}`}
 										alt="Vencedor"
 										width={260}

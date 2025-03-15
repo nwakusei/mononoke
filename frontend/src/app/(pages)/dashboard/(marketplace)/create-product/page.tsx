@@ -1243,15 +1243,13 @@ function CreateProductPage() {
 									Imagens do Produto
 								</h1>
 
-								{/* Add Imagens */}
-								<div className="label">
-									<span className="label-text text-black">
-										Imagem Principal
-									</span>
-								</div>
-
-								<label className="form-control w-full">
+								<label className="form-control">
 									{/* Container das imagens */}
+									<div className="label">
+										<span className="label-text text-black">
+											Imagem Principal
+										</span>
+									</div>
 									<div className="flex flex-wrap items-center gap-2">
 										{selectedImagesProduct.map(
 											(imagem, index) => {
@@ -1289,9 +1287,10 @@ function CreateProductPage() {
 										{/* Adiciona um input para selecionar novas imagens */}
 										<div
 											className={`${
-												errors.imagesProduct &&
-												`border-error`
-											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-sky-950 hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md cursor-pointer relative`}>
+												errors.imagesProduct
+													? `border-error`
+													: `border-[#3e1d88]`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}>
 											<span className="text-xs">
 												Add Imagem
 											</span>
@@ -1300,23 +1299,22 @@ function CreateProductPage() {
 												type="file"
 												accept="image/*"
 												multiple
-												className="absolute inset-0 opacity-0 cursor-pointer" // Torna o input invisível, mas clicável
-												{...register("imagesProduct")} // Conecta o input ao react-hook-form
+												className="hidden"
+												{...register("imagesProduct")}
 												onChange={
 													handleSelectedImagesProduct
-												} // Manuseia arquivos selecionados
+												}
 											/>
 										</div>
 									</div>
+									<div className="label">
+										{errors.imagesProduct && (
+											<span className="label-text-alt text-red-500">
+												{errors.imagesProduct.message}
+											</span>
+										)}
+									</div>
 								</label>
-
-								<div className="label">
-									{errors.imagesProduct && (
-										<span className="label-text-alt text-red-500">
-											{errors.imagesProduct.message}
-										</span>
-									)}
-								</div>
 							</div>
 						</div>
 
@@ -1441,6 +1439,7 @@ function CreateProductPage() {
 																							Imagem
 																						</span>
 																					</div>
+
 																					<div
 																						className={`${
 																							errors
@@ -1477,7 +1476,10 @@ function CreateProductPage() {
 																								<button
 																									type="button"
 																									className="absolute top-1 right-1 bg-red-500 text-white active:scale-[.97] p-1 w-4 h-4 rounded-sm z-50 flex items-center justify-center text-xs"
-																									onClick={() => {
+																									onClick={(
+																										event
+																									) => {
+																										event.stopPropagation(); // Impede que o clique no botão acione a seleção de arquivos
 																										setVariationImages(
 																											(
 																												prev
@@ -1507,26 +1509,29 @@ function CreateProductPage() {
 																										20
 																									}
 																								/>
-																								<input
-																									type="file"
-																									accept="image/*"
-																									className="absolute inset-0 opacity-0 cursor-pointer"
-																									{...register(
-																										`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`,
-																										{
-																											onChange:
-																												(
-																													event: React.ChangeEvent<HTMLInputElement>
-																												) => {
-																													handleVariationImageChange(
-																														event,
-																														variationIndex,
-																														optionIndex
-																													);
-																												},
-																										}
-																									)}
-																								/>
+																								{/* Envolvendo input em um label para garantir que o cursor pegue corretamente */}
+																								<label className="absolute inset-0 cursor-pointer">
+																									<input
+																										type="file"
+																										accept="image/*"
+																										className="hidden"
+																										{...register(
+																											`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`,
+																											{
+																												onChange:
+																													(
+																														event: React.ChangeEvent<HTMLInputElement>
+																													) => {
+																														handleVariationImageChange(
+																															event,
+																															variationIndex,
+																															optionIndex
+																														);
+																													},
+																											}
+																										)}
+																									/>
+																								</label>
 																							</>
 																						)}
 																					</div>
