@@ -480,9 +480,12 @@ function MyOrderByIDPage() {
 						{/* Gadget 3 */}
 						<div className="bg-white text-black w-[325px] p-6 rounded-md shadow-md mt-4">
 							<h1 className="text-lg">
-								Loja: {myorder?.partnerName}
+								{`Loja: ${myorder?.partnerName}`}
 							</h1>
-							<h2>CPF: 000.000.000-00</h2>
+							<h2>
+								{myorder?.partnerCNPJ.length > 11 &&
+									`CNPJ: ${myorder?.partnerCNPJ}`}
+							</h2>
 
 							<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
 

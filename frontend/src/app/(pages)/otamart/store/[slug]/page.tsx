@@ -499,7 +499,7 @@ function StorePage() {
 				</div>
 
 				{coupons && coupons.length > 0 && (
-					<div className="flex flex-row justify-center gap-4 bg-white text-black w-[1100px] p-4 mb-8 flex-nowrap rounded-md shadow-md select-none">
+					<div className="flex flex-row justify-center gap-4 bg-white text-black w-[350px] lg:w-[1100px] p-4 mb-8 flex-nowrap rounded-md shadow-md select-none">
 						{/* Cupons de Desconto */}
 						{coupons.map(
 							(coupon: {
@@ -811,7 +811,7 @@ function StorePage() {
 								}></textarea>
 
 							<div className="flex flex-row items-center gap-2">
-								<label className="bg-blue-500 flex flex-col justify-center items-center w-[40px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded shadow-md mt-2 relative cursor-pointer">
+								<label className="bg-primary flex flex-col justify-center items-center w-[40px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded shadow-md mt-2 relative cursor-pointer">
 									<NewPicture size={20} />
 									<input
 										type="file"
@@ -826,11 +826,11 @@ function StorePage() {
 								{sendButtonLoading ? (
 									<button
 										disabled
-										className="bg-blue-500 w-[100px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2">
+										className="bg-primary w-[100px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2">
 										<span className="loading loading-dots loading-sm"></span>
 									</button>
 								) : (
-									<button className="flex flex-row justify-center items-center gap-2 bg-blue-500 w-[100px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded-md shadow-md mt-2">
+									<button className="flex flex-row justify-center items-center gap-2 bg-primary w-[100px] h-[40px] transition-all ease-in duration-100 active:scale-[.97] rounded-md shadow-md mt-2">
 										<SendOne
 											className="cursor-pointer"
 											size={20}

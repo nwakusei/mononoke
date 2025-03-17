@@ -10,6 +10,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 import { WhiteTicketHorizontalComponent } from "@/components/WhiteTicketHorizontalComponent";
 import { WhiteTicketVerticalComponent } from "@/components/WhiteTicketVerticalComponent";
+import { MiniTicketCard } from "@/components/MiniTicketCard";
 
 // Axios
 import api from "@/utils/api";
@@ -91,48 +92,27 @@ function MyRafflesTicketsByID() {
 						}`}</span>
 					</div>
 
-					<WhiteTicketVerticalComponent />
+					{/* <WhiteTicketVerticalComponent />
 
-					<WhiteTicketHorizontalComponent />
+					<WhiteTicketHorizontalComponent /> */}
 
 					{/* Card Ticket */}
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 						{myTickets &&
-							myTickets.length > 0 &&
-							myTickets.map((myTicket) => (
-								<div
-									key={myTicket?._id}
-									className="flex flex-col w-[250px] bg-secondary text-white mb-2 rounded-lg shadow-lg overflow-hidden">
-									{/* Cabeçalho do Ticket */}
-									<div className="flex flex-row p-4 bg-primary text-white">
-										<span className="font-semibold">
-											{`Ticket #${myTicket?.ticketNumber}`}
-										</span>
-									</div>
-
-									<div className="p-4">
-										<div className="text-sm mb-2">
-											<span className="font-medium">
-												Nome do Cliente:
-											</span>{" "}
-										</div>
-										<div className="text-sm mb-2">
-											<span className="font-medium">
-												Data de Emissão:
-											</span>{" "}
-										</div>
-									</div>
-
-									<div className="flex justify-between items-center p-4 bg-purple-400">
-										<span className="text-xs">
-											Validade:
-										</span>
-										<button className="bg-primary text-white px-2 py-1 rounded-md shadow-md text-xs">
-											Ver Mais
-										</button>
-									</div>
-								</div>
-							))}
+							myTickets?.length > 0 &&
+							myTickets.map((ticket) => {
+								return (
+									<MiniTicketCard
+										key={ticket._id}
+										TicketNumber={ticket.ticketNumber}
+										winningTicket={
+											raffle?.winner?.ticketNumber &&
+											ticket.ticketNumber ===
+												raffle.winner.ticketNumber
+										}
+									/>
+								);
+							})}
 					</div>
 				</div>
 			</div>

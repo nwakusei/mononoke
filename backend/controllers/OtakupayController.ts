@@ -1218,6 +1218,7 @@ class OtakupayController {
 								)?.encryptedCustomerCashback,
 							itemsList: [],
 							partnerID: partnerID,
+							partnerCNPJ: partner.cpfCnpj,
 							partnerName: partner.name,
 							customerID: customer._id.toString(),
 							customerName: customer.name,
@@ -2777,6 +2778,7 @@ class OtakupayController {
 							itemsList: [],
 							partnerID: partnerID,
 							partnerName: partner.name,
+							partnerCNPJ: partner.cpfCnpj,
 							customerID: customer._id,
 							customerName: customer.name,
 							customerCPF: customer.cpf,
@@ -4605,6 +4607,8 @@ class OtakupayController {
 														partnerID: partnerID,
 														partnerName:
 															partner.name,
+														partnerCNPJ:
+															partner.cpfCnpj,
 														customerID:
 															customer._id,
 														customerName:

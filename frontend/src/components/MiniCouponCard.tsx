@@ -26,7 +26,9 @@ function MiniCouponCard({
 			key={couponID}
 			className="flex flex-row bg-primary w-[253px] h-[100px] gap-2 rounded-md relative overflow-hidden">
 			<div className="flex flex-col items-center mt-1 ml-[30px] gap-2">
-				<h2 className="text-xl">{couponDiscount}% de Desconto</h2>
+				<h2 className="text-xl text-white">
+					{couponDiscount}% de Desconto
+				</h2>
 				<div className="tooltip w-full" data-tip={tipText}>
 					<button
 						onClick={() => handleCopyCupom(cupomCode)}
@@ -40,7 +42,7 @@ function MiniCouponCard({
 				className="relative h-full w-[1px] ml-[20px] my-[2px]"
 				style={{
 					background:
-						"repeating-linear-gradient(to bottom, black 0, black 5px, transparent 5px, transparent 10px)",
+						"repeating-linear-gradient(to bottom, white 0, white 5px, transparent 5px, transparent 10px)",
 				}}></div>
 			{/* Corte côncavo esquerdo */}
 			<div

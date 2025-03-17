@@ -36,6 +36,7 @@ interface IOrder {
 	orderNote: string;
 	partnerID: object;
 	partnerName: string;
+	partnerCNPJ: string;
 	customerID: object;
 	customerName: string;
 	customerCPF: string;
@@ -112,6 +113,9 @@ const orderSchema = new Schema<IOrder>(
 		},
 		partnerID: Object,
 		partnerName: {
+			type: String,
+		},
+		partnerCNPJ: {
 			type: String,
 		},
 		customerID: Object,

@@ -2,7 +2,7 @@ import React from "react";
 
 function WhiteTicketHorizontalComponent() {
 	return (
-		<section className="w-full flex-grow flex items-center justify-center p-4">
+		<section className="w-full flex-grow flex justify-start p-4">
 			<div className="flex w-[300px] h-[180px] max-w-3xl text-zinc-900">
 				<div className="h-[180px] bg-primary flex items-center justify-center px-8 rounded-l-3xl">
 					<svg
