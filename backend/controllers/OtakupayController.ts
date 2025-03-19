@@ -1,19 +1,21 @@
 import { Request, Response } from "express";
+import crypto from "crypto";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { Multer } from "multer";
+import { ObjectId } from "mongodb";
+
+// Models
 import { OtakupayModel } from "../models/OtakupayModel.js";
 import { PartnerModel } from "../models/PartnerModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { OrderModel } from "../models/OrderModel.js";
 import { PaymentPixOtakuPayModel } from "../models/PixOtakuPayModel.js";
 // import { CustomerModel } from "../models/CustomerModel.js";
-import crypto from "crypto";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { Multer } from "multer";
-import { ObjectId } from "mongodb";
 
 // STRIPE
 import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-	apiVersion: "2024-04-10", // Use a versão mais recente da API do Stripe
+	apiVersion: "2024-11-20.acacia", // Use a versão mais recente da API do Stripe
 });
 
 // Import Mercado Pago

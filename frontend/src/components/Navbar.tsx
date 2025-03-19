@@ -436,7 +436,7 @@ function Navbar() {
 												? `${cart} item`
 												: `${cart} itens`}
 										</span>
-										<span className="text-info">
+										<span className="text-gray-400">
 											{`	Subtotal: ${subtotal.toLocaleString(
 												"pt-BR",
 												{
@@ -447,7 +447,7 @@ function Navbar() {
 										</span>
 
 										<div
-											className="flex flex-row items-center text-info transition-all ease-in duration-250 hover:text-white hover:underline cursor-pointer"
+											className="flex flex-row items-center text-gray-400 transition-all ease-in duration-250 hover:text-white hover:underline cursor-pointer"
 											onClick={handleRemoveFromCart}>
 											<MdOutlineDeleteOutline size={17} />
 											Excluir

@@ -1,6 +1,14 @@
 import otakupayDB from "../db/otakupayconn.js";
 import { Schema, model } from "mongoose";
 
+interface ICryptocurrency {
+	cryptocurrencyID: string;
+	cryptocurrencyImage: string;
+	cryptocurrencyName: string;
+	cryptocurrencySymbol: string;
+	cryptocurrencyBalanceAvailable: number;
+}
+
 // Interface tipando os dados que irão no Banco de Dados.
 interface IOtakuPayCustomer {
 	accountStatus: string;
@@ -13,6 +21,7 @@ interface IOtakuPayCustomer {
 	balancePending: string;
 	otakuPointsAvailable: string;
 	otakuPointsPending: string;
+	cryptocurrencies: ICryptocurrency[];
 	cashback: number;
 }
 
@@ -56,6 +65,25 @@ const OtakupaySchema = new Schema<IOtakuPayCustomer>(
 		otakuPointsPending: {
 			type: String,
 		},
+		cryptocurrencies: [
+			{
+				cryptocurrencyID: {
+					type: String,
+				},
+				cryptocurrencyImage: {
+					type: String,
+				},
+				cryptocurrencyName: {
+					type: String,
+				},
+				cryptocurrencySymbol: {
+					type: String,
+				},
+				cryptocurrencyBalanceAvailable: {
+					type: Number, // Aqui corrigido para Number, já que na interface ICryptocurrency era Number
+				},
+			},
+		], // Definição correta de um array de objetos
 		cashback: {
 			type: Number,
 		},

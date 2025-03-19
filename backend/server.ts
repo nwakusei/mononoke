@@ -48,6 +48,7 @@ import RaffeRoutes from "./routes/RaffleRoutes.js";
 import SearchRoutes from "./routes/SearchRoutes.js";
 import ChatRoutes from "./routes/ChatRoutes.js";
 import ShippingRoutes from "./routes/ShippingRoutes.js";
+import CryptocurrencyRoutes from "./routes/CryptocurrencyRoutes.js";
 
 // Definição das rotas
 app.use("/customers", CustomerRoutes);
@@ -64,6 +65,7 @@ app.use("/raffles", RaffeRoutes);
 app.use("/searches", SearchRoutes);
 app.use("/chats", ChatRoutes);
 app.use("/shippings", ShippingRoutes);
+app.use("/cryptocurrencies", CryptocurrencyRoutes);
 
 // Configuração do Listen
 app.listen(port, () => {

@@ -179,8 +179,8 @@ function MyRafflesTicketsPage() {
 											))}
 									</tbody>
 
-									{/* foot */}
-									<tfoot>
+									{/* table foot */}
+									{/* <tfoot>
 										<tr>
 											<th></th>
 											<th>Name</th>
@@ -188,7 +188,7 @@ function MyRafflesTicketsPage() {
 											<th>Favorite Color</th>
 											<th></th>
 										</tr>
-									</tfoot>
+									</tfoot> */}
 								</table>
 							</div>
 						</div>

@@ -147,19 +147,95 @@ function ReviewByIdPage() {
 	const [images, setImages] = useState([]);
 	const [sendReviewLoading, setSendReviewLoading] = useState(false);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm<TCreateReviewFormSchema>({
-		resolver: zodResolver(createReviewFormSchema),
-		mode: "onBlur",
-	});
-
 	const [imagensSelecionadas, setImagensSelecionadas] = useState<
 		string[] | ArrayBuffer[]
 	>([]);
 	const MAX_IMAGENS = 5;
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		getValues,
+		trigger,
+	} = useForm<TCreateReviewFormSchema>({
+		resolver: zodResolver(createReviewFormSchema),
+		// mode: "onBlur",
+	});
+
+	const [focusStates, setFocusStates] = useState({});
+
+	// Função que altera o foco de cada campo individualmente
+	const handleFocus = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: true,
+		}));
+	};
+
+	// Função que remove o foco de cada campo individualmente
+	const handleBlur = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: false,
+		}));
+	};
+
+	const getFieldClass = (fieldName: string, fieldType: string) => {
+		// Obtém o valor do campo com o fieldName dinâmico
+		const value = getValues(fieldName);
+		const isFocused = focusStates[fieldName];
+
+		// Acessando o erro de acordo com o padrão do fieldName
+		let error;
+
+		// Verifica se o fieldName pertence a um campo de variação
+		if (fieldName.startsWith("productVariations")) {
+			const fieldPath = fieldName.split(".");
+
+			if (fieldPath.length === 3) {
+				// Acesso ao título da variação: productVariations.${variationIndex}.title
+				const variationIndex = fieldPath[1];
+				const key = fieldPath[2];
+				error = errors?.productVariations?.[variationIndex]?.[key];
+			} else if (fieldPath.length === 5) {
+				// Acesso à opção de variação: productVariations.${variationIndex}.options.${optionIndex}.name
+				const variationIndex = fieldPath[1];
+				const optionIndex = fieldPath[3];
+				const key = fieldPath[4];
+				error =
+					errors?.productVariations?.[variationIndex]?.options?.[
+						optionIndex
+					]?.[key];
+			}
+		} else {
+			// Para campos simples (não relacionados a variações)
+			error = errors?.[fieldName];
+		}
+
+		// Lógica para determinar a classe do campo com base no foco e erro
+		if (isFocused) {
+			if (!value && !error) {
+				return `${fieldType}-success`; // Foco verde se vazio e sem erro
+			}
+			return error ? `${fieldType}-error` : `${fieldType}-success`; // Foco vermelho se erro, verde se válido
+		}
+
+		// Quando o campo perde o foco:
+		if (!value && error) {
+			return `${fieldType}-error`; // Foco vermelho se vazio e erro
+		}
+
+		if (value && error) {
+			return `${fieldType}-error`; // Foco vermelho se preenchido e erro
+		}
+
+		if (value && !error) {
+			return `${fieldType}-success`; // Foco verde se estiver preenchido corretamente e sem erro
+		}
+
+		return ""; // Sem cor se não há erro e o campo estiver vazio
+	};
 
 	useEffect(() => {
 		const fetchOrder = async () => {
@@ -235,15 +311,15 @@ function ReviewByIdPage() {
 		setInputValue(value);
 	};
 
-	const handleBlur = () => {
-		let numericValue = parseFloat(inputValue);
+	// const handleBlur = () => {
+	// 	let numericValue = parseFloat(inputValue);
 
-		if (isNaN(numericValue)) {
-			setInputValue("0.0"); // Se estiver vazio ou inválido, volta para 0.0
-		} else {
-			setInputValue(Math.min(5, Math.max(0, numericValue)).toFixed(1)); // Ajusta limite e mantém 1 casa decimal
-		}
-	};
+	// 	if (isNaN(numericValue)) {
+	// 		setInputValue("0.0"); // Se estiver vazio ou inválido, volta para 0.0
+	// 	} else {
+	// 		setInputValue(Math.min(5, Math.max(0, numericValue)).toFixed(1)); // Ajusta limite e mantém 1 casa decimal
+	// 	}
+	// };
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Função para enviar a avaliação
@@ -453,7 +529,7 @@ function ReviewByIdPage() {
 									<div className="flex flex-row items-center text-black gap-2">
 										<button
 											onClick={decrement}
-											className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
+											className="flex items-center justify-center w-[32px] h-[32px] select-none font-mono">
 											<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-primary text-white rounded cursor-pointer active:scale-[.97]">
 												-
 											</h1>
@@ -464,7 +540,7 @@ function ReviewByIdPage() {
 												errors.reviewRating
 													? `input-error`
 													: `input-success`
-											} text-lg text-center bg-gray-300 w-[60px] h-[32px] rounded`}
+											} text-lg text-center bg-gray-300 w-[80px] h-[32px] rounded`}
 											type="text"
 											min="0"
 											max="5"
@@ -478,7 +554,7 @@ function ReviewByIdPage() {
 
 										<button
 											onClick={increment}
-											className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
+											className="flex items-center justify-center w-[32px] h-[32px] select-none font-mono">
 											<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-primary text-white rounded cursor-pointer active:scale-[.97]">
 												+
 											</h1>
@@ -500,15 +576,21 @@ function ReviewByIdPage() {
 									</div>
 								</label>
 								<textarea
-									className={`textarea textarea-bordered ${
-										errors.reviewDescription
-											? `textarea-error`
-											: `textarea-success`
-									} text-white w-[600px]`}
+									className={`textarea textarea-bordered ${getFieldClass(
+										"reviewDescription",
+										"textarea"
+									)} w-[600px]`}
 									placeholder="Conte como foi a sua experiência..."
-									{...register(
-										"reviewDescription"
-									)}></textarea>
+									{...register("reviewDescription", {
+										onChange: () =>
+											trigger("reviewDescription"),
+									})}
+									onFocus={() =>
+										handleFocus("reviewDescription")
+									}
+									onBlur={() =>
+										handleBlur("reviewDescription")
+									}></textarea>
 								<div className="label">
 									{errors.reviewDescription && (
 										<span className="label-text-alt text-red-500">

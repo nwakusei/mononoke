@@ -28,6 +28,7 @@ import { CiCreditCard2 } from "react-icons/ci";
 import { FiInfo } from "react-icons/fi";
 import { RiRefund2Fill } from "react-icons/ri";
 import { PiCreditCardBold } from "react-icons/pi";
+import { BsBagCheck } from "react-icons/bs";
 
 function WalletPage() {
 	const [user, setUser] = useState({});
@@ -429,10 +430,9 @@ function WalletPage() {
 													</h2>
 
 													<p className="flex flex-row items-center gap-2">
-														<RiMoneyCnyCircleLine
-															size={16}
-														/>
-														<span className="mb-[1px]">
+														<BsBagCheck size={16} />
+
+														<span>
 															{
 																transaction
 																	.transactionDetails

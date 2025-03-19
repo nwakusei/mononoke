@@ -26,6 +26,7 @@ import { BsCheck2All, BsCheck2, BsChatSquareText } from "react-icons/bs";
 import { IoIosArrowDown } from "react-icons/io";
 import { HiOutlineEllipsisVertical } from "react-icons/hi2";
 import { LoadingPage } from "@/components/LoadingPageComponent";
+import { FiInfo } from "react-icons/fi";
 
 function ChatPage() {
 	const inputFileRef = useRef(null);
@@ -203,7 +204,7 @@ function ChatPage() {
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-row gap-4 mt-4 mb-4">
-					{/* Gadget 2 */}
+					{/* Gadget 1 */}
 					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">
 						{/* Outro Saldos */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
@@ -214,6 +215,23 @@ function ChatPage() {
 								</h1>
 							</div>
 							<h2 className="text-sm text-black">Messenger</h2>
+						</div>
+					</div>
+				</div>
+				<div className="flex flex-row gap-4 mt-4 mb-4">
+					{/* Gadget 2 */}
+					<div className="bg-secondary w-[1200px] p-4 rounded-md shadow-md mr-4">
+						{/* Comunicado */}
+						<div className="flex flex-row gap-2">
+							<FiInfo className="animate-pulse" size={25} />
+							<p className="text-base font-semibold text-black">
+								A funcionalidade de Chat ainda não está
+								funcionando 100%, portanto talvez seja
+								necessário recarregar esta página para obter
+								atualizações. Estamos trabalhando para melhorar
+								essa e todas as outras funcionalidades para as
+								próximas versões do site.
+							</p>
 						</div>
 					</div>
 				</div>
