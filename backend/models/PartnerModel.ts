@@ -38,7 +38,7 @@ interface IPartner {
 	totalProducts: number;
 	productsSold: number;
 	viewAdultContent: boolean;
-	otakupayID: mongoose.Schema.Types.ObjectId;
+	otakupayID: string;
 }
 
 // Schema que corresponda a Interface.
@@ -115,7 +115,7 @@ const partnerSchema = new Schema<IPartner>(
 			type: Boolean,
 		},
 		otakupayID: {
-			type: mongoose.Schema.Types.ObjectId,
+			type: String,
 			ref: "OtakupayModel",
 		},
 	},

@@ -20,7 +20,7 @@ interface ICustomer {
 	viewAdultContent: boolean;
 	followingStores: IFollowingStores[];
 	newsletters: boolean;
-	otakupayID: mongoose.Schema.Types.ObjectId;
+	otakupayID: string;
 }
 
 // Schema que corresponda a Interface.
@@ -72,7 +72,7 @@ const customerSchema = new Schema<ICustomer>(
 			type: Boolean,
 		},
 		otakupayID: {
-			type: mongoose.Schema.Types.ObjectId,
+			type: String,
 			ref: "OtakupayModel",
 		},
 	},

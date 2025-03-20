@@ -17,6 +17,12 @@ router.post(
 	CryptocurrencyController.createCryptocurrency
 );
 
+router.patch(
+	"/add-liquidity/:id",
+	verifyToken,
+	CryptocurrencyController.addLiquidity
+);
+
 router.post(
 	"/buy-cryptocurrency/:id",
 	verifyToken,

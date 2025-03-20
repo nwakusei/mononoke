@@ -8,6 +8,7 @@ interface ILiquidityPool {
 
 interface ICryptocurrency {
 	devID: string;
+	devBalance: number;
 	cryptocurrencyImage: string;
 	cryptocurrencyName: string;
 	cryptocurrencySymbol: string;
@@ -27,6 +28,9 @@ const CryptcurrencySchema = new Schema<ICryptocurrency>(
 	{
 		devID: {
 			type: String,
+		},
+		devBalance: {
+			type: Number,
 		},
 		cryptocurrencyImage: {
 			type: String,
