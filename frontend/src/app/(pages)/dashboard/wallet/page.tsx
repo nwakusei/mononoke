@@ -17,12 +17,18 @@ import api from "@/utils/api";
 
 // Imagens e Logos
 import Otakuyasan from "../../../../../public/otakuyasan.png";
+import blockchainIcon from "../../../../../public/distributed-ledger.png";
 
 // Icons
 import { Currency } from "@icon-park/react";
 import { Deposit, Wallet } from "@icon-park/react";
 import { AiOutlineMoneyCollect } from "react-icons/ai";
-import { RiMoneyCnyCircleLine, RiRotateLockLine } from "react-icons/ri";
+import {
+	RiExchangeFundsFill,
+	RiExchangeFundsLine,
+	RiMoneyCnyCircleLine,
+	RiRotateLockLine,
+} from "react-icons/ri";
 import { LiaHandshake, LiaShippingFastSolid } from "react-icons/lia";
 import { CiCreditCard2 } from "react-icons/ci";
 import { FiInfo } from "react-icons/fi";
@@ -31,9 +37,10 @@ import { PiCreditCardBold } from "react-icons/pi";
 import { BsBagCheck } from "react-icons/bs";
 
 function WalletPage() {
+	const [token] = useState(localStorage.getItem("token") || "");
 	const [user, setUser] = useState({});
 	const [userOtakupay, setUserOtakupay] = useState({});
-	const [token] = useState(localStorage.getItem("token") || "");
+	const [cryptocurrencyBalance, setCryptocurrencyBalance] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingButtonId, setLoadingButtonId] = useState(false);
 
@@ -41,7 +48,11 @@ function WalletPage() {
 
 	const router = useRouter();
 
+	console.log(cryptocurrencyBalance);
+
 	useEffect(() => {
+		if (!token) return;
+
 		api.get("/otakuprime/check-user", {
 			headers: {
 				Authorization: `Bearer ${JSON.parse(token)}`,
@@ -68,7 +79,24 @@ function WalletPage() {
 	useEffect(() => {
 		if (!token) return;
 
-		console.log("Token usado na requisição:", token);
+		const fetchCryptocurrenciesBalance = async () => {
+			const response = await api.get(
+				"/cryptocurrencies/get-balance-by-user",
+				{
+					headers: {
+						Authorization: `Bearear ${JSON.parse(token)}`,
+					},
+				}
+			);
+
+			setCryptocurrencyBalance(response.data.cryptocurrenciesBalance);
+		};
+
+		fetchCryptocurrenciesBalance();
+	}, [token]);
+
+	useEffect(() => {
+		if (!token) return;
 
 		const featchTransactions = async () => {
 			try {
@@ -141,8 +169,8 @@ function WalletPage() {
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
 				{/* Gadget 1 */}
-				<div className="flex flex-row gap-4 mb-4">
-					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md">
+				<div className="flex flex-row mb-4 w-[1200px]">
+					<div className="bg-white w-full p-6 rounded-md shadow-md">
 						{/* Avatar e Boas vindas */}
 						<div className="flex flex-row items-center text-lg text-black font-semibold ml-6 mb-6 gap-4">
 							<Wallet size={24} />
@@ -152,40 +180,44 @@ function WalletPage() {
 				</div>
 
 				{/* Gadget 2 */}
-				<div className="flex flex-row gap-4 mb-4">
-					<div className="bg-white w-[520px] p-6 rounded-md shadow-md">
-						{/* Saldo Disponivel */}
-						<div className="flex flex-col -mb-4">
-							<div className="flex flex-row items-center ml-6 gap-5">
-								<div>
-									<h2 className="text-sm text-black">
-										Saldo Disponível
-									</h2>
-									<h1 className="flex flex-row items-center text-3xl font-semibold text-black">
-										{parseFloat(
-											userOtakupay?.balanceAvailable || ""
-										).toLocaleString("pt-BR", {
-											style: "currency",
-											currency: "BRL",
-										})}
-									</h1>
+				<div className="flex flex-col gap-4 mb-4">
+					<div className="flex flex-row items-center justify-between w-[1220px] =">
+						<div className="bg-white w-[520px] h-[120px] p-6 rounded-md shadow-md">
+							{/* Saldo Disponivel */}
+							<div className="flex flex-col -mb-4">
+								<div className="flex flex-row items-center ml-6 gap-5">
+									<div>
+										<h2 className="text-sm text-black">
+											Saldo Disponível
+										</h2>
+										<h1 className="flex flex-row items-center text-3xl font-semibold text-black">
+											{parseFloat(
+												userOtakupay?.balanceAvailable ||
+													""
+											).toLocaleString("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											})}
+										</h1>
+									</div>
+									<div className="flex flex-col mx-6 gap-4">
+										{loadingButtonId ? (
+											<button className="flex flex-row items-center btn btn-primary text-black shadow-md w-[200px]">
+												<span className="loading loading-dots loading-md"></span>
+											</button>
+										) : (
+											<button
+												onClick={handleClick}
+												className="flex flex-row items-center btn btn-outline btn-primary text-black w-[200px] hover:shadow-md">
+												<AiOutlineMoneyCollect
+													size={22}
+												/>
+												Adicionar Crédito
+											</button>
+										)}
+									</div>
 								</div>
-								<div className="flex flex-col mx-6 gap-4">
-									{loadingButtonId ? (
-										<button className="flex flex-row items-center btn btn-primary text-black shadow-md w-[200px]">
-											<span className="loading loading-dots loading-md"></span>
-										</button>
-									) : (
-										<button
-											onClick={handleClick}
-											className="flex flex-row items-center btn btn-outline btn-primary text-black w-[200px] hover:shadow-md">
-											<AiOutlineMoneyCollect size={22} />
-											Adicionar Crédito
-										</button>
-									)}
-								</div>
-							</div>
-							{/* <div className="flex flex-row mx-6 gap-4">
+								{/* <div className="flex flex-row mx-6 gap-4">
 								<button className="btn btn-outline btn-success">
 									<Deposit size={18} />
 									Adicionar Dinheiro
@@ -195,78 +227,139 @@ function WalletPage() {
 									Sacar
 								</button>
 							</div> */}
+							</div>
 						</div>
-					</div>
 
-					{/* Outro Saldos */}
-					<div className="bg-white w-[210px] p-6 rounded-md shadow-md">
-						{/* Saldo Disponivel */}
-						<div className="flex flex-col">
-							<div className="flex flex-row pb-2 mb-2">
-								<div>
-									<h2 className="text-sm text-black">
-										Saldo Pendente
-									</h2>
-									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
-										{parseFloat(
-											userOtakupay?.balancePending || ""
-										).toLocaleString("pt-BR", {
-											style: "currency",
-											currency: "BRL",
-										})}
-									</h1>
+						{/* Outro Saldos */}
+						<div className="bg-white w-[210px] h-[120px] p-6 rounded-md shadow-md">
+							{/* Saldo Pendente */}
+							<div className="flex flex-col">
+								<div className="flex flex-row pb-2 mb-2">
+									<div>
+										<h2 className="text-sm text-black">
+											Saldo Pendente
+										</h2>
+										<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
+											{parseFloat(
+												userOtakupay?.balancePending ||
+													""
+											).toLocaleString("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											})}
+										</h1>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div className="bg-white w-[210px] h-[120px] p-6 rounded-md shadow-md">
+							{/* Saldo Otaku Point Available */}
+							<div className="flex flex-col">
+								<div className="flex flex-row pb-2 mb-2">
+									<div>
+										<h2 className="text-sm text-black">
+											Otaku Point Disponível
+										</h2>
+										<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
+											{parseFloat(
+												userOtakupay?.otakuPointsAvailable ||
+													0
+											) === 0
+												? `0,00 OP`
+												: `${parseFloat(
+														userOtakupay?.otakuPointsAvailable ||
+															0
+												  )
+														.toFixed(2)
+														.replace(".", ",")} OP`}
+										</h1>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div className="bg-white w-[212px] h-[120px] p-6 rounded-md shadow-md mr-4">
+							{/* Saldo Otaku Point Pending */}
+							<div className="flex flex-col">
+								<div className="flex flex-row">
+									<div>
+										<h2 className="text-sm text-black">
+											Otaku Point Pendente
+										</h2>
+										<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
+											{userOtakupay?.otakuPointsPending !==
+											undefined
+												? parseFloat(
+														userOtakupay?.otakuPointsPending
+												  )
+														.toFixed(2)
+														.replace(".", ",") +
+												  " OP"
+												: "0,00 OP"}
+										</h1>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-
-					<div className="bg-white w-[210px] p-6 rounded-md shadow-md">
-						{/* Saldo Disponivel */}
-						<div className="flex flex-col">
-							<div className="flex flex-row pb-2 mb-2">
-								<div>
-									<h2 className="text-sm text-black">
-										Otaku Point Disponível
-									</h2>
-									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
-										{parseFloat(
-											userOtakupay?.otakuPointsAvailable ||
-												0
-										) === 0
-											? `0,00 OP`
-											: `${parseFloat(
-													userOtakupay?.otakuPointsAvailable ||
-														0
-											  )
-													.toFixed(2)
-													.replace(".", ",")} OP`}
-									</h1>
+				</div>
+				<div className="flex flex-col gap-4 mb-4">
+					{cryptocurrencyBalance &&
+						cryptocurrencyBalance.length > 0 && (
+							<div className="flex flex-row w-[1200px]">
+								<div className="bg-white w-full p-6 rounded-md shadow-md">
+									{/* Avatar e Boas vindas */}
+									<div className="flex flex-row items-center text-lg text-black font-semibold ml-6 mb-6 gap-4">
+										{/* <Wallet size={24} /> */}
+										<Image
+											src={blockchainIcon}
+											alt="Blockchain"
+											width={35}
+											height={35}
+										/>
+										<h1 className="text-2xl">
+											Criptomoedas
+										</h1>
+									</div>
 								</div>
 							</div>
-						</div>
-					</div>
+						)}
 
-					<div className="bg-white w-[212px] p-6 rounded-md shadow-md mr-4">
-						{/* Saldo Disponivel */}
-						<div className="flex flex-col">
-							<div className="flex flex-row">
-								<div>
-									<h2 className="text-sm text-black">
-										Otaku Point Pendente
-									</h2>
-									<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
-										{userOtakupay?.otakuPointsPending !==
-										undefined
-											? parseFloat(
-													userOtakupay?.otakuPointsPending
-											  )
-													.toFixed(2)
-													.replace(".", ",") + " OP"
-											: "0,00 OP"}
-									</h1>
+					<div className="flex flex-row items-center">
+						{cryptocurrencyBalance &&
+							cryptocurrencyBalance.length > 0 &&
+							cryptocurrencyBalance.map((cryptoBalance) => (
+								<div
+									key={cryptoBalance?._id}
+									className="bg-white w-[300px] h-[120px] p-6 rounded-md shadow-md mr-4">
+									{/* Saldos de Cryptos */}
+
+									<div className="flex flex-row gap-4">
+										<div>
+											<h2 className="text-sm text-black">
+												{`${cryptoBalance?.cryptocurrencyName} Disponível`}
+											</h2>
+											<h1 className="flex flex-row items-center text-xl font-semibold text-black gap-2">
+												{cryptoBalance?.amountOfCryptocurrency !==
+													undefined &&
+													`${
+														cryptoBalance?.cryptocurrencySymbol
+													} ${parseFloat(
+														cryptoBalance?.amountOfCryptocurrency
+													)
+														.toFixed(6)
+														.replace(".", ",")}`}
+											</h1>
+										</div>
+
+										<button className="btn btn-primary btn-outline">
+											<RiExchangeFundsFill size={18} />
+											<span>Trade</span>
+										</button>
+									</div>
 								</div>
-							</div>
-						</div>
+							))}
 					</div>
 				</div>
 

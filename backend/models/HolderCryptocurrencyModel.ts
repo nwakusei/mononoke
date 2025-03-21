@@ -4,6 +4,8 @@ import mongoose, { Schema, model } from "mongoose";
 interface IHolder {
 	cryptoCurrencyID: string;
 	customerOtakupayID: string;
+	cryptocurrencyName: string;
+	cryptocurrencySymbol: string;
 	amountOfCryptocurrency: number;
 }
 
@@ -13,6 +15,12 @@ const HolderSchema = new Schema<IHolder>(
 			type: String,
 		},
 		customerOtakupayID: {
+			type: String,
+		},
+		cryptocurrencyName: {
+			type: String,
+		},
+		cryptocurrencySymbol: {
 			type: String,
 		},
 		amountOfCryptocurrency: {

@@ -10,6 +10,7 @@ import { HolderModel } from "../models/HolderCryptocurrencyModel";
 // Middlewares
 import getToken from "../helpers/get-token";
 import getUserByToken from "../helpers/get-user-by-token";
+import { get } from "http";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -118,18 +119,19 @@ class CryptocurrencyController {
 
 		// Verifique se o usuário é uma instância de CustomerModel
 		if (!customer) {
-			return res.status(422).json({
+			res.status(422).json({
 				message: "Usuário não encontrado ou não é um cliente válido!",
 			});
+			return;
 		}
 
-		// Verifique o tipo de conta
-		if (customer.accountType !== "customer") {
-			return res.status(422).json({
-				message:
-					"Usuário sem permissão para realizar este tipo de transação!",
-			});
-		}
+		// // Verifique o tipo de conta
+		// if (customer.accountType !== "superUser") {
+		// 	res.status(422).json({
+		// 		message: "Usuário sem permissão para criar criptomoedas!",
+		// 	});
+		// 	return;
+		// }
 
 		const customerOtakupay = await OtakupayModel.findOne({
 			_id: customer.otakupayID,
@@ -142,9 +144,10 @@ class CryptocurrencyController {
 			});
 
 			if (existingCryptocurrency) {
-				return res.status(409).json({
+				res.status(409).json({
 					message: "Já existe uma criptomoeda com este nome!",
 				});
+				return;
 			}
 
 			const cryptocurrency = new CryptcurrencyModel({
@@ -362,8 +365,7 @@ class CryptocurrencyController {
 
 		if (customer.accountType !== "customer") {
 			res.status(422).json({
-				message:
-					"Usuário sem permissão para realizar este tipo de transação!",
+				message: "Somente Clientes podem comprar Criptomoedas!",
 			});
 			return;
 		}
@@ -398,7 +400,6 @@ class CryptocurrencyController {
 				"Quantidade de Otakoin a ser comprada",
 				amountOfCryptocurrencyToBePurchased
 			);
-			console.log("Custo da Transação", transactionCostInDollar + " USD");
 
 			if (
 				amountOfCryptocurrencyToBePurchased >
@@ -506,6 +507,9 @@ class CryptocurrencyController {
 				} else {
 					await HolderModel.create({
 						cryptoCurrencyID: id,
+						cryptocurrencyName: DBCryptoCurrency.cryptocurrencyName,
+						cryptocurrencySymbol:
+							DBCryptoCurrency.cryptocurrencySymbol,
 						customerOtakupayID: otakupayID,
 						amountOfCryptocurrency: formattedAmount,
 					});
@@ -532,6 +536,31 @@ class CryptocurrencyController {
 				message: "Erro interno no servidor.",
 				error: error.message,
 			});
+		}
+	}
+
+	static async getCryptocurrencyBalanceByCustomer(
+		req: Request,
+		res: Response
+	) {
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(404).json({ message: "Customer não encontrado!" });
+			return;
+		}
+
+		const customerOtakupayID = customer.otakupayID;
+
+		try {
+			const cryptocurrenciesBalance = await HolderModel.find({
+				customerOtakupayID: customerOtakupayID,
+			});
+
+			res.status(200).json({ cryptocurrenciesBalance });
+		} catch (error) {
+			console.log(error);
 		}
 	}
 }

@@ -13,9 +13,58 @@ class ReviewController {
 	static async createReview(req: Request, res: Response) {
 		const { id } = req.params;
 
+		const { reviewRating, reviewDescription } = req.body;
+
+		// Upload de imagens
+		const imagesReview = req.files as Express.Multer.File[];
+
 		if (!isValidObjectId(id)) {
 			res.status(422).json({ message: "ID inválido!" });
 			return;
+		}
+
+		if (!reviewRating) {
+			res.status(422).json({ message: "A nota é obrigatória!" });
+			return;
+		}
+
+		if (reviewRating < 0 || reviewRating > 5) {
+			res.status(422).json({
+				message: "Nota inválida, o valor precisa ser entre 0 e 5!",
+			});
+			return;
+		}
+
+		if (!reviewDescription) {
+			res.status(422).json({ message: "A descrição é obrigatória!" });
+			return;
+		}
+
+		// Criar um array para armazenar os caminhos das imagens
+		const imagePaths: string[] = [];
+
+		if (imagesReview && imagesReview.length > 0) {
+			imagesReview.forEach((imageReview) => {
+				console.log(imageReview);
+
+				let imagePath = "";
+
+				if (imageReview) {
+					if ("key" in imageReview) {
+						if (typeof imageReview.key === "string") {
+							imagePath = imageReview.key;
+						}
+					} else {
+						if (typeof imageReview.filename === "string") {
+							imagePath = imageReview.filename;
+						}
+					}
+				}
+
+				if (imagePath) {
+					imagePaths.push(imagePath);
+				}
+			});
 		}
 
 		const token: any = getToken(req);
@@ -36,7 +85,7 @@ class ReviewController {
 
 			if (order.customerID.toString() !== customer._id.toString()) {
 				res.status(422).json({
-					message: "O pedido não pertence a esse Customer!",
+					message: "O pedido não pertence a esse Cliente!",
 				});
 				return;
 			}
@@ -63,7 +112,7 @@ class ReviewController {
 			});
 
 			if (!products || products.length === 0) {
-				res.status(422).json({ message: "Produtos não encontrados" });
+				res.status(422).json({ message: "Produtos não encontrados!" });
 				return;
 			}
 
@@ -92,55 +141,6 @@ class ReviewController {
 			// 	});
 			// 	return;
 			// }
-
-			const { reviewRating, reviewDescription } = req.body;
-
-			// Upload de imagens
-			const imagesReview = req.files as Express.Multer.File[];
-
-			if (!reviewRating) {
-				res.status(422).json({ message: "A nota é obrigatória!" });
-				return;
-			}
-
-			if (reviewRating < 0 || reviewRating > 5) {
-				res.status(422).json({
-					message: "Nota inválida, o valor precisa ser entre 0 e 5!",
-				});
-				return;
-			}
-
-			// if (!reviewDescription) {
-			// 	res.status(422).json({ message: "A descrição é obrigatória!" });
-			// 	return;
-			// }
-
-			// Criar um array para armazenar os caminhos das imagens
-			const imagePaths: string[] = [];
-
-			if (imagesReview && imagesReview.length > 0) {
-				imagesReview.forEach((imageReview) => {
-					console.log(imageReview);
-
-					let imagePath = "";
-
-					if (imageReview) {
-						if ("key" in imageReview) {
-							if (typeof imageReview.key === "string") {
-								imagePath = imageReview.key;
-							}
-						} else {
-							if (typeof imageReview.filename === "string") {
-								imagePath = imageReview.filename;
-							}
-						}
-					}
-
-					if (imagePath) {
-						imagePaths.push(imagePath);
-					}
-				});
-			}
 
 			const newReview = {
 				orderID: order._id,
@@ -201,7 +201,7 @@ class ReviewController {
 			const partner = await PartnerModel.findById(partnerID);
 
 			if (!partner) {
-				res.status(422).json({ message: "Partner não encontrado" });
+				res.status(422).json({ message: "Parceiro não encontrado!" });
 				return;
 			}
 
@@ -250,18 +250,12 @@ class ReviewController {
 				url: "http://localhost:5000/otakupay/realease-values",
 				headers: {
 					"Content-Type": "application/json",
-					// Authorization: `Bearer ${accessToken}`, // Se precisar de um token de autenticação
+					Authorization: `Bearer ${token}`, // Se precisar de um token de autenticação
 				},
-				// data: {
-				// 	// Dados que precisam ser enviados para a transação
-				// 	orderId: order._id,
-				// 	customerId: customer._id,
-				// 	reviewId: newReview.orderID, // ou outro dado necessário
-				// },
-				// httpsAgent: new https.Agent({
-				// 	cert: "caminho/do/seu/certificado.pem",
-				// 	key: "caminho/da/sua/chave.key",
-				// }),
+				data: {
+					// Dados que precisam ser enviados para a transação
+					orderId: order._id,
+				},
 			};
 
 			const transactionResponse = await axios(transactionRequestConfig);

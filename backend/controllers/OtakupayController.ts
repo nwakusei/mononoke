@@ -252,8 +252,6 @@ class OtakupayController {
 	static async buyOtamart(req: Request, res: Response) {
 		const { products, shippingCost, coupons } = req.body;
 
-		console.log("COUPON RECEBIDO", coupons);
-
 		// Verificar se o array de produtos é válido
 		if (!products || products.length === 0) {
 			res.status(404).json({
@@ -917,7 +915,11 @@ class OtakupayController {
 
 				// Calcular o cashback do cliente com base na porcentagem de cashback do parceiro
 				const customerCashbackAmount =
-					partnerCost.totalCost * (partnerOtakupay.cashback / 100);
+					Math.floor(
+						partnerCost.totalCost *
+							(partnerOtakupay.cashback / 100) *
+							100
+					) / 100;
 
 				// Adicionar o cashback do cliente ao array de cashbacks do cliente
 				customerCashbacks.push({
@@ -2473,7 +2475,11 @@ class OtakupayController {
 
 				// Calcular o cashback do cliente com base na porcentagem de cashback do parceiro
 				const customerCashbackAmount =
-					partnerCost.totalCost * (partnerOtakupay.cashback / 100);
+					Math.floor(
+						partnerCost.totalCost *
+							(partnerOtakupay.cashback / 100) *
+							100
+					) / 100;
 
 				// Adicionar o cashback do cliente ao array de cashbacks do cliente
 				customerCashbacks.push({
@@ -4241,8 +4247,12 @@ class OtakupayController {
 
 										// Calcular o cashback do cliente com base na porcentagem de cashback do parceiro
 										const customerCashbackAmount =
-											partnerCost.totalCost *
-											(partnerOtakupay.cashback / 100);
+											Math.floor(
+												partnerCost.totalCost *
+													(partnerOtakupay.cashback /
+														100) *
+													100
+											) / 100;
 
 										// Adicionar o cashback do cliente ao array de cashbacks do cliente
 										customerCashbacks.push({
@@ -5310,9 +5320,424 @@ class OtakupayController {
 	}
 
 	static async releaseOfValues(req: Request, res: Response) {
-		console.log("Valores liberados com sucesso!");
-		// Adicione uma resposta ao cliente
-		res.status(200).json({ message: "Valores liberados com sucesso!" });
+		const { orderId } = req.body;
+
+		if (!orderId) {
+			res.status(404).json({ message: "A orderID é obrigatória!" });
+			return;
+		}
+
+		const order = await OrderModel.findOne({ _id: orderId });
+
+		if (!order) {
+			res.status(404).json({ messagem: "Pedido não encontrado!" });
+			return;
+		}
+
+		try {
+			const customerID = order.customerID;
+
+			const customer = await CustomerModel.findById({
+				_id: customerID,
+			}).select("-password");
+
+			const customerOtakupay = await OtakupayModel.findById({
+				_id: customer?.otakupayID,
+			}).select("-password");
+
+			const customerOtakuPointsPendingEncrypted =
+				customerOtakupay?.otakuPointsPending;
+
+			if (
+				!customerOtakuPointsPendingEncrypted ||
+				customerOtakuPointsPendingEncrypted === null
+			) {
+				res.status(404).json({
+					message: "Otaku Points Pendente não localizado!",
+				});
+				return;
+			}
+
+			const customerOtakuPointsPendingDecrypted = decrypt(
+				customerOtakuPointsPendingEncrypted
+			);
+
+			if (
+				!customerOtakuPointsPendingDecrypted ||
+				customerOtakuPointsPendingDecrypted === null
+			) {
+				res.status(404).json({
+					message: "Otaku Points Pendente não localizado!",
+				});
+				return;
+			}
+
+			const customerOtakuPointsEarnedEncrypted =
+				order.customerOtakuPointsEarned;
+
+			if (
+				!customerOtakuPointsEarnedEncrypted ||
+				customerOtakuPointsEarnedEncrypted === null
+			) {
+				res.status(404).json({
+					message: "Pontos Ganho pelo Cliente não localizado!",
+				});
+				return;
+			}
+
+			const customerOtakuPointsEarnedDecrypted = decrypt(
+				customerOtakuPointsEarnedEncrypted
+			);
+
+			if (
+				!customerOtakuPointsEarnedDecrypted ||
+				customerOtakuPointsEarnedDecrypted === null
+			) {
+				res.status(404).json({
+					message: "Pontos Ganho pelo Cliente não localizado!",
+				});
+				return;
+			}
+
+			const newCustomerOtakuPointsPendingDecrypted = (
+				customerOtakuPointsEarnedDecrypted -
+				customerOtakuPointsEarnedDecrypted
+			).toFixed(2);
+
+			// Novo Valor do Otaku Points Pending criptografado a ser Armazenado no Banco de dados
+			const newCustomerOtakuPointsPendingEncrypted = encrypt(
+				newCustomerOtakuPointsPendingDecrypted.toString()
+			);
+
+			const customerOtakuPointsAvailableEncrypted =
+				customerOtakupay.otakuPointsAvailable;
+
+			if (
+				!customerOtakuPointsAvailableEncrypted ||
+				customerOtakuPointsAvailableEncrypted === null
+			) {
+				res.status(404).json({
+					message:
+						"Otaku Points Available do Cliente não encontrado!",
+				});
+				return;
+			}
+
+			const customerOtakuPointAvailableDecrypted = decrypt(
+				customerOtakuPointsAvailableEncrypted
+			);
+
+			if (
+				!customerOtakuPointAvailableDecrypted ||
+				customerOtakuPointAvailableDecrypted === null
+			) {
+				res.status(404).json({
+					message:
+						"Otaku Points Available do Cliente não encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Novo valor de Otaku Points Descriptografado a ser armazenado no banco de dados",
+				customerOtakuPointAvailableDecrypted
+			);
+
+			const newCustomerOtakuPointsAvailableDecrypted = (
+				customerOtakuPointAvailableDecrypted +
+				customerOtakuPointsEarnedDecrypted
+			).toFixed(2);
+
+			console.log(
+				"Novo valor de Otaku Points Descriptografado a ser armazenado no banco de dados",
+				newCustomerOtakuPointsAvailableDecrypted
+			);
+
+			const newCustomerOtakuPointsAvailableEncrypted = encrypt(
+				newCustomerOtakuPointsAvailableDecrypted.toString()
+			);
+
+			console.log(
+				"Novo valor de Otaku Points Criptografado a ser armazenado no banco de dados",
+				newCustomerOtakuPointsAvailableEncrypted
+			);
+
+			//////////////////////////// Partner //////////////////////////////////////////
+			const partnerID = order.partnerID;
+
+			const partner = await PartnerModel.findById({
+				_id: partnerID,
+			}).select("-password");
+
+			const partnerOtakupay = await OtakupayModel.findById({
+				_id: partner?.otakupayID,
+			}).select("-password");
+
+			const partnerBalancePendingEncrypted =
+				partnerOtakupay?.balancePending;
+
+			if (
+				!partnerBalancePendingEncrypted ||
+				partnerBalancePendingEncrypted === null
+			) {
+				res.status(404).json({
+					message: "Balance Pending do Parceiro não encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Saldo Pendente do Parceiro criptografado",
+				partnerBalancePendingEncrypted
+			);
+
+			const partnerBalancePendingDecrypted = decrypt(
+				partnerBalancePendingEncrypted
+			);
+
+			if (
+				!partnerBalancePendingDecrypted ||
+				partnerBalancePendingDecrypted === null
+			) {
+				res.status(404).json({
+					message: "Balance Pending do Parceiro não encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Saldo Pendente do Parceiro descriptografado",
+				partnerBalancePendingDecrypted
+			);
+
+			const partnerBalanceAvailableEncrypted =
+				partnerOtakupay?.balanceAvailable;
+
+			if (
+				!partnerBalanceAvailableEncrypted ||
+				partnerBalanceAvailableEncrypted === null
+			) {
+				res.status(404).json({
+					message: "Balance Available do Parceiro não encontrado!",
+				});
+				return;
+			}
+
+			const partnerBalanceAvailableDecrypted = decrypt(
+				partnerBalanceAvailableEncrypted
+			);
+
+			if (partnerBalanceAvailableDecrypted == null) {
+				// Apenas null ou undefined
+				res.status(404).json({
+					message: "Balance Available do Parceiro não encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Saldo Disponível do Parceiro Descriptografado",
+				partnerBalanceAvailableDecrypted
+			);
+
+			// if (
+			// 	!partnerBalanceAvailableDecrypted ||
+			// 	partnerBalanceAvailableDecrypted === null
+			// ) {
+			// 	res.status(404).json({
+			// 		message: "Balance Available do Parceiro não encontrado!",
+			// 	});
+			// 	return;
+			// }
+
+			console.log(
+				"Saldo Disponível do Parceiro descriptografado",
+				partnerBalanceAvailableDecrypted
+			);
+
+			const orderCostTotalEncrypted = order.customerOrderCostTotal;
+
+			if (!orderCostTotalEncrypted || orderCostTotalEncrypted === null) {
+				res.status(404).json({
+					messsage: "Valor total do Pedido não encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Valor total do Pedido criptografado",
+				orderCostTotalEncrypted
+			);
+
+			const orderCostTotalDecrypted = decrypt(orderCostTotalEncrypted);
+
+			if (!orderCostTotalDecrypted || orderCostTotalDecrypted === null) {
+				res.status(404).json({
+					messsage: "Valor total do Pedido não encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Valor total do Pedido Descriptografado",
+				orderCostTotalDecrypted
+			);
+
+			const shippingCostTotalEncrypted = order.shippingCostTotal;
+
+			if (
+				!shippingCostTotalEncrypted ||
+				shippingCostTotalEncrypted === null
+			) {
+				res.status(404).json({
+					messsage: "Valor total do Frete não encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Valor total do Frete criptografado",
+				shippingCostTotalEncrypted
+			);
+
+			const shippingCostTotalDecrypted = decrypt(
+				shippingCostTotalEncrypted
+			);
+
+			if (
+				!shippingCostTotalDecrypted ||
+				shippingCostTotalDecrypted === null
+			) {
+				res.status(404).json({
+					messsage: "Valor total do Frete não encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Valor total do Frete Descriptografado",
+				shippingCostTotalDecrypted
+			);
+
+			const orderCostSubtotal =
+				orderCostTotalDecrypted - shippingCostTotalDecrypted;
+
+			console.log(
+				"Valor total do pedido sem o Frete Descriptografado",
+				orderCostSubtotal
+			);
+
+			const partnerCommissionOtamartEncrypted =
+				order.partnerCommissionOtamart;
+
+			if (
+				!partnerCommissionOtamartEncrypted ||
+				partnerCommissionOtamartEncrypted === null
+			) {
+				res.status(404).json({
+					messsage:
+						"Valor da Comissão a ser Paga pelo Parceiro encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Valor da Comissão a ser Paga pelo Parceiro criptografada",
+				partnerCommissionOtamartEncrypted
+			);
+
+			const partnerCommissionOtamartDecrypted = decrypt(
+				partnerCommissionOtamartEncrypted.toString()
+			);
+
+			if (
+				!partnerCommissionOtamartDecrypted ||
+				partnerCommissionOtamartDecrypted === null
+			) {
+				res.status(404).json({
+					messsage:
+						"Valor da Comissão a ser Paga pelo Parceiro encontrado!",
+				});
+				return;
+			}
+
+			console.log(
+				"Valor da Comissão a ser Paga pelo Parceiro Descriptografada",
+				partnerCommissionOtamartDecrypted
+			);
+
+			const orderCostTotalWithoutCommission =
+				orderCostSubtotal - partnerCommissionOtamartDecrypted;
+
+			console.log(
+				"Subtotal do Pedido sem a Comissão a ser Paga pelo Parceiro",
+				orderCostTotalWithoutCommission
+			);
+
+			const newOrderCostTotalWithShippingCostTotal = (
+				orderCostTotalWithoutCommission + shippingCostTotalDecrypted
+			).toFixed(2);
+
+			console.log(
+				"Valor total do pedido com Frete, com a Comissão descontada",
+				newOrderCostTotalWithShippingCostTotal
+			);
+
+			const newPartnerBalancePendindDecrypted = (
+				partnerBalancePendingDecrypted - orderCostTotalDecrypted
+			).toFixed(2);
+
+			console.log(
+				"Novo Saldo Pendente do Parceiro descriptografado",
+				newPartnerBalancePendindDecrypted
+			);
+
+			const newPartnerBalancePendindEncrypted = encrypt(
+				newPartnerBalancePendindDecrypted.toString()
+			);
+
+			console.log(
+				"Novo Saldo Pendente do Parceiro criptografado",
+				newPartnerBalancePendindEncrypted
+			);
+
+			const newPartnerBalanceAvailableDecrypted = (
+				partnerBalanceAvailableDecrypted +
+				Number(newOrderCostTotalWithShippingCostTotal)
+			).toFixed(2);
+
+			console.log(
+				"Novo Saldo Disponível do Parceiro Descriptografado",
+				newPartnerBalanceAvailableDecrypted
+			);
+
+			const newPartnerBalanceAvailableEncrypted = encrypt(
+				newPartnerBalanceAvailableDecrypted
+			);
+
+			console.log(
+				"Novo Saldo Disponível do Parceiro Criptografado",
+				newPartnerBalanceAvailableEncrypted
+			);
+
+			// Salvamentos Após dar tudo certo
+			customerOtakupay.otakuPointsPending =
+				newCustomerOtakuPointsPendingEncrypted;
+			customerOtakupay.otakuPointsAvailable =
+				newCustomerOtakuPointsAvailableEncrypted;
+
+			partnerOtakupay.balancePending = newPartnerBalancePendindEncrypted;
+			partnerOtakupay.balanceAvailable =
+				newPartnerBalanceAvailableEncrypted;
+
+			// customerOtakupay.save()
+			// partnerOtakupay.save()
+
+			// Adicione uma resposta ao cliente
+			res.status(200).json({ message: "Valores liberados com sucesso!" });
+		} catch (error) {
+			console.log("Erro ao tentar liberar os valores do pedido!", error);
+		}
 	}
 
 	static async getAllUserTransactions(req: Request, res: Response) {

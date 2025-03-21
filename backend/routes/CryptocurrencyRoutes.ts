@@ -29,4 +29,10 @@ router.post(
 	CryptocurrencyController.buyCryptocurrency
 );
 
+router.get(
+	"/get-balance-by-user",
+	verifyToken,
+	CryptocurrencyController.getCryptocurrencyBalanceByCustomer
+);
+
 export default router;
