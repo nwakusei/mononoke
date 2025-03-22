@@ -5,6 +5,45 @@ import { useRouter } from "next/navigation";
 // Imagens
 import Otakuyasan from "../../public/otakuyasan.png";
 
+import crypto from "crypto";
+
+const secretKey = "chaveSuperSecretaDe32charsdgklot";
+
+// Função para Descriptografar dados sensíveis no Banco de Dados
+function decrypt(encryptedBalance: string): number | null {
+	let decrypted = "";
+
+	try {
+		// Divide o IV do texto criptografado
+		const [ivHex, encryptedData] = encryptedBalance.split(":");
+		if (!ivHex || !encryptedData) {
+			throw new Error("Formato inválido do texto criptografado.");
+		}
+
+		const iv = Buffer.from(ivHex, "hex");
+
+		const decipher = crypto.createDecipheriv(
+			"aes-256-cbc",
+			Buffer.from(secretKey, "utf-8"),
+			iv
+		);
+
+		decipher.setAutoPadding(false);
+
+		decrypted = decipher.update(encryptedData, "hex", "utf8");
+		decrypted += decipher.final("utf8");
+
+		const balanceNumber = parseFloat(decrypted.trim()); // Remove espaços em branco extras
+		if (isNaN(balanceNumber)) {
+			return null;
+		}
+		return parseFloat(balanceNumber.toFixed(2));
+	} catch (error) {
+		console.error("Erro ao descriptografar o saldo:", error);
+		return null;
+	}
+}
+
 function CashbackCard({
 	partnerNickname,
 	partnerName,
@@ -44,7 +83,7 @@ function CashbackCard({
 			</div>
 			<div className="h-[140px] flex flex-col items-center justify-center mx-4 -mt-6">
 				<h2 className="text-center font-semibold text-xl text-black">
-					{`${cashback}% de Cashback`}
+					{`${decrypt(cashback)}% de Cashback`}
 				</h2>
 				<p className="text-center text-sm text-black mb-3">
 					{couponInfo}

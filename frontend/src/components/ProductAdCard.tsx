@@ -10,6 +10,45 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 // Imagens
 import AdultProductCover from "../../public/adult-content-cover.png";
 
+import crypto from "crypto";
+
+const secretKey = "chaveSuperSecretaDe32charsdgklot";
+
+// Função para Descriptografar dados sensíveis no Banco de Dados
+function decrypt(encryptedBalance: string): number | null {
+	let decrypted = "";
+
+	try {
+		// Divide o IV do texto criptografado
+		const [ivHex, encryptedData] = encryptedBalance.split(":");
+		if (!ivHex || !encryptedData) {
+			throw new Error("Formato inválido do texto criptografado.");
+		}
+
+		const iv = Buffer.from(ivHex, "hex");
+
+		const decipher = crypto.createDecipheriv(
+			"aes-256-cbc",
+			Buffer.from(secretKey, "utf-8"),
+			iv
+		);
+
+		decipher.setAutoPadding(false);
+
+		decrypted = decipher.update(encryptedData, "hex", "utf8");
+		decrypted += decipher.final("utf8");
+
+		const balanceNumber = parseFloat(decrypted.trim()); // Remove espaços em branco extras
+		if (isNaN(balanceNumber)) {
+			return null;
+		}
+		return parseFloat(balanceNumber.toFixed(2));
+	} catch (error) {
+		console.error("Erro ao descriptografar o saldo:", error);
+		return null;
+	}
+}
+
 function ProductAdCard({
 	viewAdultContent,
 	product,
@@ -398,7 +437,9 @@ function ProductAdCard({
 					</h1>
 					<h2 className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
 						<Currency size={18} />
-						<span className="mb-[2px]">{`${cashback}% de Cashback`}</span>
+						<span className="mb-[2px]">{`${decrypt(
+							cashback
+						)}% de Cashback`}</span>
 					</h2>
 					<h2 className="text-yellow-500 text-sm flex flex-row items-center gap-2">
 						{renderRatingIcons()}

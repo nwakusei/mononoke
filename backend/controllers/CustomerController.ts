@@ -1,19 +1,20 @@
+// Imports Gerais
 import { Request, Response } from "express";
+import bcrypt from "bcrypt";
+import { validationResult } from "express-validator";
+import crypto from "crypto";
+import { isValidObjectId } from "mongoose";
+
+// Models
 import { CustomerModel } from "../models/CustomerModel.js";
 import { OtakupayModel } from "../models/OtakupayModel.js";
-import bcrypt from "bcrypt";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { validationResult } from "express-validator";
-import { Multer } from "multer";
-import crypto from "crypto";
+import { PartnerModel } from "../models/PartnerModel.js";
+import { ProductModel } from "../models/ProductModel.js";
 
 // Middlewares/Helpers
 import createUserToken from "../helpers/create-user-token.js";
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
-import { isValidObjectId } from "mongoose";
-import { PartnerModel } from "../models/PartnerModel.js";
-import { ProductModel } from "../models/ProductModel.js";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -23,7 +24,6 @@ if (secretKey.length !== 32) {
 }
 
 // Função para Criptografar dados sensíveis no Banco de Dados
-
 function encrypt(balance: string): string {
 	const iv = crypto.randomBytes(16); // Gera um IV aleatório
 	const cipher = crypto.createCipheriv(
@@ -93,15 +93,14 @@ class CustomerController {
 
 		if (!confirmPassword) {
 			res.status(422).json({
-				message: "A confirmação da senha é obrigatória!",
+				message: "Confirme a senha!",
 			});
 			return;
 		}
 
 		if (password !== confirmPassword) {
 			res.status(422).json({
-				message:
-					"A senha e a confirmação de senha precisam ser iguais!",
+				message: "As senhas precisam ser iguais!",
 			});
 			return;
 		}
@@ -113,14 +112,15 @@ class CustomerController {
 			return res.status(422).json({ errors: errorMessages });
 		}
 
-		// Verificar se o customer existe
-		const customerExist = await CustomerModel.findOne({ email: email });
+		// Verificar se o email já está cadastrado na plataforma
+		const customerEmailExist = await CustomerModel.findOne({
+			email: email,
+		});
 
-		if (customerExist) {
+		if (customerEmailExist) {
 			res.status(422).json({
-				message: "Email já cadastrado, Por favor utilize outro email!",
+				message: "Já existe uma conta cadastrada com este email!",
 			});
-
 			return;
 		}
 
@@ -128,7 +128,7 @@ class CustomerController {
 		const salt = await bcrypt.genSalt(12);
 		const passwordHash = await bcrypt.hash(password, salt);
 
-		const balanceToEncrypt = "0.00"; // Exemplo de valor a ser criptografado
+		const balanceToEncrypt = process.env.USER_INITIAL_BALANCE as string;
 		const encryptedBalance = encrypt(balanceToEncrypt);
 
 		try {
@@ -216,190 +216,6 @@ class CustomerController {
 
 		res.status(200).json({ user });
 	}
-
-	// static async editCustomer(req: Request, res: Response) {
-	// 	const token = getToken(req);
-
-	// 	try {
-	// 		// Verificar se o usuário existe
-	// 		if (!token) {
-	// 			res.status(422).json({
-	// 				message: "Token ausente. Faça login novamente.",
-	// 			});
-	// 			return;
-	// 		}
-
-	// 		const user = await getUserByToken(token);
-	// 		console.log(user);
-
-	// 		if (!user) {
-	// 			res.status(422).json({ message: "Usuário não encontrado!" });
-	// 			return;
-	// 		}
-
-	// 		const { name, email, password, confirmPassword } = req.body;
-
-	// 		let image = "";
-
-	// 		if (req.file) {
-	// 			user.profileImage = req.file.filename;
-	// 		}
-
-	// 		// Validações
-	// 		if (!name) {
-	// 			res.status(422).json({ message: "O nome é obrigatório" });
-	// 			return;
-	// 		}
-
-	// 		user.name = name;
-
-	// 		if (!email) {
-	// 			res.status(422).json({ message: "O email é obrigatório" });
-	// 			return;
-	// 		}
-
-	// 		if (email !== user.email) {
-	// 			const userExist = await CustomerModel.findOne({ email: email });
-
-	// 			if (userExist) {
-	// 				res.status(422).json({
-	// 					message:
-	// 						"Já existe um usuário cadastrado com esse email!",
-	// 				});
-	// 				return;
-	// 			}
-
-	// 			user.email = email;
-	// 		}
-
-	// 		if (password !== confirmPassword) {
-	// 			res.status(422).json({
-	// 				message:
-	// 					"A senha e a confirmação de senha precisam ser iguais!",
-	// 			});
-	// 			return;
-	// 		}
-
-	// 		if (password) {
-	// 			// Alteração da senha
-	// 			const salt = await bcrypt.genSalt(12);
-	// 			const passwordHash = await bcrypt.hash(password, salt);
-	// 			user.password = passwordHash;
-	// 		}
-
-	// 		await user.save();
-
-	// 		const updatedUser = await CustomerModel.findById(user._id).select(
-	// 			"-password"
-	// 		);
-
-	// 		res.status(200).json({
-	// 			message: "Usuário atualizado com sucesso!",
-	// 			user: updatedUser,
-	// 		});
-	// 	} catch (err) {
-	// 		res.status(500).json({ message: err });
-	// 	}
-	// }
-
-	// // Requisição finalizada, mas precisa de ajustes
-	// static async followStore(req: Request, res: Response) {
-	// 	const { id } = req.params; // ID que pode ser da loja ou do produto
-
-	// 	// Verifique se o ID fornecido é válido
-	// 	if (!isValidObjectId(id)) {
-	// 		res.status(422).json({ message: "ID inválido!" });
-	// 		return;
-	// 	}
-
-	// 	try {
-	// 		let storeID: any = id;
-	// 		let storeName: string | null = null;
-
-	// 		// Tente encontrar a loja diretamente usando o ID fornecido
-	// 		const store = await PartnerModel.findById(storeID);
-
-	// 		// Se não encontrar a loja, então pode ser que o ID seja de um produto
-	// 		if (!store) {
-	// 			// Encontre o produto usando o ID
-	// 			const product = await ProductModel.findById(id);
-
-	// 			if (!product) {
-	// 				res.status(404).json({
-	// 					message: "Produto não encontrado!",
-	// 				});
-	// 				return;
-	// 			}
-
-	// 			// Obtenha o ID da loja associada ao produto
-	// 			storeID = product.partnerID;
-
-	// 			// Verifique se o ID da loja é válido
-	// 			if (!isValidObjectId(storeID)) {
-	// 				res.status(422).json({ message: "ID da loja inválido!" });
-	// 				return;
-	// 			}
-
-	// 			// Tente encontrar a loja usando o ID da loja obtido do produto
-	// 			const foundStore = await PartnerModel.findById(storeID);
-
-	// 			if (!foundStore) {
-	// 				res.status(404).json({ message: "Loja não encontrada!" });
-	// 				return;
-	// 			}
-
-	// 			storeName = foundStore.name; // Obtenha o nome da loja
-	// 		} else {
-	// 			storeName = store.name; // Obtenha o nome da loja diretamente
-	// 		}
-
-	// 		const token: any = getToken(req);
-	// 		const customer = await getUserByToken(token);
-	// 		const customerID = customer?._id;
-
-	// 		// Encontre o usuário ou seguidor usando o ID do usuário
-	// 		const user = await CustomerModel.findById(customerID);
-
-	// 		if (!user) {
-	// 			res.status(404).json({ message: "Customer não encontrado!" });
-	// 			return;
-	// 		}
-
-	// 		// Verifique se o usuário já está seguindo a loja
-	// 		if (
-	// 			user.followingStores.some(
-	// 				(following) =>
-	// 					following.storeID.toString() === storeID.toString()
-	// 			)
-	// 		) {
-	// 			res.status(400).json({
-	// 				message: "Você já segue esta loja!",
-	// 			});
-	// 			return;
-	// 		}
-
-	// 		// Adicione a loja à lista de lojas seguidas do usuário
-	// 		const newFollowingStoreDate = {
-	// 			storeID: storeID,
-	// 			storeName: storeName,
-	// 		};
-
-	// 		user.followingStores.push(newFollowingStoreDate);
-	// 		await user.save();
-
-	// 		// Atualize o número de seguidores da loja
-	// 		await PartnerModel.findByIdAndUpdate(
-	// 			storeID,
-	// 			{ $inc: { followers: 1 } }, // Incrementa o número de seguidores
-	// 			{ new: true } // Retorna o documento atualizado
-	// 		).exec();
-
-	// 		res.status(200).json({ message: "Loja seguida com sucesso!" });
-	// 	} catch (error) {
-	// 		console.error("Erro ao seguir a loja:", error);
-	// 		res.status(500).json({ message: "Erro ao tentar seguir a loja!" });
-	// 	}
-	// }
 
 	// Requisição finalizada, mas precisa de ajustes
 	static async followStore(req: Request, res: Response) {

@@ -45,7 +45,7 @@ const createProductFormSchema = z
 			})
 			.refine(
 				(files) => {
-					return files !== null && files.length > 0;
+					return files !== null && files.length === 0;
 				},
 				{
 					message: "※ Insira pelo menos 1 imagem!",
@@ -827,6 +827,8 @@ function CreateProductPage() {
 	) => {
 		const files = event.target.files;
 
+		console.log("Aquivos", files);
+
 		if (files) {
 			const fileArray = Array.from(files); // Converte o FileList em um array
 
@@ -865,6 +867,8 @@ function CreateProductPage() {
 						: "Nenhuma imagem válida selecionada!",
 				});
 			}
+
+			console.log("Aquivos validos", validFiles);
 
 			// // Adiciona a validação para garantir que pelo menos uma imagem foi selecionada
 			// if (validFiles.length === 0) {

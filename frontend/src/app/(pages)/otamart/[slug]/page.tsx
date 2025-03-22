@@ -38,6 +38,45 @@ import { MdVerified } from "react-icons/md";
 import { ProductAdCard } from "@/components/ProductAdCard";
 import { CgBox } from "react-icons/cg";
 
+import crypto from "crypto";
+
+const secretKey = "chaveSuperSecretaDe32charsdgklot";
+
+// Função para Descriptografar dados sensíveis no Banco de Dados
+function decrypt(encryptedBalance: string): number | null {
+	let decrypted = "";
+
+	try {
+		// Divide o IV do texto criptografado
+		const [ivHex, encryptedData] = encryptedBalance.split(":");
+		if (!ivHex || !encryptedData) {
+			throw new Error("Formato inválido do texto criptografado.");
+		}
+
+		const iv = Buffer.from(ivHex, "hex");
+
+		const decipher = crypto.createDecipheriv(
+			"aes-256-cbc",
+			Buffer.from(secretKey, "utf-8"),
+			iv
+		);
+
+		decipher.setAutoPadding(false);
+
+		decrypted = decipher.update(encryptedData, "hex", "utf8");
+		decrypted += decipher.final("utf8");
+
+		const balanceNumber = parseFloat(decrypted.trim()); // Remove espaços em branco extras
+		if (isNaN(balanceNumber)) {
+			return null;
+		}
+		return parseFloat(balanceNumber.toFixed(2));
+	} catch (error) {
+		console.error("Erro ao descriptografar o saldo:", error);
+		return null;
+	}
+}
+
 function ProductPage() {
 	const { slug } = useParams();
 	const [user, setUser] = useState(null); // Inicializa como null
@@ -734,7 +773,9 @@ function ProductPage() {
 									<span>
 										<p className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
 											<Currency size={18} />{" "}
-											<span className="mb-[2px]">{`${partner?.cashback}% de Cashback`}</span>
+											<span className="mb-[2px]">{`${decrypt(
+												partner?.cashback
+											)}% de Cashback`}</span>
 										</p>
 									</span>
 								</div>

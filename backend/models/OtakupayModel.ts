@@ -22,7 +22,7 @@ interface IOtakuPayCustomer {
 	otakuPointsAvailable: string;
 	otakuPointsPending: string;
 	cryptocurrencies: ICryptocurrency[];
-	cashback: number;
+	cashback: String;
 }
 
 // Schema que corresponda a Interface.
@@ -85,7 +85,7 @@ const OtakupaySchema = new Schema<IOtakuPayCustomer>(
 			},
 		], // Definição correta de um array de objetos
 		cashback: {
-			type: Number,
+			type: String,
 		},
 	},
 

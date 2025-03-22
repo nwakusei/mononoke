@@ -51,7 +51,11 @@ router.post(
 	OtakupayController.finishPaymentPixOtakuPay
 );
 
-router.post("/realease-values", OtakupayController.releaseOfValues);
+router.post(
+	"/realease-values",
+	verifyToken,
+	OtakupayController.releaseOfValues
+);
 
 router.get(
 	"/transactions",

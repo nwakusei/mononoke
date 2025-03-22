@@ -1189,7 +1189,7 @@ function SideComponent({ selectedVariation }) {
 										<input
 											type="text"
 											placeholder="Seu CEP"
-											className="input w-full max-w-[180px]"
+											className="input input-primary w-full max-w-[180px]"
 											value={cepDestino}
 											onChange={(e) => {
 												const value =

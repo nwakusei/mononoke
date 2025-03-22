@@ -5335,11 +5335,18 @@ class OtakupayController {
 		}
 
 		try {
-			const customerID = order.customerID;
+			const token: any = getToken(req);
+			const customer = await getUserByToken(token);
 
-			const customer = await CustomerModel.findById({
-				_id: customerID,
-			}).select("-password");
+			if (!customer) {
+				res.status(422).json({ message: "Usuário não encontrado!" });
+				return;
+			}
+
+			if (customer._id.toString() !== order.customerID.toString()) {
+				res.status(404).json({ message: "Requisição negada!" });
+				return;
+			}
 
 			const customerOtakupay = await OtakupayModel.findById({
 				_id: customer?.otakupayID,
@@ -5427,10 +5434,7 @@ class OtakupayController {
 				customerOtakuPointsAvailableEncrypted
 			);
 
-			if (
-				!customerOtakuPointAvailableDecrypted ||
-				customerOtakuPointAvailableDecrypted === null
-			) {
+			if (customerOtakuPointAvailableDecrypted === null) {
 				res.status(404).json({
 					message:
 						"Otaku Points Available do Cliente não encontrado!",
@@ -5539,16 +5543,6 @@ class OtakupayController {
 				"Saldo Disponível do Parceiro Descriptografado",
 				partnerBalanceAvailableDecrypted
 			);
-
-			// if (
-			// 	!partnerBalanceAvailableDecrypted ||
-			// 	partnerBalanceAvailableDecrypted === null
-			// ) {
-			// 	res.status(404).json({
-			// 		message: "Balance Available do Parceiro não encontrado!",
-			// 	});
-			// 	return;
-			// }
 
 			console.log(
 				"Saldo Disponível do Parceiro descriptografado",
@@ -5730,8 +5724,8 @@ class OtakupayController {
 			partnerOtakupay.balanceAvailable =
 				newPartnerBalanceAvailableEncrypted;
 
-			// customerOtakupay.save()
-			// partnerOtakupay.save()
+			await customerOtakupay.save();
+			await partnerOtakupay.save();
 
 			// Adicione uma resposta ao cliente
 			res.status(200).json({ message: "Valores liberados com sucesso!" });

@@ -1086,7 +1086,7 @@ class OrderController {
 
 			await customerOtakuPay.save();
 			await partnerOtakupay?.save();
-			await order.deleteOne(order._id);
+			// await order.deleteOne(order._id);
 
 			res.status(200).json({
 				message: "Pedido Cancelado com sucesso!",

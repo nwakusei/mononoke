@@ -2,12 +2,12 @@ import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
 
 interface IAddress {
-	street?: string; // logradouro
-	complement?: string; // complemento
-	neighborhood?: string; // bairro
-	city?: string; // cidade
-	state?: string; // uf
-	postalCode?: string; // cep
+	street?: string;
+	complement?: string;
+	neighborhood?: string;
+	city?: string;
+	state?: string;
+	postalCode?: string;
 }
 
 interface IShippingConfig {
@@ -31,7 +31,7 @@ interface IPartner {
 	description: string;
 	address: IAddress[];
 	shippingConfiguration: IShippingConfig[];
-	cashback: number;
+	cashback: string;
 	followers: number;
 	rating: number;
 	numberOfReviews: number;
@@ -46,16 +46,19 @@ const partnerSchema = new Schema<IPartner>(
 	{
 		accountStatus: {
 			type: String,
-			required: false,
+			required: true,
 		},
 		accountType: {
 			type: String,
+			required: true,
 		},
 		profileImage: {
 			type: String,
+			required: false,
 		},
 		logoImage: {
 			type: String,
+			required: false,
 		},
 		name: {
 			type: String,
@@ -82,19 +85,23 @@ const partnerSchema = new Schema<IPartner>(
 		},
 		cpfCnpj: {
 			type: Number,
+			required: false,
 		},
 		description: {
 			type: String,
+			required: false,
 		},
 		address: {
 			type: [{}],
+			required: false,
 		},
 		shippingConfiguration: {
 			type: [{}],
+			required: false,
 		},
 		cashback: {
-			type: Number,
-			required: false,
+			type: String,
+			required: true,
 		},
 		followers: {
 			type: Number,

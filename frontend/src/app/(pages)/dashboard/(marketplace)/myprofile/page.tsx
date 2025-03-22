@@ -26,6 +26,44 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 import { AddPicture, Key } from "@icon-park/react";
 import { FiInfo } from "react-icons/fi";
 
+import crypto from "crypto";
+
+const secretKey = "chaveSuperSecretaDe32charsdgklot";
+// Função para Descriptografar dados sensíveis no Banco de Dados
+function decrypt(encryptedBalance: string): number | null {
+	let decrypted = "";
+
+	try {
+		// Divide o IV do texto criptografado
+		const [ivHex, encryptedData] = encryptedBalance.split(":");
+		if (!ivHex || !encryptedData) {
+			throw new Error("Formato inválido do texto criptografado.");
+		}
+
+		const iv = Buffer.from(ivHex, "hex");
+
+		const decipher = crypto.createDecipheriv(
+			"aes-256-cbc",
+			Buffer.from(secretKey, "utf-8"),
+			iv
+		);
+
+		decipher.setAutoPadding(false);
+
+		decrypted = decipher.update(encryptedData, "hex", "utf8");
+		decrypted += decipher.final("utf8");
+
+		const balanceNumber = parseFloat(decrypted.trim()); // Remove espaços em branco extras
+		if (isNaN(balanceNumber)) {
+			return null;
+		}
+		return parseFloat(balanceNumber.toFixed(2));
+	} catch (error) {
+		console.error("Erro ao descriptografar o saldo:", error);
+		return null;
+	}
+}
+
 // Zod Schema
 const updateUserFormSchema = z
 	.object({
@@ -1479,8 +1517,9 @@ function MyProfilePage() {
 												"state",
 												"select"
 											)} w-full max-w-3xl`}
-											defaultValue={
-												user.address
+											value={
+												user.address &&
+												user.address[0]?.state
 													? user.address[0]?.state
 													: ""
 											}
@@ -1715,7 +1754,9 @@ function MyProfilePage() {
 													"input"
 												)} w-full max-w-3xl`}
 												placeholder="..."
-												defaultValue={user?.cashback}
+												defaultValue={decrypt(
+													user?.cashback
+												)}
 												{...register("cashback", {
 													onChange: () =>
 														trigger("cashback"),

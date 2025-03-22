@@ -48,8 +48,6 @@ function WalletPage() {
 
 	const router = useRouter();
 
-	console.log(cryptocurrencyBalance);
-
 	useEffect(() => {
 		if (!token) return;
 

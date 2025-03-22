@@ -112,9 +112,9 @@ class PartnerController {
 		}
 
 		// Verificar se o partner existe
-		const partnerExist = await PartnerModel.findOne({ email: email });
+		const partnerEmailExist = await PartnerModel.findOne({ email: email });
 
-		if (partnerExist) {
+		if (partnerEmailExist) {
 			res.status(422).json({
 				message: "Email já cadastrado, Por favor utilize outro email!",
 			});
@@ -126,10 +126,11 @@ class PartnerController {
 		const salt = await bcrypt.genSalt(12);
 		const passwordHash = await bcrypt.hash(password, salt);
 
-		const balanceToEncrypt = "0.00"; // Exemplo de valor a ser criptografado
+		const balanceToEncrypt = process.env.USER_INITIAL_BALANCE as string; // Exemplo de valor a ser criptografado
 		const encryptedBalance = encrypt(balanceToEncrypt);
 
-		const cashbackToEncrypt = "1";
+		const cashbackToEncrypt = process.env
+			.PARTNER_INITIAL_CASHBACK as string;
 		const encryptedCashback = encrypt(cashbackToEncrypt);
 
 		try {
@@ -143,7 +144,7 @@ class PartnerController {
 				balancePending: encryptedBalance,
 				otakuPointsAvailable: encryptedBalance,
 				otakuPointsPending: encryptedBalance,
-				cashback: "1",
+				cashback: encryptedCashback,
 			});
 
 			const newOtakupay = await otakupay.save();
@@ -161,7 +162,8 @@ class PartnerController {
 				password: passwordHash,
 				description: "",
 				address: [],
-				cashback: "1",
+				shippingConfiguration: [],
+				cashback: encryptedCashback,
 				followers: 0,
 				rating: 0,
 				numberOfReviews: 0,
@@ -242,87 +244,6 @@ class PartnerController {
 		res.status(200).json({ user });
 	}
 
-	// static async editPartner(req: Request, res: Response) {
-	// 	const {
-	// 		name,
-	// 		email,
-	// 		cpfCnpj,
-	// 		cashback,
-	// 		address,
-	// 		password,
-	// 		confirmPassword,
-	// 	} = req.body;
-
-	// 	const token: any = getToken(req);
-	// 	const partner = await getUserByToken(token);
-
-	// 	// Verificar se o usuário existe
-	// 	if (!partner) {
-	// 		res.status(422).json({
-	// 			message: "Usuário não encontrado!",
-	// 		});
-	// 		return;
-	// 	}
-
-	// 	try {
-	// 		// Verifique se o partner é de fato um parceiro e não um cliente
-	// 		if (partner instanceof PartnerModel) {
-	// 			partner.name = name;
-	// 			partner.email = email;
-	// 			partner.cpfCnpj = cpfCnpj;
-	// 			partner.cashback = cashback;
-
-	// 			if (partner.address.length > 0 && address) {
-	// 				partner.address[0] = {
-	// 					logradouro: address.logradouro,
-	// 					complemento: address.complemento,
-	// 					bairro: address.bairro,
-	// 					cidade: address.cidade,
-	// 					uf: address.uf,
-	// 					cep: address.cep,
-	// 				};
-	// 			}
-
-	// 			if (
-	// 				password &&
-	// 				confirmPassword &&
-	// 				password === confirmPassword
-	// 			) {
-	// 				const salt = await bcrypt.genSalt(12);
-	// 				const passwordHash = await bcrypt.hash(password, salt);
-
-	// 				partner.password = passwordHash;
-	// 			} else if (
-	// 				password &&
-	// 				confirmPassword &&
-	// 				password !== confirmPassword
-	// 			) {
-	// 				res.status(422).json({
-	// 					message: "As senhas precisam ser iguais!",
-	// 				});
-	// 				return;
-	// 			}
-
-	// 			await partner.save();
-
-	// 			const updatedUser = await PartnerModel.findById(
-	// 				partner._id
-	// 			).select("-password");
-
-	// 			res.status(200).json({
-	// 				message: "Usuário atualizado com sucesso!",
-	// 				updatedUser,
-	// 			});
-	// 		} else {
-	// 			res.status(400).json({
-	// 				message: "O usuário não é um parceiro válido.",
-	// 			});
-	// 		}
-	// 	} catch (err) {
-	// 		res.status(500).json({ message: err });
-	// 	}
-	// }
-
 	static async editPartner(req: Request, res: Response) {
 		const {
 			name,
@@ -365,6 +286,8 @@ class PartnerController {
 		);
 
 		try {
+			const cashbackEncrypted = encrypt(cashback);
+
 			// Verifique se o partner é de fato um parceiro e não um cliente
 			if (partner instanceof PartnerModel) {
 				partner.name = name;
@@ -374,7 +297,7 @@ class PartnerController {
 				partner.description = description;
 				partner.viewAdultContent = viewAdultContent;
 				partner.shippingConfiguration;
-				partner.cashback = cashback;
+				partner.cashback = cashbackEncrypted;
 
 				partner.address[0] = {
 					street: street,

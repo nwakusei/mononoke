@@ -35,11 +35,6 @@ class ProductController {
 			adultProduct,
 		} = req.body;
 
-		console.log(productVariations);
-
-		// // Upload de imagens
-		// const imagesProduct = req.files as Express.Multer.File[];
-
 		const files = req.files as {
 			[fieldname: string]: Express.Multer.File[];
 		};
@@ -52,48 +47,6 @@ class ProductController {
 		};
 
 		console.log("Variation Images:", variationImages); // Debug para verificar a estrutura
-
-		// Processar variações de produtos
-		// const processedVariations = productVariations.map(
-		// 	(variation: any, index: number) => {
-		// 		const options = variation.options.map(
-		// 			(option: any, optionIndex: number) => {
-		// 				const imageUrlField = `productVariations[${index}][options][${optionIndex}][imageUrl]`;
-		// 				const imageUrls = variationImages[imageUrlField] || []; // Use um array para múltiplas imagens
-
-		// 				// Processar as imagens das variações
-		// 				let imageUrl = ""; // Mude de array para string
-
-		// 				if (imageUrls.length > 0) {
-		// 					const image = imageUrls[0]; // Pegue apenas a primeira imagem
-		// 					if (image) {
-		// 						if ("key" in image) {
-		// 							// Estamos usando o armazenamento na AWS S3
-		// 							if (typeof image.key === "string") {
-		// 								imageUrl = image.key;
-		// 							}
-		// 						} else {
-		// 							// Estamos usando o armazenamento em ambiente local (Desenvolvimento)
-		// 							if (typeof image.filename === "string") {
-		// 								imageUrl = image.filename;
-		// 							}
-		// 						}
-		// 					}
-		// 				}
-
-		// 				return {
-		// 					name: option.name,
-		// 					imageUrl: imageUrl, // Mantenha apenas uma string
-		// 				};
-		// 			}
-		// 		);
-
-		// 		return {
-		// 			title: variation.title,
-		// 			options: options,
-		// 		};
-		// 	}
-		// );
 
 		const processedVariations = Array.isArray(productVariations)
 			? productVariations.map((variation: any, index: number) => {
@@ -175,13 +128,6 @@ class ProductController {
 			});
 			return;
 		}
-
-		// if (!promotionalPrice) {
-		// 	res.status(422).json({
-		// 		message: "O título do produto é obrigatório!",
-		// 	});
-		// 	return;
-		// }
 
 		// // Revisar lógica, precisa ter ou o estoque principal ou o estoque da variação
 		// if (!stock) {
@@ -295,19 +241,6 @@ class ProductController {
 			}
 		}
 
-		// // Título do produto no Banco de Dados
-		// const rawTitle = productTitle;
-
-		// // Substituição de ~ e . por -
-		// const processedTitle = rawTitle.replace(/~/g, "-").replace(/\./g, "-");
-
-		// // Conversão do título em Slug
-		// const slug = slugify(processedTitle, {
-		// 	lower: true,
-		// 	strict: true,
-		// 	replacement: "-", // Substitui espaços e outros separadores por "-"
-		// });
-
 		const createSlugWithCode = async (productTitle) => {
 			// Substituição de ~ e . por -
 			const processedTitle = productTitle
@@ -368,7 +301,7 @@ class ProductController {
 			productsSold: 0,
 			rating: 0,
 			reviews: [],
-			partnerID: partner._id,
+			partnerID: partner._id.toString(),
 		});
 
 		// Percorrer o Array de imagens e adicionar cada uma a uma ao produto/anúncio que será criado

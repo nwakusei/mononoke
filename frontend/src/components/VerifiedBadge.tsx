@@ -8,24 +8,20 @@ interface IVerifiedBadgeProps {
 // Morganita = Morganite | Ambar = Amber | Safira = Sapphire | Âmbar = Amber
 function VerifiedBadge({ partnerVerifiedBadge }: IVerifiedBadgeProps) {
 	const badges = [
-		{ name: "Bluebought", hex: "#80c6ff", salesQuantity: "xx" },
+		{ name: "Fluorite", hex: "#C3A2E3", salesQuantity: "xx" },
 		{ name: "Blue", hex: "#2196f3", salesQuantity: "500" },
 		{ name: "Bronze", hex: "#CD7F32", salesQuantity: "1 mil" },
-		{ name: "Silver", hex: "#C0C0C0", salesQuantity: "2 mil" },
+		{ name: "Silver", hex: "#C0C0C0", salesQuantity: "2,5 mil" },
 		{ name: "Gold", hex: "#daa520", salesQuantity: "5 mil" },
 		{ name: "Pearl", hex: "#EAE0C8", salesQuantity: "10 mil" },
-		{ name: "Morganita Clara", hex: "#F4C1C1", salesQuantity: "xx mil" },
-		{ name: "Morganita Médio", hex: "#F7A8B8", salesQuantity: "xx mil" },
-		{ name: "Morganita Pêssego", hex: "#F1C0A0", salesQuantity: "xx mil" },
-		{ name: "Peridot", hex: "#A2D86B", salesQuantity: "xx mil" },
-		{ name: "Safira Laranja", hex: "#E65C00", salesQuantity: "xx mil" },
-		{ name: "Âmbar Médio", hex: "#FF9C33", salesQuantity: "xx mil" },
-		{ name: "Âmbar Escuro", hex: "#D9773B", salesQuantity: "xx mil" },
-		{ name: "Aquamarine", hex: "#7FB7D1", salesQuantity: "xx mil" },
-		{ name: "Obsidian", hex: "#0B0B0B", salesQuantity: "20 mil" },
-		{ name: "Emerald", hex: "#00674f", salesQuantity: "30 mil" },
-		{ name: "Sapphire", hex: "#0F52BA", salesQuantity: "50 mil" },
-		{ name: "Ruby", hex: "#E0115F", salesQuantity: "75 mil" },
+		{ name: "Morganite", hex: "#F7A8B8", salesQuantity: "20 mil" },
+		{ name: "Peridot", hex: "#A2D86B", salesQuantity: "30 mil" },
+		{ name: "Amber", hex: "#FF9C33", salesQuantity: "40 mil" },
+		{ name: "Aquamarine", hex: "#13B3AC", salesQuantity: "50 mil" },
+		{ name: "Obsidian", hex: "#0B0B0B", salesQuantity: "60 mil" },
+		{ name: "Emerald", hex: "#00674f", salesQuantity: "70 mil" },
+		{ name: "Sapphire", hex: "#0F52BA", salesQuantity: "80 mil" },
+		{ name: "Ruby", hex: "#E0115F", salesQuantity: "90 mil" },
 		{ name: "Amethyst", hex: "#4c1d95", salesQuantity: "100 mil" },
 	];
 
@@ -60,7 +56,11 @@ function VerifiedBadge({ partnerVerifiedBadge }: IVerifiedBadgeProps) {
 							<span>{`• Selo ${verifiedBadge?.name}`}</span>
 						</div>
 						<p className="ml-[25px]">
-							{`• Mais de ${verifiedBadge?.salesQuantity} vendas`}
+							{`${
+								verifiedBadge?.name === "Fluorite"
+									? ""
+									: `• Mais de ${verifiedBadge?.salesQuantity} vendas`
+							}`}
 						</p>
 						<p className="ml-[25px]">• Conta verificada</p>
 					</div>

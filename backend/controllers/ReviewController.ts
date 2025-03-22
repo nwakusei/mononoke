@@ -240,10 +240,6 @@ class ReviewController {
 				partner.verifiedBadge = "Bronze";
 			}
 
-			await order.save();
-
-			await partner.save();
-
 			// Requisição teste para ativar outra requisição dentro da API
 			const transactionRequestConfig: AxiosRequestConfig = {
 				method: "post",
@@ -270,6 +266,10 @@ class ReviewController {
 				});
 				return;
 			} else {
+				await order.save();
+
+				await partner.save();
+
 				res.status(200).json({
 					message: "Avaliação enviada com sucesso!",
 					newReview,

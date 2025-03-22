@@ -2,8 +2,8 @@ import mainDB from "../db/mainconn.js";
 import mongoose, { Schema, model } from "mongoose";
 
 interface IFollowingStores {
-	storeID: mongoose.Schema.Types.ObjectId;
-	storeName: string | undefined;
+	storeID: string;
+	storeName: string;
 }
 
 // Interface tipando os dados que irão no Banco de Dados.
@@ -28,10 +28,11 @@ const customerSchema = new Schema<ICustomer>(
 	{
 		accountStatus: {
 			type: String,
-			required: false,
+			required: true,
 		},
 		accountType: {
 			type: String,
+			required: true,
 		},
 		profileImage: {
 			type: String,
@@ -47,7 +48,7 @@ const customerSchema = new Schema<ICustomer>(
 		},
 		email: {
 			type: String,
-			required: false,
+			required: true,
 			unique: true,
 		},
 		password: {
@@ -58,6 +59,7 @@ const customerSchema = new Schema<ICustomer>(
 		},
 		cpf: {
 			type: String,
+			unique: true,
 		},
 		address: {
 			type: [{}],
@@ -73,6 +75,7 @@ const customerSchema = new Schema<ICustomer>(
 		},
 		otakupayID: {
 			type: String,
+			required: true,
 			ref: "OtakupayModel",
 		},
 	},
