@@ -231,13 +231,37 @@ class ReviewController {
 			// Atualizar Quantidade de Avaliações do partner
 			partner.numberOfReviews += 1;
 
-			order.statusOrder = "Concluído";
+			order.statusOrder = "Completed";
 
 			// VERICAÇÃO DE QUANTIDADE DE PRODUTOS VENDIDOS PELA LOJA, E ATUALIZAÇÃO DO TIPO DE SELO
 			if (partner.productsSold >= 500) {
 				partner.verifiedBadge = "Blue";
 			} else if (partner.productsSold >= 1000) {
 				partner.verifiedBadge = "Bronze";
+			} else if (partner.productsSold >= 2500) {
+				partner.verifiedBadge = "Silver";
+			} else if (partner.productsSold >= 5000) {
+				partner.verifiedBadge = "Gold";
+			} else if (partner.productsSold >= 10000) {
+				partner.verifiedBadge = "Pearl";
+			} else if (partner.productsSold >= 20000) {
+				partner.verifiedBadge = "Morganite";
+			} else if (partner.productsSold >= 30000) {
+				partner.verifiedBadge = "Peridot";
+			} else if (partner.productsSold >= 40000) {
+				partner.verifiedBadge = "Amber";
+			} else if (partner.productsSold >= 50000) {
+				partner.verifiedBadge = "Aquamarine";
+			} else if (partner.productsSold >= 60000) {
+				partner.verifiedBadge = "Obsidian";
+			} else if (partner.productsSold >= 70000) {
+				partner.verifiedBadge = "Emerald";
+			} else if (partner.productsSold >= 80000) {
+				partner.verifiedBadge = "Sapphire";
+			} else if (partner.productsSold >= 90000) {
+				partner.verifiedBadge = "Ruby";
+			} else if (partner.productsSold >= 100000) {
+				partner.verifiedBadge = "Amethyst";
 			}
 
 			// Requisição teste para ativar outra requisição dentro da API

@@ -39,6 +39,8 @@ import { ProductAdCard } from "@/components/ProductAdCard";
 import { MiniCouponCard } from "@/components/MiniCouponCard";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { LoadingPage } from "@/components/LoadingPageComponent";
+import { BiSupport } from "react-icons/Bi";
+import { PiChats } from "react-icons/pi";
 
 function StorePage() {
 	const [products, setProducts] = useState([]);
@@ -57,11 +59,7 @@ function StorePage() {
 	const [buttonLoading, setbuttonLoading] = useState(false);
 	const [sendButtonLoading, setSendButtonLoading] = useState(false);
 	const [followedStores, setFollowedStores] = useState([]);
-
 	const [partner, setPartner] = useState({});
-
-	const [isChatOpen, setIsChatOpen] = useState(false); // Estado para controlar a visibilidade do chat
-
 	const [viewChat, setViewChat] = useState({});
 	const [message, setMessage] = useState("");
 	const [imageMessage, setImageMessage] = useState<File | null>(null);
@@ -69,6 +67,47 @@ function StorePage() {
 		// Verifica se o sufixo da mensagem corresponde a uma imagem
 		return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(msg);
 	};
+
+	const [isChatOpen, setIsChatOpen] = useState(false);
+	const [buttonPosition, setButtonPosition] = useState(20); // Distância inicial do botão
+
+	// Detecta se o footer está visível
+	useEffect(() => {
+		const footerElement = document.querySelector("footer");
+
+		const checkFooterVisibility = () => {
+			if (footerElement) {
+				const footerRect = footerElement.getBoundingClientRect();
+				const footerTop = footerRect.top; // Posição superior do footer
+				const footerHeight = footerRect.height;
+				const windowHeight = window.innerHeight;
+
+				// Calculando a visibilidade do footer
+				if (footerTop <= windowHeight) {
+					// O quanto do footer está visível
+					const visibleFooter = windowHeight - footerTop;
+
+					// Ajustar a posição do botão conforme a quantidade do footer visível
+					// O botão deve subir proporcionalmente até 120px
+					const newButtonPosition = Math.min(20 + visibleFooter, 120);
+
+					setButtonPosition(newButtonPosition);
+				} else {
+					// O footer ainda não está visível, o botão fica a 20px
+					setButtonPosition(20);
+				}
+			}
+		};
+
+		checkFooterVisibility();
+		window.addEventListener("resize", checkFooterVisibility);
+		window.addEventListener("scroll", checkFooterVisibility);
+
+		return () => {
+			window.removeEventListener("resize", checkFooterVisibility);
+			window.removeEventListener("scroll", checkFooterVisibility);
+		};
+	}, []); // Recalculando posição do botão apenas uma vez na montagem
 
 	useEffect(() => {
 		// Verifica se `slug` já foi definido.
@@ -652,7 +691,11 @@ function StorePage() {
 
 				{/* CAIXA DE CHAT */}
 				{isChatOpen && (
-					<div className="flex flex-col justify-between chat-box fixed bottom-16 right-5 bg-white shadow-lg p-4 rounded-md border border-gray-300 z-40">
+					<div
+						className="flex flex-col justify-between chat-box fixed right-5 bg-white shadow-lg p-4 rounded-md border border-gray-300 z-40"
+						style={{
+							bottom: `${buttonPosition + 70}px`, // A janela de chat aparece 70px acima do botão
+						}}>
 						<div className="chat-header w-full bg-primary flex flex-row items-center rounded-t-md">
 							<div className="flex flex-row items-center gap-2 pl-[16px] py-[8px]">
 								<div className="chat-image avatar">
@@ -803,7 +846,7 @@ function StorePage() {
 							)}
 
 							<textarea
-								className="textarea w-full h-[80px] mt-2"
+								className="textarea textarea-primary w-full h-[80px] mt-2"
 								placeholder="Digite a mensagem..."
 								value={message}
 								onChange={(e) =>
@@ -844,7 +887,7 @@ function StorePage() {
 				)}
 
 				{/* BOTÃO DO CHAT */}
-				{!isChatOpen ? (
+				{/* {!isChatOpen ? (
 					<button
 						onClick={toggleChat}
 						className="btn btn-primary w-[60px] h-[60px] rounded-full fixed bottom-5 right-5 shadow-md z-50">
@@ -856,7 +899,24 @@ function StorePage() {
 						className="btn btn-primary w-[60px] h-[60px] rounded-full fixed bottom-5 right-5 shadow-md z-50">
 						<IoCloseSharp className="cursor-pointer" size={30} />
 					</button>
-				)}
+				)} */}
+				<button
+					onClick={toggleChat}
+					className="btn btn-primary w-[60px] h-[60px] rounded-full shadow-md z-50 transition-all duration-200"
+					style={{
+						position: "fixed", // Fixar o botão
+						bottom: `${buttonPosition}px`, // Ajustar a posição do botão de acordo com a visibilidade do footer
+						right: "20px", // Fixo à direita
+						marginBottom: "env(safe-area-inset-bottom)", // Respeitar área segura nos dispositivos móveis
+					}}>
+					{isChatOpen ? (
+						<IoCloseSharp size={30} />
+					) : (
+						// <MdSupportAgent size={50} />
+						// <BiSupport size={30} />
+						<PiChats size={30} />
+					)}
+				</button>
 			</div>
 		</section>
 	);

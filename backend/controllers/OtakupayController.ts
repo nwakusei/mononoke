@@ -1206,7 +1206,7 @@ class OtakupayController {
 						// Criar uma nova Order para cada PartnerID
 						const newOrder = new OrderModel({
 							orderID: new ObjectId().toHexString().toUpperCase(),
-							statusOrder: "Confirmado",
+							statusOrder: "Confirmed",
 							paymentMethod: "Saldo em conta",
 							shippingCostTotal: shippingCostEncrypted,
 							customerOrderCostTotal: orderTotalCostEncrypted,
@@ -1238,7 +1238,7 @@ class OtakupayController {
 								},
 							],
 							shippingMethod: transportadora,
-							statusShipping: "Pendente",
+							statusShipping: "Pending",
 							trackingCode: "",
 							discountsApplied: 0,
 							orderNote: "",
@@ -2769,7 +2769,7 @@ class OtakupayController {
 						// Criar uma nova Order para cada PartnerID
 						const newOrder = new OrderModel({
 							orderID: new ObjectId().toHexString().toUpperCase(),
-							statusOrder: "Confirmado",
+							statusOrder: "Confirmed",
 							paymentMethod: "Cartão de Crédito",
 							shippingCostTotal: shippingCostEncrypted,
 							customerOrderCostTotal: orderTotalCostEncrypted,
@@ -2802,7 +2802,7 @@ class OtakupayController {
 							],
 							shippingMethod: transportadora,
 							trackingCode: "",
-							statusShipping: "Pendente",
+							statusShipping: "Pending",
 							discountsApplied: 0,
 							orderNote: "",
 						});
@@ -4595,7 +4595,7 @@ class OtakupayController {
 															.toHexString()
 															.toUpperCase(),
 														statusOrder:
-															"Confirmado",
+															"Confirmed",
 														paymentMethod: "Pix",
 														shippingCostTotal:
 															shippingCostEncrypted,
@@ -4644,7 +4644,7 @@ class OtakupayController {
 															transportadora,
 														trackingCode: "",
 														statusShipping:
-															"Pendente",
+															"Pending",
 														discountsApplied: 0,
 														orderNote: "",
 													}

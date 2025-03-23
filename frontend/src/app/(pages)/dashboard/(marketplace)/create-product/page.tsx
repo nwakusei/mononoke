@@ -1169,15 +1169,66 @@ function CreateProductPage() {
 													Escolha a categoria do
 													Produto
 												</option>
-												<option>Impresso</option>
-												<option>Figure</option>
-												<option>Game</option>
-												<option>CD/DVD</option>
-												<option>Vestuário</option>
-												<option>Acessório</option>
-												<option>TCG (Card Game)</option>
-												<option>Papelaria</option>
-												<option>Óculos</option>
+												<option value="Printed">
+													Impresso
+												</option>
+												<option value="Game">
+													Figure
+												</option>
+												<option value="TCG">
+													TCG (Card Game)
+												</option>
+
+												<option value="Clothing">
+													Vestuário
+												</option>
+												<option value="Accessory">
+													Acessório
+												</option>
+
+												<option value="CD">
+													CD/DVD
+												</option>
+												<option value="Frame">
+													Quadro
+												</option>
+
+												<option value="Stationery">
+													Papelaria
+												</option>
+
+												<option value="Keychain">
+													Chaveiro
+												</option>
+												<option value="Mug">
+													Caneca
+												</option>
+
+												<option value="Plush">
+													Pelúcia
+												</option>
+
+												<option value="Cosplay">
+													Cosplay
+												</option>
+
+												<option value="Figure">
+													Game
+												</option>
+												<option value="Backpack">
+													Mochila
+												</option>
+												<option value="Cushion">
+													Almofada
+												</option>
+
+												<option value="Sticker">
+													Adesivo
+												</option>
+
+												<option value="Glasses">
+													Óculos
+												</option>
 											</select>
 											<div className="label -mt-1">
 												{errors.category && (

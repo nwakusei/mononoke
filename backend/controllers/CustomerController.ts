@@ -5,6 +5,21 @@ import { validationResult } from "express-validator";
 import crypto from "crypto";
 import { isValidObjectId } from "mongoose";
 
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+	host: "smtp.gmail.com", // Substitua pelo SMTP do provedor
+	port: 587, // Ou 465 para SSL
+	secure: false, // true para 465, false para 587/STARTTLS
+	auth: {
+		user: "rguedes.dev@gmail.com",
+		pass: "egvzjvdpjwjzmbdx", // Ou senha de aplicativo se necessário
+	},
+	tls: {
+		rejectUnauthorized: false, // Ignora erros de certificado
+	},
+});
+
 // Models
 import { CustomerModel } from "../models/CustomerModel.js";
 import { OtakupayModel } from "../models/OtakupayModel.js";
@@ -144,6 +159,48 @@ class CustomerController {
 				otakuPointsPending: encryptedBalance,
 			});
 
+			// let info = await transporter.sendMail({
+			// 	from: '"Mononoke" <rguedes_arq@hotmail.com>',
+			// 	to: email,
+			// 	subject: "Cadastro efetuado com sucesso!",
+			// 	text: "Este é um teste de envio de e-mail!",
+			// 	html: "<b>Este é um teste de envio de e-mail!</b>",
+			// });
+
+			const mailOptions = {
+				from: '"Mononoke" <rguedes.dev@gmail.com>',
+				to: email,
+				subject: "Cadastro efetuado com sucesso!",
+				text: "Este é um teste de envio de e-mail!",
+				html: `<html>
+				         <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                           <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px;">
+                             <h1 style="color: #4CAF50;">Parabéns por se cadastrar!</h1>
+                               <p style="font-size: 16px;">Bem-vindo à nossa plataforma! Estamos felizes em tê-lo conosco. Agora você pode aproveitar todos os recursos exclusivos que oferecemos.</p>
+                               <p style="font-size: 16px;">Se tiver alguma dúvida, entre em contato conosco a qualquer momento. Estamos à disposição para ajudar!</p>
+
+                               <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;"/>
+
+                               <footer style="font-size: 14px; color: #555;">
+                                 <p style="margin: 0;">Mononoke</p>
+                                 <p style="margin: 0;">E-mail: <a href="mailto:support@mononoke.com" style="color: #4CAF50;">support@mononoke.com</a></p>
+                                 <p style="margin: 0;">WhatsApp: (XX) XXXXX-XXXX</p>
+								 <p style="margin: 0;">CEO | Reinaldo Guedes</p>
+								 <p style="margin: 0;">Onigashima Group</p>
+                               </footer>
+                            </div>
+                         </body>
+                       </html>`,
+			};
+
+			transporter.sendMail(mailOptions, (err, info) => {
+				if (err) {
+					console.log("Erro ao enviar e-mail:", err);
+				} else {
+					console.log("E-mail enviado:", info.response);
+				}
+			});
+
 			const newOtakupay = await otakupay.save();
 
 			// Criar um usuário Cliente
@@ -217,7 +274,7 @@ class CustomerController {
 		res.status(200).json({ user });
 	}
 
-	// Requisição finalizada, mas precisa de ajustes
+	d; // Requisição finalizada, mas precisa de ajustes
 	static async followStore(req: Request, res: Response) {
 		const { id } = req.params; // ID que pode ser da loja ou do produto
 

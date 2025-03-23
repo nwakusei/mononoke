@@ -261,7 +261,7 @@ class OrderController {
 		const { id } = req.params;
 		// const { newStatusOrder } = req.body;
 
-		const newStatusOrder = "Concluído";
+		const newStatusOrder = "Completed";
 
 		if (!isValidObjectId(id)) {
 			res.status(422).json({ message: "ID inválido" });
@@ -315,7 +315,7 @@ class OrderController {
 			return;
 		}
 
-		if (currentStatusOrder === "Concluído" && "concluído") {
+		if (currentStatusOrder === "Completed" && "completed") {
 			res.status(422).json({
 				messsage:
 					"Pedido já confirmado, não é possível confirmar novamente!",
@@ -411,7 +411,7 @@ class OrderController {
 
 			const newPartnerBalanceAvailable =
 				currentDecryptPartnerBalanceAvailable +
-				(orderCostTotal - Number(decryptedCommissionOtamart));
+				(Number(orderCostTotal) - Number(decryptedCommissionOtamart));
 
 			const newEncryptedPartnerBalanceAvailable = encrypt(
 				newPartnerBalanceAvailable.toString()
@@ -631,21 +631,21 @@ class OrderController {
 				return;
 			}
 
-			if (order.statusShipping === "Embalado") {
+			if (order.statusShipping === "Packed") {
 				res.status(422).json({
 					message: "Pedido já marcado como embalado!",
 				});
 				return;
 			}
 
-			if (order.statusShipping !== "Pendente") {
+			if (order.statusShipping !== "Pending") {
 				res.status(422).json({
 					message: "O Pedido não pode ser marcado como embalado!",
 				});
 				return;
 			}
 
-			order.statusShipping = "Embalado";
+			order.statusShipping = "Packed";
 			order.dateMarkedPacked = new Date(); // Aqui você insere a data atual
 
 			await order.save(); // Salva as alterações no banco de dados
@@ -710,22 +710,22 @@ class OrderController {
 				return;
 			}
 
-			if (order.statusShipping === "Enviado") {
+			if (order.statusShipping === "Shipped") {
 				res.status(422).json({
 					message: "Pedido já enviado!",
 				});
 				return;
 			}
 
-			if (order.statusShipping !== "Embalado") {
+			if (order.statusShipping !== "Packed") {
 				res.status(422).json({
 					message: "O Pedido não pode ser marcado como enviado!",
 				});
 				return;
 			}
 
-			order.statusOrder = "Enviado";
-			order.statusShipping = "Enviado";
+			order.statusOrder = "Shipped";
+			order.statusShipping = "Shipped";
 			order.logisticOperator = logisticOperator;
 			order.trackingCode = trackingCode;
 
@@ -983,7 +983,7 @@ class OrderController {
 			);
 
 			// Verificar se o pedido já foi cancelado
-			if (order.status === "cancelado") {
+			if (order.status === "Canceled") {
 				console.log(
 					"Pedido já foi cancelado anteriormente, evitando atualização duplicada."
 				);
@@ -1056,7 +1056,7 @@ class OrderController {
 			const newTransaction = new TransactionModel({
 				transactionType: "Cancelamento",
 				transactionTitle: "Compra no OtaMart",
-				transactionDescription: `Reembolso do Pedido. Cancelado.`,
+				transactionDescription: `Padido cancelado e reembolsado.`,
 				transactionValue: customerOrderCostTotalEncrypted,
 				transactionDetails: {
 					detailProductServiceTitle: order.itemsList[0]?.productTitle,

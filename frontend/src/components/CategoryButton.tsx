@@ -1,6 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
+import Image from "next/image";
 
-import api from "@/utils/api";
+// Images
+import Frame from "../../public/frame.png";
+import Mug from "../../public/mug.png";
+import Backpack from "../../public/backpack03.png";
+import Cushion from "../../public/cushion02.png";
+import Plush from "../../public/plush.png";
+import Keychain from "../../public/keychain2.png";
+import Cosplay from "../../public/cosplay3.png";
 
 // Icons
 import { GiEvilBook, GiBattleMech } from "react-icons/gi";
@@ -11,18 +19,27 @@ import { BsSmartwatch } from "react-icons/bs";
 import { TbCards } from "react-icons/tb";
 import { RiPencilRuler2Line } from "react-icons/ri";
 import { GiProtectionGlasses } from "react-icons/gi";
+import { LuSticker } from "react-icons/lu";
 
 function CategoryButton({ categoriesDB, onCategoryClick }) {
 	const categories = [
-		{ name: "Impressos", tag: "Impresso", icon: GiEvilBook },
-		{ name: "Games", tag: "Game", icon: IoGameControllerOutline },
+		{ name: "Impressos", tag: "Printed", icon: GiEvilBook },
 		{ name: "Figures", tag: "Figure", icon: GiBattleMech },
-		{ name: "CDs/DVDs", tag: "CD", icon: LuDisc3 },
-		{ name: "Vestuário", tag: "Vestuario", icon: PiTShirt },
-		{ name: "Acessórios", tag: "Acessorio", icon: BsSmartwatch },
 		{ name: "TCGs", tag: "TCG", icon: TbCards },
-		{ name: "Papelaria", tag: "Papelaria", icon: RiPencilRuler2Line },
-		{ name: "Óculos", tag: "Oculos", icon: GiProtectionGlasses },
+		{ name: "Vestuário", tag: "Clothing", icon: PiTShirt },
+		{ name: "Acessórios", tag: "Accessory", icon: BsSmartwatch },
+		{ name: "CDs/DVDs", tag: "CD", icon: LuDisc3 },
+		{ name: "Quadros", tag: "Frame", icon: Frame },
+		{ name: "Papelaria", tag: "Stationery", icon: RiPencilRuler2Line },
+		{ name: "Chaveiros", tag: "Keychain", icon: Keychain },
+		{ name: "Canecas", tag: "Mug", icon: Mug },
+		{ name: "Pelúcias", tag: "Plush", icon: Plush },
+		{ name: "Cosplay", tag: "Cosplay", icon: Cosplay },
+		{ name: "Games", tag: "Game", icon: IoGameControllerOutline },
+		{ name: "Mochilas", tag: "Backpack", icon: Backpack },
+		{ name: "Almofadas", tag: "Cushion", icon: Cushion },
+		{ name: "Adesivos", tag: "Sticker", icon: LuSticker },
+		{ name: "Óculos", tag: "Glasses", icon: GiProtectionGlasses },
 	];
 
 	// Filtrar categorias com base nos nomes que existem em categoriesDB
@@ -37,10 +54,21 @@ function CategoryButton({ categoriesDB, onCategoryClick }) {
 					key={category.name}
 					onClick={() => onCategoryClick?.(category.tag)}
 					className="flex flex-col justify-center items-center w-20 h-20 bg-primary rounded-md shadow-lg cursor-pointer transition-all ease-in hover:scale-110 active:scale-[.97]">
-					{React.createElement(category.icon, {
-						className: "mb-1",
-						size: 40,
-					})}
+					{typeof category.icon === "function" ? ( // Se for um ícone React
+						React.createElement(category.icon, {
+							className: "mb-1",
+							size: 40,
+						})
+					) : (
+						<Image // Se for uma imagem
+							src={category.icon}
+							alt={category.name}
+							width={40}
+							height={40}
+							className="mb-1 object-contain"
+						/>
+					)}
+
 					<span className="text-xs select-none">{category.name}</span>
 				</div>
 			))}
