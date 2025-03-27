@@ -20,6 +20,7 @@ import Logo from "../../../../public/logo.png";
 
 // Components
 import { InputUserForm } from "@/components/InputUserForm";
+import Link from "next/link";
 
 const createUserFormSchema = z.object({
 	email: z
@@ -98,18 +99,35 @@ function LoginPage() {
 					/>
 
 					{loadingButton ? (
-						<button className="flex flex-row justify-center items-center btn btn-secondary w-[320px] mt-4 select-none shadow-md">
+						<button className="flex flex-row justify-center items-center btn btn-secondary w-[320px] mt-4 select-none shadow-md mb-2">
 							{/* <span className="loading loading-dots loading-md"></span> */}
 							<span className="loading loading-spinner loading-md"></span>
 						</button>
 					) : (
 						<button
 							type="submit"
-							className="btn btn-secondary w-[320px] mt-4 select-none shadow-md">
+							className="btn btn-secondary w-[320px] mt-4 select-none shadow-md mb-2">
 							Entrar
 						</button>
 					)}
 				</form>
+				<div className="flex flex-row gap-1">
+					<span>Não possui uma conta?</span>
+
+					<Link
+						className="text-violet-950 hover:underline active:scale-[.97]"
+						href="/register">
+						Cadastre-se
+					</Link>
+				</div>
+				<div className="flex flex-row gap-1">
+					<span>Esqueceu a senha?</span>
+					<Link
+						className="text-violet-950 hover:underlineactive:scale-[.97] active:scale-[.97]"
+						href="/">
+						Recuperar
+					</Link>
+				</div>
 			</div>
 		</section>
 	);

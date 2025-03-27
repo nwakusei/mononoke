@@ -5,6 +5,8 @@ import { validationResult } from "express-validator";
 import crypto from "crypto";
 import { isValidObjectId } from "mongoose";
 
+import * as CPFValidator from "cpf-cnpj-validator";
+
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
@@ -509,14 +511,48 @@ class CustomerController {
 		}
 
 		try {
-			console.log("Dados recebidos na requisição", req.body);
+			// // Verificar se o CPF é válido
+			// if (!CPFValidator.cpf.isValid(cpf)) {
+			// 	res.status(422).json({ message: "CPF inválido!" });
+			// 	return;
+			// }
+
+			// Verificar se o CPF ou CNPJ é válido
+			if (!CPFValidator.cpf.isValid(cpf)) {
+				res.status(422).json({
+					message: "CPF inválido!",
+				});
+				return;
+			}
+
+			// Suponha que partner._id seja o id do parceiro atual (o que está tentando atualizar)
+			const customerId = customer._id;
+
+			// Buscar todos os documentos de parceiros, exceto o parceiro atual
+			const customers = await CustomerModel.find({
+				_id: { $ne: customerId },
+			}).select("cpf _id");
+
+			for (const customer of customers) {
+				const cpfCnpjDecrypted = decrypt(customer.cpf);
+
+				// Verifica se o CPF/CNPJ já está cadastrado, mas não compara com o próprio parceiro
+				if (cpfCnpjDecrypted?.toString() === cpf) {
+					res.status(422).json({
+						message: "CPF já cadastrado!",
+					});
+					return;
+				}
+			}
+
+			const cpfEncrypted = encrypt(cpf);
 
 			// Verifique se o customer é de fato um parceiro e não um cliente
 			if (customer instanceof CustomerModel) {
 				customer.name = name;
 				customer.nickname = nickname;
 				customer.email = email;
-				customer.cpf = cpf;
+				customer.cpf = cpfEncrypted;
 				customer.viewAdultContent = viewAdultContent;
 
 				customer.address[0] = {
@@ -568,7 +604,7 @@ class CustomerController {
 
 				await customer.save();
 
-				const updatedUser = await PartnerModel.findById(
+				const updatedUser = await CustomerModel.findById(
 					customer._id
 				).select("-password");
 

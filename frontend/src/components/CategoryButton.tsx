@@ -4,11 +4,12 @@ import Image from "next/image";
 // Images
 import Frame from "../../public/frame.png";
 import Mug from "../../public/mug.png";
-import Backpack from "../../public/backpack03.png";
-import Cushion from "../../public/cushion02.png";
+import Backpack from "../../public/backpack.png";
+import Cushion from "../../public/cushion.png";
 import Plush from "../../public/plush.png";
 import Keychain from "../../public/keychain2.png";
-import Cosplay from "../../public/cosplay3.png";
+import Cosplay from "../../public/cosplay.png";
+import Boot from "../../public/boot.png";
 
 // Icons
 import { GiEvilBook, GiBattleMech } from "react-icons/gi";
@@ -25,10 +26,10 @@ function CategoryButton({ categoriesDB, onCategoryClick }) {
 	const categories = [
 		{ name: "Impressos", tag: "Printed", icon: GiEvilBook },
 		{ name: "Figures", tag: "Figure", icon: GiBattleMech },
-		{ name: "TCGs", tag: "TCG", icon: TbCards },
+		{ name: "TCG", tag: "TCG", icon: TbCards },
 		{ name: "Vestuário", tag: "Clothing", icon: PiTShirt },
 		{ name: "Acessórios", tag: "Accessory", icon: BsSmartwatch },
-		{ name: "CDs/DVDs", tag: "CD", icon: LuDisc3 },
+		{ name: "CD/DVD", tag: "Disc", icon: LuDisc3 },
 		{ name: "Quadros", tag: "Frame", icon: Frame },
 		{ name: "Papelaria", tag: "Stationery", icon: RiPencilRuler2Line },
 		{ name: "Chaveiros", tag: "Keychain", icon: Keychain },
@@ -40,6 +41,7 @@ function CategoryButton({ categoriesDB, onCategoryClick }) {
 		{ name: "Almofadas", tag: "Cushion", icon: Cushion },
 		{ name: "Adesivos", tag: "Sticker", icon: LuSticker },
 		{ name: "Óculos", tag: "Glasses", icon: GiProtectionGlasses },
+		{ name: "Calçados", tag: "Boot", icon: Boot },
 	];
 
 	// Filtrar categorias com base nos nomes que existem em categoriesDB

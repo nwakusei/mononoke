@@ -25,6 +25,7 @@
     "correios-brasil": "^3.0.6",
     "cors": "^2.8.5",
     "cotracking": "^1.0.6",
+    "cpf-cnpj-validator": "^1.0.3",
     "delivery-tracker": "^2.8.3",
     "dhl-api": "^0.6.2",
     "dompurify": "^3.0.8",

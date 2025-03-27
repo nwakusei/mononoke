@@ -6,6 +6,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import { Multer } from "multer";
 import crypto from "crypto";
+import * as CNPJValidator from "cpf-cnpj-validator";
 
 import slugify from "slugify";
 
@@ -286,6 +287,37 @@ class PartnerController {
 		);
 
 		try {
+			// Verificar se o CPF ou CNPJ é válido
+			if (
+				!CNPJValidator.cnpj.isValid(cpfCnpj) &&
+				!CNPJValidator.cpf.isValid(cpfCnpj)
+			) {
+				res.status(422).json({ message: "CNPJ/CPF inválido!" });
+				return;
+			}
+
+			// Suponha que partner._id seja o id do parceiro atual (o que está tentando atualizar)
+			const partnerId = partner._id;
+
+			// Buscar todos os documentos de parceiros, exceto o parceiro atual
+			const partners = await PartnerModel.find({
+				_id: { $ne: partnerId },
+			}).select("cpfCnpj _id");
+
+			for (const partner of partners) {
+				const cpfCnpjDecrypted = decrypt(partner.cpfCnpj);
+
+				// Verifica se o CPF/CNPJ já está cadastrado, mas não compara com o próprio parceiro
+				if (cpfCnpjDecrypted?.toString() === cpfCnpj) {
+					res.status(422).json({
+						message: "CNPJ/CPF já cadastrado!",
+					});
+					return;
+				}
+			}
+
+			const cpfCnpjEncrypted = encrypt(cpfCnpj);
+
 			const cashbackEncrypted = encrypt(cashback);
 
 			// Verifique se o partner é de fato um parceiro e não um cliente
@@ -293,7 +325,7 @@ class PartnerController {
 				partner.name = name;
 				partner.nickname = nickname;
 				partner.email = email;
-				partner.cpfCnpj = cpfCnpj;
+				partner.cpfCnpj = cpfCnpjEncrypted;
 				partner.description = description;
 				partner.viewAdultContent = viewAdultContent;
 				partner.shippingConfiguration;

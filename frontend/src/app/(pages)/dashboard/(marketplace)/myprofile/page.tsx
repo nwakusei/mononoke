@@ -768,7 +768,9 @@ function MyProfilePage() {
 													"input"
 												)} w-full max-w-3xl`}
 												placeholder={`...`}
-												defaultValue={user?.cpfCnpj}
+												defaultValue={
+													decrypt(user?.cpfCnpj) ?? ""
+												}
 												{...register("cpfCnpj", {
 													onChange: () =>
 														trigger("cpfCnpj"),
@@ -807,7 +809,9 @@ function MyProfilePage() {
 													"input"
 												)} w-full max-w-3xl`}
 												placeholder={`...`}
-												defaultValue={user?.cpf}
+												defaultValue={
+													decrypt(user?.cpf) ?? ""
+												}
 												{...register("cpf", {
 													onChange: () =>
 														trigger("cpf"),

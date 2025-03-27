@@ -27,7 +27,7 @@ interface IPartner {
 	verifiedBadge: string;
 	email: string;
 	password: string;
-	cpfCnpj: number;
+	cpfCnpj: string;
 	description: string;
 	address: IAddress[];
 	shippingConfiguration: IShippingConfig[];
@@ -84,8 +84,9 @@ const partnerSchema = new Schema<IPartner>(
 			max: 64,
 		},
 		cpfCnpj: {
-			type: Number,
+			type: String,
 			required: false,
+			unique: true,
 		},
 		description: {
 			type: String,

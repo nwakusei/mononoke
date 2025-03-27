@@ -19,6 +19,7 @@ import { InputUserForm } from "@/components/InputUserForm";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 
 const createUserFormSchema = z
 	.object({
@@ -247,18 +248,27 @@ function RegisterPage() {
 						errors={errors}
 					/>
 					{btnLoading ? (
-						<button className="flex flex-row justify-center items-center btn btn-secondary w-[320px] mt-4 select-none shadow-md">
+						<button className="flex flex-row justify-center items-center btn btn-secondary w-[320px] mt-4 select-none shadow-md mb-2">
 							{/* <span className="loading loading-dots loading-md"></span> */}
 							<span className="loading loading-spinner loading-md"></span>
 						</button>
 					) : (
 						<button
 							type="submit"
-							className="btn btn-secondary w-[320px] mt-4 shadow-md">
+							className="btn btn-secondary w-[320px] mt-4 shadow-md mb-2">
 							Cadastrar
 						</button>
 					)}
 				</form>
+				<div className="flex flex-row gap-1">
+					<span>Já possui uma conta?</span>
+
+					<Link
+						className="text-violet-950 hover:underline active:scale-[.97]"
+						href="/login">
+						Faça login
+					</Link>
+				</div>
 			</div>
 		</section>
 	);
