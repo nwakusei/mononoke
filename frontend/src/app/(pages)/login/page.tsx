@@ -2,6 +2,7 @@
 
 import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Swal from "sweetalert2";
 
 // Context
@@ -20,7 +21,6 @@ import Logo from "../../../../public/logo.png";
 
 // Components
 import { InputUserForm } from "@/components/InputUserForm";
-import Link from "next/link";
 
 const createUserFormSchema = z.object({
 	email: z
@@ -123,9 +123,9 @@ function LoginPage() {
 				<div className="flex flex-row gap-1">
 					<span>Esqueceu a senha?</span>
 					<Link
-						className="text-violet-950 hover:underlineactive:scale-[.97] active:scale-[.97]"
-						href="/">
-						Recuperar
+						className="text-violet-950 hover:underline active:scale-[.97]"
+						href="/send-email">
+						Resetar
 					</Link>
 				</div>
 			</div>

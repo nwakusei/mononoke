@@ -21,6 +21,9 @@ interface ICustomer {
 	followingStores: IFollowingStores[];
 	newsletters: boolean;
 	otakupayID: string;
+
+	resetPasswordToken?: string;
+	resetPasswordExpires?: Date;
 }
 
 // Schema que corresponda a Interface.
@@ -77,6 +80,15 @@ const customerSchema = new Schema<ICustomer>(
 			type: String,
 			required: true,
 			ref: "OtakupayModel",
+		},
+
+		resetPasswordToken: {
+			type: String,
+			default: null,
+		},
+		resetPasswordExpires: {
+			type: Date,
+			default: null,
 		},
 	},
 	{ timestamps: true }
