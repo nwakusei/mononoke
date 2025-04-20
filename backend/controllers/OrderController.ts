@@ -655,7 +655,73 @@ class OrderController {
 			});
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({ message: "Erro ao marcado como embalado!" });
+			res.status(500).json({ message: "Erro ao marcar como embalado!" });
+		}
+	}
+
+	static async markOrderDeliveredPartner(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(422).json({
+				message: "O ID do pedido é obrigatório!",
+			});
+			return;
+		}
+
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({
+				message: "Usuário não encontrado!",
+			});
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message:
+					"Você não possuo autorização para realizar essa requsição!",
+			});
+			return;
+		}
+
+		try {
+			const order = await OrderModel.findById(id);
+
+			if (!order) {
+				res.status(422).json({
+					message: "Pedido não encontrado!",
+				});
+				return;
+			}
+
+			if (order.statusShipping === "Delivered") {
+				res.status(422).json({
+					message: "Pedido já marcado como entregue!",
+				});
+				return;
+			}
+
+			if (order.statusShipping !== "Shipped") {
+				res.status(422).json({
+					message: "O Pedido não pode ser marcado como entregue!",
+				});
+				return;
+			}
+
+			order.statusShipping = "Delivered";
+			// order.dateMarkedPacked = new Date(); // Aqui você insere a data atual
+
+			await order.save(); // Salva as alterações no banco de dados
+
+			res.status(200).json({
+				message: "Pedido marcado como entregue com sucesso!",
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ message: "Erro ao marcar como entregue!" });
 		}
 	}
 

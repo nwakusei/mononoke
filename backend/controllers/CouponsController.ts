@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { CustomerModel } from "../models/CustomerModel.js";
 import { CouponModel } from "../models/CouponModel.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Multer } from "multer";
 import mongoose, { ObjectId, isValidObjectId } from "mongoose";

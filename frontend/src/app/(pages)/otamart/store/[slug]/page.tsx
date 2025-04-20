@@ -110,78 +110,101 @@ function StorePage() {
 	}, []); // Recalculando posição do botão apenas uma vez na montagem
 
 	useEffect(() => {
-		// Verifica se `slug` já foi definido.
 		if (!slug) return;
 
 		const fetchData = async () => {
+			setIsLoading(true);
+
 			try {
-				// Faz o lookup para obter o ID correspondente à slug
+				// 1. Converte o slug em ID
 				const response = await api.get(`/partners/convert/${slug}`);
 				const id = response.data.id;
 
-				// Encontra o parceiro com base no slug
+				// 2. Busca o parceiro correspondente
 				const foundPartner = partners.find((p) => p._id === id);
-
 				if (!foundPartner) {
-					console.log("Loja não encontrada!");
-					setIsLoading(false);
+					console.warn("Loja não encontrada!");
 					return;
 				}
-
-				// Atualiza o estado com o parceiro encontrado
 				setPartner(foundPartner);
 
-				// Busca os dados do usuário, se o token estiver presente
+				// 3. Monta a promise de usuário (apenas se token for válido)
 				const userPromise = token
-					? api.get("/otakuprime/check-user", {
-							headers: {
-								Authorization: `Bearer ${JSON.parse(token)}`,
-							},
-					  })
-					: Promise.resolve({ data: null }); // Se não estiver logado, retorna uma resposta "vazia" para o usuário
+					? api
+							.get("/otakuprime/check-user", {
+								headers: {
+									Authorization: `Bearer ${JSON.parse(
+										token
+									)}`,
+								},
+							})
+							.catch((err) => {
+								if (err.response?.status === 401) {
+									console.warn("Token inválido ou expirado.");
+									return { data: null };
+								}
+								throw err;
+							})
+					: Promise.resolve({ data: null });
 
-				// Busca os produtos, cupons, usuário e chat simultaneamente
-				const [
-					productsResponse,
-					couponsResponse,
-					userResponse,
-					chatResponse,
-				] = await Promise.all([
-					api.get(
-						`/products/getall-products-store/${foundPartner._id}`
-					),
-					api.get(`/coupons/store-coupons/${foundPartner._id}`),
-					userPromise,
-					api
-						.get(`/chats/get-messages-by-user/${foundPartner._id}`)
-						.catch((error) => {
-							if (
-								error.response &&
-								error.response.status === 404
-							) {
-								return { data: { chatFromClientToStore: {} } }; // Retorna um objeto vazio caso o chat não exista
-							}
-							throw error; // Caso seja outro erro, lança novamente
-						}),
-				]);
+				// 4. Requisições simultâneas, mas adicionando uma verificação para o token do chat
+				const [productsRes, couponsRes, userRes, chatRes] =
+					await Promise.all([
+						api.get(
+							`/products/getall-products-store/${foundPartner._id}`
+						),
+						api.get(`/coupons/store-coupons/${foundPartner._id}`),
+						userPromise,
+						token
+							? api
+									.get(
+										`/chats/get-messages-by-user/${foundPartner._id}`
+									)
+									.catch((err) => {
+										if (err.response?.status === 404) {
+											return {
+												data: {
+													chatFromClientToStore: {},
+												},
+											};
+										}
+										throw err;
+									})
+							: Promise.resolve({
+									data: { chatFromClientToStore: {} },
+							  }), // Retorna um valor vazio se o token não for encontrado
+					]);
 
-				// Atualiza os estados com os dados obtidos
-				setProducts(productsResponse.data.products);
-				setCoupons(couponsResponse.data.coupons);
-				setViewChat(chatResponse.data.chatFromClientToStore);
+				// 5. Atualiza estados
+				setProducts(productsRes.data.products);
+				setCoupons(couponsRes.data.coupons);
+				setViewChat(chatRes.data.chatFromClientToStore);
 
-				// Se o usuário estiver logado, atualiza os dados do usuário
-				if (userResponse.data) {
-					setUser(userResponse.data);
+				if (userRes.data) {
+					setUser(userRes.data);
 				}
-			} catch (error) {
-				console.error("Erro ao buscar dados:", error);
+			} catch (err: any) {
+				const isAxiosError = !!err?.isAxiosError;
+
+				if (isAxiosError && err.response) {
+					console.error("Erro de resposta da API:", {
+						status: err.response.status,
+						url: err.config?.url,
+						message: err.response.data?.message || err.message,
+					});
+				} else if (isAxiosError && err.request) {
+					console.error("Erro de rede ou sem resposta da API:", {
+						url: err.config?.url,
+						message: err.message,
+					});
+				} else {
+					console.error("Erro inesperado:", err);
+				}
 			} finally {
 				setIsLoading(false);
 			}
 		};
 
-		setIsLoading(true); // Ativa o estado de carregamento antes de iniciar a busca
 		fetchData();
 	}, [slug, partners, token]);
 

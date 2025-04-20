@@ -13,12 +13,14 @@ router.get(
 	TrackingController.getTrackingCorreios
 );
 
-router.get(
-	"/kangu-tracking/:id",
-	verifyToken,
-	TrackingController.getTrackingKangu
-);
+// router.get(
+// 	"/kangu-tracking/:id",
+// 	verifyToken,
+// 	TrackingController.getTrackingKangu
+// );
 
 router.get("/dhl-tracking", TrackingController.getTrackingDHL);
+
+router.get("/loggi-tracking/:code", TrackingController.getTrackingLoggi);
 
 export default router;

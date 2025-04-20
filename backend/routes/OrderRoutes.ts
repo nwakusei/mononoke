@@ -35,6 +35,12 @@ router.patch(
 router.patch("/mark-packed/:id", verifyToken, OrderController.markPacked);
 
 router.patch(
+	"/mark-delivered-partner/:id",
+	verifyToken,
+	OrderController.markOrderDeliveredPartner
+);
+
+router.patch(
 	"/update-trackingcode/:id",
 	verifyToken,
 	OrderController.updateTrackingCode

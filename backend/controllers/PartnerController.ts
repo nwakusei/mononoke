@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { PartnerModel } from "../models/PartnerModel.js";
 import { OtakupayModel } from "../models/OtakupayModel.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import { Multer } from "multer";

@@ -7,7 +7,7 @@ import api from "@/utils/api";
 import { useRouter } from "next/navigation";
 
 // Imagens
-import imageProfile from "../../../../public/Kon.jpg";
+import imageProfile from "../../../../public/kon.jpg";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";

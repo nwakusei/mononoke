@@ -78,7 +78,7 @@ function SendEmail() {
 		<section className="bg-gray-100 flex min-h-screen flex-col items-center justify-center p-24">
 			<div className="flex flex-col items-center justify-center bg-primary w-[500px] h-[520px] rounded-md shadow-md m-4">
 				<Image
-					className="pointer-events-none select-none"
+					className="pointer-events-none select-none "
 					src={Logo}
 					width={200}
 					height={200}

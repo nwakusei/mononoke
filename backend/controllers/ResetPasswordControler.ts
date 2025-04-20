@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { CustomerModel } from "../models/CustomerModel.js";
 import { PartnerModel } from "../models/PartnerModel.js";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
@@ -36,17 +36,26 @@ class ResetPasswordController {
 			// 4. Monta link de reset (ajuste conforme seu domínio)
 			const resetLink = `http://localhost:3000/reset-password?token=${token}`;
 
-			// 5. Configura Nodemailer (substitua com seus dados)
+			// // 5. Configura Nodemailer (substitua com seus dados)
+			// const transporter = nodemailer.createTransport({
+			// 	host: "smtp.gmail.com",
+			// 	port: 587,
+			// 	secure: false,
+			// 	auth: {
+			// 		user: "rguedes.dev@gmail.com",
+			// 		pass: "egvzjvdpjwjzmbdx",
+			// 	},
+			// 	tls: {
+			// 		rejectUnauthorized: false,
+			// 	},
+			// });
+
 			const transporter = nodemailer.createTransport({
-				host: "smtp.gmail.com",
-				port: 587,
-				secure: false,
+				host: "sandbox.smtp.mailtrap.io",
+				port: 2525,
 				auth: {
-					user: "rguedes.dev@gmail.com",
-					pass: "egvzjvdpjwjzmbdx",
-				},
-				tls: {
-					rejectUnauthorized: false,
+					user: "b230b277563324",
+					pass: "4df173c48efbcf",
 				},
 			});
 
@@ -58,11 +67,51 @@ class ResetPasswordController {
 				replyTo: "rguedes.dev@gmail.com",
 				subject: "Recuperação de senha",
 				html: `
-					<p>Olá, ${user.name}!</p>
-					<p>Você solicitou a redefinição da sua senha. Clique no link abaixo para continuar:</p>
-					<a href="${resetLink}">${resetLink}</a>
-					<p>Esse link é válido por 1 hora.</p>
-				`,
+					<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Recuperação de Senha</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; margin: 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px;">
+      <tr>
+        <td>
+          <h2 style="color: #4c1d95;">Olá, Reinaldo!</h2>
+          <p style="color: #333333; font-size: 15px;">
+            Você solicitou a redefinição da sua senha. Clique no botão abaixo para continuar:
+          </p>
+
+         <div style="margin: 20px 0; display: flex; justify-content: center;">
+            <a href="https://example.com/reset"
+               style="background-color: #4c1d95;
+                     width: 150px;
+                     background-color: #4c1d95;
+                     color: white;
+                     padding: 10px 20px;
+                     border-radius: 4px;
+                     text-decoration: none;
+                      text-align: center;
+                     font-weight: bold;">
+              Resetar Senha
+            </a>
+          </div>
+          
+          
+          <p style="color: #666666; font-size: 13px;>
+            Esse link é válido por 1 hora. Se você não solicitou essa alteração, pode ignorar este e-mail.
+          </p>
+
+          <p style="color: #aaaaaa; font-size: 12px;">
+            — Equipe Mononoke
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+
+						`,
 			};
 
 			transporter.sendMail(mailOptions, (err, info) => {

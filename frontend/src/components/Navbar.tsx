@@ -12,12 +12,12 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 // Icons
-import {
-	BiTrophy,
-	BiMedal,
-	BiHomeSmile,
-	BiBuildingHouse,
-} from "react-icons/Bi";
+// import {
+// 	BiTrophy,
+// 	BiMedal,
+// 	BiHomeSmile,
+// 	BiBuildingHouse,
+// } from "react-icons/Bi";
 import { MdOutlineStore } from "react-icons/md";
 import { Currency, Dashboard, Blockchain, PokeballOne } from "@icon-park/react";
 import {
@@ -47,7 +47,7 @@ import api from "@/utils/api";
 
 // Imagens
 import Logo from "../../public/logo.png";
-import imageProfile from "../../public/Kon.jpg";
+import imageProfile from "../../public/kon.jpg";
 
 // Context
 import { Context } from "@/context/UserContext";
@@ -210,7 +210,6 @@ function Navbar() {
 									<Link
 										href="/"
 										className="btn btn-ghost normal-case flex flex-row items-center text-white">
-										<BiHomeSmile size={18} />
 										Home
 									</Link>
 								</li>
@@ -616,7 +615,6 @@ function Navbar() {
 									<Link
 										href="/"
 										className="btn btn-ghost normal-case flex flex-row items-center text-white">
-										<BiHomeSmile size={18} />
 										Home
 									</Link>
 								</li>

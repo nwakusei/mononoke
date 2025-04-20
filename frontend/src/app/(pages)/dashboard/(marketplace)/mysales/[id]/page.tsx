@@ -25,7 +25,7 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 import { GrMapLocation } from "react-icons/gr";
 import { PiNoteBold } from "react-icons/pi";
 import { BsBoxSeam } from "react-icons/bs";
-import { LuPackageCheck } from "react-icons/lu";
+import { LuPackage, LuPackageCheck } from "react-icons/lu";
 import { MdOutlineCancel } from "react-icons/md";
 
 // React Hook Form, Zod e ZodResolver
@@ -174,6 +174,27 @@ function MySaleByIDPage() {
 			setMysale((prevMysale) => ({
 				...prevMysale,
 				statusShipping: "Embalado", // Alteração do status local
+			}));
+
+			toast.success(response.data.message);
+		} catch (error: any) {
+			console.log(error);
+			toast.error(error.response.data.message);
+		}
+		setPackedLoading(false);
+	}
+
+	async function handleDelivered() {
+		setPackedLoading(true);
+		try {
+			const response = await api.patch(
+				`/orders/mark-delivered-partner/${id}`
+			);
+
+			// Atualizar o estado localmente para refletir a mudança no status
+			setMysale((prevMysale) => ({
+				...prevMysale,
+				statusShipping: "Entregue", // Alteração do status local
 			}));
 
 			toast.success(response.data.message);
@@ -641,7 +662,7 @@ function MySaleByIDPage() {
 						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4">
 							<div className="mb-4 text-black">
 								<h1>Tranportadora: {mysale?.shippingMethod}</h1>
-								<h2>
+								{/* <h2>
 									Valor:{" "}
 									{mysale?.shippingCostTotal > 0
 										? mysale?.shippingCostTotal.toLocaleString(
@@ -652,11 +673,11 @@ function MySaleByIDPage() {
 												}
 										  )
 										: "R$ 0,00"}
-								</h2>
+								</h2> */}
 								<h2>Status: {mysale?.statusShipping}</h2>
 							</div>
 
-							{mysale?.statusShipping === "Pendente" &&
+							{mysale?.statusShipping === "Pending" &&
 							mysale?.trackingCode === "" ? (
 								<div className="mb-2">
 									{packedLoading ? (
@@ -668,7 +689,7 @@ function MySaleByIDPage() {
 											onClick={handlePacked}
 											className="btn btn-primary w-full">
 											<span>Marcar como embalado</span>
-											<LuPackageCheck size={20} />
+											<LuPackage size={20} />
 										</button>
 									)}
 								</div>
@@ -676,20 +697,18 @@ function MySaleByIDPage() {
 								<></>
 							)}
 
-							{mysale?.trackingCode !== "" ? (
+							{mysale?.trackingCode !== "" && (
 								<div className="flex flex-row gap-2">
 									<div className="text-black">
 										Cod. de Rastreio:
 									</div>
-									<div className="bg-primary rounded shadow-md px-2">
+									<div className="bg-primary cursor-pointer transition-all ease-in duration-150 active:scale-[.95] rounded shadow-md px-2">
 										{mysale?.trackingCode}
 									</div>
 								</div>
-							) : (
-								<></>
 							)}
 
-							{mysale?.statusShipping === "Embalado" &&
+							{mysale?.statusShipping === "Packed" &&
 								mysale?.trackingCode === "" && (
 									<form
 										onSubmit={handleSubmit(handleTracking)}>
@@ -700,21 +719,34 @@ function MySaleByIDPage() {
 														? `select-error`
 														: `select-success`
 												} w-full max-w-xs`}
+												defaultValue=""
 												{...register(
 													"logisticOperator"
 												)} // Registrar o select
 											>
-												<option
-													value=""
-													disabled
-													selected>
-													Qual é o operador logístico?
-												</option>
-												<option value="Kangu">
-													Kangu
+												<option value="" disabled>
+													Qual é a transportadora?
 												</option>
 												<option value="Correios">
 													Correios
+												</option>
+												<option value="Loggi">
+													Loggi
+												</option>
+												<option value="Jadlog">
+													Jadlog
+												</option>
+												<option value="J&T">
+													J&T Express
+												</option>
+												<option value="Buslog">
+													Buslog
+												</option>
+												<option value="Latam">
+													Latam Cargo
+												</option>
+												<option value="Azul">
+													Azul Cargo Express
 												</option>
 												<option value="Japan Post">
 													Japan Post
@@ -778,6 +810,23 @@ function MySaleByIDPage() {
 										</div>
 									</form>
 								)}
+
+							{mysale?.statusShipping === "Shipped" && (
+								<div className="mt-4 mb-2">
+									{packedLoading ? (
+										<button className="btn btn-primary w-full">
+											<span className="loading loading-spinner loading-sm"></span>
+										</button>
+									) : (
+										<button
+											onClick={handleDelivered}
+											className="btn btn-primary w-full">
+											<span>Marcar como entregue</span>
+											<LuPackageCheck size={20} />
+										</button>
+									)}
+								</div>
+							)}
 						</div>
 					</div>
 				</div>

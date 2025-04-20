@@ -1,6 +1,6 @@
 // Imports Gerais
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
 import crypto from "crypto";
 import { isValidObjectId } from "mongoose";
@@ -276,7 +276,7 @@ class CustomerController {
 		res.status(200).json({ user });
 	}
 
-	d; // Requisição finalizada, mas precisa de ajustes
+	// Requisição finalizada, mas precisa de ajustes
 	static async followStore(req: Request, res: Response) {
 		const { id } = req.params; // ID que pode ser da loja ou do produto
 

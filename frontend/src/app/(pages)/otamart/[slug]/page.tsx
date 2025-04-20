@@ -28,8 +28,8 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Imagens
-import Amora from "../../../../../public/amora.jpg";
-import imageProfile from "../../../../../public/Kon.jpg";
+// import Amora from "../../../../../public/amora.jpg";
+import imageProfile from "../../../../../public/kon.jpg";
 
 // Icons
 import { Currency, Peoples } from "@icon-park/react";
@@ -126,6 +126,7 @@ function ProductPage() {
 
 				// Busca os dados do produto
 				const productPromise = api.get(`/products/${id}`);
+
 				// Busca os produtos recomendados
 				const recommendedPromise = api.get(
 					`/products/recommended-product/${id}`
@@ -167,8 +168,19 @@ function ProductPage() {
 						userResponse.data.viewAdultContent === false);
 
 				setShowAgeModal(shouldShowModal);
-			} catch (error) {
-				console.error("Error fetching data:", error);
+			} catch (err) {
+				// Verifica se o erro é uma instância do axios, utilizando a instância `api`
+				if (err.response) {
+					console.error("Erro de resposta da API:", {
+						status: err.response.status,
+						url: err.config?.url,
+						message: err.response.data?.message || err.message,
+						data: err.response.data,
+					});
+				} else {
+					// Caso o erro não seja da API (ou seja, não tenha `response`), mostra o erro genérico
+					console.error("Erro desconhecido:", err);
+				}
 			} finally {
 				setIsLoading(false); // Encerra o estado de carregamento
 			}
