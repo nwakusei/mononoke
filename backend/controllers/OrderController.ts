@@ -659,7 +659,7 @@ class OrderController {
 		}
 	}
 
-	static async markOrderDeliveredPartner(req: Request, res: Response) {
+	static async markOrderDelivered(req: Request, res: Response) {
 		const { id } = req.params;
 
 		if (!id) {
@@ -670,22 +670,22 @@ class OrderController {
 		}
 
 		const token: any = getToken(req);
-		const partner = await getUserByToken(token);
+		const user = await getUserByToken(token);
 
-		if (!partner) {
+		if (!user) {
 			res.status(422).json({
 				message: "Usuário não encontrado!",
 			});
 			return;
 		}
 
-		if (partner.accountType !== "partner") {
-			res.status(422).json({
-				message:
-					"Você não possuo autorização para realizar essa requsição!",
-			});
-			return;
-		}
+		// if (partner.accountType !== "partner") {
+		// 	res.status(422).json({
+		// 		message:
+		// 			"Você não possuo autorização para realizar essa requsição!",
+		// 	});
+		// 	return;
+		// }
 
 		try {
 			const order = await OrderModel.findById(id);
@@ -711,6 +711,7 @@ class OrderController {
 				return;
 			}
 
+			order.statusOrder = "Delivered";
 			order.statusShipping = "Delivered";
 			// order.dateMarkedPacked = new Date(); // Aqui você insere a data atual
 

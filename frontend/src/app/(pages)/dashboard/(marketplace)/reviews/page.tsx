@@ -92,7 +92,7 @@ function ReviewsPage() {
 											.filter(
 												(order) =>
 													order.statusOrder ===
-													"Entregue"
+													"Delivered"
 											)
 											.map((order) => (
 												<tr key={order._id}>
@@ -207,7 +207,7 @@ function ReviewsPage() {
 																	)
 																} // Passa o ID do pedido
 																className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">
-																+ Detalhes
+																Avaliar
 															</button>
 														)}
 													</th>

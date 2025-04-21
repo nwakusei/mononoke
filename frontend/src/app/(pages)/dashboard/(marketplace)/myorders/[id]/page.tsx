@@ -23,6 +23,7 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 import { BiIdCard } from "react-icons/Bi";
 import { PiCreditCardBold } from "react-icons/pi";
 import { LoadingPage } from "@/components/LoadingPageComponent";
+import { LuPackageCheck } from "react-icons/lu";
 
 function MyOrderByIDPage() {
 	const { id } = useParams();
@@ -38,6 +39,7 @@ function MyOrderByIDPage() {
 	const [tracking, setTracking] = useState({});
 	const [tracking2, setTracking2] = useState({});
 	const [isLoading, setIsLoading] = useState(true);
+	const [packedLoading, setPackedLoading] = useState(false);
 
 	const dateCreatedOrder = myorder.createdAt
 		? `${format(new Date(myorder.createdAt), "dd/MM/yyyy - HH:mm")} hs`
@@ -108,6 +110,25 @@ function MyOrderByIDPage() {
 		fetchShipping();
 		fetchShipping2();
 	}, [token, id]);
+
+	async function handleReceived() {
+		setPackedLoading(true);
+		try {
+			const response = await api.patch(`/orders/mark-delivered/${id}`);
+
+			// Atualizar o estado localmente para refletir a mudança no status
+			setMyorder((prevMysale) => ({
+				...prevMysale,
+				statusShipping: "Entregue", // Alteração do status local
+			}));
+
+			toast.success(response.data.message);
+		} catch (error: any) {
+			console.log(error);
+			toast.error(error.response.data.message);
+		}
+		setPackedLoading(false);
+	}
 
 	// Função para Descriptografar dados sensíveis no Banco de Dados
 	function decrypt(encryptedBalance: string): number | null {
@@ -522,7 +543,7 @@ function MyOrderByIDPage() {
 								<h1>
 									{`Transportadora: ${myorder?.shippingMethod}`}
 								</h1>
-								{myorder?.shippingCostTotal ? (
+								{/* {myorder?.shippingCostTotal ? (
 									<h2>
 										{`Custo do Frete: ${`${decrypt(
 											myorder?.shippingCostTotal
@@ -533,20 +554,38 @@ function MyOrderByIDPage() {
 									</h2>
 								) : (
 									`Custo do Frete: R$ 0,00`
-								)}
+								)} */}
 								<div>
 									{`Status: ${myorder?.statusShipping}`}
 								</div>
 								<div className="flex flex-row gap-2">
 									Cód. de Rastreio:
 									{myorder && myorder?.trackingCode ? (
-										<span className="bg-primary text-white px-2 rounded-md shadow-md">
+										<div className="bg-primary cursor-pointer transition-all ease-in duration-150 active:scale-[.95] rounded shadow-md px-2">
 											{myorder?.trackingCode}
-										</span>
+										</div>
 									) : (
 										<> — </>
 									)}
 								</div>
+								{myorder?.statusShipping === "Shipped" && (
+									<div className="mt-4 mb-2">
+										{packedLoading ? (
+											<button className="btn btn-primary w-full">
+												<span className="loading loading-spinner loading-sm"></span>
+											</button>
+										) : (
+											<button
+												onClick={handleReceived}
+												className="btn btn-primary w-full">
+												<span>
+													Marcar como recebido
+												</span>
+												<LuPackageCheck size={20} />
+											</button>
+										)}
+									</div>
+								)}
 							</div>
 						</div>
 					</div>
