@@ -18,7 +18,7 @@ import DOMPurify from "dompurify";
 import { Sidebar } from "@/components/Sidebar";
 
 // Icons
-import { Coupon, Key } from "@icon-park/react";
+import { Coupon, Key, Selected } from "@icon-park/react";
 import { GoLinkExternal } from "react-icons/go";
 import { CiWarning } from "react-icons/ci";
 import { FaPercent } from "react-icons/fa";
@@ -35,6 +35,46 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const today = new Date().toISOString().split("T")[0];
 
 const createCouponFormSchema = z.object({
+	imagesRaffle: z
+		.instanceof(FileList)
+		.transform((list) => {
+			const files = [];
+
+			for (let i = 0; i < list.length; i++) {
+				files.push(list.item(i));
+			}
+			return files;
+		})
+		.refine(
+			(files) => {
+				return files !== null && files.length === 0;
+			},
+			{
+				message: "※ Insira pelo menos 1 imagem!",
+			}
+		)
+		.refine(
+			(files) => {
+				return files.every(
+					(file) => file === null || file.size <= 2 * 1024 * 1024
+				);
+			},
+			{
+				message: "※ Cada arquivo precisa ter no máximo 2Mb!",
+			}
+		)
+		.refine(
+			(files) => {
+				return files.every(
+					(file) =>
+						file === null || /\.(jpg|jpeg|png)$/i.test(file.name)
+				);
+			},
+			{
+				message:
+					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+			}
+		),
 	rafflePrize: z
 		.string()
 		.min(1, "※ O titulo do sorteio é obrigatório!")
@@ -181,47 +221,6 @@ const createCouponFormSchema = z.object({
 				message: "※ As regras precisa ter no mínimo 100 caracteres!",
 			}
 		),
-	imagesRaffle: z
-		.instanceof(FileList)
-		.transform((list) => {
-			const files = [];
-
-			for (let i = 0; i < list.length; i++) {
-				files.push(list.item(i));
-			}
-
-			return files;
-		})
-		.refine(
-			(files) => {
-				return files !== null && files.length > 0;
-			},
-			{
-				message: "※ Insira pelo menos 1 imagem!",
-			}
-		)
-		.refine(
-			(files) => {
-				return files.every(
-					(file) => file === null || file.size <= 2 * 1024 * 1024
-				);
-			},
-			{
-				message: "※ Cada arquivo precisa ter no máximo 2Mb!",
-			}
-		)
-		.refine(
-			(files) => {
-				return files.every(
-					(file) =>
-						file === null || /\.(jpg|jpeg|png)$/i.test(file.name)
-				);
-			},
-			{
-				message:
-					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
-			}
-		),
 });
 
 type TCreateCouponFormSchema = z.infer<typeof createCouponFormSchema>;
@@ -229,9 +228,7 @@ type TCreateCouponFormSchema = z.infer<typeof createCouponFormSchema>;
 function CreateRafflePage() {
 	const [token] = useState(localStorage.getItem("token") || "");
 	const [partner, setPartner] = useState({});
-	const [imagemSelecionada, setImagemSelecionada] = useState<
-		string | ArrayBuffer | null
-	>(null);
+	const [selectedImages, setSelectedImages] = useState<File[]>([]);
 	const [loadingPage, setLoadingPage] = useState(true);
 	const [loadingButton, setLoadingButton] = useState(false);
 
@@ -241,6 +238,10 @@ function CreateRafflePage() {
 		register,
 		handleSubmit,
 		formState: { errors },
+		setValue,
+		setError,
+		clearErrors,
+		control,
 		getValues,
 		trigger,
 	} = useForm<TCreateCouponFormSchema>({
@@ -336,37 +337,101 @@ function CreateRafflePage() {
 		});
 	}, [token]);
 
-	const handleImagemSelecionada = (
+	const handleSelectedImages = (
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
-		const file = event.target.files?.[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = () => {
-				setImagemSelecionada(reader.result);
-			};
-			reader.readAsDataURL(file);
+		const files = event.target.files;
+
+		console.log("Aquivos", files);
+
+		if (files) {
+			const fileArray = Array.from(files); // Converte o FileList em um array
+
+			// Filtra as imagens válidas
+			const validFiles = fileArray.filter((file) => {
+				const isValidSize = file.size <= 2 * 1024 * 1024; // Tamanho menor que 2MB
+				const isValidFormat = /\.(jpg|jpeg|png)$/i.test(file.name); // Extensão válida
+
+				// Define os erros conforme a validade
+				if (!isValidSize) {
+					setError("imagesRaffle", {
+						message: "※ Cada arquivo precisa ter no máximo 2Mb!",
+					});
+				}
+
+				if (!isValidFormat) {
+					setError("imagesRaffle", {
+						message:
+							"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+					});
+				}
+
+				return isValidSize && isValidFormat; // Retorna apenas arquivos válidos
+			});
+
+			// Verifica se há imagens válidas
+			if (validFiles.length > 0) {
+				// Se houver imagens válidas, atualiza o estado
+				setSelectedImages((prev) => [...prev, ...validFiles]);
+				clearErrors("imagesRaffle"); // Limpa os erros anteriores
+			} else {
+				// Caso não haja imagens válidas, define uma mensagem de erro
+				setError("imagesRaffle", {
+					message: errors.imagesRaffle
+						? errors.imagesRaffle.message
+						: "Nenhuma imagem válida selecionada!",
+				});
+			}
+
+			console.log("Aquivos validos", validFiles);
+
+			// // Adiciona a validação para garantir que pelo menos uma imagem foi selecionada
+			// if (validFiles.length === 0) {
+			// 	setError("imagesProduct", {
+			// 		message: "※ Insira pelo menos 1 imagem!",
+			// 	});
+			// }
 		}
 	};
 
-	async function handleCreateRaffle(CouponData: { [key: string]: any }) {
+	const handleRemoveImage = (index: number) => {
+		setSelectedImages((prev) => {
+			// Filtra a imagem removida
+			const updatedImages = prev.filter((_, i) => i !== index);
+
+			// Atualiza o estado com as imagens restantes (sem revalidação)
+			if (updatedImages.length === 0) {
+				// Se não houver imagens restantes, adicione o erro
+				setError("imagesRaffle", {
+					message: "※ Insira pelo menos 1 imagem!",
+				});
+			} else {
+				// Se houver imagens, remove o erro
+				clearErrors("imagesRaffle");
+			}
+
+			return updatedImages; // Apenas retorna o novo array de imagens
+		});
+	};
+
+	async function handleCreateRaffle(RaffleData: { [key: string]: any }) {
+		console.log(selectedImages);
+
 		setLoadingButton(true);
 
 		const formData = new FormData();
 
-		// Itera sobre os campos de texto e adiciona ao FormData
-		Object.entries(CouponData).forEach(([key, value]) => {
+		// Campos de texto (exceto as imagens)
+		Object.entries(RaffleData).forEach(([key, value]) => {
 			if (key !== "imagesRaffle") {
 				formData.append(key, value);
 			}
 		});
 
-		// Itera sobre as imagens e adiciona ao FormData
-		if (CouponData.imagesRaffle) {
-			CouponData.imagesRaffle.forEach((image: File) => {
-				formData.append(`imagesRaffle`, image);
-			});
-		}
+		// Usa selectedImages para enviar ao invés do RaffleData.imagesRaffle
+		selectedImages.forEach((image: File) => {
+			formData.append("imagesRaffle", image);
+		});
 
 		try {
 			const response = await api.post(
@@ -385,8 +450,9 @@ function CreateRafflePage() {
 
 			return response.data;
 		} catch (error: any) {
-			toast.error(error.response.data.message);
-			return error.response.data;
+			setLoadingButton(false); // Garante que o botão volte mesmo com erro
+			toast.error(error.response?.data?.message || "Erro ao criar rifa.");
+			return error.response?.data;
 		}
 	}
 
@@ -815,51 +881,72 @@ function CreateRafflePage() {
 						</div>
 
 						{/* Gadget 2 */}
-						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
-							{/* Adicionar Porduto */}
+						<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
+							{/* Adicionar Produto */}
 							<div className="flex flex-col gap-2 ml-6 mb-6">
 								<h1 className="text-2xl font-semibold text-black">
-									Imagens do Prêmio
+									Imagens do Sorteio
 								</h1>
-								{/* Add Imagens */}
-								<label className="form-control w-[120px]">
+
+								<label className="form-control">
+									{/* Container das imagens */}
 									<div className="label">
 										<span className="label-text text-black">
 											Imagem Principal
 										</span>
 									</div>
-									<div
-										className={`${
-											errors.imagesRaffle &&
-											`border-error`
-										} text-black hover:text-white flex flex-col justify-center items-center h-[120px] border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
-										{imagemSelecionada ? (
-											<img
-												src={imagemSelecionada}
-												alt="Imagem selecionada"
-												className="object-contain w-full h-full rounded-sm"
+									<div className="flex flex-wrap items-center gap-2">
+										{selectedImages.map((imagem, index) => {
+											const imageUrl =
+												URL.createObjectURL(imagem);
+											return (
+												<div
+													key={index}
+													className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded overflow-hidden">
+													<img
+														src={imageUrl}
+														alt={`Imagem selecionada ${
+															index + 1
+														}`}
+														className="object-contain w-full h-full rounded-sm"
+													/>
+
+													{/* Botão para remover a imagem */}
+													<button
+														type="button"
+														className="absolute top-1 right-1 bg-red-500 text-white p-1 w-6 h-6 rounded z-50 flex items-center justify-center"
+														onClick={(e) => {
+															e.preventDefault(); // Evita submit acidental
+															handleRemoveImage(
+																index
+															);
+														}}>
+														X
+													</button>
+												</div>
+											);
+										})}
+
+										{/* Adiciona um input para selecionar novas imagens */}
+										<div
+											className={`${
+												errors.imagesRaffle
+													? `border-error`
+													: `border-[#3e1d88]`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}>
+											<span className="text-xs">
+												Add Imagem
+											</span>
+											<AddPicture size={20} />
+											<input
+												type="file"
+												accept="image/*"
+												multiple
+												className="hidden"
+												{...register("imagesRaffle")}
+												onChange={handleSelectedImages}
 											/>
-										) : (
-											<div
-												className="flex flex-col justify-center items-center "
-												onChange={
-													handleImagemSelecionada
-												}>
-												<h2 className="text-xs mb-2">
-													Add Imagem
-												</h2>
-												<AddPicture size={20} />
-												<input
-													className="hidden"
-													type="file"
-													accept="image/*"
-													multiple
-													{...register(
-														"imagesRaffle"
-													)}
-												/>
-											</div>
-										)}
+										</div>
 									</div>
 									<div className="label">
 										{errors.imagesRaffle && (
