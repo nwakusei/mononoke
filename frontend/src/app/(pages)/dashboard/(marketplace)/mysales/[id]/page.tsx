@@ -133,7 +133,7 @@ function MySaleByIDPage() {
 			setLoadingButton(false);
 
 			router.push("/dashboard/mysales");
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Erro ao cancelar pedido:", error);
 		}
 	}
@@ -259,7 +259,9 @@ function MySaleByIDPage() {
 						</h2>
 					</div>
 					<div>
-						{mysale?.statusShipping === "Enviado" ? (
+						{mysale?.statusShipping === "Shipped" ||
+						mysale?.statusOrder === "Canceled" ||
+						mysale?.statusOrder === "Completed" ? (
 							<></>
 						) : loadingButton ? (
 							<button className="btn btn-error w-[165px] text-white shadow-md">
@@ -630,7 +632,7 @@ function MySaleByIDPage() {
 					<div className="flex flex-col">
 						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4 text-black">
 							<h1 className="text-lg">{mysale?.customerName}</h1>
-							<h2>CPF: {mysale?.customerCPF}</h2>
+							<h2>CPF: {decrypt(mysale?.customerCPF)}</h2>
 
 							<div className="divider before:border-t-[1px] after:border-t-[1px] before:bg-black after:bg-black"></div>
 
