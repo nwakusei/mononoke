@@ -589,7 +589,6 @@ class OtakupayController {
 				return;
 			}
 
-			// Iterar sobre cada produto para calcular o custo total com base no partnerID e no frete correspondente
 			// Iterar sobre cada parceiro para calcular o custo total com base nos valores já descontados e no frete correspondente
 			for (const partner of partnersTotalCost) {
 				// Encontrar o frete correspondente ao parceiro
@@ -1245,81 +1244,6 @@ class OtakupayController {
 						});
 
 						// Adicionar os itens do pedido
-						// for (const product of partnerProducts) {
-						// 	// Encontrar o produto correspondente na lista de produtos do banco de dados
-						// 	const productFromDB = productsFromDB.find(
-						// 		(p: any) =>
-						// 			p._id.toString() ===
-						// 			product.productID.toString()
-						// 	);
-
-						// 	// Se o produto correspondente não for encontrado, continuar para o próximo produto
-						// 	if (!productFromDB) {
-						// 		continue;
-						// 	}
-
-						// 	let productCost;
-						// 	let productImage = product.productImage;
-
-						// 	// Verificar se o produto tem variações
-						// 	if (
-						// 		product.productVariations &&
-						// 		product.productVariations.length > 0 &&
-						// 		productFromDB.productVariations &&
-						// 		productFromDB.productVariations.length > 0
-						// 	) {
-						// 		// Encontrar a variação no banco de dados
-						// 		const variation =
-						// 			productFromDB.productVariations.find(
-						// 				(v: any) =>
-						// 					v._id.toString() ===
-						// 					product.productVariations[0].variationID.toString()
-						// 			);
-
-						// 		if (variation) {
-						// 			// Encontrar a opção correspondente dentro da variação
-						// 			const option = variation.options.find(
-						// 				(o: any) =>
-						// 					o._id.toString() ===
-						// 					product.productVariations[0].optionID.toString()
-						// 			);
-
-						// 			if (option) {
-						// 				// Utilizar o preço da opção
-						// 				productCost =
-						// 					option.promotionalPrice > 0
-						// 						? option.promotionalPrice
-						// 						: option.originalPrice;
-
-						// 				// Atualizar a imagem para a imagem da opção
-						// 				if (option.imageUrl) {
-						// 					productImage = option.imageUrl;
-						// 				}
-						// 			}
-						// 		}
-						// 	}
-
-						// 	// Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
-						// 	if (!productCost) {
-						// 		productCost =
-						// 			productFromDB.promotionalPrice > 0
-						// 				? productFromDB.promotionalPrice
-						// 				: productFromDB.originalPrice;
-						// 	}
-
-						// 	// Adicionar o item ao pedido
-						// 	newOrder.itemsList.push({
-						// 		productID: product.productID,
-						// 		productTitle: product.productTitle,
-						// 		productImage: productImage,
-						// 		productPrice: productCost,
-						// 		productVariation: "Volumes 1 e 2",
-						// 		daysShipping:
-						// 			shippingCostForPartner.daysShipping,
-						// 		productQuantity: product.productQuantity,
-						// 	});
-						// }
-
 						for (const product of partnerProducts) {
 							// Encontrar o produto correspondente na lista de produtos do banco de dados
 							const productFromDB = productsFromDB.find(
@@ -1400,8 +1324,70 @@ class OtakupayController {
 							});
 						}
 
+						// Título para o Document Transaction
+						const productTitles = newOrder.itemsList.map(
+							(item) => item.productTitle
+						);
+
+						// Título para o Document Transaction
+						const detailProductServiceTitle =
+							productTitles.length === 1
+								? productTitles[0]
+								: `${productTitles[0]} + ${
+										productTitles.length - 1
+								  } ${
+										productTitles.length - 1 === 1
+											? "produto"
+											: "produtos"
+								  }`;
+
+						// Registrar a transação
+						const newTransaction = new TransactionModel({
+							transactionType: "Pagamento",
+							transactionTitle: "Compra no OtaMart",
+							transactionDescription: `Padido feito no OtaMart.`,
+							transactionValue: encrypt(
+								customerOrderCostTotal.toString()
+							),
+							transactionDetails: {
+								detailProductServiceTitle:
+									detailProductServiceTitle,
+								detailCost: encrypt(
+									String(
+										newOrder.itemsList.reduce(
+											(acc, item) => {
+												return (
+													acc +
+													item.productPrice *
+														item.productQuantity
+												);
+											},
+											0
+										)
+									)
+								),
+								detailPaymentMethod: "Saldo em conta",
+								detailShippingCost: shippingCostEncrypted,
+								detailSalesFee:
+									encryptedPartnerCommissions.find(
+										(commission) =>
+											commission.partnerID === partnerID
+									)?.encryptedCommissionAmount,
+								detailCashback: encryptedCustomerCashbacks.find(
+									(cashback) =>
+										cashback.partnerID === partnerID
+								)?.encryptedCustomerCashback,
+							},
+							plataformName: "Mononoke - OtaMart",
+							payerID: customer.otakupayID,
+							payerName: customer.name,
+							receiverID: partner.otakupayID,
+							receiverName: partner.name,
+						});
+
 						// Adicionar a Order ao array de ordens
 						orders.push(newOrder);
+						await newTransaction.save();
 					} else {
 						console.error(
 							`Custo de envio não encontrado para o parceiro ${partnerID}`
@@ -1416,106 +1402,6 @@ class OtakupayController {
 			const savedOrders = await OrderModel.insertMany(orders);
 
 			// // Reduzir uma unidade do estoque do Produto
-			// for (const product of products) {
-			// 	try {
-			// 		// Encontrar o produto no banco pelo ID
-			// 		const dbProduct = await ProductModel.findById(
-			// 			product.productID
-			// 		);
-
-			// 		if (!dbProduct) {
-			// 			console.error(
-			// 				`Produto não encontrado: ID ${product.productID}`
-			// 			);
-			// 			continue; // Pular para o próximo produto
-			// 		}
-
-			// 		// Verificar se o produto tem variações
-			// 		if (
-			// 			dbProduct.productVariations &&
-			// 			dbProduct.productVariations.length > 0
-			// 		) {
-			// 			// O produto tem variações, entra no loop de variações
-			// 			for (const variation of product.productVariations) {
-			// 				const dbVariation =
-			// 					dbProduct.productVariations.find(
-			// 						(v) =>
-			// 							String(v._id) ===
-			// 							String(variation.variationID)
-			// 					);
-
-			// 				if (!dbVariation) {
-			// 					console.error(
-			// 						`Variação não encontrada: ID ${variation.variationID}`
-			// 					);
-			// 					continue;
-			// 				}
-
-			// 				const dbOption = dbVariation.options.find(
-			// 					(o) =>
-			// 						String(o._id) === String(variation.optionID)
-			// 				);
-
-			// 				if (!dbOption) {
-			// 					console.error(
-			// 						`Opção não encontrada: ID ${variation.optionID}`
-			// 					);
-			// 					continue;
-			// 				}
-
-			// 				dbOption.stock -= product.productQuantity;
-
-			// 				if (dbOption.stock < 0) {
-			// 					console.error(
-			// 						`Estoque insuficiente para a opção: ${dbOption.name}`
-			// 					);
-			// 					dbOption.stock = 0;
-			// 				}
-
-			// 				console.log(
-			// 					`Estoque atualizado para a opção "${dbOption.name}" da variação "${dbVariation.title}". Novo estoque: ${dbOption.stock}`
-			// 				);
-			// 			}
-			// 		} else {
-			// 			// Produto sem variação, reduzir o estoque diretamente
-			// 			if (
-			// 				product.productQuantity &&
-			// 				product.productQuantity > 0
-			// 			) {
-			// 				dbProduct.stock -= product.productQuantity;
-
-			// 				if (dbProduct.stock < 0) {
-			// 					console.error(
-			// 						`Estoque insuficiente para o produto: ${dbProduct.productTitle}`
-			// 					);
-			// 					dbProduct.stock = 0;
-			// 				}
-
-			// 				console.log(
-			// 					`Estoque atualizado para o produto "${dbProduct.productTitle}". Novo estoque: ${dbProduct.stock}`
-			// 				);
-			// 			} else {
-			// 				console.error(
-			// 					`Quantidade inválida do produto sem variação: ${dbProduct.productTitle}`
-			// 				);
-			// 			}
-			// 		}
-
-			// 		// Salvar o produto com as alterações
-			// 		await dbProduct.save();
-			// 	} catch (error) {
-			// 		console.error(
-			// 			`Erro ao atualizar o estoque do produto ID ${product.productID}:`,
-			// 			error
-			// 		);
-			// 	}
-			// }
-
-			// // Se customerOtakupay for usado, certifique-se de que está definido corretamente
-			// if (typeof customerOtakupay !== "undefined") {
-			// 	await customerOtakupay.save();
-			// }
-
 			for (const product of products) {
 				try {
 					// Encontrar o produto no banco pelo ID

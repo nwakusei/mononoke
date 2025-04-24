@@ -571,24 +571,6 @@ function WalletPage() {
 														</span>
 													</p>
 
-													<p className="flex flex-row items-center gap-2">
-														<RiRefund2Fill
-															size={16}
-														/>
-														<span>
-															{`Total Reembolsado: ${decrypt(
-																transaction.transactionValue
-															)?.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}`}
-														</span>
-													</p>
-
 													{String(user?.otakupayID) ==
 														String(
 															transaction.receiverID
@@ -598,21 +580,66 @@ function WalletPage() {
 																size={16}
 															/>
 															<span>
-																{`Tarifa de Venda (Cancelada): ${decrypt(
-																	transaction
-																		.transactionDetails
-																		.detailSalesFee
-																)?.toLocaleString(
-																	"pt-BR",
-																	{
-																		style: "currency",
-																		currency:
-																			"BRL",
-																	}
-																)}`}
+																{transaction.transactionType ===
+																"Pagamento"
+																	? `Tarifa de Venda: ${decrypt(
+																			transaction
+																				.transactionDetails
+																				.detailSalesFee
+																	  )?.toLocaleString(
+																			"pt-BR",
+																			{
+																				style: "currency",
+																				currency:
+																					"BRL",
+																			}
+																	  )}`
+																	: `Tarifa de Venda (Cancelada): ${decrypt(
+																			transaction
+																				.transactionDetails
+																				.detailSalesFee
+																	  )?.toLocaleString(
+																			"pt-BR",
+																			{
+																				style: "currency",
+																				currency:
+																					"BRL",
+																			}
+																	  )}`}
 															</span>
 														</p>
 													)}
+
+													<p className="flex flex-row items-center gap-2">
+														<RiRefund2Fill
+															size={16}
+														/>
+														<span>
+															{transaction.transactionType ===
+															"Cancelamento"
+																? `Total Reembolsado: ${decrypt(
+																		transaction.transactionValue
+																  )?.toLocaleString(
+																		"pt-BR",
+																		{
+																			style: "currency",
+																			currency:
+																				"BRL",
+																		}
+																  )}`
+																: `Total Pago: ${decrypt(
+																		transaction.transactionValue
+																  )?.toLocaleString(
+																		"pt-BR",
+																		{
+																			style: "currency",
+																			currency:
+																				"BRL",
+																		}
+																  )}`}
+														</span>
+													</p>
+
 													<hr className="my-2" />
 													{String(user?.otakupayID) ==
 														String(
@@ -623,11 +650,18 @@ function WalletPage() {
 																size={16}
 															/>
 															<span className="mb-[1px]">
-																{`Cashback (Cancelado): ${decrypt(
-																	transaction
-																		.transactionDetails
-																		.detailCashback
-																)?.toLocaleString()} OP`}
+																{transaction.transactionType ===
+																"Pagamento"
+																	? `Cashback (Pendente): ${decrypt(
+																			transaction
+																				.transactionDetails
+																				.detailCashback
+																	  )?.toLocaleString()} OP`
+																	: `Cashback (Cancelado): ${decrypt(
+																			transaction
+																				.transactionDetails
+																				.detailCashback
+																	  )?.toLocaleString()} OP`}
 															</span>
 														</p>
 													)}
@@ -659,7 +693,7 @@ function WalletPage() {
 
 													<p className="flex flex-row items-center gap-2 leading-tight">
 														<RiRotateLockLine
-															size={20}
+															size={23}
 														/>
 														<span className="break-all overflow-hidden text-ellipsis -mb-[16px]">
 															{`Hash da Transação: ${transaction.transactionHash}`}

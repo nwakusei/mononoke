@@ -11,6 +11,6 @@ module.exports = {
 	...nextConfig,
 	images: {
 		...nextConfig.images,
-		domains: ["localhost"],
+		domains: ["localhost", "backend"],
 	},
 };

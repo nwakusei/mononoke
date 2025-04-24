@@ -1120,6 +1120,7 @@ class OrderController {
 			customerOtakuPay.balanceAvailable =
 				newCustomerBalanceAvailableEncrypted;
 
+			// Registrar a transação
 			const newTransaction = new TransactionModel({
 				transactionType: "Cancelamento",
 				transactionTitle: "Compra no OtaMart",
@@ -1148,6 +1149,12 @@ class OrderController {
 				receiverID: partner.otakupayID,
 				receiverName: partner.name,
 			});
+
+			order.statusOrder = "Canceled";
+
+			order.statusShipping = "Canceled";
+
+			await order.save();
 
 			await newTransaction.save();
 

@@ -20,7 +20,7 @@ import {
 } from "react-icons/md";
 import { GrLocation } from "react-icons/gr";
 import { PiCreditCardBold } from "react-icons/pi";
-import { BiIdCard } from "react-icons/Bi";
+import { BiIdCard } from "react-icons/bi";
 import { LiaShippingFastSolid } from "react-icons/lia";
 
 // Components

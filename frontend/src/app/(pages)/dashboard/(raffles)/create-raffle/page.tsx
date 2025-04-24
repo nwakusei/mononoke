@@ -18,7 +18,7 @@ import DOMPurify from "dompurify";
 import { Sidebar } from "@/components/Sidebar";
 
 // Icons
-import { Coupon, Key } from "@icon-park/react";
+import { Coupon, Key, Selected } from "@icon-park/react";
 import { GoLinkExternal } from "react-icons/go";
 import { CiWarning } from "react-icons/ci";
 import { FaPercent } from "react-icons/fa";
@@ -35,6 +35,46 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const today = new Date().toISOString().split("T")[0];
 
 const createCouponFormSchema = z.object({
+	imagesRaffle: z
+		.instanceof(FileList)
+		.transform((list) => {
+			const files = [];
+
+			for (let i = 0; i < list.length; i++) {
+				files.push(list.item(i));
+			}
+			return files;
+		})
+		.refine(
+			(files) => {
+				return files !== null && files.length === 0;
+			},
+			{
+				message: "※ Insira pelo menos 1 imagem!",
+			}
+		)
+		.refine(
+			(files) => {
+				return files.every(
+					(file) => file === null || file.size <= 2 * 1024 * 1024
+				);
+			},
+			{
+				message: "※ Cada arquivo precisa ter no máximo 2Mb!",
+			}
+		)
+		.refine(
+			(files) => {
+				return files.every(
+					(file) =>
+						file === null || /\.(jpg|jpeg|png)$/i.test(file.name)
+				);
+			},
+			{
+				message:
+					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
+			}
+		),
 	rafflePrize: z
 		.string()
 		.min(1, "※ O titulo do sorteio é obrigatório!")
@@ -179,47 +219,6 @@ const createCouponFormSchema = z.object({
 			},
 			{
 				message: "※ As regras precisa ter no mínimo 100 caracteres!",
-			}
-		),
-	imagesRaffle: z
-		.instanceof(FileList)
-		.transform((list) => {
-			const files = [];
-
-			for (let i = 0; i < list.length; i++) {
-				files.push(list.item(i));
-			}
-
-			return files;
-		})
-		.refine(
-			(files) => {
-				return files !== null && files.length > 0;
-			},
-			{
-				message: "※ Insira pelo menos 1 imagem!",
-			}
-		)
-		.refine(
-			(files) => {
-				return files.every(
-					(file) => file === null || file.size <= 2 * 1024 * 1024
-				);
-			},
-			{
-				message: "※ Cada arquivo precisa ter no máximo 2Mb!",
-			}
-		)
-		.refine(
-			(files) => {
-				return files.every(
-					(file) =>
-						file === null || /\.(jpg|jpeg|png)$/i.test(file.name)
-				);
-			},
-			{
-				message:
-					"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
 			}
 		),
 });
@@ -423,19 +422,17 @@ function CreateRafflePage() {
 
 		const formData = new FormData();
 
-		// Itera sobre os campos de texto e adiciona ao FormData
-		Object.entries(CouponData).forEach(([key, value]) => {
+		// Campos de texto (exceto as imagens)
+		Object.entries(RaffleData).forEach(([key, value]) => {
 			if (key !== "imagesRaffle") {
 				formData.append(key, value);
 			}
 		});
 
-		// Itera sobre as imagens e adiciona ao FormData
-		if (CouponData.imagesRaffle) {
-			CouponData.imagesRaffle.forEach((image: File) => {
-				formData.append(`imagesRaffle`, image);
-			});
-		}
+		// Usa selectedImages para enviar ao invés do RaffleData.imagesRaffle
+		selectedImages.forEach((image: File) => {
+			formData.append("imagesRaffle", image);
+		});
 
 		try {
 			const response = await api.post(
@@ -454,8 +451,9 @@ function CreateRafflePage() {
 
 			return response.data;
 		} catch (error: any) {
-			toast.error(error.response.data.message);
-			return error.response.data;
+			setLoadingButton(false); // Garante que o botão volte mesmo com erro
+			toast.error(error.response?.data?.message || "Erro ao criar rifa.");
+			return error.response?.data;
 		}
 	}
 

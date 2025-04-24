@@ -52,7 +52,7 @@ const ImageCarouselComponent = ({
 							<div className="h-[74px] flex items-center justify-center">
 								<Image
 									className="object-contain h-full cursor-pointer"
-									src={`http://localhost:5000/images/products/${image}`}
+									src={`http://backend:5000/images/products/${image}`}
 									alt={`Thumbnail ${index}`}
 									width={50}
 									height={10}

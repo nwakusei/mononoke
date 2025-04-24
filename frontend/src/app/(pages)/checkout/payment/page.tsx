@@ -32,7 +32,7 @@ import { CheckoutContext } from "@/context/CheckoutContext";
 import { PaymentMethod, ShoppingCartOne } from "@icon-park/react";
 import { MdOutlinePix } from "react-icons/md";
 import { PiCreditCardBold } from "react-icons/pi";
-import { BiIdCard } from "react-icons/Bi";
+import { BiIdCard } from "react-icons/bi";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { IoWalletOutline } from "react-icons/io5";
 import { FaCheck } from "react-icons/fa";
