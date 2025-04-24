@@ -580,18 +580,32 @@ function WalletPage() {
 																size={16}
 															/>
 															<span>
-																{`Tarifa de Venda (Cancelada): ${decrypt(
-																	transaction
-																		.transactionDetails
-																		.detailSalesFee
-																)?.toLocaleString(
-																	"pt-BR",
-																	{
-																		style: "currency",
-																		currency:
-																			"BRL",
-																	}
-																)}`}
+																{transaction.transactionType ===
+																"Pagamento"
+																	? `Tarifa de Venda: ${decrypt(
+																			transaction
+																				.transactionDetails
+																				.detailSalesFee
+																	  )?.toLocaleString(
+																			"pt-BR",
+																			{
+																				style: "currency",
+																				currency:
+																					"BRL",
+																			}
+																	  )}`
+																	: `Tarifa de Venda (Cancelada): ${decrypt(
+																			transaction
+																				.transactionDetails
+																				.detailSalesFee
+																	  )?.toLocaleString(
+																			"pt-BR",
+																			{
+																				style: "currency",
+																				currency:
+																					"BRL",
+																			}
+																	  )}`}
 															</span>
 														</p>
 													)}
@@ -601,16 +615,28 @@ function WalletPage() {
 															size={16}
 														/>
 														<span>
-															{`Total Reembolsado: ${decrypt(
-																transaction.transactionValue
-															)?.toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}`}
+															{transaction.transactionType ===
+															"Cancelamento"
+																? `Total Reembolsado: ${decrypt(
+																		transaction.transactionValue
+																  )?.toLocaleString(
+																		"pt-BR",
+																		{
+																			style: "currency",
+																			currency:
+																				"BRL",
+																		}
+																  )}`
+																: `Total Pago: ${decrypt(
+																		transaction.transactionValue
+																  )?.toLocaleString(
+																		"pt-BR",
+																		{
+																			style: "currency",
+																			currency:
+																				"BRL",
+																		}
+																  )}`}
 														</span>
 													</p>
 
@@ -624,11 +650,18 @@ function WalletPage() {
 																size={16}
 															/>
 															<span className="mb-[1px]">
-																{`Cashback (Cancelado): ${decrypt(
-																	transaction
-																		.transactionDetails
-																		.detailCashback
-																)?.toLocaleString()} OP`}
+																{transaction.transactionType ===
+																"Pagamento"
+																	? `Cashback (Pendente): ${decrypt(
+																			transaction
+																				.transactionDetails
+																				.detailCashback
+																	  )?.toLocaleString()} OP`
+																	: `Cashback (Cancelado): ${decrypt(
+																			transaction
+																				.transactionDetails
+																				.detailCashback
+																	  )?.toLocaleString()} OP`}
 															</span>
 														</p>
 													)}

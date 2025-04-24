@@ -589,7 +589,6 @@ class OtakupayController {
 				return;
 			}
 
-			// Iterar sobre cada produto para calcular o custo total com base no partnerID e no frete correspondente
 			// Iterar sobre cada parceiro para calcular o custo total com base nos valores já descontados e no frete correspondente
 			for (const partner of partnersTotalCost) {
 				// Encontrar o frete correspondente ao parceiro
@@ -1325,8 +1324,70 @@ class OtakupayController {
 							});
 						}
 
+						// Título para o Document Transaction
+						const productTitles = newOrder.itemsList.map(
+							(item) => item.productTitle
+						);
+
+						// Título para o Document Transaction
+						const detailProductServiceTitle =
+							productTitles.length === 1
+								? productTitles[0]
+								: `${productTitles[0]} + ${
+										productTitles.length - 1
+								  } ${
+										productTitles.length - 1 === 1
+											? "produto"
+											: "produtos"
+								  }`;
+
+						// Registrar a transação
+						const newTransaction = new TransactionModel({
+							transactionType: "Pagamento",
+							transactionTitle: "Compra no OtaMart",
+							transactionDescription: `Padido feito no OtaMart.`,
+							transactionValue: encrypt(
+								customerOrderCostTotal.toString()
+							),
+							transactionDetails: {
+								detailProductServiceTitle:
+									detailProductServiceTitle,
+								detailCost: encrypt(
+									String(
+										newOrder.itemsList.reduce(
+											(acc, item) => {
+												return (
+													acc +
+													item.productPrice *
+														item.productQuantity
+												);
+											},
+											0
+										)
+									)
+								),
+								detailPaymentMethod: "Saldo em conta",
+								detailShippingCost: shippingCostEncrypted,
+								detailSalesFee:
+									encryptedPartnerCommissions.find(
+										(commission) =>
+											commission.partnerID === partnerID
+									)?.encryptedCommissionAmount,
+								detailCashback: encryptedCustomerCashbacks.find(
+									(cashback) =>
+										cashback.partnerID === partnerID
+								)?.encryptedCustomerCashback,
+							},
+							plataformName: "Mononoke - OtaMart",
+							payerID: customer.otakupayID,
+							payerName: customer.name,
+							receiverID: partner.otakupayID,
+							receiverName: partner.name,
+						});
+
 						// Adicionar a Order ao array de ordens
 						orders.push(newOrder);
+						await newTransaction.save();
 					} else {
 						console.error(
 							`Custo de envio não encontrado para o parceiro ${partnerID}`
