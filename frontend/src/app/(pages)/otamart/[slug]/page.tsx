@@ -40,7 +40,7 @@ import { CgBox } from "react-icons/cg";
 
 import crypto from "crypto";
 
-const secretKey = "chaveSuperSecretaDe32charsdgklot";
+const secretKey = process.env.AES_SECRET_KEY as string;
 
 // Função para Descriptografar dados sensíveis no Banco de Dados
 function decrypt(encryptedBalance: string): number | null {
@@ -134,7 +134,7 @@ function ProductPage() {
 
 				// Busca os dados do usuário, se o token estiver presente
 				const userPromise = token
-					? api.get("/otakuprime/check-user", {
+					? api.get("/mononoke/check-user", {
 							headers: {
 								Authorization: `Bearer ${JSON.parse(token)}`,
 							},
@@ -216,7 +216,7 @@ function ProductPage() {
 		if (!token) return;
 
 		try {
-			const response = await api.get("/otakuprime/check-user", {
+			const response = await api.get("/mononoke/check-user", {
 				headers: {
 					Authorization: `Bearer ${JSON.parse(token)}`,
 				},

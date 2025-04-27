@@ -44,7 +44,7 @@ function Sidebar() {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const response = await api.get("/otakuprime/check-user", {
+				const response = await api.get("/mononoke/check-user", {
 					headers: {
 						Authorization: `Bearer ${JSON.parse(token)}`,
 					},

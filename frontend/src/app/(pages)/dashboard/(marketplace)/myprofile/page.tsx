@@ -514,7 +514,7 @@ function MyProfilePage() {
 	};
 
 	useEffect(() => {
-		api.get("/otakuprime/check-user", {
+		api.get("/mononoke/check-user", {
 			headers: {
 				Authorization: `Bearer ${JSON.parse(token)}`,
 			},

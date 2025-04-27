@@ -131,7 +131,7 @@ function StorePage() {
 				// 3. Monta a promise de usuário (apenas se token for válido)
 				const userPromise = token
 					? api
-							.get("/otakuprime/check-user", {
+							.get("/mononoke/check-user", {
 								headers: {
 									Authorization: `Bearer ${JSON.parse(
 										token
@@ -293,7 +293,7 @@ function StorePage() {
 		if (!token) return;
 
 		try {
-			const response = await api.get("/otakuprime/check-user", {
+			const response = await api.get("/mononoke/check-user", {
 				headers: {
 					Authorization: `Bearer ${JSON.parse(token)}`,
 				},

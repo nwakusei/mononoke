@@ -86,7 +86,7 @@ function ChatPage() {
 		const fetchData = async () => {
 			try {
 				// Verifica o usuário
-				const userResponse = await api.get("/otakuprime/check-user", {
+				const userResponse = await api.get("/mononoke/check-user", {
 					headers: {
 						Authorization: `Bearer ${JSON.parse(token)}`,
 					},

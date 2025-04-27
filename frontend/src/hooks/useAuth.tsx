@@ -66,7 +66,7 @@ function useAuth() {
 	async function loginUser(user: object) {
 		try {
 			const data = await api
-				.post("/otakuprime/login", user)
+				.post("/mononoke/login", user)
 				.then((response) => {
 					return response.data;
 				});

@@ -68,7 +68,7 @@ function OtamartPage() {
 
 				// Busca os dados do usuário, se o token estiver presente
 				const userPromise = token
-					? api.get("/otakuprime/check-user", {
+					? api.get("/mononoke/check-user", {
 							headers: {
 								Authorization: `Bearer ${JSON.parse(token)}`,
 							},
