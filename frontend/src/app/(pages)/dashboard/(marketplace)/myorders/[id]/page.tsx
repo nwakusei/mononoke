@@ -504,8 +504,11 @@ function MyOrderByIDPage() {
 								{`Loja: ${myorder?.partnerName}`}
 							</h1>
 							<h2>
-								{myorder?.partnerCNPJ.length > 11 &&
-									`CNPJ: ${myorder?.partnerCNPJ}`}
+								{/* {myorder?.partnerCNPJ <= 11
+									? `CPF: ${decrypt(myorder?.partnerCNPJ)}`
+									: `CNPJ: ${decrypt(myorder?.partnerCNPJ)}`} */}
+
+								{`CNPJ/CPF: ${decrypt(myorder?.partnerCNPJ)}`}
 							</h2>
 
 							<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
