@@ -14,7 +14,7 @@ services:
       - ./backend:/app
       - /app/node_modules
     networks:
-      - mynetwork 
+      - mononoke_network
 
   frontend:
     build:
@@ -30,11 +30,31 @@ services:
     volumes:
       - ./frontend:/app:cached
     networks:
-      - mynetwork 
+      - mononoke_network
     depends_on:
       - backend
 
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: nginx:01 
+    container_name: nginx_container
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/certs/nginx-selfsigned.crt:/etc/nginx/certs/nginx-selfsigned.crt  # Adicionando o volume para o certificado
+      - ./nginx/certs/nginx-selfsigned.key:/etc/nginx/certs/nginx-selfsigned.key # Adicionando o volume para a chave privada
+    networks:
+      - mononoke_network
+    depends_on:
+      - frontend
+      - backend
+    command: /bin/bash -c "wait-for-it frontend:3000 -- wait-for-it backend:5000 -- nginx -g 'daemon off;'"
+
 networks:
-   mynetwork:
-    name: mynetwork  
+   mononoke_network:
+    name: mononoke_network
     driver: bridge

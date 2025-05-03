@@ -270,9 +270,9 @@ function MySaleByIDPage() {
 						) : (
 							<button
 								onClick={() => handleCancelOrder(mysale?._id)}
-								className="btn btn-error w-[165px] text-white shadow-md">
+								className="btn btn-error w-[180px] text-white shadow-md">
 								<MdOutlineCancel size={20} />
-								Cancelar Pedido
+								<span>Cancelar Pedido</span>
 							</button>
 						)}
 					</div>
