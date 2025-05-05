@@ -30,6 +30,7 @@ interface IPartner {
 	cpfCnpj: string;
 	description: string;
 	address: IAddress[];
+	tokenMelhorEnvio: string;
 	shippingConfiguration: IShippingConfig[];
 	cashback: string;
 	followers: number;
@@ -95,6 +96,9 @@ const partnerSchema = new Schema<IPartner>(
 		address: {
 			type: [{}],
 			required: false,
+		},
+		tokenMelhorEnvio: {
+			type: String,
 		},
 		shippingConfiguration: {
 			type: [{}],

@@ -425,7 +425,6 @@ function MyOrderByIDPage() {
             </div>
           </div>
 
-<<<<<<< HEAD
 					<div className="flex flex-col">
 						{/* Gadget 3 */}
 						<div className="bg-white text-black w-[325px] p-6 rounded-md shadow-md mt-4">
@@ -439,16 +438,6 @@ function MyOrderByIDPage() {
 
 								{`CNPJ/CPF: ${decrypt(myorder?.partnerCNPJ)}`}
 							</h2>
-=======
-          <div className="flex flex-col">
-            {/* Gadget 3 */}
-            <div className="bg-white text-black w-[325px] p-6 rounded-md shadow-md mt-4">
-              <h1 className="text-lg">{`Loja: ${myorder?.partnerName}`}</h1>
-              <h2>
-                {myorder?.partnerCNPJ.length > 11 &&
-                  `CNPJ: ${decrypt(myorder?.partnerCNPJ)}`}
-              </h2>
->>>>>>> updates
 
               <div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
 

@@ -14,8 +14,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 
-// Zod Schema
+// Zod Schema Shipping Configuration
 const updateShippingFormSchema = z.object({
+	tokenMelhorEnvio: z.string(),
 	shippingConfiguration: z.array(
 		z.object({
 			shippingOperator: z.enum(["MelhorEnvio", "Modico"]),
@@ -172,6 +173,7 @@ function ShippingConfigPage() {
 							</h1>
 						</div>
 					</div>
+
 					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">
 						<div className="flex flex-row items-center gap-4">
 							<p className="text-base text-black">
@@ -188,8 +190,41 @@ function ShippingConfigPage() {
 							</p>
 						</div>
 					</div>
+
 					{/* Formulário */}
 					<form onSubmit={handleSubmit(updateShipping)}>
+						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
+							<div className="mb-4">
+								Info: Caso utilize o Melhor Envio como operador
+								logístico, informe o token no campo abaixo. Para
+								localizar o token, acesse seu painel Melhor
+								Envio » Integrações » Permissões de Acesso »
+								Gerar Novo Token » Avançar » selecione
+								shipping-calculate (Cotação de fretes) » Gerar
+								Token » Copie o código gerado.
+							</div>
+							<label className="form-control">
+								<div className="label">
+									<span className="label-text text-black">
+										Token Melhor Envio
+									</span>
+								</div>
+
+								<div>
+									<input
+										type="text"
+										placeholder="Digite aqui..."
+										className="input input-success w-full"
+									/>
+								</div>
+
+								<div className="label">
+									<span className="label-text-alt text-red-500">
+										ERROR
+									</span>
+								</div>
+							</label>
+						</div>
 						<ShippingCard
 							selectedOperators={selectedOperators}
 							handleAddOperator={handleAddOperator}

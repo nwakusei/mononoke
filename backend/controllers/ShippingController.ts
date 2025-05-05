@@ -451,7 +451,7 @@ class ProductController {
 	}
 
 	static async editShipping(req: Request, res: Response) {
-		const { shippingConfiguration } = req.body;
+		// const { shippingConfiguration } = req.body;
 
 		console.log(req.body.shippingConfiguration);
 
