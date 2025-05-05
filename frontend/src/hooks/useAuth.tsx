@@ -7,16 +7,25 @@ function useAuth() {
 	const [customerAuthenticated, setCustomerAuthenticated] = useState(false);
 	const [partnerAuthenticated, setPartnerAuthenticad] = useState(false);
 	const [userAuthenticated, setUserAuthenticated] = useState(false);
+	const [isMounted, setIsMounted] = useState(false); // <- nova flag
 	const [loading, setLoading] = useState(false);
 
 	const router = useRouter();
 
 	useEffect(() => {
-		const token = localStorage.getItem("token");
+		setIsMounted(true);
 
+		const token = localStorage.getItem("token");
 		if (token) {
-			api.defaults.headers.Authorization = `Bearer ${JSON.parse(token)}`;
-			setUserAuthenticated(true);
+			try {
+				api.defaults.headers.Authorization = `Bearer ${JSON.parse(
+					token
+				)}`;
+				setUserAuthenticated(true);
+			} catch (error) {
+				console.error("Erro ao analisar token:", error);
+				localStorage.removeItem("token");
+			}
 		}
 	}, []);
 
@@ -24,14 +33,13 @@ function useAuth() {
 		try {
 			const data = await api
 				.post("/customers/register", customer)
-				.then((response) => {
-					return response.data;
-				});
-
+				.then((res) => res.data);
 			await authUser(data);
 		} catch (error: any) {
 			Swal.fire({
-				title: error.response.data.message,
+				title:
+					error.response?.data?.message ||
+					"Erro ao registrar cliente",
 				width: 800,
 				icon: "error",
 			});
@@ -43,19 +51,20 @@ function useAuth() {
 		try {
 			const data = await api
 				.post("/partners/register", partner)
-				.then((response) => {
+				.then((res) => {
 					Swal.fire({
-						title: response.data.message,
+						title: res.data.message,
 						width: 800,
 						icon: "success",
 					});
-					return response.data;
+					return res.data;
 				});
-
 			await authUser(data);
 		} catch (error: any) {
 			Swal.fire({
-				title: error.response.data.message,
+				title:
+					error.response?.data?.message ||
+					"Erro ao registrar parceiro",
 				width: 800,
 				icon: "error",
 			});
@@ -67,13 +76,11 @@ function useAuth() {
 		try {
 			const data = await api
 				.post("/mononoke/login", user)
-				.then((response) => {
-					return response.data;
-				});
+				.then((res) => res.data);
 			await authUser(data);
 		} catch (error: any) {
 			Swal.fire({
-				title: error.response.data.message,
+				title: error.response?.data?.message || "Erro ao fazer login",
 				width: 800,
 				icon: "error",
 			});
@@ -84,34 +91,21 @@ function useAuth() {
 	async function logout() {
 		setUserAuthenticated(false);
 		localStorage.removeItem("token");
-
 		api.defaults.headers.Authorization = null;
-
 		router.push("/login");
 	}
 
 	async function authUser(data: any) {
 		setUserAuthenticated(true);
 		localStorage.setItem("token", JSON.stringify(data.token));
+		api.defaults.headers.Authorization = `Bearer ${data.token}`;
 		router.push("/dashboard");
 	}
-
-	// async function authCustomer(data: any) {
-	// 	setCustomerAuthenticated(true);
-	// 	localStorage.setItem("token", JSON.stringify(data.token));
-	// 	router.push("/");
-	// }
-
-	// async function authPartner(data: any) {
-	// 	setPartnerAuthenticad(true);
-	// 	localStorage.setItem("token", JSON.stringify(data.token));
-	// 	router.push("/");
-	// }
 
 	return {
 		registerCustomer,
 		registerPartner,
-		userAuthenticated,
+		userAuthenticated: isMounted ? userAuthenticated : false,
 		loginUser,
 		logout,
 	};

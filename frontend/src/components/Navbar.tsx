@@ -12,12 +12,6 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 // Icons
-// import {
-// 	BiTrophy,
-// 	BiMedal,
-// 	BiHomeSmile,
-// 	BiBuildingHouse,
-// } from "react-icons/Bi";
 import { MdOutlineStore } from "react-icons/md";
 import { Currency, Dashboard, Blockchain, PokeballOne } from "@icon-park/react";
 import {
@@ -84,17 +78,28 @@ function Navbar() {
 	const { userAuthenticated, logout } = useContext(Context);
 	const { cart, setCart, subtotal, setSubtotal } =
 		useContext(CheckoutContext);
-	const [token] = useState(localStorage.getItem("token") || "");
+
+	const [token, setToken] = useState(""); // Inicializa o token como uma string vazia
+
 	const [user, setUser] = useState({});
 	const [isImageLoaded, setIsImageLoaded] = useState(false);
 
+	// Verifica e recupera o token do localStorage apenas no cliente
 	useEffect(() => {
-		if (!token) return;
+		const savedToken = localStorage.getItem("token");
+		if (savedToken) {
+			setToken(savedToken); // Atualiza o estado com o token salvo
+		}
+	}, []); // Esse efeito será executado apenas uma vez, no cliente
+
+	// Carrega dados do usuário quando o token é definido
+	useEffect(() => {
+		if (!token) return; // Se não houver token, não faz a requisição
 
 		const timer = setTimeout(() => {
 			api.get("/mononoke/check-user", {
 				headers: {
-					Authorization: `Bearer ${JSON.parse(token)}`,
+					Authorization: `Bearer ${JSON.parse(token)}`, // Usa o token para a requisição
 				},
 			})
 				.then((response) => {
@@ -105,10 +110,10 @@ function Navbar() {
 					console.error("Error fetching user data:", error);
 					setIsImageLoaded(false);
 				});
-		}, 2000); // 2000ms = 2 segundos de atraso
+		}, 2000); // Atraso de 2 segundos
 
-		return () => clearTimeout(timer); // Limpa o timer ao desmontar o componente
-	}, [token]);
+		return () => clearTimeout(timer); // Limpar o timer ao desmontar o componente
+	}, [token]); // Esse efeito depende do token
 
 	useEffect(() => {
 		// Recupera os produtos do carrinho do localStorage
