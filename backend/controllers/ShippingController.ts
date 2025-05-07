@@ -111,6 +111,7 @@ class ProductController {
 
 			// Busca o parceiro pelo partnerID do produto
 			const partner = await PartnerModel.findById(product.partnerID);
+
 			if (!partner) {
 				return res
 					.status(404)
@@ -195,7 +196,7 @@ class ProductController {
 			// Configura os cabeçalhos da requisição
 			const headers = {
 				Accept: "application/json",
-				Authorization: `Bearer ${process.env.TOKEN_ACCESS_PRODUCAO_MELHOR_ENVIO}`,
+				Authorization: `Bearer ${partner.tokenMelhorEnvio}`,
 				"Content-Type": "application/json",
 				"User-Agent": "support@mononoke.com.br",
 			};
@@ -451,10 +452,6 @@ class ProductController {
 	}
 
 	static async editShipping(req: Request, res: Response) {
-		// const { shippingConfiguration } = req.body;
-
-		console.log(req.body.shippingConfiguration);
-
 		const token: any = getToken(req);
 		const partner = await getUserByToken(token);
 
@@ -550,6 +547,8 @@ class ProductController {
 						}
 					});
 				}
+
+				partner.tokenMelhorEnvio = req.body.tokenMelhorEnvio;
 
 				await partner.save();
 

@@ -163,6 +163,7 @@ class PartnerController {
 				password: passwordHash,
 				description: "",
 				address: [],
+				tokenMelhorEnvio: "",
 				shippingConfiguration: [],
 				cashback: encryptedCashback,
 				followers: 0,

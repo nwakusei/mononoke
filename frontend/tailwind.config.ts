@@ -25,9 +25,13 @@ const config: Config = {
 			// "dark", // Tema escuro padrão
 			{
 				mytheme: {
-					primary: "#6633cc",
+					// primary: "#6633cc",
 
-					secondary: "#8357e5",
+					primary: "#7250b0",
+
+					// secondary: "#8357e5",
+
+					secondary: "#8f73cf",
 
 					accent: "#f471b5",
 

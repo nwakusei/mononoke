@@ -16,7 +16,12 @@ import { toast } from "react-toastify";
 
 // Zod Schema Shipping Configuration
 const updateShippingFormSchema = z.object({
-	tokenMelhorEnvio: z.string(),
+	tokenMelhorEnvio: z
+		.string()
+		.optional()
+		.refine((val) => !val || val.length >= 500, {
+			message: "※ O token do Melhor Envio inválido!",
+		}),
 	shippingConfiguration: z.array(
 		z.object({
 			shippingOperator: z.enum(["MelhorEnvio", "Modico"]),
@@ -34,11 +39,11 @@ function ShippingConfigPage() {
 	const [loadingButton, setLoadingButton] = useState(false);
 	const router = useRouter();
 
+	console.log(user);
+
 	const [selectedOperators, setSelectedOperators] = useState<
 		TUpdateShippingFormData["shippingConfiguration"]
 	>([]);
-
-	console.log("Operators", selectedOperators);
 
 	const modalityMapping = {
 		Correios: ["Mini Envios", "PAC", "SEDEX"],
@@ -71,6 +76,56 @@ function ShippingConfigPage() {
 		control,
 		name: "shippingConfiguration",
 	});
+
+	const [focusStates, setFocusStates] = useState({});
+
+	// Função que altera o foco de cada campo individualmente
+	const handleFocus = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: true,
+		}));
+	};
+
+	// Função que remove o foco de cada campo individualmente
+	const handleBlur = (fieldName: string) => {
+		setFocusStates((prevState) => ({
+			...prevState,
+			[fieldName]: false,
+		}));
+	};
+
+	const getFieldClass = (fieldName: string, fieldType: string) => {
+		// Obtém o valor do campo com o fieldName dinâmico
+		const value = getValues(fieldName);
+		const isFocused = focusStates[fieldName];
+
+		// Acessando o erro de acordo com o padrão do fieldName
+		let error;
+
+		// Lógica para determinar a classe do campo com base no foco e erro
+		if (isFocused) {
+			if (!value && !error) {
+				return `${fieldType}-success`; // Foco verde se vazio e sem erro
+			}
+			return error ? `${fieldType}-error` : `${fieldType}-success`; // Foco vermelho se erro, verde se válido
+		}
+
+		// Quando o campo perde o foco:
+		if (!value && error) {
+			return `${fieldType}-error`; // Foco vermelho se vazio e erro
+		}
+
+		if (value && error) {
+			return `${fieldType}-error`; // Foco vermelho se preenchido e erro
+		}
+
+		if (value && !error) {
+			return `${fieldType}-success`; // Foco verde se estiver preenchido corretamente e sem erro
+		}
+
+		return ""; // Sem cor se não há erro e o campo estiver vazio
+	};
 
 	useEffect(() => {
 		api.get("/mononoke/check-user", {
@@ -136,7 +191,8 @@ function ShippingConfigPage() {
 			return;
 		}
 
-		const shippingConfiguration = {
+		const payload = {
+			tokenMelhorEnvio: data.tokenMelhorEnvio,
 			shippingConfiguration: selectedOperators,
 		};
 
@@ -145,7 +201,7 @@ function ShippingConfigPage() {
 
 			const response = await api.patch(
 				"/shippings/edit-shipping",
-				shippingConfiguration
+				payload
 			);
 
 			toast.success(response.data.message);
@@ -213,15 +269,36 @@ function ShippingConfigPage() {
 								<div>
 									<input
 										type="text"
-										placeholder="Digite aqui..."
-										className="input input-success w-full"
+										placeholder="..."
+										className={`input input-bordered ${getFieldClass(
+											"tokenMelhorEnvio",
+											"textarea"
+										)} w-full`}
+										defaultValue={user?.tokenMelhorEnvio}
+										{...register("tokenMelhorEnvio", {
+											onChange: () =>
+												trigger("tokenMelhorEnvio"),
+										})}
+										onFocus={() =>
+											handleFocus("tokenMelhorEnvio")
+										}
+										onBlur={() =>
+											handleBlur("tokenMelhorEnvio")
+										}
 									/>
 								</div>
 
 								<div className="label">
-									<span className="label-text-alt text-red-500">
-										ERROR
-									</span>
+									{errors.tokenMelhorEnvio ? (
+										<span className="text-red-500 label-text-alt">
+											{errors.tokenMelhorEnvio?.message}
+										</span>
+									) : (
+										<span className="label-text-alt text-black">
+											※ Só é obrigatório caso utilize o
+											Melhor Envio como operador logístico
+										</span>
+									)}
 								</div>
 							</label>
 						</div>
