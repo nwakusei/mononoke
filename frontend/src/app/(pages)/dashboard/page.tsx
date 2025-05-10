@@ -112,26 +112,19 @@ function DashboardPage() {
 					</div>
 
 					{/* Gadget 2 */}
-					<div className="border-2 border-purple-500 w-[220px] p-6 rounded-md ">
+					<div className="text-black bg-white w-[455px] p-6 rounded-md shadow-md">
 						{/* Despesas */}
 						<div className="flex flex-col">
-							<h1 className="flex flex-row text-xl font-semibold">
-								R$ 10.000,00
+							<h1 className="flex flex-row text-lg font-semibold mb-4">
+								Esse é o seu Dashboard
 							</h1>
-							<h2 className="text-sm">Despesas</h2>
+							<h2 className="text-sm">
+								Todas as novidades estarão disponíveis aqui.
+							</h2>
 						</div>
 					</div>
 
 					{/* Gadget 3 */}
-					<div className="border-2 border-purple-500 w-[220px] p-6 rounded-md ">
-						{/* Vendas Totais */}
-						<div className="flex flex-col">
-							<h1 className="flex flex-row text-xl font-semibold">
-								R$ 99.000,00
-							</h1>
-							<h2 className="text-sm">Vendas no Mês</h2>
-						</div>
-					</div>
 				</div>
 			</div>
 		</section>

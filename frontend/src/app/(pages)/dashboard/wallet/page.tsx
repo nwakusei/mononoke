@@ -455,37 +455,41 @@ function WalletPage() {
 														) &&
 														transaction.transactionType ===
 															"Cancelamento") ||
-													transaction.transactionType ===
-														"Reembolso"
+													(String(
+														user?.otakupayID
+													) ===
+														String(
+															transaction.receiverID
+														) &&
+														(transaction.transactionType ===
+															"Pagamento" ||
+															transaction.transactionType ===
+																"Reembolso"))
 														? "text-green-700"
 														: "text-red-700"
-												} `}>
+												}`}>
 												{(String(user?.otakupayID) ===
 													String(
 														transaction.payerID
 													) &&
 													transaction.transactionType ===
 														"Cancelamento") ||
-												transaction.transactionType ===
-													"Reembolso"
-													? `+ ${decrypt(
-															transaction.transactionValue
-													  )?.toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-													  )}`
-													: `- ${decrypt(
-															transaction.transactionValue
-													  )?.toLocaleString(
-															"pt-BR",
-															{
-																style: "currency",
-																currency: "BRL",
-															}
-													  )}`}
+												(String(user?.otakupayID) ===
+													String(
+														transaction.receiverID
+													) &&
+													(transaction.transactionType ===
+														"Pagamento" ||
+														transaction.transactionType ===
+															"Reembolso"))
+													? "+ "
+													: "- "}
+												{decrypt(
+													transaction.transactionValue
+												)?.toLocaleString("pt-BR", {
+													style: "currency",
+													currency: "BRL",
+												})}
 											</div>
 										</td>
 										<td>
@@ -678,16 +682,17 @@ function WalletPage() {
 													<p className="flex flex-row items-center gap-2 mb-2">
 														<FiInfo size={15} />
 														<span className="mb-[2px]">
-															{String(
-																user?.otakupayID
-															) ==
-															String(
-																transaction.payerID
-															)
-																? `Devolvemos o seu dinheiro`
-																: `Devolvemos o
-															dinheiro ao
-															comprador`}
+															{transaction.transactionType ===
+															"Cancelamento"
+																? String(
+																		user?.otakupayID
+																  ) ===
+																  String(
+																		transaction.payerID
+																  )
+																	? "Devolvemos o seu dinheiro"
+																	: "Devolvemos o dinheiro ao comprador"
+																: "Transação realizada com sucesso"}
 														</span>
 													</p>
 
