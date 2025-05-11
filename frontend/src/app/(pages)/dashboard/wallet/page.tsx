@@ -20,7 +20,7 @@ import Otakuyasan from "../../../../../public/otakuyasan.png";
 import blockchainIcon from "../../../../../public/distributed-ledger.png";
 
 // Icons
-import { Currency } from "@icon-park/react";
+import { Consume, Currency } from "@icon-park/react";
 import { Deposit, Wallet } from "@icon-park/react";
 import { AiOutlineMoneyCollect } from "react-icons/ai";
 import {
@@ -200,10 +200,10 @@ function WalletPage() {
 									</div>
 									<div className="flex flex-col mx-6 gap-4">
 										{loadingButtonId ? (
-											<button className="flex flex-row items-center btn btn-primary text-black shadow-md w-[200px]">
+											<button className="flex flex-row items-center btn btn-primary shadow-md w-[200px]">
 												<span className="loading loading-dots loading-md"></span>
 											</button>
-										) : (
+										) : user?.accountType === "customer" ? (
 											<button
 												onClick={handleClick}
 												className="flex flex-row items-center btn btn-outline btn-primary text-black w-[200px] hover:shadow-md">
@@ -211,6 +211,13 @@ function WalletPage() {
 													size={22}
 												/>
 												Adicionar Crédito
+											</button>
+										) : (
+											<button
+												// onClick={handleClick}
+												className="flex flex-row items-center btn btn-outline btn-primary text-black w-[200px] hover:shadow-md">
+												<Consume size={22} />
+												Sacar Dinheiro
 											</button>
 										)}
 									</div>
@@ -302,7 +309,7 @@ function WalletPage() {
 						</div>
 					</div>
 				</div>
-				<div className="flex flex-col gap-4 mb-4">
+				<div className="flex flex-col gap-4">
 					{cryptocurrencyBalance &&
 						cryptocurrencyBalance.length > 0 && (
 							<div className="flex flex-row w-[1200px]">
@@ -425,7 +432,13 @@ function WalletPage() {
 										</td>
 										<td>
 											<div className="text-black">
-												{transaction.transactionTitle}
+												{user?.otakupayID ===
+												transaction.receiverID
+													? transaction.transactionTitle.replace(
+															"Compra",
+															"Venda"
+													  )
+													: transaction.transactionTitle}
 											</div>
 											<div className="text-gray-600 text-xs">
 												{
@@ -506,7 +519,7 @@ function WalletPage() {
 										<th>
 											{/* Botão para abrir o modal específico dessa transação */}
 											<button
-												className="btn btn-primary hover:btn-secondary btn-xs text-white shadow-md"
+												className="btn btn-primary hover:btn-secondary btn-xs text-white hover:text-white shadow-md"
 												onClick={() =>
 													document
 														.getElementById(modalId)

@@ -106,7 +106,7 @@ function LoginPage() {
 					) : (
 						<button
 							type="submit"
-							className="btn btn-secondary w-[320px] mt-4 select-none shadow-md mb-2">
+							className="btn btn-secondary w-[320px] text-white mt-4 select-none shadow-md mb-2">
 							Entrar
 						</button>
 					)}

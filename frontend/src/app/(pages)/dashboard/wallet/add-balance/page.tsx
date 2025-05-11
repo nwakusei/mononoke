@@ -531,13 +531,13 @@ function AddBalance() {
 
 				<div className="flex flex-row justify-center bg-gray-300 h-screen">
 					{loadingButtonId ? (
-						<button className="flex flex-row items-center btn btn-primary text-black shadow-md w-[200px]">
+						<button className="flex flex-row items-center btn btn-primary shadow-md w-[200px]">
 							<span className="loading loading-dots loading-md"></span>
 						</button>
 					) : (
 						<button
 							onClick={handleClick}
-							className="flex flex-row items-center btn btn-primary text-black w-[200px] shadow-md">
+							className="flex flex-row items-center btn btn-primary w-[200px] shadow-md">
 							Realizei o Pagamento
 						</button>
 					)}
