@@ -227,7 +227,19 @@ class PartnerController {
 				)
 				.sort("-createdAt");
 
-			res.status(200).json({ partners: partners });
+			// Descriptografar os campos antes de retornar para o frontend
+			const decryptedPartners = partners.map((partner) => {
+				const decryptedCashback = decrypt(partner.cashback); // Descriptografar o cashback
+				const decryptedCpfCnpj = decrypt(partner.cpfCnpj); // Descriptografar o cpfCnpj
+
+				return {
+					...partner.toObject(),
+					cashback: decryptedCashback,
+					cpfCnpj: decryptedCpfCnpj,
+				};
+			});
+
+			res.status(200).json({ partners: decryptedPartners });
 		} catch (error) {
 			res.status(500).json({ error: "Erro ao carregar os Cupons" });
 			return;

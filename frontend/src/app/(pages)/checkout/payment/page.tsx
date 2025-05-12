@@ -21,7 +21,6 @@ import { Elements } from "@stripe/react-stripe-js";
 // Components
 import { CheckoutBalanceContent } from "@/components/CheckoutBalanceContent";
 import { CheckoutPixContent } from "@/components/CheckoutPixContent";
-
 import { CheckoutCreditCardInstallmentsContent } from "@/components/CheckoutCreditCardInstallmentsContent";
 
 // Context

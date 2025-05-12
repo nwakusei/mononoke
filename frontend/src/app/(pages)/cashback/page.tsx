@@ -50,8 +50,6 @@ function CashbackPage() {
 							(coupon) => coupon.partnerID === partner._id
 						);
 
-						console.log(partner.logoImage);
-
 						// Renderize a informação do cupom se existir, caso contrário, renderize vazio
 						return (
 							<CashbackCard
