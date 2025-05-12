@@ -6,7 +6,7 @@ import api from "@/utils/api";
 
 import { toast } from "react-toastify";
 
-initMercadoPago("TEST-b720dec1-61e8-4868-9406-d9b3646f4069");
+initMercadoPago("TEST-29e2cf05-c112-48fe-802d-6562b8dfac15");
 
 function CheckoutCreditCardParcelContent() {
 	const [paymentBrickController, setPaymentBrickController] = useState(null);

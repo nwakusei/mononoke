@@ -22,8 +22,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 import { Payment, MercadoPagoConfig } from "mercadopago";
 
 const client = new MercadoPagoConfig({
-	accessToken:
-		"TEST-8600931546610321-061323-02f29ad24998f5ebfab710250fec1449-1343096213",
+	accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN as string,
 	options: { timeout: 5000 },
 });
 
@@ -1345,7 +1344,7 @@ class OtakupayController {
 						const newTransaction = new TransactionModel({
 							transactionType: "Pagamento",
 							transactionTitle: "Compra no OtaMart",
-							transactionDescription: `Padido feito no OtaMart.`,
+							transactionDescription: `Pedido feito no OtaMart.`,
 							transactionValue: encrypt(
 								customerOrderCostTotal.toString()
 							),
@@ -2842,8 +2841,71 @@ class OtakupayController {
 							});
 						}
 
+						// Título para o Document Transaction
+						const productTitles = newOrder.itemsList.map(
+							(item) => item.productTitle
+						);
+
+						// Título para o Document Transaction
+						const detailProductServiceTitle =
+							productTitles.length === 1
+								? productTitles[0]
+								: `${productTitles[0]} + ${
+										productTitles.length - 1
+								  } ${
+										productTitles.length - 1 === 1
+											? "produto"
+											: "produtos"
+								  }`;
+
+						// Registrar a transação
+						const newTransaction = new TransactionModel({
+							transactionType: "Pagamento",
+							transactionTitle: "Compra no OtaMart",
+							transactionDescription: `Pedido feito no OtaMart.`,
+							transactionValue: encrypt(
+								customerOrderCostTotal.toString()
+							),
+							transactionDetails: {
+								detailProductServiceTitle:
+									detailProductServiceTitle,
+								detailCost: encrypt(
+									String(
+										newOrder.itemsList.reduce(
+											(acc, item) => {
+												return (
+													acc +
+													item.productPrice *
+														item.productQuantity
+												);
+											},
+											0
+										)
+									)
+								),
+								detailPaymentMethod: "Cartão de Crédito",
+								detailShippingCost: shippingCostEncrypted,
+								detailSalesFee:
+									encryptedPartnerCommissions.find(
+										(commission) =>
+											commission.partnerID === partnerID
+									)?.encryptedCommissionAmount,
+								detailCashback: encryptedCustomerCashbacks.find(
+									(cashback) =>
+										cashback.partnerID === partnerID
+								)?.encryptedCustomerCashback,
+							},
+							plataformName: "Mononoke - OtaMart",
+							payerID: customer.otakupayID,
+							payerName: customer.name,
+							receiverID: partner.otakupayID,
+							receiverName: partner.name,
+						});
+
 						// Adicionar a Order ao array de ordens
 						orders.push(newOrder);
+
+						await newTransaction.save();
 					} else {
 						console.error(
 							`Custo de envio não encontrado para o parceiro ${partnerID}`
@@ -4717,8 +4779,101 @@ class OtakupayController {
 													});
 												}
 
+												// Título para o Document Transaction
+												const productTitles =
+													newOrder.itemsList.map(
+														(item) =>
+															item.productTitle
+													);
+
+												// Título para o Document Transaction
+												const detailProductServiceTitle =
+													productTitles.length === 1
+														? productTitles[0]
+														: `${
+																productTitles[0]
+														  } + ${
+																productTitles.length -
+																1
+														  } ${
+																productTitles.length -
+																	1 ===
+																1
+																	? "produto"
+																	: "produtos"
+														  }`;
+
+												// Registrar a transação
+												const newTransaction =
+													new TransactionModel({
+														transactionType:
+															"Pagamento",
+														transactionTitle:
+															"Compra no OtaMart",
+														transactionDescription: `Pedido feito no OtaMart.`,
+														transactionValue:
+															encrypt(
+																customerOrderCostTotal.toString()
+															),
+														transactionDetails: {
+															detailProductServiceTitle:
+																detailProductServiceTitle,
+															detailCost: encrypt(
+																String(
+																	newOrder.itemsList.reduce(
+																		(
+																			acc,
+																			item
+																		) => {
+																			return (
+																				acc +
+																				item.productPrice *
+																					item.productQuantity
+																			);
+																		},
+																		0
+																	)
+																)
+															),
+															detailPaymentMethod:
+																"Pix",
+															detailShippingCost:
+																shippingCostEncrypted,
+															detailSalesFee:
+																encryptedPartnerCommissions.find(
+																	(
+																		commission
+																	) =>
+																		commission.partnerID ===
+																		partnerID
+																)
+																	?.encryptedCommissionAmount,
+															detailCashback:
+																encryptedCustomerCashbacks.find(
+																	(
+																		cashback
+																	) =>
+																		cashback.partnerID ===
+																		partnerID
+																)
+																	?.encryptedCustomerCashback,
+														},
+														plataformName:
+															"Mononoke - OtaMart",
+														payerID:
+															customer.otakupayID,
+														payerName:
+															customer.name,
+														receiverID:
+															partner.otakupayID,
+														receiverName:
+															partner.name,
+													});
+
 												// Adicionar a Order ao array de ordens
 												orders.push(newOrder);
+
+												await newTransaction.save();
 											} else {
 												console.error(
 													`Custo de envio não encontrado para o parceiro ${partnerID}`
