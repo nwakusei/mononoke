@@ -325,7 +325,7 @@ function Navbar() {
 														/>
 														OtaClub
 													</span>
-													<span className="badge badge-secondary border border-white">
+													<span className="badge badge-secondary border text-white border-white">
 														New
 													</span>
 												</a>
@@ -336,7 +336,7 @@ function Navbar() {
 														<Blockchain size={18} />
 														OtaCrypto
 													</span>
-													<span className="badge badge-secondary border border-white">
+													<span className="badge badge-secondary text-white border border-white">
 														New
 													</span>
 												</a>
@@ -349,7 +349,7 @@ function Navbar() {
 														/>
 														Gift Card
 													</span>
-													<span className="badge badge-secondary border border-white">
+													<span className="badge badge-secondary text-white border border-white">
 														New
 													</span>
 												</a>
@@ -364,7 +364,7 @@ function Navbar() {
 														/>
 														<span>Sorteio</span>
 													</span>
-													<span className="badge badge-secondary border border-white">
+													<span className="badge badge-secondary text-white border border-white">
 														New
 													</span>
 												</Link>
@@ -377,7 +377,7 @@ function Navbar() {
 														/>
 														Gashapon
 													</span>
-													<span className="badge badge-secondary border border-white">
+													<span className="badge badge-secondary text-white border border-white">
 														New
 													</span>
 												</a>
@@ -440,7 +440,7 @@ function Navbar() {
 												? `${cart} item`
 												: `${cart} itens`}
 										</span>
-										<span className="text-gray-400">
+										<span className="text-gray-200">
 											{`	Subtotal: ${subtotal.toLocaleString(
 												"pt-BR",
 												{
@@ -451,13 +451,13 @@ function Navbar() {
 										</span>
 
 										<div
-											className="flex flex-row items-center text-gray-400 transition-all ease-in duration-250 hover:text-white hover:underline cursor-pointer"
+											className="flex flex-row items-center text-gray-200 transition-all ease-in duration-250 hover:text-white hover:underline cursor-pointer"
 											onClick={handleRemoveFromCart}>
 											<MdOutlineDeleteOutline size={17} />
 											Excluir
 										</div>
 										<div className="card-actions">
-											<button className="btn btn-secondary shadow-md btn-block">
+											<button className="btn btn-secondary text-white shadow-md btn-block">
 												<Link href="/checkout/cart">
 													Ver Carrinho
 												</Link>
@@ -532,7 +532,7 @@ function Navbar() {
 								</label>
 								<ul
 									tabIndex={0}
-									className="mt-[20px] z-[1] p-2 shadow-md menu menu-sm dropdown-content bg-primary rounded-box w-52">
+									className="mt-[20px] z-[1] p-2 shadow-md menu menu-sm dropdown-content bg-primary text-white rounded-box w-52">
 									{/* <li>
 										<Link
 											className="flex flex-row items-center justify-between text-white"
@@ -552,14 +552,14 @@ function Navbar() {
 
 									<li>
 										<Link
-											className="flex flex-row items-center justify-between text-white"
+											className="flex flex-row items-center justify-between "
 											href="/dashboard/myprofile">
 											<span className="flex flex-row items-center gap-2">
 												<LuSettings size={18} />
 												Configurações
 											</span>
 
-											<span className="badge badge-secondary border-[1px] border-white">
+											<span className="badge badge-secondary text-white border-[1px] border-white">
 												New
 											</span>
 										</Link>
@@ -712,7 +712,7 @@ function Navbar() {
 										</div>
 										<ul
 											tabIndex={0}
-											className="menu menu-sm dropdown-content mt-[23px] z-[99] p-2 shadow-md bg-primary rounded-box w-52">
+											className="menu menu-sm dropdown-content mt-[23px] z-[99] p-2 text-white shadow-md bg-primary rounded-box w-52">
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
@@ -721,7 +721,7 @@ function Navbar() {
 														/>
 														OtaClub
 													</span>
-													<span className="badge badge-secondary border border-white">
+													<span className="badge badge-secondary text-white border border-white">
 														New
 													</span>
 												</a>

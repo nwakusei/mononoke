@@ -6,7 +6,7 @@ import { CardPayment } from "@mercadopago/sdk-react";
 import { initMercadoPago } from "@mercadopago/sdk-react";
 
 // Inicialize o Mercado Pago com sua chave pública
-initMercadoPago("TEST-6f2ae7a7-e0a4-46d8-801e-2cb0452ac9a2");
+initMercadoPago("TEST-29e2cf05-c112-48fe-802d-6562b8dfac15");
 
 // Context
 import { CheckoutContext } from "@/context/CheckoutContext";
@@ -159,7 +159,7 @@ function CheckoutCreditCardInstallmentsContent({
 	};
 
 	useEffect(() => {
-		initMercadoPago("TEST-6f2ae7a7-e0a4-46d8-801e-2cb0452ac9a2");
+		initMercadoPago("TEST-29e2cf05-c112-48fe-802d-6562b8dfac15");
 
 		// Renderize o Brick de pagamento
 		const renderPaymentBrick = async (bricksBuilder) => {

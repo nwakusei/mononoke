@@ -21,8 +21,6 @@ import { Elements } from "@stripe/react-stripe-js";
 // Components
 import { CheckoutBalanceContent } from "@/components/CheckoutBalanceContent";
 import { CheckoutPixContent } from "@/components/CheckoutPixContent";
-import { CheckoutCreditCardContent } from "@/components/CheckoutCreditCardContent";
-import { CheckoutCreditCardForm } from "@/components/CheckoutCreditCardForm";
 import { CheckoutCreditCardInstallmentsContent } from "@/components/CheckoutCreditCardInstallmentsContent";
 
 // Context
@@ -498,21 +496,6 @@ function PaymentPage() {
 		calcularTotalPedido();
 	}, [productsInCart, transportadoraInfo]);
 
-	// useEffect(() => {
-	// 	const fetchStripeConfig = async () => {
-	// 		try {
-	// 			const response = await api.get("/otakupay/send-public-key");
-	// 			const publishableKeyStripe = await loadStripe(
-	// 				response.data.publishableKey
-	// 			);
-	// 			setStripePromise(publishableKeyStripe);
-	// 		} catch (error) {
-	// 			console.log(error);
-	// 		}
-	// 	};
-	// 	fetchStripeConfig();
-	// }, []);
-
 	useEffect(() => {
 		const fetchPaymentIntent = async () => {
 			try {
@@ -562,10 +545,6 @@ function PaymentPage() {
 					},
 				}
 			);
-
-			console.log(response.data.newPaymentPixOtakuPay.status);
-
-			console.log(response.data.newPaymentPixOtakuPay.txid);
 
 			setTxid(response.data.newPaymentPixOtakuPay.txid);
 

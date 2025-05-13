@@ -40,7 +40,7 @@ import { CgBox } from "react-icons/cg";
 
 import crypto from "crypto";
 
-const secretKey = process.env.AES_SECRET_KEY as string;
+const secretKey = process.env.NEXT_PUBLIC_AES_SECRET_KEY as string;
 
 // Função para Descriptografar dados sensíveis no Banco de Dados
 function decrypt(encryptedBalance: string): number | null {
@@ -785,9 +785,11 @@ function ProductPage() {
 									<span>
 										<p className="flex flex-row items-center gap-2 text-center text-sm text-green-500 mb-2">
 											<Currency size={18} />{" "}
-											<span className="mb-[2px]">{`${decrypt(
-												partner?.cashback
-											)}% de Cashback`}</span>
+											<span className="mb-[2px]">
+												{`${decrypt(
+													partner?.cashback
+												)}% de Cashback`}
+											</span>
 										</p>
 									</span>
 								</div>

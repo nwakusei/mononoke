@@ -99,8 +99,7 @@ function LoginPage() {
 					/>
 
 					{loadingButton ? (
-						<button className="flex flex-row justify-center items-center btn btn-secondary w-[320px] mt-4 select-none shadow-md mb-2">
-							{/* <span className="loading loading-dots loading-md"></span> */}
+						<button className="flex flex-row justify-center items-center btn btn-secondary text-white  w-[320px] mt-4 select-none shadow-md mb-2">
 							<span className="loading loading-spinner loading-md"></span>
 						</button>
 					) : (
