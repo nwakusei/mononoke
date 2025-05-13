@@ -22,8 +22,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 import { Payment, MercadoPagoConfig } from "mercadopago";
 
 const client = new MercadoPagoConfig({
-	accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN as string,
-	options: { timeout: 5000 },
+  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN as string,
+  options: { timeout: 5000 },
 });
 
 const payment = new Payment(client);
@@ -1265,49 +1265,36 @@ class OtakupayController {
                     productTitles.length - 1 === 1 ? "produto" : "produtos"
                   }`;
 
-						// Registrar a transação
-						const newTransaction = new TransactionModel({
-							transactionType: "Pagamento",
-							transactionTitle: "Compra no OtaMart",
-							transactionDescription: `Pedido feito no OtaMart.`,
-							transactionValue: encrypt(
-								customerOrderCostTotal.toString()
-							),
-							transactionDetails: {
-								detailProductServiceTitle:
-									detailProductServiceTitle,
-								detailCost: encrypt(
-									String(
-										newOrder.itemsList.reduce(
-											(acc, item) => {
-												return (
-													acc +
-													item.productPrice *
-														item.productQuantity
-												);
-											},
-											0
-										)
-									)
-								),
-								detailPaymentMethod: "Saldo em conta",
-								detailShippingCost: shippingCostEncrypted,
-								detailSalesFee:
-									encryptedPartnerCommissions.find(
-										(commission) =>
-											commission.partnerID === partnerID
-									)?.encryptedCommissionAmount,
-								detailCashback: encryptedCustomerCashbacks.find(
-									(cashback) =>
-										cashback.partnerID === partnerID
-								)?.encryptedCustomerCashback,
-							},
-							plataformName: "Mononoke - OtaMart",
-							payerID: customer.otakupayID,
-							payerName: customer.name,
-							receiverID: partner.otakupayID,
-							receiverName: partner.name,
-						});
+            // Registrar a transação
+            const newTransaction = new TransactionModel({
+              transactionType: "Pagamento",
+              transactionTitle: "Compra no OtaMart",
+              transactionDescription: `Pedido feito no OtaMart.`,
+              transactionValue: encrypt(customerOrderCostTotal.toString()),
+              transactionDetails: {
+                detailProductServiceTitle: detailProductServiceTitle,
+                detailCost: encrypt(
+                  String(
+                    newOrder.itemsList.reduce((acc, item) => {
+                      return acc + item.productPrice * item.productQuantity;
+                    }, 0)
+                  )
+                ),
+                detailPaymentMethod: "Saldo em conta",
+                detailShippingCost: shippingCostEncrypted,
+                detailSalesFee: encryptedPartnerCommissions.find(
+                  (commission) => commission.partnerID === partnerID
+                )?.encryptedCommissionAmount,
+                detailCashback: encryptedCustomerCashbacks.find(
+                  (cashback) => cashback.partnerID === partnerID
+                )?.encryptedCustomerCashback,
+              },
+              plataformName: "Mononoke - OtaMart",
+              payerID: customer.otakupayID,
+              payerName: customer.name,
+              receiverID: partner.otakupayID,
+              receiverName: partner.name,
+            });
 
             // Adicionar a Order ao array de ordens
             orders.push(newOrder);
@@ -2679,78 +2666,10 @@ class OtakupayController {
               });
             }
 
-						// Título para o Document Transaction
-						const productTitles = newOrder.itemsList.map(
-							(item) => item.productTitle
-						);
-
-						// Título para o Document Transaction
-						const detailProductServiceTitle =
-							productTitles.length === 1
-								? productTitles[0]
-								: `${productTitles[0]} + ${
-										productTitles.length - 1
-								  } ${
-										productTitles.length - 1 === 1
-											? "produto"
-											: "produtos"
-								  }`;
-
-						// Registrar a transação
-						const newTransaction = new TransactionModel({
-							transactionType: "Pagamento",
-							transactionTitle: "Compra no OtaMart",
-							transactionDescription: `Pedido feito no OtaMart.`,
-							transactionValue: encrypt(
-								customerOrderCostTotal.toString()
-							),
-							transactionDetails: {
-								detailProductServiceTitle:
-									detailProductServiceTitle,
-								detailCost: encrypt(
-									String(
-										newOrder.itemsList.reduce(
-											(acc, item) => {
-												return (
-													acc +
-													item.productPrice *
-														item.productQuantity
-												);
-											},
-											0
-										)
-									)
-								),
-								detailPaymentMethod: "Cartão de Crédito",
-								detailShippingCost: shippingCostEncrypted,
-								detailSalesFee:
-									encryptedPartnerCommissions.find(
-										(commission) =>
-											commission.partnerID === partnerID
-									)?.encryptedCommissionAmount,
-								detailCashback: encryptedCustomerCashbacks.find(
-									(cashback) =>
-										cashback.partnerID === partnerID
-								)?.encryptedCustomerCashback,
-							},
-							plataformName: "Mononoke - OtaMart",
-							payerID: customer.otakupayID,
-							payerName: customer.name,
-							receiverID: partner.otakupayID,
-							receiverName: partner.name,
-						});
-
-						// Adicionar a Order ao array de ordens
-						orders.push(newOrder);
-
-						await newTransaction.save();
-					} else {
-						console.error(
-							`Custo de envio não encontrado para o parceiro ${partnerID}`
-						);
-					}
-				}
-			}
+            // Título para o Document Transaction
+            const productTitles = newOrder.itemsList.map(
+              (item) => item.productTitle
+            );
 
             // Título para o Document Transaction
             const detailProductServiceTitle =
@@ -4429,108 +4348,79 @@ class OtakupayController {
                                   productImage = option.imageUrl;
                                 }
 
-												// Título para o Document Transaction
-												const productTitles =
-													newOrder.itemsList.map(
-														(item) =>
-															item.productTitle
-													);
+                                // Título para o Document Transaction
+                                const productTitles = newOrder.itemsList.map(
+                                  (item) => item.productTitle
+                                );
 
-												// Título para o Document Transaction
-												const detailProductServiceTitle =
-													productTitles.length === 1
-														? productTitles[0]
-														: `${
-																productTitles[0]
-														  } + ${
-																productTitles.length -
-																1
-														  } ${
-																productTitles.length -
-																	1 ===
-																1
-																	? "produto"
-																	: "produtos"
-														  }`;
+                                // Título para o Document Transaction
+                                const detailProductServiceTitle =
+                                  productTitles.length === 1
+                                    ? productTitles[0]
+                                    : `${productTitles[0]} + ${
+                                        productTitles.length - 1
+                                      } ${
+                                        productTitles.length - 1 === 1
+                                          ? "produto"
+                                          : "produtos"
+                                      }`;
 
-												// Registrar a transação
-												const newTransaction =
-													new TransactionModel({
-														transactionType:
-															"Pagamento",
-														transactionTitle:
-															"Compra no OtaMart",
-														transactionDescription: `Pedido feito no OtaMart.`,
-														transactionValue:
-															encrypt(
-																customerOrderCostTotal.toString()
-															),
-														transactionDetails: {
-															detailProductServiceTitle:
-																detailProductServiceTitle,
-															detailCost: encrypt(
-																String(
-																	newOrder.itemsList.reduce(
-																		(
-																			acc,
-																			item
-																		) => {
-																			return (
-																				acc +
-																				item.productPrice *
-																					item.productQuantity
-																			);
-																		},
-																		0
-																	)
-																)
-															),
-															detailPaymentMethod:
-																"Pix",
-															detailShippingCost:
-																shippingCostEncrypted,
-															detailSalesFee:
-																encryptedPartnerCommissions.find(
-																	(
-																		commission
-																	) =>
-																		commission.partnerID ===
-																		partnerID
-																)
-																	?.encryptedCommissionAmount,
-															detailCashback:
-																encryptedCustomerCashbacks.find(
-																	(
-																		cashback
-																	) =>
-																		cashback.partnerID ===
-																		partnerID
-																)
-																	?.encryptedCustomerCashback,
-														},
-														plataformName:
-															"Mononoke - OtaMart",
-														payerID:
-															customer.otakupayID,
-														payerName:
-															customer.name,
-														receiverID:
-															partner.otakupayID,
-														receiverName:
-															partner.name,
-													});
+                                // Registrar a transação
+                                const newTransaction = new TransactionModel({
+                                  transactionType: "Pagamento",
+                                  transactionTitle: "Compra no OtaMart",
+                                  transactionDescription: `Pedido feito no OtaMart.`,
+                                  transactionValue: encrypt(
+                                    customerOrderCostTotal.toString()
+                                  ),
+                                  transactionDetails: {
+                                    detailProductServiceTitle:
+                                      detailProductServiceTitle,
+                                    detailCost: encrypt(
+                                      String(
+                                        newOrder.itemsList.reduce(
+                                          (acc, item) => {
+                                            return (
+                                              acc +
+                                              item.productPrice *
+                                                item.productQuantity
+                                            );
+                                          },
+                                          0
+                                        )
+                                      )
+                                    ),
+                                    detailPaymentMethod: "Pix",
+                                    detailShippingCost: shippingCostEncrypted,
+                                    detailSalesFee:
+                                      encryptedPartnerCommissions.find(
+                                        (commission) =>
+                                          commission.partnerID === partnerID
+                                      )?.encryptedCommissionAmount,
+                                    detailCashback:
+                                      encryptedCustomerCashbacks.find(
+                                        (cashback) =>
+                                          cashback.partnerID === partnerID
+                                      )?.encryptedCustomerCashback,
+                                  },
+                                  plataformName: "Mononoke - OtaMart",
+                                  payerID: customer.otakupayID,
+                                  payerName: customer.name,
+                                  receiverID: partner.otakupayID,
+                                  receiverName: partner.name,
+                                });
 
-												// Adicionar a Order ao array de ordens
-												orders.push(newOrder);
+                                // Adicionar a Order ao array de ordens
+                                orders.push(newOrder);
 
-												await newTransaction.save();
-											} else {
-												console.error(
-													`Custo de envio não encontrado para o parceiro ${partnerID}`
-												);
-											}
-										}
-									}
+                                await newTransaction.save();
+                              } else {
+                                console.error(
+                                  `Custo de envio não encontrado para o parceiro ${partnerID}`
+                                );
+                              }
+                            }
+                          }
 
                           // Caso o produto não tenha variações ou nenhuma correspondência tenha sido encontrada
                           if (!productCost) {
