@@ -14,6 +14,7 @@ import { TransactionModel } from "../models/TransactionModel.js";
 // Middlewares
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
+import axios, { AxiosRequestConfig } from "axios";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -677,7 +678,10 @@ class OrderController {
         return;
       }
 
-      if (order.statusShipping !== "Shipped") {
+      if (
+        order.statusShipping !== "Shipped" &&
+        order.statusShipping !== "Not Delivered"
+      ) {
         res.status(422).json({
           message: "O Pedido não pode ser marcado como entregue!",
         });
@@ -687,6 +691,33 @@ class OrderController {
       order.statusOrder = "Delivered";
       order.statusShipping = "Delivered";
       order.markedDeliveredBy = user.accountType;
+
+      // Requisição teste para ativar outra requisição dentro da API
+      const transactionRequestConfig: AxiosRequestConfig = {
+        method: "post",
+        url: "http://localhost:5000/otakupay/realease-values",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Se precisar de um token de autenticação
+        },
+        data: {
+          // Dados que precisam ser enviados para a transação
+          orderId: order._id,
+        },
+      };
+
+      const transactionResponse = await axios(transactionRequestConfig);
+
+      if (transactionResponse.status !== 200) {
+        console.log(
+          "Erro ao processar a transação, status:",
+          transactionResponse.status
+        );
+        res.status(500).json({
+          message: "Erro ao processar a transação!",
+        });
+        return;
+      }
 
       // order.dateMarkedPacked = new Date(); // Aqui você insere a data atual
 

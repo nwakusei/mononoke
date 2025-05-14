@@ -20,10 +20,10 @@ import api from "@/utils/api";
 import { GrMapLocation } from "react-icons/gr";
 import { ShoppingCartOne } from "@icon-park/react";
 import { LiaShippingFastSolid } from "react-icons/lia";
-import { BiIdCard } from "react-icons/Bi";
 import { PiCreditCardBold } from "react-icons/pi";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 import { LuPackageCheck, LuPackageX } from "react-icons/lu";
+import { FiInfo } from "react-icons/fi";
 
 function MyOrderByIDPage() {
   const { id } = useParams();
@@ -174,6 +174,20 @@ function MyOrderByIDPage() {
       return null;
     }
   }
+
+  const statusShippingView = () => {
+    if (myorder?.statusShipping === "Pending") {
+      return "Pendente";
+    } else if (myorder?.statusShipping === "Packed") {
+      return "Embalado";
+    } else if (myorder?.statusShipping === "Shipped") {
+      return "Enviado";
+    } else if (myorder?.statusShipping === "Delivered") {
+      return "Entregue";
+    } else if (myorder?.statusShipping === "Not Delivered") {
+      return "Não entregue";
+    }
+  };
 
   if (isLoading) {
     return <LoadingPage />;
@@ -425,19 +439,17 @@ function MyOrderByIDPage() {
             </div>
           </div>
 
-					<div className="flex flex-col">
-						{/* Gadget 3 */}
-						<div className="bg-white text-black w-[325px] p-6 rounded-md shadow-md mt-4">
-							<h1 className="text-lg">
-								{`Loja: ${myorder?.partnerName}`}
-							</h1>
-							<h2>
-								{/* {myorder?.partnerCNPJ <= 11
+          <div className="flex flex-col">
+            {/* Gadget 3 */}
+            <div className="bg-white text-black w-[325px] p-6 rounded-md shadow-md mt-4">
+              <h1 className="text-lg">{`Loja: ${myorder?.partnerName}`}</h1>
+              <h2>
+                {/* {myorder?.partnerCNPJ <= 11
 									? `CPF: ${decrypt(myorder?.partnerCNPJ)}`
 									: `CNPJ: ${decrypt(myorder?.partnerCNPJ)}`} */}
 
-								{`CNPJ/CPF: ${decrypt(myorder?.partnerCNPJ)}`}
-							</h2>
+                {`CNPJ/CPF: ${decrypt(myorder?.partnerCNPJ)}`}
+              </h2>
 
               <div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
 
@@ -479,7 +491,7 @@ function MyOrderByIDPage() {
 								) : (
 									`Custo do Frete: R$ 0,00`
 								)} */}
-                <div>{`Status: ${myorder?.statusShipping}`}</div>
+                <div>{`Status: ${statusShippingView()}`}</div>
                 <div className="flex flex-row gap-2">
                   Cód. de Rastreio:
                   {myorder && myorder?.trackingCode ? (
@@ -528,6 +540,46 @@ function MyOrderByIDPage() {
                   )}
               </div>
             </div>
+
+            {/* Gadget 5 */}
+            {myorder?.statusShipping === "Not Delivered" && (
+              <div className="bg-white w-[325px] p-6 border-2 border-dashed border-violet-900 rounded-md shadow-md mt-4 flex flex-col gap-2 mb-4">
+                <p className="text-base font-semibold text-black mb-2">
+                  O vendedor está verificando junto a transportadora o que houve
+                  com o seu pedido. Ele tem até 3 dias para dar uma resposta.
+                </p>
+
+                {packedLoading ? (
+                  <button className="flex items-center justify-center bg-primary py-1 h-[35px] rounded shadow-md mb-2">
+                    <span className="loading loading-spinner loading-xs"></span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleReceived}
+                    className="flex items-center justify-center bg-primary py-1 h-[35px] rounded shadow-md cursor-pointer transition-all ease-in duration-200 active:scale-[.97] mb-2"
+                  >
+                    Pedido encontrado e entregue
+                  </button>
+                )}
+
+                {(() => {
+                  const updatedAt = new Date(myorder.updatedAt);
+                  const now = new Date();
+                  const diffInMs = now.getTime() - updatedAt.getTime();
+                  const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+                  if (diffInDays >= 3) {
+                    return (
+                      <button className="bg-primary py-1 rounded shadow-md cursor-pointer transition-all ease-in duration-200 active:scale-[.97]">
+                        Pedir ajuda do Mononoke
+                      </button>
+                    );
+                  }
+
+                  return null;
+                })()}
+              </div>
+            )}
           </div>
         </div>
 

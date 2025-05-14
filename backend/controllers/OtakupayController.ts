@@ -12,12 +12,6 @@ import { OrderModel } from "../models/OrderModel.js";
 import { PaymentPixOtakuPayModel } from "../models/PixOtakuPayModel.js";
 // import { CustomerModel } from "../models/CustomerModel.js";
 
-// STRIPE
-import Stripe from "stripe";
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2024-11-20.acacia", // Use a versão mais recente da API do Stripe
-});
-
 // Import Mercado Pago
 import { Payment, MercadoPagoConfig } from "mercadopago";
 
@@ -5030,7 +5024,7 @@ class OtakupayController {
       }
 
       const newCustomerOtakuPointsPendingDecrypted = (
-        customerOtakuPointsEarnedDecrypted - customerOtakuPointsEarnedDecrypted
+        customerOtakuPointsPendingDecrypted - customerOtakuPointsEarnedDecrypted
       ).toFixed(2);
 
       // Novo Valor do Otaku Points Pending criptografado a ser Armazenado no Banco de dados

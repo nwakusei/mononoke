@@ -353,7 +353,7 @@ function WalletPage() {
         </div>
 
         {/* Gadget 2 */}
-        <div className="h-screen bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-8">
+        <div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-8">
           {/* Tabela de Transações */}
           <div className="divider mb-2 text-lg text-black before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]">
             Últimas atividades
