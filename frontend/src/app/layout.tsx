@@ -1,5 +1,3 @@
-"use client";
-
 import "./globals.css";
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
@@ -17,13 +15,24 @@ import { Footer } from "@/components/Footer";
 import { UserProvider } from "@/context/UserContext";
 import { CheckoutProvider } from "@/context/CheckoutContext";
 
+export const metadata: Metadata = {
+	title: "Mononoke",
+	description: "A loja de produtos otaku mais completa do Brasil",
+	icons: {
+		icon: "/favicon.ico",
+	},
+};
+
 export default function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="pt-BR">
+		<html lang="pt-BR" className={montserrat.className}>
+			<head>
+				{/* <link rel="icon" href="../../public/favicon.ico" /> */}
+			</head>
 			<body>
 				<UserProvider>
 					<CheckoutProvider>

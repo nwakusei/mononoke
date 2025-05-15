@@ -3,9 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import crypto from "crypto";
-
-const secretKey = "chaveSuperSecretaDe32charsdgklot";
+import { useParams } from "next/navigation";
 
 // Components
 import { Sidebar } from "@/components/Sidebar";
@@ -27,7 +25,7 @@ function MyOrdersPage() {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const response = await api.get("/orders/customer-orders", {
+				const response = await api.get(`/orders/customer-orders`, {
 					headers: {
 						Authorization: `Bearer ${JSON.parse(token)}`,
 					},
@@ -53,41 +51,6 @@ function MyOrdersPage() {
 			router.push(`/dashboard/myorders/${orderId}`);
 		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
-
-	// Função para Descriptografar dados sensíveis no Banco de Dados
-	function decrypt(encryptedBalance: string): number | null {
-		let decrypted = "";
-
-		try {
-			// Divide o IV do texto criptografado
-			const [ivHex, encryptedData] = encryptedBalance.split(":");
-			if (!ivHex || !encryptedData) {
-				throw new Error("Formato inválido do texto criptografado.");
-			}
-
-			const iv = Buffer.from(ivHex, "hex");
-
-			const decipher = crypto.createDecipheriv(
-				"aes-256-cbc",
-				Buffer.from(secretKey, "utf-8"),
-				iv
-			);
-
-			decipher.setAutoPadding(false);
-
-			decrypted = decipher.update(encryptedData, "hex", "utf8");
-			decrypted += decipher.final("utf8");
-
-			const balanceNumber = parseFloat(decrypted.trim()); // Remove espaços em branco extras
-			if (isNaN(balanceNumber)) {
-				return null;
-			}
-			return parseFloat(balanceNumber.toFixed(2));
-		} catch (error) {
-			console.error("Erro ao descriptografar o saldo:", error);
-			return null;
-		}
-	}
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -177,9 +140,7 @@ function MyOrdersPage() {
 													</td>
 													<td>
 														<div className="text-black">
-															{decrypt(
-																myorder.customerOrderCostTotal
-															)?.toLocaleString(
+															{myorder.customerOrderCostTotal?.toLocaleString(
 																"pt-BR",
 																{
 																	style: "currency",
