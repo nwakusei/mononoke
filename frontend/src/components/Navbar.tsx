@@ -49,12 +49,12 @@ import { CheckoutContext } from "@/context/CheckoutContext";
 
 import CryptoJS from "crypto-js";
 
-function encryptData(data) {
-	return CryptoJS.AES.encrypt(
-		JSON.stringify(data), // Converte o objeto inteiro para string
-		"chave-secreta"
-	).toString();
-}
+// function encryptData(data) {
+// 	return CryptoJS.AES.encrypt(
+// 		JSON.stringify(data), // Converte o objeto inteiro para string
+// 		"chave-secreta"
+// 	).toString();
+// }
 
 function decryptData(encryptedData) {
 	try {

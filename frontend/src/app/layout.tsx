@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 	title: "Mononoke",
 	description: "A loja de produtos otaku mais completa do Brasil",
 	icons: {
-		icon: "/favicon.ico",
+		icon: "/favicon.png",
 	},
 };
 
