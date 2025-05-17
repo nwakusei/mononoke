@@ -182,9 +182,10 @@ function ReviewsPage() {
 
 													<td>
 														<div className="text-black">
-															{
+															{/* {
 																order.statusShipping
-															}
+															} */}
+															Entregue
 														</div>
 													</td>
 

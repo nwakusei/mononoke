@@ -281,7 +281,7 @@ function RafflePage() {
 										{raffle?.raffleDescription}
 									</p>
 								</div>
-								<div className="divider">E</div>
+								<div className="divider divider-primary">E</div>
 								<div className="">
 									<p className="whitespace-pre-wrap break-words">
 										<span className="font-semibold">

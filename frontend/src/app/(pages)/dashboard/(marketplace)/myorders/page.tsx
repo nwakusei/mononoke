@@ -52,6 +52,21 @@ function MyOrdersPage() {
 		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 
+	const translateOrderStatus = (status) => {
+		switch (status) {
+			case "Confirmed":
+				return "Confirmado";
+			case "Delivered":
+				return "Entregue";
+			case "Completed":
+				return "Concluído";
+			case "Canceled":
+				return "Cancelado";
+			default:
+				return status; // Retorna o original se não encontrar tradução
+		}
+	};
+
 	if (isLoading) {
 		return <LoadingPage />;
 	}
@@ -157,9 +172,9 @@ function MyOrdersPage() {
 													</td>
 													<td>
 														<div className="text-black">
-															{
+															{translateOrderStatus(
 																myorder.statusOrder
-															}
+															)}
 														</div>
 														{/* <div className="text-xs opacity-50">
 															{

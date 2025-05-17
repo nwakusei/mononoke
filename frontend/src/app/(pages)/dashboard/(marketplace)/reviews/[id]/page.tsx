@@ -381,7 +381,7 @@ function ReviewByIdPage() {
 								<table className="table">
 									{/* head */}
 									<thead>
-										<tr>
+										<tr className="text-black">
 											<th className="text-base">
 												Produto(s)
 											</th>
@@ -396,50 +396,6 @@ function ReviewByIdPage() {
 										</tr>
 									</thead>
 									<tbody>
-										{/* row 1 */}
-										{/* {myorder.itemsList &&
-											myorder.itemsList.map(
-												(item, index) => (
-													<tr key={index}>
-														<td>
-															<div className="flex items-center gap-3">
-																<div className="avatar">
-																	<div className="mask mask-squircle w-12 h-12">
-																		<Image
-																			src={`http://localhost:5000/images/products/${item.productImage}`}
-																			alt={
-																				item.productName ||
-																				"Nome do Produto"
-																			}
-																			width={
-																				10
-																			}
-																			height={
-																				10
-																			}
-																			unoptimized
-																		/>
-																	</div>
-																</div>
-																<div>
-																	<div className="font-bold">
-																		{
-																			item.productTitle
-																		}
-																	</div>
-																</div>
-															</div>
-														</td>
-														<td>
-															{
-																myorder.statusShipping
-															}
-														</td>
-														<td>Purple</td>
-													</tr>
-												)
-											)} */}
-
 										{Array.isArray(myorder?.itemsList) &&
 											myorder?.itemsList.length > 0 &&
 											myorder?.itemsList.map(
@@ -485,32 +441,11 @@ function ReviewByIdPage() {
 
 														<td>
 															<div>
-																{
-																	myorder.statusOrder
-																}
+																{myorder.statusShipping ===
+																	"Delivered" &&
+																	"Entregue"}
 															</div>
 														</td>
-														{/* <td>
-															<div>
-																{
-																	item.productQuantity
-																}{" "}
-																un
-															</div>
-														</td> */}
-														{/* <td className="w-[200px] overflow-x-auto">
-															{(
-																item.productQuantity *
-																item.productPrice
-															).toLocaleString(
-																"pt-BR",
-																{
-																	style: "currency",
-																	currency:
-																		"BRL",
-																}
-															)}
-														</td> */}
 													</tr>
 												)
 											)}
@@ -615,7 +550,7 @@ function ReviewByIdPage() {
 									</span>
 								</div>
 
-								<div className="flex flex-wrap gap-2">
+								<div className="flex flex-wrap text-black gap-2">
 									{imagensSelecionadas.map((img, index) => (
 										<div
 											key={index}

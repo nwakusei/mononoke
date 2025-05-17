@@ -35,6 +35,7 @@ import { ImMakeGroup } from "react-icons/im";
 import { HiOutlineGiftTop } from "react-icons/hi2";
 import { MdOutlineLocalActivity, MdOutlineDeleteOutline } from "react-icons/md";
 import { TbPokeball } from "react-icons/tb";
+import { RiExchangeFundsFill } from "react-icons/ri";
 
 // Axios
 import api from "@/utils/api";
@@ -333,8 +334,21 @@ function Navbar() {
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
-														<Blockchain size={18} />
+														<Blockchain size={20} />
 														OtaCrypto
+													</span>
+													<span className="badge badge-secondary text-white border border-white">
+														New
+													</span>
+												</a>
+											</li>
+											<li>
+												<a className="flex flex-row items-center justify-between text-white">
+													<span className="flex flex-row items-center gap-2">
+														<RiExchangeFundsFill
+															size={20}
+														/>
+														Exchange
 													</span>
 													<span className="badge badge-secondary text-white border border-white">
 														New
@@ -424,7 +438,7 @@ function Navbar() {
 												d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
 											/>
 										</svg>
-										<span className="badge badge-sm indicator-item">
+										<span className="badge badge-secondary text-white badge-sm indicator-item">
 											{cart}
 										</span>
 									</div>
@@ -469,7 +483,7 @@ function Navbar() {
 							<div className="dropdown dropdown-end mt-1">
 								<label
 									tabIndex={0}
-									className="btn btn-ghost btn-circle avatar ring ring-success ring-offset-base-100">
+									className="btn btn-ghost btn-circle avatar ring ring-secondary ring-offset-base-100">
 									<div className="w-[40px] rounded-full">
 										{user && (
 											<>
@@ -532,7 +546,7 @@ function Navbar() {
 								</label>
 								<ul
 									tabIndex={0}
-									className="mt-[20px] z-[1] p-2 shadow-md menu menu-sm dropdown-content bg-primary text-white rounded-box w-52">
+									className="mt-[20px] z-[1] p-2 shadow-md menu menu-sm dropdown-content bg-primary text-white rounded-box w-[250px]">
 									{/* <li>
 										<Link
 											className="flex flex-row items-center justify-between text-white"
@@ -552,7 +566,7 @@ function Navbar() {
 
 									<li>
 										<Link
-											className="flex flex-row items-center justify-between "
+											className="flex flex-row items-center justify-between"
 											href="/dashboard/myprofile">
 											<span className="flex flex-row items-center gap-2">
 												<LuSettings size={18} />
@@ -729,8 +743,21 @@ function Navbar() {
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
-														<Blockchain size={18} />
+														<Blockchain size={20} />
 														OtaCrypto
+													</span>
+													<span className="badge badge-secondary border border-white">
+														New
+													</span>
+												</a>
+											</li>
+											<li>
+												<a className="flex flex-row items-center justify-between text-white">
+													<span className="flex flex-row items-center gap-2">
+														<RiExchangeFundsFill
+															size={20}
+														/>
+														Exchange
 													</span>
 													<span className="badge badge-secondary border border-white">
 														New

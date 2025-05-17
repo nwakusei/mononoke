@@ -452,7 +452,7 @@ function StorePage() {
 						{buttonLoading ? (
 							<button
 								disabled
-								className="button w-[297px] h-[50px] bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+								className="button w-[297px] h-[50px] bg-secondary text-white active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
 								<span className="loading loading-spinner loading-md"></span>
 							</button>
 						) : followedStores?.some(
@@ -460,20 +460,20 @@ function StorePage() {
 						  ) ? (
 							<button
 								// Função para deixar de seguir - não implementada ainda
-								className="button w-[297px] h-[50px] follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
-								<span className="text-following">
+								className="button w-[297px] h-[50px] follow bg-white hover:bg-red-800 border-[1px] border-primary hover:border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+								<span className="text-following text-white font-semibold">
 									Deixar de seguir
 								</span>
 								<span
 									onClick={handleUnfollow}
-									className="text-follow">
+									className="text-follow text-primary font-semibold">
 									Seguindo
 								</span>
 							</button>
 						) : (
 							<button
 								onClick={handleFollow}
-								className="w-[297px] h-[50px] bg-violet-900 transition-all ease-in duration-100 hover:bg-black text-white rounded-md shadow-md flex items-center justify-center">
+								className="w-[297px] h-[50px] bg-primary transition-all ease-in duration-100 hover:bg-secondary text-white font-semibold rounded-md shadow-md flex items-center justify-center">
 								Seguir Loja
 							</button>
 						)}
@@ -524,7 +524,7 @@ function StorePage() {
 												: `${partner?.rating?.toFixed(
 														1
 												  )}`
-									  } (1 Avaliação)`
+									  } (1)`
 									: `Avaliações: ${
 											Number.isInteger(partner?.rating)
 												? `${partner?.rating}.0`
@@ -533,7 +533,7 @@ function StorePage() {
 												  )}`
 									  } (${formatHighValues(
 											partner?.numberOfReviews
-									  )} Avaliações)`}
+									  )})`}
 							</h1>
 						</div>
 						<div className="flex flex-row items-center gap-2 mb-2">
@@ -788,12 +788,12 @@ function StorePage() {
 											</div>
 										</div>
 										<div className="chat-header flex flex-row items-center gap-2">
-											<span className="mb-1">
+											<span className="mb-1 text-black">
 												{message.senderID === user?._id
 													? user?.nickname
 													: partner?.nickname}
 											</span>
-											<time className="text-xs opacity-50 mt-1 mb-1">
+											<time className="text-xs text-gray-900 mt-1 mb-1">
 												{`${new Intl.DateTimeFormat(
 													"pt-BR",
 													{
@@ -815,7 +815,7 @@ function StorePage() {
 												unoptimized
 											/>
 										) : (
-											<div className="chat-bubble break-words whitespace-pre-wrap">
+											<div className="chat-bubble bg-secondary text-white break-words whitespace-pre-wrap">
 												{message.message}
 											</div>
 										)}
@@ -860,7 +860,7 @@ function StorePage() {
 											onClick={() =>
 												setImageMessage(null)
 											} // Limpa a imagem
-											className="text-white"
+											className="text-red-800 text-2xl"
 											aria-label="Close">
 											×
 										</button>
@@ -909,20 +909,6 @@ function StorePage() {
 					</div>
 				)}
 
-				{/* BOTÃO DO CHAT */}
-				{/* {!isChatOpen ? (
-					<button
-						onClick={toggleChat}
-						className="btn btn-primary w-[60px] h-[60px] rounded-full fixed bottom-5 right-5 shadow-md z-50">
-						<BsHeadset size={25} />
-					</button>
-				) : (
-					<button
-						onClick={toggleChat}
-						className="btn btn-primary w-[60px] h-[60px] rounded-full fixed bottom-5 right-5 shadow-md z-50">
-						<IoCloseSharp className="cursor-pointer" size={30} />
-					</button>
-				)} */}
 				<button
 					onClick={toggleChat}
 					className="btn btn-primary w-[60px] h-[60px] rounded-full shadow-md z-50 transition-all duration-200"

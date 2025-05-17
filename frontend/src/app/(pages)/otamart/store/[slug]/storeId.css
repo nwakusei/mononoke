@@ -4,8 +4,8 @@
 
 .button {
 	position: relative;
-	/* width: 300px !important; Manter o tamanho fixo do botão */
-	/* height: 50px !important; Ajustar a altura do botão conforme necessário */
+	width: 297px !important;
+	height: 50px !important;
 }
 
 .text-follow,
@@ -44,7 +44,7 @@
 	bottom: 50px;
 	right: 5px;
 	width: 400px;
-	height: 500px;
+	height: 515px;
 	margin: 0;
 	padding: 0;
 	border-radius: 8px;

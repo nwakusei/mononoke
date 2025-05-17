@@ -833,7 +833,6 @@ class OrderController {
 				order.statusShipping === "Delivered" &&
 				order.markedDeliveredBy === "partner"
 			) {
-				order.statusOrder = "Not Delivered";
 				order.statusShipping = "Not Delivered";
 			}
 
@@ -917,7 +916,7 @@ class OrderController {
 				return;
 			}
 
-			order.statusOrder = "Shipped";
+			// order.statusOrder = "Shipped";
 			order.statusShipping = "Shipped";
 			order.logisticOperator = logisticOperator;
 			order.trackingCode = trackingCode;

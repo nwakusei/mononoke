@@ -141,7 +141,7 @@ function MyOrderByIDPage() {
 		setPackedLoading(false);
 	}
 
-	const statusShippingView = () => {
+	const translateOrderShipping = () => {
 		if (myorder?.statusShipping === "Pending") {
 			return "Pendente";
 		} else if (myorder?.statusShipping === "Packed") {
@@ -492,13 +492,7 @@ function MyOrderByIDPage() {
 						{/* Gadget 3 */}
 						<div className="bg-white text-black w-[325px] p-6 rounded-md shadow-md mt-4">
 							<h1 className="text-lg">{`Loja: ${myorder?.partnerName}`}</h1>
-							<h2>
-								{/* {myorder?.partnerCNPJ <= 11
-									? `CPF: ${myorder?.partnerCNPJ}`
-									: `CNPJ: ${myorder?.partnerCNPJ}`} */}
-
-								{`CNPJ/CPF: ${myorder?.partnerCNPJ}`}
-							</h2>
+							<h2>{`CNPJ/CPF: ${myorder?.partnerCNPJ}`}</h2>
 
 							<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
 
@@ -507,24 +501,22 @@ function MyOrderByIDPage() {
 								myorder.customerAddress.length > 0 &&
 								myorder.customerAddress.map((myAddress) => (
 									<div key={myAddress?._id || myAddress?.id}>
-										{" "}
-										{/* Garantia de chave única */}
-										<h1 className="text-lg mb-3">
+										<h1 className="text-lg font-semibold mb-3">
 											Endereço de entrega e cobrança
 										</h1>
-										<h2>Endereço: {myAddress?.street}</h2>{" "}
 										<h2>
-											Complemento: {myAddress?.complement}
-										</h2>
-										{/* Exibindo dados reais */}
-										<h2>
-											Bairro: {myAddress?.neighborhood}
+											{`Endereço: ${myAddress?.street}`}
 										</h2>
 										<h2>
-											Cidade/Estado: {myAddress?.city}/
-											{myAddress?.state}
+											{`Complemento: ${myAddress?.complement}`}
 										</h2>
-										<h2>CEP: {myAddress?.postalCode}</h2>
+										<h2>
+											{`Bairro: ${myAddress?.neighborhood}`}
+										</h2>
+										<h2>
+											{`Cidade/Estado: ${myAddress?.city}/${myAddress?.state}`}
+										</h2>
+										<h2>{`CEP: ${myAddress?.postalCode}`}</h2>
 									</div>
 								))}
 						</div>
@@ -544,7 +536,7 @@ function MyOrderByIDPage() {
 								) : (
 									`Custo do Frete: R$ 0,00`
 								)} */}
-								<div>{`Status: ${statusShippingView()}`}</div>
+								<div>{`Status: ${translateOrderShipping()}`}</div>
 								<div className="flex flex-row gap-2">
 									Cód. de Rastreio:
 									{myorder && myorder?.trackingCode ? (

@@ -798,7 +798,7 @@ function ProductPage() {
 										/>
 									</div>
 								</div>
-								<div className="flex flex-col">
+								<div className="flex flex-col text-black">
 									<div className="flex flex-row items-center gap-1 font-semibold text-lg">
 										<div className="text-black">
 											{partner?.name}
@@ -887,12 +887,12 @@ function ProductPage() {
 											</h1>
 										</div>
 									</div>
-									<div className="flex flex-row gap-2">
+									<div className="flex flex-row gap-2 text-black">
 										<div>
 											{buttonLoading ? (
 												<button
 													disabled
-													className="button w-[180px] h-[50px] bg-[#daa520] hover:bg-[#CD7F32] active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+													className="button w-[180px] h-[50px] bg-secondary text-white active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
 													<span className="loading loading-spinner loading-md"></span>
 												</button>
 											) : followedStores?.some(
@@ -902,20 +902,20 @@ function ProductPage() {
 											  ) ? (
 												<button
 													// Função para deixar de seguir - não implementada ainda
-													className="button w-[180px] h-[50px] follow bg-red-500 hover:bg-red-300 border-[1px] border-red-950 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
-													<span className="text-following">
+													className="button w-[180px] h-[50px] follow bg-secondary hover:bg-red-800 border-[1px] hover:border-red-900 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+													<span className="text-following text-white font-semibold">
 														Deixar de seguir
 													</span>
 													<span
 														onClick={handleUnfollow}
-														className="text-follow">
+														className="text-follow text-white font-semibold">
 														Seguindo
 													</span>
 												</button>
 											) : (
 												<button
 													onClick={handleFollow}
-													className="w-[180px] h-[50px] bg-violet-950 transition-all ease-in duration-100 hover:bg-yellow-500 text-white rounded-md shadow-md flex items-center justify-center">
+													className="w-[180px] h-[50px] bg-primary transition-all ease-in duration-100 hover:bg-secondary text-white font-semibold rounded-md shadow-md flex items-center justify-center">
 													Seguir Loja
 												</button>
 											)}
@@ -923,7 +923,7 @@ function ProductPage() {
 										<div className="">
 											{loadingButtonId ===
 											partner.nickname ? (
-												<button className="btn btn-primary w-[180px] h-[36px] rounded shadow-md">
+												<button className="btn btn-primary w-[180px] h-[50px] rounded shadow-md">
 													{/* <span className="loading loading-spinner loading-md"></span> */}
 													<span className="loading loading-dots loading-md"></span>
 												</button>
@@ -934,7 +934,7 @@ function ProductPage() {
 															partner.nickname
 														)
 													}
-													className="btn btn-secondary w-[180px] h-[36px] rounded-md shadow-md">
+													className="btn btn-secondary text-white w-[180px] h-[50px] rounded-md shadow-md">
 													Ver Loja
 												</button>
 											)}

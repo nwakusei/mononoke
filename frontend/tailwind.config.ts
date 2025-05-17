@@ -29,8 +29,6 @@ const config: Config = {
 
 					primary: "#7250b0",
 
-					// secondary: "#8357e5",
-
 					secondary: "#8f73cf",
 
 					accent: "#f471b5",
@@ -38,7 +36,6 @@ const config: Config = {
 					neutral: "#1d283a",
 
 					"base-100": "#0f1729",
-					"violet-950": "#2e1065",
 
 					info: "#0ca6e9",
 

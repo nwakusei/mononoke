@@ -208,9 +208,9 @@ function ChatPage() {
 					<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">
 						{/* Outro Saldos */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<div className="flex flex-row items-center gap-4">
+							<div className="flex flex-row items-center text-black gap-4">
 								<BsChatSquareText className="mt-1" size={18} />
-								<h1 className="text-2xl font-semibold text-black">
+								<h1 className="text-2xl font-semibold">
 									Chat App
 								</h1>
 							</div>
@@ -224,13 +224,14 @@ function ChatPage() {
 						{/* Comunicado */}
 						<div className="flex flex-row gap-2">
 							<FiInfo className="animate-pulse" size={25} />
-							<p className="text-base font-semibold text-black">
+							<p className="text-base font-semibold">
 								A funcionalidade de Chat ainda não está
 								funcionando 100%, portanto talvez seja
-								necessário recarregar esta página para obter
-								atualizações. Estamos trabalhando para melhorar
-								essa e todas as outras funcionalidades para as
-								próximas versões do site.
+								necessário intercalar entre os chats ou
+								recarregar esta página para obter atualizações.
+								Estamos trabalhando para melhorar essa e todas
+								as outras funcionalidades para as próximas
+								versões do site.
 							</p>
 						</div>
 					</div>
@@ -279,7 +280,7 @@ function ChatPage() {
 							<div
 								onClick={() => handleGetChat(returnedChat._id)}
 								key={returnedChat._id}
-								className="flex flex-row justify-between items-center text-black hover:text-white hover:bg-[#8357e5] transition-all ease-in duration-200 cursor-pointer px-4 py-2 gap-3">
+								className="flex flex-row justify-between items-center hover:text-white hover:bg-[#8357e5] transition-all ease-in duration-200 cursor-pointer px-4 py-2 gap-3">
 								<div className="flex flex-row items-center gap-2">
 									<div className="avatar online">
 										<div className="w-12 rounded-full">
@@ -464,7 +465,7 @@ function ChatPage() {
 												? user.nickname
 												: chat.userTwoNickname}
 											<time className="ml-1 text-xs opacity-50">
-												<time className="text-xs opacity-50 mt-1 mb-1">
+												<time className="text-xs text-gray-900 mt-1 mb-1">
 													{`${new Intl.DateTimeFormat(
 														"pt-BR",
 														{
@@ -490,11 +491,11 @@ function ChatPage() {
 												unoptimized
 											/>
 										) : (
-											<div className="chat-bubble bg-primary text-white break-words whitespace-pre-wrap">
+											<div className="chat-bubble bg-secondary text-white break-words whitespace-pre-wrap">
 												{message.message}
 											</div>
 										)}
-										<div className="chat-footer opacity-50 text-xs text-black flex flex-row items-center gap-1">
+										<div className="chat-footer text-xs text-gray-600 flex flex-row items-center gap-1">
 											Entregue <BsCheck2 size={16} />
 										</div>
 									</div>
@@ -570,7 +571,7 @@ function ChatPage() {
 									{sendButtonLoading ? (
 										<button
 											disabled
-											className="bg-blue-500 w-[100px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2">
+											className="bg-primary w-[100px] h-[40px] hover:active:scale-[.97] rounded shadow-md mt-2">
 											<span className="loading loading-dots loading-sm"></span>
 										</button>
 									) : (
