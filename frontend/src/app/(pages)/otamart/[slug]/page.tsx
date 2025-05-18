@@ -37,6 +37,7 @@ import { BsStar, BsStarHalf, BsStarFill, BsBagCheck } from "react-icons/bs";
 import { MdVerified } from "react-icons/md";
 import { ProductAdCard } from "@/components/ProductAdCard";
 import { CgBox } from "react-icons/cg";
+import { LiaGlobeAmericasSolid, LiaGlobeAsiaSolid } from "react-icons/lia";
 
 function ProductPage() {
 	const { slug } = useParams();
@@ -754,6 +755,11 @@ function ProductPage() {
 								</div>
 							)}
 
+							{/* <div className="flex flex-row items-center bg-secondary px-2 py-1 rounded shadow-md gap-2">
+								<LiaGlobeAmericasSolid size={22} />
+								<span>Compra Internacional</span>
+							</div> */}
+
 							{/* Variações */}
 							<ProductVariation
 								variations={product?.productVariations}
@@ -892,7 +898,7 @@ function ProductPage() {
 											{buttonLoading ? (
 												<button
 													disabled
-													className="button w-[180px] h-[50px] bg-secondary text-white active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center">
+													className="flex justify-center items-center button bg-secondary text-white active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md">
 													<span className="loading loading-spinner loading-md"></span>
 												</button>
 											) : followedStores?.some(
@@ -902,20 +908,20 @@ function ProductPage() {
 											  ) ? (
 												<button
 													// Função para deixar de seguir - não implementada ainda
-													className="button w-[180px] h-[50px] follow bg-secondary hover:bg-red-800 border-[1px] hover:border-red-900 active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
+													className="button follow bg-white hover:bg-red-800 border-[1px] border-primary hover:border-red-900  active:scale-[.95] transition-all ease-in duration-200 px-10 py-1 rounded-md shadow-md flex items-center justify-center relative">
 													<span className="text-following text-white font-semibold">
 														Deixar de seguir
 													</span>
 													<span
 														onClick={handleUnfollow}
-														className="text-follow text-white font-semibold">
+														className="text-follow text-primary font-semibold ">
 														Seguindo
 													</span>
 												</button>
 											) : (
 												<button
 													onClick={handleFollow}
-													className="w-[180px] h-[50px] bg-primary transition-all ease-in duration-100 hover:bg-secondary text-white font-semibold rounded-md shadow-md flex items-center justify-center">
+													className="button bg-primary transition-all ease-in duration-100 hover:bg-secondary text-white font-semibold rounded-md shadow-md flex items-center justify-center">
 													Seguir Loja
 												</button>
 											)}
@@ -923,8 +929,7 @@ function ProductPage() {
 										<div className="">
 											{loadingButtonId ===
 											partner.nickname ? (
-												<button className="btn btn-primary w-[180px] h-[50px] rounded shadow-md">
-													{/* <span className="loading loading-spinner loading-md"></span> */}
+												<button className="flex justify-center items-center button bg-secondary bg-opacity-80 text-white rounded shadow-md">
 													<span className="loading loading-dots loading-md"></span>
 												</button>
 											) : (
@@ -934,7 +939,7 @@ function ProductPage() {
 															partner.nickname
 														)
 													}
-													className="btn btn-secondary text-white w-[180px] h-[50px] rounded-md shadow-md">
+													className="button bg-secondary transition-all ease-in duration-100 hover:bg-opacity-80 text-white font-semibold rounded-md shadow-md">
 													Ver Loja
 												</button>
 											)}

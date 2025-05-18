@@ -868,14 +868,14 @@ function CreateProductPage() {
 				});
 			}
 
-			console.log("Aquivos validos", validFiles);
-
 			// // Adiciona a validação para garantir que pelo menos uma imagem foi selecionada
 			// if (validFiles.length === 0) {
 			// 	setError("imagesProduct", {
 			// 		message: "※ Insira pelo menos 1 imagem!",
 			// 	});
 			// }
+
+			// Limpa valor para permitir nova seleção
 		}
 	};
 
@@ -1298,8 +1298,91 @@ function CreateProductPage() {
 									Imagens do Produto
 								</h1>
 
-								<label className="form-control">
-									{/* Container das imagens */}
+								<div className="form-control">
+									<label
+										htmlFor="imagesProductInput"
+										className="label cursor-pointer">
+										<span className="label-text text-black">
+											Imagem Principal
+										</span>
+									</label>
+
+									<div className="flex flex-wrap items-center gap-2">
+										{selectedImagesProduct.map(
+											(imagem, index) => {
+												const imageUrl =
+													URL.createObjectURL(imagem);
+												return (
+													<div
+														key={index}
+														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded overflow-hidden">
+														<Image
+															src={imageUrl}
+															alt={`Imagem selecionada ${
+																index + 1
+															}`}
+															width={10}
+															height={10}
+															className="object-contain w-full h-full rounded-sm"
+														/>
+														<button
+															type="button"
+															className="absolute top-1 right-1 bg-red-500 text-white p-1 w-6 h-6 rounded z-50 flex items-center justify-center"
+															onClick={(e) => {
+																e.preventDefault();
+																handleRemoveImageProduct(
+																	index
+																);
+															}}>
+															X
+														</button>
+													</div>
+												);
+											}
+										)}
+
+										<div
+											className={`${
+												errors.imagesProduct
+													? `border-error`
+													: `border-[#3e1d88]`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
+											onClick={() => {
+												const input =
+													document.getElementById(
+														"imagesProductInput"
+													);
+												input?.click();
+											}}>
+											<span className="text-xs">
+												Add Imagem
+											</span>
+											<AddPicture size={20} />
+										</div>
+
+										<input
+											id="imagesProductInput"
+											type="file"
+											accept="image/*"
+											multiple
+											className="hidden"
+											{...register("imagesProduct")}
+											onChange={
+												handleSelectedImagesProduct
+											}
+										/>
+									</div>
+
+									<div className="label">
+										{errors.imagesProduct && (
+											<span className="label-text-alt text-red-500">
+												{errors.imagesProduct.message}
+											</span>
+										)}
+									</div>
+								</div>
+
+								{/* <label className="form-control">
 									<div className="label">
 										<span className="label-text text-black">
 											Imagem Principal
@@ -1314,20 +1397,21 @@ function CreateProductPage() {
 													<div
 														key={index}
 														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded overflow-hidden">
-														<img
+														<Image
 															src={imageUrl}
 															alt={`Imagem selecionada ${
 																index + 1
 															}`}
+															width={10}
+															height={10}
 															className="object-contain w-full h-full rounded-sm"
 														/>
 
-														{/* Botão para remover a imagem */}
 														<button
 															type="button"
 															className="absolute top-1 right-1 bg-red-500 text-white p-1 w-6 h-6 rounded z-50 flex items-center justify-center"
 															onClick={(e) => {
-																e.preventDefault(); // Evita submit acidental
+																e.preventDefault();
 																handleRemoveImageProduct(
 																	index
 																);
@@ -1339,7 +1423,6 @@ function CreateProductPage() {
 											}
 										)}
 
-										{/* Adiciona um input para selecionar novas imagens */}
 										<div
 											className={`${
 												errors.imagesProduct
@@ -1369,7 +1452,7 @@ function CreateProductPage() {
 											</span>
 										)}
 									</div>
-								</label>
+								</label> */}
 							</div>
 						</div>
 

@@ -21,7 +21,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 
 // Icons
 import { ShoppingCartOne, PaymentMethod } from "@icon-park/react";
-import { LiaShippingFastSolid } from "react-icons/lia";
+import { LiaGlobeAmericasSolid, LiaShippingFastSolid } from "react-icons/lia";
 import { GrLocation } from "react-icons/gr";
 import { FiInfo } from "react-icons/fi";
 import { LuCalendarClock } from "react-icons/lu";
@@ -808,20 +808,24 @@ function SideComponent({ selectedVariation }) {
 		<div>
 			{/* Componente Lateral D. */}
 			<div className="flex flex-col w-[300px]">
-				<div className="bg-white border-black border-solid border-[1px] border-opacity-20 rounded-lg shadow-md mb-2 mr-2">
+				<div className="flex flex-row items-center bg-secondary px-2 py-1 rounded-lg shadow-md gap-2 mr-2 mb-2">
+					<LiaGlobeAmericasSolid size={22} />
+					<span>Compra Internacional</span>
+				</div>
+				<div className="bg-white border-black border-solid border-[1px] border-opacity-20 rounded-lg shadow-md mr-2 mb-2">
 					<div className="px-4 mb-2">
 						<h1 className="text-black mb-1">Quantidade</h1>
 						<div className="flex flex-row justify-between items-center mb-2">
 							<div className="border border-black container w-[131px] rounded-md">
 								<div className="flex flex-row justify-between items-center h-[36px] gap-1">
 									<button
-										className={`flex flex-row items-center ml-1 px-[10px] bg-primary transition-all ease-in duration-100 text-white hover:opacity-70 hover:bg-secondary active:scale-[.97] rounded-md ${
+										className={`flex justify-center items-center w-[32px] h-[30px] ml-1 bg-primary transition-all ease-in duration-100 text-white hover:opacity-70 hover:bg-secondary active:scale-[.97] rounded-md ${
 											isQuantityOneOrLess
 												? "cursor-not-allowed"
 												: "cursor-pointer"
 										}`}
 										onClick={decrementarQuantidade}>
-										<span className="mb-1">-</span>
+										<span>-</span>
 									</button>
 									<input
 										className="text-lg text-center text-black bg-gray-300 w-[60px] h-[28px] rounded"
@@ -830,13 +834,13 @@ function SideComponent({ selectedVariation }) {
 										readOnly
 									/>
 									<button
-										className={`flex flex-row items-center mr-1 px-[8px] bg-primary transition-all ease-in duration-100 text-white hover:opacity-70 hover:bg-secondary active:scale-[.97] rounded-md ${
+										className={`flex justify-center items-center mr-1 w-[30px] h-[30px] bg-primary transition-all ease-in duration-100 text-white hover:opacity-70 hover:bg-secondary active:scale-[.97] rounded-md ${
 											isQuantityAtLimit
 												? "cursor-not-allowed"
 												: "cursor-pointer"
 										}`}
 										onClick={incrementarQuantidade}>
-										<span className="mb-1">+</span>
+										<span>+</span>
 									</button>
 								</div>
 							</div>
@@ -854,10 +858,6 @@ function SideComponent({ selectedVariation }) {
 									`${stock} un disponíveis`}
 							</div>
 						</div>
-
-						{/* <div>
-							<h3>Estoque: {selectedVariation}</h3>
-						</div> */}
 
 						<div className="flex flex-row justify-between mb-2">
 							<div className="font-semibold text-black">

@@ -1,39 +1,39 @@
 .button-container {
-  display: flex;
+	display: flex;
 }
 
 .button {
-  position: relative;
-  width: 180px !important;
-  height: 50px !important;
+	position: relative;
+	width: 200px !important;
+	height: 50px !important;
 }
 
 .text-follow,
 .text-following {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.3s ease;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: opacity 0.3s ease;
 }
 
 .text-following {
-  opacity: 0; /* Inicialmente invisível para o botão "Seguir" */
+	opacity: 0; /* Inicialmente invisível para o botão "Seguir" */
 }
 
 .text-follow {
-  opacity: 1; /* Inicialmente visível para o botão "Deixar de seguir" */
+	opacity: 1; /* Inicialmente visível para o botão "Deixar de seguir" */
 }
 
 /* Opacidade do texto no hover */
 .button:hover .text-follow {
-  opacity: 0; /* Torna o texto "Seguir" invisível quando o botão é hover */
+	opacity: 0; /* Torna o texto "Seguir" invisível quando o botão é hover */
 }
 
 .button:hover .text-following {
-  opacity: 1; /* Torna o texto "Deixar de seguir" visível quando o botão é hover */
+	opacity: 1; /* Torna o texto "Deixar de seguir" visível quando o botão é hover */
 }
