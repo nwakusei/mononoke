@@ -321,19 +321,6 @@ function Navbar() {
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
-														<RiCopperCoinLine
-															size={18}
-														/>
-														OtaClub
-													</span>
-													<span className="badge badge-secondary border text-white border-white">
-														New
-													</span>
-												</a>
-											</li>
-											<li>
-												<a className="flex flex-row items-center justify-between text-white">
-													<span className="flex flex-row items-center gap-2">
 														<Blockchain size={20} />
 														OtaCrypto
 													</span>
@@ -727,19 +714,6 @@ function Navbar() {
 										<ul
 											tabIndex={0}
 											className="menu menu-sm dropdown-content mt-[23px] z-[99] p-2 text-white shadow-md bg-primary rounded-box w-52">
-											<li>
-												<a className="flex flex-row items-center justify-between text-white">
-													<span className="flex flex-row items-center gap-2">
-														<RiCopperCoinLine
-															size={18}
-														/>
-														OtaClub
-													</span>
-													<span className="badge badge-secondary text-white border border-white">
-														New
-													</span>
-												</a>
-											</li>
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">

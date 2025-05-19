@@ -35,7 +35,7 @@ import imageProfile from "../../../../../public/kon.jpg";
 import { Currency, Peoples } from "@icon-park/react";
 import { BsStar, BsStarHalf, BsStarFill, BsBagCheck } from "react-icons/bs";
 import { MdVerified } from "react-icons/md";
-import { ProductAdCard } from "@/components/ProductAdCard";
+import { ProductAdCardOtamart } from "@/components/ProductAdCardOtamart";
 import { CgBox } from "react-icons/cg";
 import { LiaGlobeAmericasSolid, LiaGlobeAsiaSolid } from "react-icons/lia";
 
@@ -1094,7 +1094,7 @@ function ProductPage() {
 											: 0;
 
 										return (
-											<ProductAdCard
+											<ProductAdCardOtamart
 												key={recommendedProduct._id}
 												viewAdultContent={
 													user?.viewAdultContent

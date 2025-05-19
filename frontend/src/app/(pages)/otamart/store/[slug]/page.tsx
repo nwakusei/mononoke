@@ -35,7 +35,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { BsCheck2All, BsCheck2 } from "react-icons/bs";
 
 // Components
-import { ProductAdCard } from "@/components/ProductAdCard";
+import { ProductAdCard } from "@/components/ProductAdCardOtamart";
 import { MiniCouponCard } from "@/components/MiniCouponCard";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { LoadingPage } from "@/components/LoadingPageComponent";

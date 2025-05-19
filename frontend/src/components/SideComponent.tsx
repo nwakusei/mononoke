@@ -808,7 +808,7 @@ function SideComponent({ selectedVariation }) {
 		<div>
 			{/* Componente Lateral D. */}
 			<div className="flex flex-col w-[300px]">
-				<div className="flex flex-row items-center bg-secondary px-2 py-1 rounded-lg shadow-md gap-2 mr-2 mb-2">
+				<div className="flex flex-row items-center bg-primary px-2 py-1 rounded-lg shadow-md gap-2 mr-2 mb-2">
 					<LiaGlobeAmericasSolid size={22} />
 					<span>Compra Internacional</span>
 				</div>

@@ -18,18 +18,20 @@ import DOMPurify from "dompurify";
 import { Sidebar } from "@/components/Sidebar";
 
 // Icons
-import { Coupon, Key, Selected } from "@icon-park/react";
-import { GoLinkExternal } from "react-icons/go";
-import { CiWarning } from "react-icons/ci";
-import { FaPercent } from "react-icons/fa";
 import { LuCalendarRange } from "react-icons/lu";
 import { BsPersonFill } from "react-icons/bs";
 import { LoadingPage } from "@/components/LoadingPageComponent";
-import { AddPicture, Weight } from "@icon-park/react";
+import { AddPicture } from "@icon-park/react";
+
+// Stub para evitar ReferenceError no NodeJS
+if (typeof window === "undefined") {
+	// estamos no Node → cria um placeholder vazio só p/ evitar ReferenceError
+	(global as any).FileList = class {};
+}
 
 // React Hook Form, Zod e ZodResolver
 import { useForm } from "react-hook-form";
-import { setErrorMap, z } from "zod";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const today = new Date().toISOString().split("T")[0];
@@ -337,25 +339,10 @@ function CreateRafflePage() {
 		});
 	}, [token]);
 
-	// const handleImagemSelecionada = (
-	// 	event: React.ChangeEvent<HTMLInputElement>
-	// ) => {
-	// 	const file = event.target.files?.[0];
-	// 	if (file) {
-	// 		const reader = new FileReader();
-	// 		reader.onload = () => {
-	// 			setImagemSelecionada(reader.result);
-	// 		};
-	// 		reader.readAsDataURL(file);
-	// 	}
-	// };
-
 	const handleSelectedImages = (
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const files = event.target.files;
-
-		console.log("Arquivos", files);
 
 		if (files) {
 			const fileArray = Array.from(files);
@@ -417,22 +404,49 @@ function CreateRafflePage() {
 		});
 	};
 
-	async function handleCreateRaffle(CouponData: { [key: string]: any }) {
+	async function handleCreateRaffle(RaffleData: { [key: string]: any }) {
 		setLoadingButton(true);
+
+		// Sanitiza os dados antes de usar
+		const sanitizedData = Object.fromEntries(
+			Object.entries(RaffleData).map(([key, value]) => {
+				if (typeof value === "string") {
+					return [key, DOMPurify.sanitize(value)];
+				}
+				return [key, value];
+			})
+		);
+
+		console.log("Dados sanitizados:", sanitizedData);
 
 		const formData = new FormData();
 
-		// Campos de texto (exceto as imagens)
-		Object.entries(RaffleData).forEach(([key, value]) => {
+		// Adiciona os campos texto no FormData (exceto as imagens)
+		Object.entries(sanitizedData).forEach(([key, value]) => {
 			if (key !== "imagesRaffle") {
 				formData.append(key, value);
 			}
 		});
 
-		// Usa selectedImages para enviar ao invés do RaffleData.imagesRaffle
+		// Validação simples: pelo menos 1 imagem selecionada
+		if (selectedImages.length === 0) {
+			setLoadingButton(false);
+			setError("imagesRaffle", {
+				message: "※ Insira pelo menos 1 imagem!",
+			});
+			return;
+		}
+
+		// Adiciona as imagens ao FormData
 		selectedImages.forEach((image: File) => {
 			formData.append("imagesRaffle", image);
 		});
+
+		// Debug do FormData (opcional)
+		console.log("Conteúdo do FormData:");
+		for (let [key, value] of formData.entries()) {
+			console.log(`${key}:`, value);
+		}
 
 		try {
 			const response = await api.post(
@@ -451,7 +465,7 @@ function CreateRafflePage() {
 
 			return response.data;
 		} catch (error: any) {
-			setLoadingButton(false); // Garante que o botão volte mesmo com erro
+			setLoadingButton(false);
 			toast.error(error.response?.data?.message || "Erro ao criar rifa.");
 			return error.response?.data;
 		}
@@ -840,7 +854,7 @@ function CreateRafflePage() {
 											</div>
 
 											<select
-												className={`select select-bordered ${getFieldClass(
+												className={`w-[220px] select select-bordered ${getFieldClass(
 													"adultRaffle",
 													"select"
 												)}`}
@@ -889,8 +903,87 @@ function CreateRafflePage() {
 									Imagens do Sorteio
 								</h1>
 
-								<label className="form-control">
-									{/* Container das imagens */}
+								<div className="form-control">
+									<label
+										htmlFor="imagesProductInput"
+										className="label cursor-pointer">
+										<span className="label-text text-black">
+											Imagem Principal
+										</span>
+									</label>
+
+									<div className="flex flex-wrap items-center gap-2">
+										{selectedImages.map((imagem, index) => {
+											const imageUrl =
+												URL.createObjectURL(imagem);
+											return (
+												<div
+													key={index}
+													className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded overflow-hidden">
+													<Image
+														src={imageUrl}
+														alt={`Imagem selecionada ${
+															index + 1
+														}`}
+														width={10}
+														height={10}
+														className="object-contain w-full h-full rounded-sm"
+													/>
+													<button
+														type="button"
+														className="absolute top-1 right-1 bg-red-500 text-white p-1 w-6 h-6 rounded z-50 flex items-center justify-center"
+														onClick={(e) => {
+															e.preventDefault();
+															handleRemoveImageProduct(
+																index
+															);
+														}}>
+														X
+													</button>
+												</div>
+											);
+										})}
+
+										<div
+											className={`${
+												errors.imagesRaffle
+													? `border-error`
+													: `border-[#3e1d88]`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
+											onClick={() => {
+												const input =
+													document.getElementById(
+														"imagesRaffleInput"
+													);
+												input?.click();
+											}}>
+											<span className="text-xs">
+												Add Imagem
+											</span>
+											<AddPicture size={20} />
+										</div>
+
+										<input
+											id="imagesRaffleInput"
+											type="file"
+											accept="image/*"
+											multiple
+											className="hidden"
+											{...register("imagesRaffle")}
+											onChange={handleSelectedImages}
+										/>
+									</div>
+
+									<div className="label">
+										{errors.imagesRaffle && (
+											<span className="label-text-alt text-red-500">
+												{errors.imagesRaffle.message}
+											</span>
+										)}
+									</div>
+								</div>
+
+								{/* <label className="form-control">
 									<div className="label">
 										<span className="label-text text-black">
 											Imagem Principal
@@ -912,7 +1005,6 @@ function CreateRafflePage() {
 														className="object-contain w-full h-full rounded-sm"
 													/>
 
-													{/* Botão para remover a imagem */}
 													<button
 														type="button"
 														className="absolute top-1 right-1 bg-red-500 text-white p-1 w-6 h-6 rounded z-50 flex items-center justify-center"
@@ -928,7 +1020,6 @@ function CreateRafflePage() {
 											);
 										})}
 
-										{/* Adiciona um input para selecionar novas imagens */}
 										<div
 											className={`${
 												errors.imagesRaffle
@@ -956,53 +1047,9 @@ function CreateRafflePage() {
 											</span>
 										)}
 									</div>
-								</label>
+								</label> */}
 							</div>
 						</div>
-
-						{/* Gadget 3 */}
-						{/* <div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
-							<div className="flex flex-col gap-2 ml-6 mb-6">
-								<h1 className="text-2xl font-semibold text-black">
-									Importante!
-								</h1>
-
-								<div className="flex flex-row border-[1px] border-dashed border-primary rounded-md p-4 gap-2">
-									<span className="flex items-center w-[650px] h-auto justify-center bg-yellow-500 rounded mr-4">
-										<CiWarning
-											className="text-black"
-											size={80}
-										/>
-									</span>
-									<p className="text-black">
-										Atenção: Criar cupons de desconto é uma
-										função PAGA. Esse é um serviço de
-										marketing que permite criar cupons para
-										atrair mais clientes, com a opção de
-										direcionar para o seu site caso possua
-										um. Também exibimos em uma área
-										exclusiva em nosso aumentando a
-										visibilidade da sua loja, além de
-										divulgação em redes sociais de acordo
-										com regras estratégicas. 1. Os cupons
-										serão válidos tanto em seu site quanto
-										em sua loja no OtaMart. 2. O comprador
-										só receberá os cashbacks caso faça o
-										pagamento usando OtakuPay.
-										<Link
-											className="flex flex-row items-center gap-2 text-primary transition-all ease-in duration-200 hover:text-secondary"
-											href="https://www.kangu.com.br/ponto-kangu/"
-											target="_blank">
-											<span>
-												Valor Cobrado por Cupom criado:
-												R$ 19,90
-											</span>
-											<GoLinkExternal size={18} />
-										</Link>
-									</p>
-								</div>
-							</div>
-						</div> */}
 
 						{/* Gadget 4 */}
 						<div className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4">

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 
 // ToastFy
@@ -27,8 +26,14 @@ import { IoCalendarNumberOutline } from "react-icons/io5";
 import { GiWeight } from "react-icons/gi";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
+// Stub para evitar ReferenceError no NodeJS
+if (typeof window === "undefined") {
+	// estamos no Node → cria um placeholder vazio só p/ evitar ReferenceError
+	(global as any).FileList = class {};
+}
+
 // React Hook Form, Zod e ZodResolver
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -827,8 +832,6 @@ function CreateProductPage() {
 	) => {
 		const files = event.target.files;
 
-		console.log("Aquivos", files);
-
 		if (files) {
 			const fileArray = Array.from(files); // Converte o FileList em um array
 
@@ -867,15 +870,6 @@ function CreateProductPage() {
 						: "Nenhuma imagem válida selecionada!",
 				});
 			}
-
-			// // Adiciona a validação para garantir que pelo menos uma imagem foi selecionada
-			// if (validFiles.length === 0) {
-			// 	setError("imagesProduct", {
-			// 		message: "※ Insira pelo menos 1 imagem!",
-			// 	});
-			// }
-
-			// Limpa valor para permitir nova seleção
 		}
 	};
 
@@ -997,14 +991,6 @@ function CreateProductPage() {
 								option.imageUrl
 							);
 						}
-
-						// // Adicionar imagem da variação se existir (para array de File)
-						// if (option.imageUrl && option.imageUrl[0]) {
-						// 	formData.append(
-						// 		`productVariations[${index}][options][${optionIndex}][imageUrl]`,
-						// 		option.imageUrl[0]
-						// 	);
-						// }
 					});
 				});
 			} else if (key !== "imagesProduct") {
@@ -1458,8 +1444,8 @@ function CreateProductPage() {
 
 						{displayVariations ? (
 							<div className="bg-white w-[1200px] p-6 rounded-md mr-4 mb-4">
-								<div className="flex flex-col gap-2 ml-6 mb-6">
-									<h1 className="text-2xl font-semibold text-black mb-3">
+								<div className="flex flex-col text-black ml-6 mb-6 gap-2">
+									<h1 className="text-2xl font-semibold mb-3">
 										Variações
 									</h1>
 
@@ -2195,7 +2181,7 @@ function CreateProductPage() {
 																	)
 																)}
 																<button
-																	className="border-dashed border-[1px] border-primary hover:bg-primary transition-all ease-in duration-200 py-3 rounded-md w-[200px]"
+																	className="border-dashed border-[1px] border-primary hover:bg-primary hover:text-white transition-all ease-in duration-200 py-3 hover:shadow-md rounded-md w-[200px]"
 																	type="button"
 																	onClick={() => {
 																		const newOptions =
@@ -2231,7 +2217,7 @@ function CreateProductPage() {
 														)
 													)}
 												<button
-													className="border-dashed border-[1px] border-primary hover:bg-primary transition-all ease-in duration-200 py-3 rounded-md w-[200px]"
+													className="border-dashed border-[1px] border-primary hover:bg-primary hover:text-white transition-all ease-in duration-200 py-3 hover:shadow-md rounded-md w-[200px]"
 													type="button"
 													onClick={() => {
 														// Garante que value é sempre um array
@@ -2865,7 +2851,7 @@ function CreateProductPage() {
 									</label>
 								</div>
 
-								<div className="flex flex-row items-center mb-6">
+								<div className="flex flex-row items-center ">
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
 											<span className="label-text text-black">
@@ -3016,31 +3002,6 @@ function CreateProductPage() {
 										</div>
 									</label>
 								</div>
-								<div className="flex flex-row border-[1px] border-dashed border-sky-700 rounded p-4 gap-2">
-									<span className="flex items-center w-[130px] h-auto justify-center bg-yellow-500 rounded mr-4">
-										<CiWarning
-											className="text-black"
-											size={50}
-										/>
-									</span>
-									<p className="text-black">
-										Atenção: O pacote deverá ser postado em
-										um ponto de coleta da Kangu mesmo quando
-										a etiqueta for dos Correios. Verifique
-										os pontos mais próximos do seu endereço
-										no site da Kangu! Acesse o site para
-										maiores informações ≫{" "}
-										<Link
-											className="flex flex-row items-center gap-2 text-purple-300 transition-all ease-in duration-200 hover:text-purple-500"
-											href="https://www.kangu.com.br/ponto-kangu/"
-											target="_blank">
-											<span>
-												Pontos Kangu - Site Oficial
-											</span>
-											<GoLinkExternal size={18} />
-										</Link>
-									</p>
-								</div>
 							</div>
 						</div>
 						{/* Gadget 2 */}
@@ -3068,7 +3029,7 @@ function CreateProductPage() {
 									) : (
 										<button
 											type="submit"
-											className="btn btn-primary w-[150px] shadow-md">
+											className="btn btn-primary w-[200px] shadow-md">
 											Publicar Produto
 										</button>
 									)}

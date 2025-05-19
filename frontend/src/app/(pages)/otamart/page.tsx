@@ -11,7 +11,7 @@ import api from "@/utils/api";
 import { Context } from "@/context/UserContext";
 
 // Components
-import { ProductAdCard } from "@/components/ProductAdCard";
+import { ProductAdCardOtamart } from "@/components/ProductAdCardOtamart";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 import { CategoryButton } from "@/components/CategoryButton";
 
@@ -265,7 +265,7 @@ function OtamartPage() {
 							const cashback = partner ? partner.cashback : 0;
 
 							return (
-								<ProductAdCard
+								<ProductAdCardOtamart
 									key={categoryProduct._id}
 									viewAdultContent={user?.viewAdultContent}
 									product={categoryProduct}
@@ -305,7 +305,7 @@ function OtamartPage() {
 							const cashback = partner ? partner.cashback : 0;
 
 							return (
-								<ProductAdCard
+								<ProductAdCardOtamart
 									key={`returned-${returnedProduct._id}`}
 									viewAdultContent={user?.viewAdultContent}
 									product={returnedProduct}
@@ -348,7 +348,7 @@ function OtamartPage() {
 							const cashback = partner ? partner.cashback : 0;
 
 							return (
-								<ProductAdCard
+								<ProductAdCardOtamart
 									key={`product-${product._id}`}
 									viewAdultContent={user?.viewAdultContent}
 									product={product}
