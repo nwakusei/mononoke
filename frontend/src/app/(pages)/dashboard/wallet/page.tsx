@@ -283,7 +283,7 @@ function WalletPage() {
 						</div>
 					</div>
 				</div>
-				<div className="flex flex-col gap-4">
+				<div className="flex flex-col gap-4 mb-4">
 					{cryptocurrencyBalance &&
 						cryptocurrencyBalance.length > 0 && (
 							<div className="flex flex-row w-[1200px]">
@@ -311,10 +311,10 @@ function WalletPage() {
 							cryptocurrencyBalance.map((cryptoBalance) => (
 								<div
 									key={cryptoBalance?._id}
-									className="bg-white w-[300px] h-[120px] p-6 rounded-md shadow-md mr-4">
+									className="bg-white w-[350px] h-[120px] p-6 rounded-md shadow-md mr-4">
 									{/* Saldos de Cryptos */}
 
-									<div className="flex flex-row gap-4">
+									<div className="flex flex-row gap-8">
 										<div>
 											<h2 className="text-sm text-black">
 												{`${cryptoBalance?.cryptocurrencyName} Disponível`}

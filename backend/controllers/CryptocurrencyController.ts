@@ -563,6 +563,38 @@ class CryptocurrencyController {
 			console.log(error);
 		}
 	}
+
+	static async getAllCryptocurrencies(req: Request, res: Response) {
+		try {
+			const cryptocurrencies = await CryptcurrencyModel.find();
+
+			res.status(200).json({
+				message: "Retornando todas as Criptomoedas",
+				cryptocurrencies,
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ message: "Erro ao buscar criptomoedas" });
+		}
+	}
+
+	static async getCryptocurrencyByID(req: Request, res: Response) {
+		try {
+			const { id } = req.params;
+
+			const cryptocurrency = await CryptcurrencyModel.findById(id); // ✅ Use await e findById
+
+			if (!cryptocurrency) {
+				res.status(404).json({ message: "Criptomoeda não encontrada" });
+				return;
+			}
+
+			res.status(200).json({ cryptocurrency }); // Agora é seguro fazer isso
+		} catch (error) {
+			console.error(error);
+			res.status(500).json({ message: "Erro ao buscar criptomoeda" });
+		}
+	}
 }
 
 export default CryptocurrencyController;

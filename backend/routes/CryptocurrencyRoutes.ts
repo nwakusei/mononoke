@@ -34,5 +34,14 @@ router.get(
 	verifyToken,
 	CryptocurrencyController.getCryptocurrencyBalanceByCustomer
 );
+router.get(
+	"/get-all-cryptocurrencies",
+	CryptocurrencyController.getAllCryptocurrencies
+);
+
+router.get(
+	"/get-cryptocurrency/:id",
+	CryptocurrencyController.getCryptocurrencyByID
+);
 
 export default router;

@@ -319,7 +319,9 @@ function Navbar() {
 											tabIndex={0}
 											className="menu menu-sm dropdown-content mt-[23px] z-[99] p-2 shadow-md bg-primary rounded-box w-52">
 											<li>
-												<a className="flex flex-row items-center justify-between text-white">
+												<Link
+													href="/otacrypto"
+													className="flex flex-row justify-between items-center text-white active:!bg-secondary">
 													<span className="flex flex-row items-center gap-2">
 														<Blockchain size={20} />
 														OtaCrypto
@@ -327,7 +329,7 @@ function Navbar() {
 													<span className="badge badge-secondary text-white border border-white">
 														New
 													</span>
-												</a>
+												</Link>
 											</li>
 											<li>
 												<a className="flex flex-row items-center justify-between text-white">

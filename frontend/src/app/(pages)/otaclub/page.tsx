@@ -223,7 +223,8 @@ function OtaclubPage() {
 						</span>
 					</div>
 				)}
-				<div className="flex flex-row justify-center">
+
+				{/* <div className="flex flex-row justify-center">
 					<label className="input input-bordered input-primary flex items-center w-[1072px] gap-2 mb-8">
 						<input
 							type="text"
@@ -246,7 +247,7 @@ function OtaclubPage() {
 							/>
 						</svg>
 					</label>
-				</div>
+				</div> */}
 
 				<div className="flex flex-row flex-wrap gap-4 justify-center">
 					{noResults ? (
@@ -381,90 +382,6 @@ function OtaclubPage() {
 							);
 						})
 					)}
-
-					{/* ESSE CÓDIGO DE RETORNO DE PRODUTO FUNCIONA, MAS AO DEIXAR ASSIM EU TERIA PROBLEMAS COM O RETORNO DE INFO PARA CATEGORIA */}
-					{/* {noResults ? (
-						<div className="min-h-screen">
-							<p className="text-black text-center bg-white p-4 w-[500px] rounded-md shadow-md">
-								Produto não encontrado!
-							</p>
-						</div>
-					) : returnedProducts.length > 0 ? (
-						returnedProducts.map((returnedProduct) => {
-							const partner = partners.find(
-								(partner) =>
-									partner._id === returnedProduct.partnerID
-							);
-							const cashback = partner ? partner.cashback : 0;
-
-							return (
-								<ProductAdCard
-									key={returnedProduct._id}
-									product={returnedProduct}
-									freeShipping={returnedProduct.freeShipping}
-									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
-									title={returnedProduct.productTitle}
-									originalPrice={Number(
-										returnedProduct.originalPrice
-									)}
-									promotionalPrice={Number(
-										returnedProduct.promotionalPrice
-									)}
-									price={Number(
-										returnedProduct.originalPrice
-									)}
-									promoPrice={Number(
-										returnedProduct.promotionalPrice
-									)}
-									cashback={cashback}
-									rating={returnedProduct.rating}
-									quantitySold={
-										returnedProduct.productsSold > 1
-											? `${returnedProduct.productsSold} Vendidos`
-											: `${returnedProduct.productsSold} Vendido`
-									}
-									linkProductPage={`/otamart/${returnedProduct.slugTitle}`}
-								/>
-							);
-						})
-					) : (
-						products &&
-						products.length > 0 &&
-						products.map((product) => {
-							const partner = partners.find(
-								(partner) => partner._id === product.partnerID
-							);
-							const cashback = partner ? partner.cashback : 0;
-
-							return (
-								<ProductAdCard
-									key={product._id}
-									product={product}
-									freeShipping={product.freeShipping}
-									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
-									title={product.productTitle}
-									originalPrice={Number(
-										product.originalPrice
-									)}
-									promotionalPrice={Number(
-										product.promotionalPrice
-									)}
-									price={Number(product.originalPrice)}
-									promoPrice={Number(
-										product.promotionalPrice
-									)}
-									cashback={cashback}
-									rating={product.rating}
-									quantitySold={
-										product.productsSold > 1
-											? `${product.productsSold} Vendidos`
-											: `${product.productsSold} Vendido`
-									}
-									linkProductPage={`/otamart/${product.slugTitle}`}
-								/>
-							);
-						})
-					)} */}
 				</div>
 			</div>
 		</section>
