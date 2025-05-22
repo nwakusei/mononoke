@@ -8,7 +8,9 @@ import { ObjectId } from "mongodb";
 import { OtakupayModel } from "../models/OtakupayModel.js";
 import { PartnerModel } from "../models/PartnerModel.js";
 import { ProductModel } from "../models/ProductModel.js";
+import { ProductOtaclubModel } from "../models/ProductOtaclubModel.js";
 import { OrderModel } from "../models/OrderModel.js";
+import { OrderOtaclubModel } from "../models/OrderOtaclubModel.js";
 import { PaymentPixOtakuPayModel } from "../models/PixOtakuPayModel.js";
 // import { CustomerModel } from "../models/CustomerModel.js";
 
@@ -1549,91 +1551,91 @@ class OtakupayController {
 		}
 	}
 
-	// Requisição para enviar a Public Key Stripe para o frontend, segundo o tutorial
-	static async stripeSendPublicKey(req: Request, res: Response) {
-		res.send({
-			publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-		});
-	}
+	// // Requisição para enviar a Public Key Stripe para o frontend, segundo o tutorial
+	// static async stripeSendPublicKey(req: Request, res: Response) {
+	// 	res.send({
+	// 		publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+	// 	});
+	// }
 
-	// Requisição para criar uma intenção de pagamento
-	static async createPaymentIntent(req: Request, res: Response) {
-		try {
-			const paymentIntent = await stripe.paymentIntents.create({
-				currency: "brl",
-				amount: 5999,
-				automatic_payment_methods: {
-					enabled: true,
-				},
-			});
+	// // Requisição para criar uma intenção de pagamento
+	// static async createPaymentIntent(req: Request, res: Response) {
+	// 	try {
+	// 		const paymentIntent = await stripe.paymentIntents.create({
+	// 			currency: "brl",
+	// 			amount: 5999,
+	// 			automatic_payment_methods: {
+	// 				enabled: true,
+	// 			},
+	// 		});
 
-			res.send({ clientSecret: paymentIntent.client_secret });
-		} catch (e: any) {
-			return res.status(400).send({
-				error: {
-					message: e.message,
-				},
-			});
-		}
-	}
+	// 		res.send({ clientSecret: paymentIntent.client_secret });
+	// 	} catch (e: any) {
+	// 		return res.status(400).send({
+	// 			error: {
+	// 				message: e.message,
+	// 			},
+	// 		});
+	// 	}
+	// }
 
-	static async creditCardOtamart(req: Request, res: Response) {
-		const sig = req.headers["stripe-signature"];
+	// static async creditCardOtamart(req: Request, res: Response) {
+	// 	const sig = req.headers["stripe-signature"];
 
-		const endpointSecret = "whsec_ocjQAeul3AsdiQowTFPgEmcBj91bmm94";
+	// 	const endpointSecret = "whsec_ocjQAeul3AsdiQowTFPgEmcBj91bmm94";
 
-		try {
-			if (!sig) {
-				console.error("Missing Stripe signature.");
-				return res.status(400).json({
-					success: false,
-					message: "Missing Stripe signature",
-				});
-			}
+	// 	try {
+	// 		if (!sig) {
+	// 			console.error("Missing Stripe signature.");
+	// 			return res.status(400).json({
+	// 				success: false,
+	// 				message: "Missing Stripe signature",
+	// 			});
+	// 		}
 
-			const payload = req.body;
+	// 		const payload = req.body;
 
-			let event;
+	// 		let event;
 
-			try {
-				event = stripe.webhooks.constructEvent(
-					payload,
-					sig,
-					endpointSecret
-				);
-			} catch (err: any) {
-				console.error(
-					`Webhook signature verification failed: ${err.message}`
-				);
-				return res.status(400).json({
-					success: false,
-					message: `Webhook signature verification failed: ${err.message}`,
-				});
-			}
+	// 		try {
+	// 			event = stripe.webhooks.constructEvent(
+	// 				payload,
+	// 				sig,
+	// 				endpointSecret
+	// 			);
+	// 		} catch (err: any) {
+	// 			console.error(
+	// 				`Webhook signature verification failed: ${err.message}`
+	// 			);
+	// 			return res.status(400).json({
+	// 				success: false,
+	// 				message: `Webhook signature verification failed: ${err.message}`,
+	// 			});
+	// 		}
 
-			// Tratar diferentes tipos de eventos
-			switch (event.type) {
-				case "payment_intent.canceled":
-					console.log("Pagamento cancelado:", event);
-					// Aqui você pode definir e chamar uma função para lidar com o evento de pagamento cancelado
-					break;
-				case "payment_intent.succeeded":
-					console.log("Pagamento Realizado com sucesso!", event);
-					// Aqui você pode definir e chamar uma função para lidar com o evento de pagamento realizado com sucesso
-					break;
-				default:
-					console.log(`Unhandled event type ${event.type}`);
-			}
+	// 		// Tratar diferentes tipos de eventos
+	// 		switch (event.type) {
+	// 			case "payment_intent.canceled":
+	// 				console.log("Pagamento cancelado:", event);
+	// 				// Aqui você pode definir e chamar uma função para lidar com o evento de pagamento cancelado
+	// 				break;
+	// 			case "payment_intent.succeeded":
+	// 				console.log("Pagamento Realizado com sucesso!", event);
+	// 				// Aqui você pode definir e chamar uma função para lidar com o evento de pagamento realizado com sucesso
+	// 				break;
+	// 			default:
+	// 				console.log(`Unhandled event type ${event.type}`);
+	// 		}
 
-			// Retornar uma resposta bem-sucedida
-			return res.status(200).json({ received: true });
-		} catch (error: any) {
-			console.error(`Webhook Error: ${error.message}`);
-			return res
-				.status(400)
-				.json({ success: false, message: error.message });
-		}
-	}
+	// 		// Retornar uma resposta bem-sucedida
+	// 		return res.status(200).json({ received: true });
+	// 	} catch (error: any) {
+	// 		console.error(`Webhook Error: ${error.message}`);
+	// 		return res
+	// 			.status(400)
+	// 			.json({ success: false, message: error.message });
+	// 	}
+	// }
 
 	static async PaymentCreditcardMP(req: Request, res: Response) {
 		const idempotencyKey = req.headers["x-idempotency-key"];
@@ -5960,6 +5962,137 @@ class OtakupayController {
 
 	static async withdrawMoney(req: Request, res: Response) {
 		res.status(200).json({ message: "Funcionalidade em desenvolvimento!" });
+	}
+
+	static async swapOtaclub(req: Request, res: Response) {
+		const { product, customerAddress } = req.body;
+
+		// Verificar se o produto foi enviado para a requisição
+		if (!product || product.length === 0) {
+			res.status(404).json({
+				error: "Nenhum produto encontrado na requisição!",
+			});
+			return;
+		}
+
+		// Verificar se o endereço foi enviado para a requisição
+		if (!customerAddress || customerAddress.length === 0) {
+			res.status(404).json({
+				error: "Nenhum produto encontrado na requisição!",
+			});
+			return;
+		}
+
+		// Pegar o Customer logado que irá realizar o pagamento
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!(customer instanceof CustomerModel)) {
+			res.status(422).json({
+				message: "Usuário não encontrado ou não é um cliente válido!",
+			});
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
+			res.status(422).json({
+				message:
+					"Usuário sem permissão para realizar este tipo de transação!",
+			});
+			return;
+		}
+
+		const customerOtakupay = await OtakupayModel.findById(
+			customer.otakupayID
+		);
+
+		if (!customerOtakupay) {
+			res.status(422).json({
+				message: "OtakuPay do Customer não localizado!",
+			});
+			return;
+		}
+
+		console.log(customerOtakupay);
+
+		if (!customer.cpf || customer.cpf == "") {
+			res.status(422).json({
+				message: "CPF inválido, atualize antes de prosseguir!",
+			});
+			return;
+		}
+
+		try {
+			const customerOtakuPointsAvailableEncrypted =
+				customerOtakupay.otakuPointsAvailable;
+
+			const customerOtakuPointAvailableDecrypted = decrypt(
+				customerOtakuPointsAvailableEncrypted
+			)?.toFixed(2);
+
+			if (!customerOtakuPointAvailableDecrypted) {
+				res.status(422).json({
+					message: "Otaku Points Available não encontrado!",
+				});
+				return;
+			}
+
+			if (customerOtakuPointAvailableDecrypted < product.price) {
+				res.status(422).json({ message: "Otaku Points insuficiente!" });
+				return;
+			}
+
+			const newCustomerOtakuPointsAvailable =
+				Number(customerOtakuPointAvailableDecrypted) - product.price;
+
+			// const newProductOtaclub = new ProductOtaclubModel({
+			// 	productTitle: product.productTitle,
+			// 	slugTitle: "",
+			// 	imagesProduct: product.imagesProduct,
+			// 	price,
+			// 	weight,
+			// 	length,
+			// 	width,
+			// 	height,
+			// 	partnerID,
+			// });
+
+			// Criar uma nova Order otaclub
+			const newOrderOtaclub = new OrderOtaclubModel({
+				orderOtaclubID: new ObjectId().toHexString().toUpperCase(),
+				statusOrder: "Confirmed",
+				paymentMethod: "Otaku Point",
+				customerOrderCostTotal: product.price,
+				// partnerCommissionOtamart: encryptedPartnerCommissions.find(
+				// 	(commission) => commission.partnerID === partnerID
+				// )?.encryptedCommissionAmount,
+				itemsList: [],
+				partnerID: "customer.partnerID",
+				partnerCNPJ: "partner.cpfCnpj",
+				partnerName: "customer.partnerID",
+				customerID: "customer._id.toString()",
+				customerName: "customer.name",
+				customerCPF: "customer.cpf",
+				customerAddress: [
+					{
+						street: customerAddress.street,
+						complement: customerAddress.complement,
+						neighborhood: customerAddress.neighborhood,
+						city: customerAddress.city,
+						state: customerAddress.state,
+						postalCode: customerAddress.postalCode,
+					},
+				],
+				statusShipping: "Pending",
+				trackingCode: "",
+			});
+
+			res.status(200).json({
+				message: "Troca processada com sucesso!",
+			});
+		} catch (error) {
+			console.log(error);
+		}
 	}
 }
 

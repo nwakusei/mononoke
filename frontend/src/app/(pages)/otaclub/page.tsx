@@ -270,29 +270,11 @@ function OtaclubPage() {
 									key={categoryProduct._id}
 									viewAdultContent={user?.viewAdultContent}
 									product={categoryProduct}
-									freeShipping={categoryProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${categoryProduct.imagesProduct[0]}`}
 									title={categoryProduct.productTitle}
-									originalPrice={Number(
-										categoryProduct.originalPrice
-									)}
-									promotionalPrice={Number(
-										categoryProduct.promotionalPrice
-									)}
 									price={Number(
 										categoryProduct.originalPrice
 									)}
-									promoPrice={Number(
-										categoryProduct.promotionalPrice
-									)}
-									cashback={cashback}
-									rating={categoryProduct.rating}
-									quantitySold={
-										categoryProduct.productsSold > 1
-											? `${categoryProduct.productsSold} Vendidos`
-											: `${categoryProduct.productsSold} Vendido`
-									}
-									linkProductPage={`/otamart/${categoryProduct.slugTitle}`}
 								/>
 							);
 						})

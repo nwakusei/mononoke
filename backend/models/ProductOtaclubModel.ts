@@ -73,9 +73,9 @@ const productOtaclubSchema = new Schema<IProductOtaclub>(
 	{ timestamps: true }
 );
 
-const ProductModel = mainDB.model<IProductOtaclub>(
+const ProductOtaclubModel = mainDB.model<IProductOtaclub>(
 	"ProductOtaclub",
 	productOtaclubSchema
 );
 
-export { ProductModel };
+export { ProductOtaclubModel };
