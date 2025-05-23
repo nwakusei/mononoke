@@ -47,6 +47,7 @@ const OtakupaySchema = new Schema<IOtakuPayCustomer>(
 		password: {
 			type: String,
 			required: true,
+			select: false,
 			min: 6,
 			max: 64,
 		},

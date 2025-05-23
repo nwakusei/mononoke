@@ -5968,12 +5968,14 @@ class OtakupayController {
 		const { product, customerAddress } = req.body;
 
 		// Verificar se o produto foi enviado para a requisição
-		if (!product || product.length === 0) {
-			res.status(404).json({
-				error: "Nenhum produto encontrado na requisição!",
+		if (!product) {
+			res.status(400).json({
+				error: "Produto inválido!",
 			});
 			return;
 		}
+
+		console.log("Produto recebido:", product);
 
 		// Verificar se o endereço foi enviado para a requisição
 		if (!customerAddress || customerAddress.length === 0) {
@@ -6013,14 +6015,40 @@ class OtakupayController {
 			return;
 		}
 
-		console.log(customerOtakupay);
-
 		if (!customer.cpf || customer.cpf == "") {
 			res.status(422).json({
 				message: "CPF inválido, atualize antes de prosseguir!",
 			});
 			return;
 		}
+
+		console.log("OtakuPay do Cliente", customerOtakupay);
+
+		const partner = await PartnerModel.findOne({
+			_id: product.partnerID,
+		});
+
+		if (!partner) {
+			res.status(422).json({
+				message: "Partner localizado!",
+			});
+			return;
+		}
+
+		console.log("Partner do Parceiro", partner);
+
+		const partnerOtakupay = await OtakupayModel.findById(
+			partner.otakupayID
+		);
+
+		if (!partnerOtakupay) {
+			res.status(422).json({
+				message: "OtakuPay do Partner não localizado!",
+			});
+			return;
+		}
+
+		console.log("OtakuPay do Parceiro", partnerOtakupay);
 
 		try {
 			const customerOtakuPointsAvailableEncrypted =
@@ -6030,6 +6058,11 @@ class OtakupayController {
 				customerOtakuPointsAvailableEncrypted
 			)?.toFixed(2);
 
+			console.log(
+				"customerOtakuPointAvailableDecrypted",
+				customerOtakuPointAvailableDecrypted
+			);
+
 			if (!customerOtakuPointAvailableDecrypted) {
 				res.status(422).json({
 					message: "Otaku Points Available não encontrado!",
@@ -6037,42 +6070,96 @@ class OtakupayController {
 				return;
 			}
 
-			if (customerOtakuPointAvailableDecrypted < product.price) {
+			console.log("Valor do Produto:", product.productPrice);
+
+			if (
+				Number(customerOtakuPointAvailableDecrypted) <
+				product.productPrice
+			) {
 				res.status(422).json({ message: "Otaku Points insuficiente!" });
 				return;
 			}
 
-			const newCustomerOtakuPointsAvailable =
-				Number(customerOtakuPointAvailableDecrypted) - product.price;
+			const newCustomerOtakuPointsAvailableDecrypted =
+				Number(customerOtakuPointAvailableDecrypted) -
+				Number(product.productPrice);
 
-			// const newProductOtaclub = new ProductOtaclubModel({
-			// 	productTitle: product.productTitle,
-			// 	slugTitle: "",
-			// 	imagesProduct: product.imagesProduct,
-			// 	price,
-			// 	weight,
-			// 	length,
-			// 	width,
-			// 	height,
-			// 	partnerID,
-			// });
+			console.log(
+				"newCustomerOtakuPointsAvailableDecrypted",
+				newCustomerOtakuPointsAvailableDecrypted.toFixed(2)
+			);
+
+			const newCustomerOtakuPointsAvailableEncrypted = encrypt(
+				newCustomerOtakuPointsAvailableDecrypted.toString()
+			);
+
+			console.log(
+				"newCustomerOtakuPointsAvailableEncrypted",
+				newCustomerOtakuPointsAvailableEncrypted
+			);
+
+			////////////////////////////// Comissão a ser Paga pelo Parceiro //////////////////////////////////////////
+			const partnerComission = product.productPrice * 0.04;
+
+			console.log("partnerComission", partnerComission);
+
+			const partnerComissionEncrypted = encrypt(
+				partnerComission.toString()
+			);
+
+			const partnerOtakuPointsPendingEncrypted =
+				partnerOtakupay.otakuPointsPending;
+
+			console.log(
+				"Otaku Points Pendente do Parceiro",
+				partnerOtakuPointsPendingEncrypted
+			);
+
+			const partnerOtakuPointsPendingDecrypted = decrypt(
+				partnerOtakuPointsPendingEncrypted
+			);
+
+			console.log(
+				"Otaku Points Pendente do parceiro descriptografado:",
+				partnerOtakuPointsPendingDecrypted
+			);
+
+			const newPartnerOtakuPointsPendingDecrypted =
+				Number(partnerOtakuPointsPendingDecrypted) +
+				product.productPrice;
+
+			console.log(
+				"Novo Saldo Pendente do Parceiro Descriptografado",
+				newPartnerOtakuPointsPendingDecrypted
+			);
+
+			const newPartnerOtakuPointsPendindEncrypted = encrypt(
+				newPartnerOtakuPointsPendingDecrypted.toString()
+			);
+
+			console.log(
+				"Novo Saldo Pendente do Parceiro Criptografado",
+				newPartnerOtakuPointsPendindEncrypted
+			);
+
+			const customerOrderCostTotalEncrypted = encrypt(
+				product.productPrice.toString()
+			);
 
 			// Criar uma nova Order otaclub
 			const newOrderOtaclub = new OrderOtaclubModel({
 				orderOtaclubID: new ObjectId().toHexString().toUpperCase(),
 				statusOrder: "Confirmed",
 				paymentMethod: "Otaku Point",
-				customerOrderCostTotal: product.price,
-				// partnerCommissionOtamart: encryptedPartnerCommissions.find(
-				// 	(commission) => commission.partnerID === partnerID
-				// )?.encryptedCommissionAmount,
+				customerOrderCostTotal: customerOrderCostTotalEncrypted,
+				partnerCommissionOtaclub: partnerComissionEncrypted,
 				itemsList: [],
-				partnerID: "customer.partnerID",
-				partnerCNPJ: "partner.cpfCnpj",
-				partnerName: "customer.partnerID",
-				customerID: "customer._id.toString()",
-				customerName: "customer.name",
-				customerCPF: "customer.cpf",
+				partnerID: partner._id.toString(),
+				partnerCNPJ: partner.cpfCnpj,
+				partnerName: partner.name,
+				customerID: customer._id.toString(),
+				customerName: customer.name,
+				customerCPF: customer.cpf,
 				customerAddress: [
 					{
 						street: customerAddress.street,
@@ -6087,8 +6174,30 @@ class OtakupayController {
 				trackingCode: "",
 			});
 
+			// Adicionar o item ao pedido
+			newOrderOtaclub.itemsList.push({
+				productID: product.productID,
+				productTitle: product.productTitle,
+				productImage: product.imagesProduct,
+				productPrice: product.price,
+				daysShipping: 10,
+			});
+
+			// Salvando o novo Otaku Points Available do Cliente no Banco de Dados
+			customerOtakupay.otakuPointsAvailable =
+				newCustomerOtakuPointsAvailableEncrypted;
+
+			// Salvando o novo Otaku Points Pending do Parceiro no Banco de Dados
+			partnerOtakupay.otakuPointsPending =
+				newPartnerOtakuPointsPendindEncrypted;
+
+			await newOrderOtaclub.save();
+			await customerOtakupay.save();
+			await partnerOtakupay.save();
+
 			res.status(200).json({
 				message: "Troca processada com sucesso!",
+				newOrderOtaclub,
 			});
 		} catch (error) {
 			console.log(error);

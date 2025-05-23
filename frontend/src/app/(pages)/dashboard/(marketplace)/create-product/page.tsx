@@ -1152,8 +1152,7 @@ function CreateProductPage() {
 													handleBlur("category")
 												}>
 												<option disabled value="">
-													Escolha a categoria do
-													Produto
+													Escolha a categoria
 												</option>
 												<option value="Printed">
 													Impresso

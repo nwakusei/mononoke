@@ -193,7 +193,7 @@ class ProductController {
 			return;
 		}
 
-		adultProduct;
+		// adultProduct;
 
 		if (!imagesProduct || imagesProduct.length === 0) {
 			// Validação de Imagem

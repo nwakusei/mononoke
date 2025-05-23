@@ -25,7 +25,7 @@ interface IOrderOtaclub {
 	statusOrder: string;
 	paymentMethod: string;
 	customerOrderCostTotal: string;
-	partnerCommissionOtamart: String;
+	partnerCommissionOtaclub: String;
 	itemsList: IOrderOtaclubItem[];
 	partnerID: object;
 	partnerName: string;
@@ -56,7 +56,7 @@ const orderOtaclubSchema = new Schema<IOrderOtaclub>(
 		customerOrderCostTotal: {
 			type: String,
 		},
-		partnerCommissionOtamart: {
+		partnerCommissionOtaclub: {
 			type: String,
 		},
 		itemsList: [

@@ -30,7 +30,7 @@ import {
 import { BsShopWindow, BsChatSquareText } from "react-icons/bs";
 import { GoArrowUpRight } from "react-icons/go";
 import { PiHandHeartDuotone, PiChatCenteredText } from "react-icons/pi";
-import { TbAffiliate, TbDiscount2 } from "react-icons/tb";
+import { TbAffiliate, TbRosetteDiscount } from "react-icons/tb";
 import { CgEditUnmask } from "react-icons/cg";
 import { GiPulse } from "react-icons/gi";
 import { ImMakeGroup } from "react-icons/im";
@@ -216,7 +216,7 @@ function Sidebar() {
 
 						<div className="flex flex-col ml-8 mb-4">
 							<h1 className="text-black flex flex-row items-center gap-2 mb-3">
-								<TbDiscount2 size={20} />
+								<TbRosetteDiscount size={22} />
 								Marketing
 							</h1>
 

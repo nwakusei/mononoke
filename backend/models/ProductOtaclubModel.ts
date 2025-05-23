@@ -7,7 +7,7 @@ interface IProductOtaclub {
 	slugTitle: string;
 	imagesProduct: string[];
 	description: string;
-	price: number;
+	productPrice: number;
 	stock: number;
 	category: string;
 	weight: number;
@@ -35,7 +35,7 @@ const productOtaclubSchema = new Schema<IProductOtaclub>(
 			type: String,
 		},
 
-		price: {
+		productPrice: {
 			type: Number,
 		},
 

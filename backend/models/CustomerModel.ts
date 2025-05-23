@@ -40,7 +40,6 @@ const customerSchema = new Schema<ICustomer>(
 		profileImage: {
 			type: String,
 		},
-
 		name: {
 			type: String,
 			required: true,
