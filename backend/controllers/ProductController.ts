@@ -12,9 +12,10 @@ import slugify from "slugify";
 // Middlewares/Helpers
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
+import { ProductOtaclubModel } from "../models/ProductOtaclubModel.js";
 
 class ProductController {
-	static async create(req: Request, res: Response) {
+	static async createProduct(req: Request, res: Response) {
 		const {
 			productTitle,
 			description,
@@ -349,7 +350,254 @@ class ProductController {
 		}
 	}
 
-	// Pegar todos os Produtos
+	static async createProductOtaclub(req: Request, res: Response) {
+		const {
+			productTitle,
+			description,
+			productPrice,
+			stock,
+			category,
+			weight,
+			length,
+			width,
+			height,
+			condition,
+			daysShipping,
+			adultProduct,
+		} = req.body;
+
+		const files = req.files as {
+			[fieldname: string]: Express.Multer.File[];
+		};
+
+		const imagesProduct = files.imagesProduct || []; // Garante que seja um array
+
+		// Validações
+		if (!productTitle) {
+			res.status(422).json({
+				message: "O título do produto é obrigatório!",
+			});
+			return;
+		}
+
+		if (!description) {
+			res.status(422).json({
+				message: "A descrição do produto é obrigatória!",
+			});
+			return;
+		}
+
+		if (!productPrice) {
+			res.status(422).json({
+				message: "O preço do produto é obrigatório!",
+			});
+			return;
+		}
+
+		// // Revisar lógica, precisa ter ou o estoque principal ou o estoque da variação
+		// if (!stock) {
+		// 	res.status(422).json({
+		// 		message: "A quantidade de produtos em estoque é obrigatória!",
+		// 	});
+		// 	return;
+		// }
+
+		if (!category) {
+			res.status(422).json({
+				message: "A categoria do produto é obrigatória!",
+			});
+			return;
+		}
+
+		if (!weight) {
+			res.status(422).json({
+				message: "O peso do produto é obrigatório!",
+			});
+			return;
+		}
+
+		if (!length) {
+			res.status(422).json({
+				message: "O comprimento do produto é obrigatório!",
+			});
+			return;
+		}
+
+		if (!width) {
+			res.status(422).json({
+				message: "A largura do produto é obrigatória!",
+			});
+			return;
+		}
+
+		if (!height) {
+			res.status(422).json({
+				message: "A altura do produto é obrigatória!",
+			});
+			return;
+		}
+
+		if (!condition) {
+			res.status(422).json({
+				message: "A condição do produto é obrigatória!",
+			});
+			return;
+		}
+
+		if (!daysShipping) {
+			res.status(422).json({
+				message: "Informe em quantos dias o produto será enviado!",
+			});
+			return;
+		}
+
+		if (!imagesProduct || imagesProduct.length === 0) {
+			// Validação de Imagem
+			res.status(422).json({ message: "A imagem é obrigatória!" });
+			return;
+		}
+
+		if (!adultProduct) {
+			res.status(422).json({
+				message: "Informe se é um produto adulto!",
+			});
+			return;
+		}
+
+		// Pegar o Administrador (Partner) que será o responsável pelo cadastro do Produto
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(401).json({ message: "Usuário não encontrado" });
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message: "Você não tem permissão para cadastrar produtos!",
+			});
+			return;
+		}
+
+		if (!(partner.address as any[]).length) {
+			res.status(422).json({
+				message: "Configure um endereço de envio antes de prosseguir!",
+			});
+			return;
+		}
+
+		if ("shippingConfiguration" in partner) {
+			if (!partner.shippingConfiguration.length) {
+				res.status(422).json({
+					message:
+						"Configure as opções de envio antes de prosseguir!",
+				});
+				return;
+			}
+		}
+
+		const createSlugWithCode = async (productTitle) => {
+			// Substituição de ~ e . por -
+			const processedTitle = productTitle
+				.replace(/~/g, "-")
+				.replace(/\./g, "-");
+
+			// Conversão do título em Slug
+			const slug = slugify(processedTitle, {
+				lower: true,
+				strict: true,
+				replacement: "-", // Substitui espaços e outros separadores por "-"
+			});
+
+			// Buscar o último produto criado para obter o maior código
+			const lastProduct = await ProductOtaclubModel.findOne({})
+				.sort({ createdAt: -1 })
+				.exec();
+
+			// Determinar o próximo código
+			let nextCode = "M-0001"; // Default para o primeiro produto
+			if (lastProduct && lastProduct.slugTitle) {
+				const match = lastProduct.slugTitle.match(/M-(\d{4})$/);
+				if (match) {
+					const lastNumber = parseInt(match[1], 10);
+					nextCode = `M-${String(lastNumber + 1).padStart(4, "0")}`;
+				}
+			}
+
+			// Concatenar o código à slug
+			const slugWithCode = `${slug}-${nextCode}`;
+
+			return slugWithCode;
+		};
+
+		const slugWithCode = await createSlugWithCode(productTitle);
+
+		// Criar um novo produto
+		const productOtaclub = new ProductOtaclubModel({
+			productTitle: productTitle,
+			slugTitle: slugWithCode,
+			description: description,
+			productPrice: productPrice,
+			stock: stock,
+			category: category,
+			weight: weight,
+			length: length,
+			width: width,
+			height: height,
+			condition: condition,
+			daysShipping: daysShipping,
+			adultProduct: adultProduct,
+			imagesProduct: [],
+			partnerID: partner._id.toString(),
+		});
+
+		// Percorrer o Array de imagens e adicionar cada uma a uma ao produto/anúncio que será criado
+		imagesProduct.forEach((imageProduct: Express.Multer.File) => {
+			console.log(imageProduct);
+			let image = "";
+
+			if (imageProduct) {
+				if ("key" in imageProduct) {
+					// Estamos usando o armazenamento na AWS S3
+					if (typeof imageProduct.key === "string") {
+						image = imageProduct.key;
+					}
+				} else {
+					// Estamos usando o armazenamento em ambiente local (Desenvolvimento)
+					if (typeof imageProduct.filename === "string") {
+						image = imageProduct.filename;
+					}
+				}
+			}
+
+			// Adicionar a imagem ao produto/anúncio
+			productOtaclub.imagesProduct.push(image);
+		});
+
+		try {
+			const newProductOtaclub = await productOtaclub.save();
+
+			if ("totalProducts" in partner) {
+				partner.totalProducts += 1;
+
+				await partner.save();
+			}
+
+			res.status(201).json({
+				message: "Produto cadastrado com sucesso!",
+				newProductOtaclub,
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({
+				message: "Erro ao cadastrar o produto!",
+			});
+			return;
+		}
+	}
+
+	// Pegar todos os Produtos OtaMart
 	static async getAllProducts(req: Request, res: Response) {
 		try {
 			const products = await ProductModel.find({
@@ -382,6 +630,67 @@ class ProductController {
 					},
 				],
 			}).sort("-createdAt");
+
+			res.status(200).json({ products });
+		} catch (error) {
+			res.status(500).json({
+				message: "Erro ao buscar os produtos.",
+				error,
+			});
+		}
+	}
+
+	// Pegar todos os Produtos OtaMart
+	static async getAllProducts(req: Request, res: Response) {
+		try {
+			const products = await ProductModel.find({
+				$or: [
+					// Produtos sem variações, mas com stock maior que 0
+					{
+						productVariations: { $size: 0 },
+						stock: { $gt: 0 },
+					},
+					// Produtos com variações onde pelo menos uma opção tem stock maior que 0
+					{
+						productVariations: {
+							$elemMatch: {
+								options: {
+									$elemMatch: { stock: { $gt: 0 } },
+								},
+							},
+						},
+					},
+					// Produtos com variações, mas o estoque principal é maior que 0
+					{
+						stock: { $gt: 0 },
+						productVariations: {
+							$elemMatch: {
+								options: {
+									$not: { $elemMatch: { stock: { $gt: 0 } } },
+								},
+							},
+						},
+					},
+				],
+			})
+				.select("-createdAt -updatedAt -partnerID -__v")
+				.sort("-createdAt");
+
+			res.status(200).json({ products });
+		} catch (error) {
+			res.status(500).json({
+				message: "Erro ao buscar os produtos.",
+				error,
+			});
+		}
+	}
+
+	// Pegar todos os Produtos OtaMart
+	static async getAllProductsOtaclub(req: Request, res: Response) {
+		try {
+			const products = await ProductOtaclubModel.find()
+				.select("-createdAt -updatedAt -partnerID -__v")
+				.sort("-createdAt");
 
 			res.status(200).json({ products });
 		} catch (error) {

@@ -41,6 +41,8 @@ function OtaclubPage() {
 		...new Set(products.map((product) => product.category)),
 	];
 
+	console.log(products);
+
 	const formatHighValues = (count: number) => {
 		if (count >= 1000000) {
 			// Formata números acima de 1 milhão
@@ -64,7 +66,9 @@ function OtaclubPage() {
 		const fetchData = async () => {
 			try {
 				// Faz o lookup para obter o ID correspondente à slug
-				const productPromise = await api.get(`/products/`);
+				const productPromise = await api.get(
+					`/products/get-allproducts-otaclub`
+				);
 
 				// Busca os dados do usuário, se o token estiver presente
 				const userPromise = token
@@ -263,7 +267,6 @@ function OtaclubPage() {
 								(partner) =>
 									partner._id === categoryProduct.partnerID
 							);
-							const cashback = partner ? partner.cashback : 0;
 
 							return (
 								<ProductAdCardOtaclub
@@ -272,9 +275,7 @@ function OtaclubPage() {
 									product={categoryProduct}
 									productImage={`http://localhost:5000/images/products/${categoryProduct.imagesProduct[0]}`}
 									title={categoryProduct.productTitle}
-									price={Number(
-										categoryProduct.originalPrice
-									)}
+									price={Number(categoryProduct.productPrice)}
 								/>
 							);
 						})
@@ -292,33 +293,9 @@ function OtaclubPage() {
 									key={`returned-${returnedProduct._id}`}
 									viewAdultContent={user?.viewAdultContent}
 									product={returnedProduct}
-									freeShipping={returnedProduct.freeShipping}
 									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
 									title={returnedProduct.productTitle}
-									originalPrice={Number(
-										returnedProduct.originalPrice
-									)}
-									promotionalPrice={Number(
-										returnedProduct.promotionalPrice
-									)}
-									price={Number(
-										returnedProduct.originalPrice
-									)}
-									promoPrice={Number(
-										returnedProduct.promotionalPrice
-									)}
-									cashback={cashback}
-									rating={returnedProduct.rating}
-									quantitySold={
-										returnedProduct.productsSold > 1
-											? `${formatHighValues(
-													returnedProduct.productsSold
-											  )} Vendidos`
-											: `${formatHighValues(
-													returnedProduct.productsSold
-											  )} Vendido`
-									}
-									linkProductPage={`/otamart/${returnedProduct.slugTitle}`}
+									price={Number(returnedProduct.productPrice)}
 								/>
 							);
 						})
@@ -335,31 +312,9 @@ function OtaclubPage() {
 									key={`product-${product._id}`}
 									viewAdultContent={user?.viewAdultContent}
 									product={product}
-									freeShipping={product.freeShipping}
 									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
 									title={product.productTitle}
-									originalPrice={Number(
-										product.originalPrice
-									)}
-									promotionalPrice={Number(
-										product.promotionalPrice
-									)}
-									price={Number(product.originalPrice)}
-									promoPrice={Number(
-										product.promotionalPrice
-									)}
-									cashback={cashback}
-									rating={product.rating}
-									quantitySold={
-										product.productsSold > 1
-											? `${formatHighValues(
-													product.productsSold
-											  )} Vendidos`
-											: `${formatHighValues(
-													product.productsSold
-											  )} Vendido`
-									}
-									linkProductPage={`/otamart/${product.slugTitle}`}
+									price={Number(product.productPrice)}
 								/>
 							);
 						})

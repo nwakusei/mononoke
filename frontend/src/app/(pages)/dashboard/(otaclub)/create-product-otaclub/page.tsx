@@ -442,6 +442,8 @@ function CreateProductOtaclubPage() {
 	async function handleCreateProductOtaclub(productData: {
 		[key: string]: any;
 	}) {
+		console.log(productData);
+
 		setLoadingButton(true);
 
 		setOutput(JSON.stringify(productData, null, 2));
@@ -486,11 +488,15 @@ function CreateProductOtaclubPage() {
 		});
 
 		try {
-			const response = await api.post("/products/create", formData, {
-				headers: {
-					Authorization: `Bearer ${JSON.parse(token)}`,
-				},
-			});
+			const response = await api.post(
+				"/products/otaclub-create",
+				formData,
+				{
+					headers: {
+						Authorization: `Bearer ${JSON.parse(token)}`,
+					},
+				}
+			);
 
 			setLoadingButton(false);
 
@@ -505,7 +511,7 @@ function CreateProductOtaclubPage() {
 
 	const handleCancelar = () => {
 		// Redirecionar para outra página ao clicar em Cancelar
-		router.push("/dashboard/myproducts");
+		router.push("/dashboard/myproducts-otaclub");
 	};
 
 	if (loadingPage) {
@@ -856,7 +862,7 @@ function CreateProductOtaclubPage() {
 												<div>
 													<input
 														className={`input input-bordered ${getFieldClass(
-															"originalPrice",
+															"productPrice",
 															"input"
 														)} w-full join-item`}
 														type="text"
@@ -907,7 +913,6 @@ function CreateProductOtaclubPage() {
 										</div>
 									</label>
 
-									{/* Nome e Descrição
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
 											<span className="label-text text-black">
@@ -958,7 +963,7 @@ function CreateProductOtaclubPage() {
 												</span>
 											)}
 										</div>
-									</label> */}
+									</label>
 								</div>
 							</div>
 						</div>
@@ -1282,7 +1287,7 @@ function CreateProductOtaclubPage() {
 														{...register("height", {
 															onChange: () =>
 																trigger(
-																	"width"
+																	"height"
 																),
 														})}
 														onFocus={() =>
@@ -1339,7 +1344,7 @@ function CreateProductOtaclubPage() {
 									{loadingButton ? (
 										<button
 											type="submit"
-											className="btn btn-primary w-[150px] text-white shadow-md">
+											className="btn btn-primary w-[200px] text-white shadow-md">
 											<span className="loading loading-spinner loading-md"></span>
 										</button>
 									) : (

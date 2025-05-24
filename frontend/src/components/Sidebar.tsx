@@ -145,7 +145,7 @@ function Sidebar() {
 								</Link>
 								<Link
 									className="flex flex-row items-center ml-7 gap-2"
-									href={"/dashboard/create-product"}>
+									href={"/dashboard/create-product-otaclub"}>
 									<span className="text-xs text-black">
 										○
 									</span>

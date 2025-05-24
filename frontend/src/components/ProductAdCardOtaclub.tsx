@@ -55,13 +55,15 @@ function ProductAdCardOtaclub({
 	const router = useRouter();
 
 	const addOtaclubCheckout = async () => {
+		localStorage.removeItem("otaclubProduct");
+
 		if (product && product._id) {
 			const newProductOtaclub = {
 				partnerID: product.partnerID,
 				productID: product._id,
 				productTitle: product.productTitle,
 				imageProduct: product.imagesProduct?.[0] || "",
-				productPrice: product.originalPrice,
+				productPrice: product.productPrice,
 				weight: product.weight,
 				length: product.length,
 				width: product.width,
@@ -110,7 +112,12 @@ function ProductAdCardOtaclub({
 				<div className="mb-3">
 					<div className="flex flex-row items-center text-base text-black gap-2">
 						<RiCopperCoinLine className="mt-[1px]" size={18} />
-						<span>{price.toLocaleString()} OP</span>
+						<span>
+							{`${price.toLocaleString("pt-BR", {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2,
+							})} OP`}
+						</span>
 					</div>
 				</div>
 				<button

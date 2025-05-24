@@ -67,6 +67,8 @@ function CheckoutOtaclubPage() {
 	const [product, setProduct] = useState({});
 	const [loadingButton, setLoadingButton] = useState(false);
 
+	console.log("PRODUTO", product);
+
 	const customerAddress = {
 		street: user?.address?.[0]?.street || "",
 		complement: user?.address?.[0]?.complement || "",

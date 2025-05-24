@@ -2814,7 +2814,7 @@ function CreateProductPage() {
 														{...register("height", {
 															onChange: () =>
 																trigger(
-																	"width"
+																	"height"
 																),
 														})}
 														onFocus={() =>
@@ -3022,7 +3022,7 @@ function CreateProductPage() {
 									{loadingButton ? (
 										<button
 											type="submit"
-											className="btn btn-primary w-[150px] text-white shadow-md">
+											className="btn btn-primary w-[200px] text-white shadow-md">
 											<span className="loading loading-spinner loading-md"></span>
 										</button>
 									) : (

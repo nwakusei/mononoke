@@ -27,7 +27,7 @@ router.post(
 	"/create",
 	verifyToken,
 	imageUpload.fields(fields),
-	ProductController.create
+	ProductController.createProduct
 );
 
 // router.post(
@@ -42,6 +42,8 @@ router.post(
 // );
 
 router.get("/", ProductController.getAllProducts);
+
+router.get("/get-allproducts-otaclub", ProductController.getAllProductsOtaclub);
 
 router.get(
 	"/partner-products",
@@ -67,5 +69,12 @@ router.get("/:id", ProductController.getProductById);
 router.delete("/:id", verifyToken, ProductController.removeProductById);
 
 router.get("/recommended-product/:id", ProductController.recommendedProduct);
+
+router.post(
+	"/otaclub-create",
+	verifyToken,
+	imageUpload.fields(fields),
+	ProductController.createProductOtaclub
+);
 
 export default router;
