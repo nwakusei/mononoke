@@ -124,7 +124,7 @@ function Sidebar() {
 							<div className="flex flex-col">
 								<Link
 									className="flex flex-row items-center ml-7 gap-2"
-									href={"/dashboard/mysales"}>
+									href={"/dashboard/mysales-otaclub"}>
 									<span className="text-xs text-black">
 										○
 									</span>
@@ -135,7 +135,7 @@ function Sidebar() {
 
 								<Link
 									className="flex flex-row items-center ml-7 gap-2"
-									href={"/dashboard/myproducts"}>
+									href={"/dashboard/myproducts-otaclub"}>
 									<span className="text-xs text-black">
 										○
 									</span>
@@ -472,7 +472,7 @@ function Sidebar() {
 							<div className="flex flex-col">
 								<Link
 									className="flex flex-row items-center ml-7 gap-2"
-									href={"/dashboard/myorders"}>
+									href={"/dashboard/myorders-otaclub"}>
 									<span className="text-xs text-black">
 										○
 									</span>

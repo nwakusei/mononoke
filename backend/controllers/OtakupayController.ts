@@ -5967,6 +5967,8 @@ class OtakupayController {
 	static async swapOtaclub(req: Request, res: Response) {
 		const { product, customerAddress } = req.body;
 
+		console.log(product.partnerID);
+
 		// Verificar se o produto foi enviado para a requisição
 		if (!product) {
 			res.status(400).json({
@@ -6030,7 +6032,7 @@ class OtakupayController {
 
 		if (!partner) {
 			res.status(422).json({
-				message: "Partner localizado!",
+				message: "Partner não localizado!",
 			});
 			return;
 		}
@@ -6178,7 +6180,7 @@ class OtakupayController {
 			newOrderOtaclub.itemsList.push({
 				productID: product.productID,
 				productTitle: product.productTitle,
-				productImage: product.imagesProduct,
+				productImage: product.productImage,
 				productPrice: product.price,
 				daysShipping: 10,
 			});

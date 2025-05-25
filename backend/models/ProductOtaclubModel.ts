@@ -5,7 +5,7 @@ import { Schema, model } from "mongoose";
 interface IProductOtaclub {
 	productTitle: string;
 	slugTitle: string;
-	imagesProduct: string[];
+	productImages: string[];
 	description: string;
 	productPrice: number;
 	stock: number;
@@ -28,7 +28,7 @@ const productOtaclubSchema = new Schema<IProductOtaclub>(
 		slugTitle: {
 			type: String,
 		},
-		imagesProduct: {
+		productImages: {
 			type: [String],
 		},
 		description: {

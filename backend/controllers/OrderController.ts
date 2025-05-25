@@ -10,6 +10,7 @@ import { OtakupayModel } from "../models/OtakupayModel.js";
 import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { TransactionModel } from "../models/TransactionModel.js";
+import { OrderOtaclubModel } from "../models/OrderOtaclubModel.js";
 
 // Middlewares
 import getToken from "../helpers/get-token.js";
@@ -100,6 +101,48 @@ class OrderController {
 		try {
 			// Buscar as orders associadas ao parceiro
 			const orders = await OrderModel.find({
+				partnerID: partnerID,
+			}).sort("-createdAt");
+
+			// Verificar se há orders
+			if (orders.length === 0) {
+				res.status(200).json({ orders: [] });
+				return;
+			}
+
+			res.status(200).json({ orders: orders });
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "An unknown error occurred." });
+			}
+		}
+	}
+
+	static async getAllPartnerOrdersOtaclub(req: Request, res: Response) {
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({
+				message: "Partner/Usuário não encontrado!",
+			});
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message: "Você não tem permissão para acessar essa requisição!",
+			});
+			return;
+		}
+
+		const partnerID = partner._id.toString();
+
+		try {
+			// Buscar as orders associadas ao parceiro
+			const orders = await OrderOtaclubModel.find({
 				partnerID: partnerID,
 			}).sort("-createdAt");
 
@@ -210,6 +253,52 @@ class OrderController {
 			const customerID = customer._id.toString();
 
 			const orders = await OrderModel.find({
+				customerID: customerID,
+			}).sort("-createdAt");
+
+			// Descriptografar apenas o valor total do pedido
+			const decryptedOrders = orders.map((order) => {
+				const orderObj = order.toObject();
+				return {
+					...orderObj,
+					customerOrderCostTotal: decrypt(
+						orderObj.customerOrderCostTotal
+					),
+				};
+			});
+
+			res.status(200).json({ orders: decryptedOrders });
+		} catch (error) {
+			if (error instanceof Error) {
+				res.status(500).json({ error: error.message });
+			} else {
+				res.status(500).json({ error: "An unknown error occurred." });
+			}
+		}
+	}
+
+	static async getAllCustomerOrdersOtaclub(req: Request, res: Response) {
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({
+				message: "Customer/Usuário não encontrado!",
+			});
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
+			res.status(422).json({
+				message: "Você não tem permissão para acessar essa requisição!",
+			});
+			return;
+		}
+
+		try {
+			const customerID = customer._id.toString();
+
+			const orders = await OrderOtaclubModel.find({
 				customerID: customerID,
 			}).sort("-createdAt");
 

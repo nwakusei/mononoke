@@ -19,7 +19,7 @@ interface IProductVariation {
 interface IProduct {
 	productTitle: string;
 	slugTitle: string;
-	imagesProduct: string[];
+	productImages: string[];
 	description: string;
 	productVariations: IProductVariation[];
 	originalPrice: number;
@@ -51,7 +51,7 @@ const productSchema = new Schema<IProduct>(
 		slugTitle: {
 			type: String,
 		},
-		imagesProduct: {
+		productImages: {
 			type: [String],
 		},
 		description: {

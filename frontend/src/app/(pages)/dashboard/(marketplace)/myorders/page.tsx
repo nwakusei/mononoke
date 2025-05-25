@@ -117,7 +117,7 @@ function MyOrdersPage() {
 																<div className="avatar">
 																	<div className="mask mask-squircle w-12 h-12">
 																		<Image
-																			src={`http://localhost:5000/images/products/${myorder.itemsList[0].productImage}`}
+																			src={`http://backend:5000/images/products/${myorder.itemsList[0].productImage}`}
 																			alt={
 																				myorder
 																					.itemsList[0]

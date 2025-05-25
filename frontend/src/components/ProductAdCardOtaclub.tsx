@@ -57,12 +57,14 @@ function ProductAdCardOtaclub({
 	const addOtaclubCheckout = async () => {
 		localStorage.removeItem("otaclubProduct");
 
+		console.log("DADOS DO PRODUTO", product);
+
 		if (product && product._id) {
 			const newProductOtaclub = {
 				partnerID: product.partnerID,
 				productID: product._id,
 				productTitle: product.productTitle,
-				imageProduct: product.imagesProduct?.[0] || "",
+				productImage: product.productImages?.[0],
 				productPrice: product.productPrice,
 				weight: product.weight,
 				length: product.length,

@@ -270,7 +270,7 @@ function OtamartPage() {
 									viewAdultContent={user?.viewAdultContent}
 									product={categoryProduct}
 									freeShipping={categoryProduct.freeShipping}
-									productImage={`http://localhost:5000/images/products/${categoryProduct.imagesProduct[0]}`}
+									productImage={`http://localhost:5000/images/products/${categoryProduct.productImages[0]}`}
 									title={categoryProduct.productTitle}
 									originalPrice={Number(
 										categoryProduct.originalPrice
@@ -310,7 +310,7 @@ function OtamartPage() {
 									viewAdultContent={user?.viewAdultContent}
 									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
-									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
+									productImage={`http://localhost:5000/images/products/${returnedProduct.productImages[0]}`}
 									title={returnedProduct.productTitle}
 									originalPrice={Number(
 										returnedProduct.originalPrice
@@ -353,7 +353,7 @@ function OtamartPage() {
 									viewAdultContent={user?.viewAdultContent}
 									product={product}
 									freeShipping={product.freeShipping}
-									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
+									productImage={`http://localhost:5000/images/products/${product.productImages[0]}`}
 									title={product.productTitle}
 									originalPrice={Number(
 										product.originalPrice
@@ -402,7 +402,7 @@ function OtamartPage() {
 									key={returnedProduct._id}
 									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
-									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
+									productImage={`http://localhost:5000/images/products/${returnedProduct.productImages[0]}`}
 									title={returnedProduct.productTitle}
 									originalPrice={Number(
 										returnedProduct.originalPrice
@@ -441,7 +441,7 @@ function OtamartPage() {
 									key={product._id}
 									product={product}
 									freeShipping={product.freeShipping}
-									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
+									productImage={`http://localhost:5000/images/products/${product.productImages[0]}`}
 									title={product.productTitle}
 									originalPrice={Number(
 										product.originalPrice

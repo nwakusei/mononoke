@@ -40,7 +40,7 @@ class ProductController {
 			[fieldname: string]: Express.Multer.File[];
 		};
 
-		const imagesProduct = files.imagesProduct || []; // Garante que seja um array
+		const productImages = files.productImages || []; // Garante que seja um array
 
 		// Acessar as imagens das variações
 		const variationImages = req.files as {
@@ -196,7 +196,7 @@ class ProductController {
 
 		// adultProduct;
 
-		if (!imagesProduct || imagesProduct.length === 0) {
+		if (!productImages || productImages.length === 0) {
 			// Validação de Imagem
 			res.status(422).json({ message: "A imagem é obrigatória!" });
 			return;
@@ -306,26 +306,26 @@ class ProductController {
 		});
 
 		// Percorrer o Array de imagens e adicionar cada uma a uma ao produto/anúncio que será criado
-		imagesProduct.forEach((imageProduct: Express.Multer.File) => {
-			console.log(imageProduct);
+		productImages.forEach((productImage: Express.Multer.File) => {
+			console.log(productImage);
 			let image = "";
 
-			if (imageProduct) {
-				if ("key" in imageProduct) {
+			if (productImage) {
+				if ("key" in productImage) {
 					// Estamos usando o armazenamento na AWS S3
-					if (typeof imageProduct.key === "string") {
-						image = imageProduct.key;
+					if (typeof productImage.key === "string") {
+						image = productImage.key;
 					}
 				} else {
 					// Estamos usando o armazenamento em ambiente local (Desenvolvimento)
-					if (typeof imageProduct.filename === "string") {
-						image = imageProduct.filename;
+					if (typeof productImage.filename === "string") {
+						image = productImage.filename;
 					}
 				}
 			}
 
 			// Adicionar a imagem ao produto/anúncio
-			product.imagesProduct.push(image);
+			product.productImages.push(image);
 		});
 
 		try {
@@ -370,7 +370,7 @@ class ProductController {
 			[fieldname: string]: Express.Multer.File[];
 		};
 
-		const imagesProduct = files.imagesProduct || []; // Garante que seja um array
+		const productImages = files.productImages || []; // Garante que seja um array
 
 		// Validações
 		if (!productTitle) {
@@ -451,7 +451,7 @@ class ProductController {
 			return;
 		}
 
-		if (!imagesProduct || imagesProduct.length === 0) {
+		if (!productImages || productImages.length === 0) {
 			// Validação de Imagem
 			res.status(422).json({ message: "A imagem é obrigatória!" });
 			return;
@@ -553,26 +553,26 @@ class ProductController {
 		});
 
 		// Percorrer o Array de imagens e adicionar cada uma a uma ao produto/anúncio que será criado
-		imagesProduct.forEach((imageProduct: Express.Multer.File) => {
-			console.log(imageProduct);
+		productImages.forEach((productImage: Express.Multer.File) => {
+			console.log(productImage);
 			let image = "";
 
-			if (imageProduct) {
-				if ("key" in imageProduct) {
+			if (productImage) {
+				if ("key" in productImage) {
 					// Estamos usando o armazenamento na AWS S3
-					if (typeof imageProduct.key === "string") {
-						image = imageProduct.key;
+					if (typeof productImage.key === "string") {
+						image = productImage.key;
 					}
 				} else {
 					// Estamos usando o armazenamento em ambiente local (Desenvolvimento)
-					if (typeof imageProduct.filename === "string") {
-						image = imageProduct.filename;
+					if (typeof productImage.filename === "string") {
+						image = productImage.filename;
 					}
 				}
 			}
 
 			// Adicionar a imagem ao produto/anúncio
-			productOtaclub.imagesProduct.push(image);
+			productOtaclub.productImages.push(image);
 		});
 
 		try {
@@ -641,55 +641,10 @@ class ProductController {
 	}
 
 	// Pegar todos os Produtos OtaMart
-	static async getAllProducts(req: Request, res: Response) {
-		try {
-			const products = await ProductModel.find({
-				$or: [
-					// Produtos sem variações, mas com stock maior que 0
-					{
-						productVariations: { $size: 0 },
-						stock: { $gt: 0 },
-					},
-					// Produtos com variações onde pelo menos uma opção tem stock maior que 0
-					{
-						productVariations: {
-							$elemMatch: {
-								options: {
-									$elemMatch: { stock: { $gt: 0 } },
-								},
-							},
-						},
-					},
-					// Produtos com variações, mas o estoque principal é maior que 0
-					{
-						stock: { $gt: 0 },
-						productVariations: {
-							$elemMatch: {
-								options: {
-									$not: { $elemMatch: { stock: { $gt: 0 } } },
-								},
-							},
-						},
-					},
-				],
-			})
-				.select("-createdAt -updatedAt -partnerID -__v")
-				.sort("-createdAt");
-
-			res.status(200).json({ products });
-		} catch (error) {
-			res.status(500).json({
-				message: "Erro ao buscar os produtos.",
-				error,
-			});
-		}
-	}
-
-	// Pegar todos os Produtos OtaMart
 	static async getAllProductsOtaclub(req: Request, res: Response) {
 		try {
 			const products = await ProductOtaclubModel.find()
-				.select("-createdAt -updatedAt -partnerID -__v")
+				.select("-createdAt -updatedAt -__v")
 				.sort("-createdAt");
 
 			res.status(200).json({ products });
@@ -750,6 +705,36 @@ class ProductController {
 						},
 					},
 				],
+			}).sort("-createdAt");
+
+			res.status(200).json({ products: products });
+		} catch (error) {
+			res.status(500).json({ error: "Erro ao carregar os Produtos" });
+			return;
+		}
+	}
+
+	static async getAllProductsOtaclubPartner(req: Request, res: Response) {
+		// Verificar o Administrador que cadastrou oss Produtos
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(401).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message:
+					"Você não possui autorização para visualizar essa página!",
+			});
+			return;
+		}
+
+		try {
+			const products = await ProductOtaclubModel.find({
+				partnerID: partner._id,
 			}).sort("-createdAt");
 
 			res.status(200).json({ products: products });

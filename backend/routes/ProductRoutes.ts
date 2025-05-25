@@ -52,6 +52,12 @@ router.get(
 );
 
 router.get(
+	"/partner-otaclub-products",
+	verifyToken,
+	ProductController.getAllProductsOtaclubPartner
+);
+
+router.get(
 	"/partner-product/:id",
 	verifyToken,
 	ProductController.getPartnerProductByID
