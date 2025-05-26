@@ -50,7 +50,7 @@ function MyOrdersOtaclubPage() {
 	const handleClick = (orderId) => {
 		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
 		setTimeout(() => {
-			router.push(`/dashboard/myorders/${orderId}`);
+			router.push(`/dashboard/myorders-otaclub/${orderId}`);
 		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 
@@ -119,7 +119,7 @@ function MyOrdersOtaclubPage() {
 																<div className="avatar">
 																	<div className="mask mask-squircle w-12 h-12">
 																		<Image
-																			src={`http://backend:5000/images/products/${myorder.itemsList[0].productImage}`}
+																			src={`http://localhost:5000/images/products/${myorder.itemsList[0].productImage}`}
 																			alt={
 																				myorder
 																					.itemsList[0]
@@ -148,7 +148,14 @@ function MyOrdersOtaclubPage() {
 																			</span>
 																		</h2>
 																		<span className="badge badge-info badge-sm text-white py-2">
-																			{`Total de ${myorder.itemsList.length} produtos`}
+																			{`Total de ${
+																				myorder
+																					.itemsList
+																					.length ===
+																				1
+																					? `${myorder.itemsList.length} produto`
+																					: `${myorder.itemsList.length} produtos`
+																			} `}
 																		</span>
 																	</div>
 																</div>
@@ -157,14 +164,13 @@ function MyOrdersOtaclubPage() {
 													</td>
 													<td>
 														<div className="text-black">
-															{myorder.customerOrderCostTotal?.toLocaleString(
+															{`${myorder.customerOrderCostTotal?.toLocaleString(
 																"pt-BR",
 																{
-																	style: "currency",
-																	currency:
-																		"BRL",
+																	minimumFractionDigits: 2,
+																	maximumFractionDigits: 2,
 																}
-															)}
+															)} OP`}
 														</div>
 														<span className="badge badge-info badge-sm text-white py-2">
 															{
@@ -187,7 +193,9 @@ function MyOrdersOtaclubPage() {
 													</td>
 													<td className="text-xs">
 														<div className="text-black">
-															{myorder.orderID}
+															{
+																myorder.orderOtaclubID
+															}
 														</div>
 													</td>
 													<th>

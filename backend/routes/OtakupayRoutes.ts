@@ -52,10 +52,12 @@ router.post(
 	OtakupayController.finishPaymentPixOtakuPay
 );
 
+router.post("/release-values", verifyToken, OtakupayController.releaseOfValues);
+
 router.post(
-	"/realease-values",
+	"/otaclub-release-values",
 	verifyToken,
-	OtakupayController.releaseOfValues
+	OtakupayController.releaseOfValuesOtaclub
 );
 
 router.get(

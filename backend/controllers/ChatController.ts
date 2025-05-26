@@ -10,7 +10,16 @@ import { ChatModel } from "../models/ChatModel.js";
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
 
+import AWS from "aws-sdk";
+AWS.config.update({ region: "us-east-1" }); // ajuste para sua região
+const lambda = new AWS.Lambda();
+
 class ChatController {
+	static async lambdaFunction(req: Request, res: Response): Promise<void> {
+		console.log("Função Lambda chamada com sucesso!");
+		res.status(200).json({ message: "Ok" }); // <-- finalize a requisição
+	}
+
 	static async sendMessageByChat(req: Request, res: Response): Promise<void> {
 		const { userTwoID, message } = req.body;
 

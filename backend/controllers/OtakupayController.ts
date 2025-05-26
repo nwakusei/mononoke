@@ -38,6 +38,7 @@ import { CouponModel } from "../models/CouponModel.js";
 import { error } from "console";
 import { CustomerModel } from "../models/CustomerModel.js";
 import { TransactionModel } from "../models/TransactionModel.js";
+import { resolveSoa } from "dns";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -5684,7 +5685,7 @@ class OtakupayController {
 				partnerBalanceAvailableEncrypted
 			);
 
-			if (partnerBalanceAvailableDecrypted == null) {
+			if (partnerBalanceAvailableDecrypted === null) {
 				// Apenas null ou undefined
 				res.status(404).json({
 					message: "Balance Available do Parceiro não encontrado!",
@@ -5884,6 +5885,195 @@ class OtakupayController {
 			res.status(200).json({ message: "Valores liberados com sucesso!" });
 		} catch (error) {
 			console.log("Erro ao tentar liberar os valores do pedido!", error);
+		}
+	}
+
+	static async releaseOfValuesOtaclub(req: Request, res: Response) {
+		const { orderId } = req.body;
+
+		if (!orderId) {
+			res.status(404).json({ message: "A orderID é obrigatória!" });
+			return;
+		}
+
+		const order = await OrderOtaclubModel.findOne({ _id: orderId });
+
+		if (!order) {
+			res.status(404).json({ messagem: "Pedido não encontrado!" });
+			return;
+		}
+
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (customer._id.toString() !== order.customerID.toString()) {
+			res.status(404).json({ message: "Requisição negada!" });
+			return;
+		}
+
+		try {
+			const customerOtakupay = await OtakupayModel.findById({
+				_id: customer?.otakupayID,
+			}).select("-password");
+
+			//////////////////////////// Partner //////////////////////////////////////////
+			const partnerID = order.partnerID;
+
+			// Correto: findById espera apenas o ID
+			const partner = await PartnerModel.findById(partnerID).select(
+				"-password"
+			);
+
+			if (!partner) {
+				return res.status(404).json({
+					message: `Parceiro não encontrado com ID: ${partnerID}`,
+				});
+			}
+
+			// Correto: findById com ID direto
+			const partnerOtakupay = await OtakupayModel.findById(
+				partner.otakupayID
+			).select("-password");
+
+			if (!partnerOtakupay) {
+				return res.status(404).json({
+					message: `OtakuPay do parceiro não encontrado com ID: ${partner.otakupayID}`,
+				});
+			}
+
+			const partnerOtakuPointsPendingEncrypted =
+				partnerOtakupay?.otakuPointsPending;
+
+			if (!partnerOtakuPointsPendingEncrypted) {
+				res.status(404).json({
+					message:
+						"Otaku Points Pendentes Criptografado do Parceiro não encontrado!",
+				});
+				return;
+			}
+
+			const partnerOtakuPointsPendingDencrypted = decrypt(
+				partnerOtakuPointsPendingEncrypted
+			);
+
+			if (!partnerOtakuPointsPendingDencrypted) {
+				res.status(404).json({
+					message:
+						"Otaku Points Pendentes Descriptografado do Parceiro não encontrado!",
+				});
+				return;
+			}
+
+			const orderCostTotalEncrypted =
+				order.customerOrderCostTotal.toString();
+
+			if (!orderCostTotalEncrypted) {
+				res.status(404).json({
+					messsage: "Valor total do Pedido não encontrado!",
+				});
+				return;
+			}
+
+			const orderCostTotalDecrypted = decrypt(orderCostTotalEncrypted);
+
+			if (!orderCostTotalDecrypted) {
+				res.status(404).json({
+					messsage: "Valor total do Pedido não encontrado!",
+				});
+				return;
+			}
+
+			const partnerCommissionOtaclubEncrypted =
+				order.partnerCommissionOtaclub;
+
+			if (!partnerCommissionOtaclubEncrypted) {
+				res.status(404).json({
+					message: "Comissão do Parceiro não encontrada!",
+				});
+				return;
+			}
+
+			const partnerCommissionOtaclubDecrypted = decrypt(
+				partnerCommissionOtaclubEncrypted.toString()
+			);
+
+			if (!partnerCommissionOtaclubDecrypted) {
+				res.status(404).json({
+					message: "Comissão do Parceiro não encontrada!",
+				});
+				return;
+			}
+
+			const OtaclubProfitFromSaleDecrypted =
+				orderCostTotalDecrypted - partnerCommissionOtaclubDecrypted;
+
+			const newPartnerOtakuPointsPendingDecrypted =
+				partnerOtakuPointsPendingDencrypted - orderCostTotalDecrypted;
+
+			const newPartnerOtakuPointsPendingEncrypted = encrypt(
+				newPartnerOtakuPointsPendingDecrypted.toString()
+			);
+
+			const parterOtakuPointsAvailableEncrypted =
+				partnerOtakupay?.otakuPointsAvailable;
+
+			if (
+				parterOtakuPointsAvailableEncrypted === null ||
+				parterOtakuPointsAvailableEncrypted === undefined
+			) {
+				res.status(404).json({
+					message:
+						"Otaku Points Disponíveis Criptografado do Parceiro não encontrado!",
+				});
+				return;
+			}
+
+			const parterOtakuPointsAvailableDencrypted = decrypt(
+				parterOtakuPointsAvailableEncrypted.toString()
+			);
+
+			// Aqui verifica se o resultado é null ou undefined, não zero
+			if (
+				parterOtakuPointsAvailableDencrypted === null ||
+				parterOtakuPointsAvailableDencrypted === undefined
+			) {
+				res.status(404).json({
+					message:
+						"Otaku Points Disponíveis Descriptografado do Parceiro não encontrado!",
+				});
+				return;
+			}
+
+			const newParterOtakuPointsAvailableDecrypted =
+				parterOtakuPointsAvailableDencrypted +
+				OtaclubProfitFromSaleDecrypted;
+
+			const newParterOtakuPointsAvailableEncrypted = encrypt(
+				newParterOtakuPointsAvailableDecrypted.toString()
+			);
+
+			partnerOtakupay.otakuPointsPending =
+				newPartnerOtakuPointsPendingEncrypted;
+			partnerOtakupay.otakuPointsAvailable =
+				newParterOtakuPointsAvailableEncrypted;
+
+			// Salvamentos Após dar tudo certo
+			await partnerOtakupay.save();
+
+			// Adicione uma resposta ao cliente
+			res.status(200).json({ message: "Valores liberados com sucesso!" });
+		} catch (error) {
+			console.log("Erro ao tentar liberar os valores do pedido!", error);
+			res.status(500).json({
+				message: "Erro interno ao tentar liberar os valores do pedido!",
+				error: error instanceof Error ? error.message : error,
+			});
+			return;
 		}
 	}
 
@@ -6181,7 +6371,8 @@ class OtakupayController {
 				productID: product.productID,
 				productTitle: product.productTitle,
 				productImage: product.productImage,
-				productPrice: product.price,
+				productPrice: product.productPrice,
+				productQuantity: 1,
 				daysShipping: 10,
 			});
 

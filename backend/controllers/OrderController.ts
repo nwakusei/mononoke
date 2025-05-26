@@ -231,6 +231,72 @@ class OrderController {
 		}
 	}
 
+	static async getPartnerOrderOtaclubByID(req: Request, res: Response) {
+		const { id } = req.params;
+
+		// Verificar se o ID é um ObjectID válido
+		if (!isValidObjectId(id)) {
+			res.status(422).json({ message: "ID inválido" });
+			return;
+		}
+
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({ message: "Usuário não encontrado!" });
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message: "Você não tem permissão para acessar esta página!",
+			});
+			return;
+		}
+
+		// Pegar o pedido da requisição
+		const order = await OrderOtaclubModel.findById({ _id: id });
+
+		// Verificar se o pedido existe
+		if (!order) {
+			res.status(404).json({ message: "Pedido não encontrado!" });
+			return;
+		}
+
+		try {
+			const orderObj = order.toObject();
+
+			// Verificar se o usuário da requisição é o proprietário do pedido
+			const partnerIDAsString = orderObj.partnerID.toString();
+			if (partner.id !== partnerIDAsString) {
+				res.status(422).json({
+					message:
+						"Você não é o proprietário desse pedido, acesso negado!",
+				});
+				return;
+			}
+
+			// Descriptografar os campos sensíveis
+			const decryptedOrder = {
+				...orderObj,
+
+				customerOrderCostTotal: decrypt(
+					orderObj.customerOrderCostTotal
+				),
+				partnerCommissionOtamart: decrypt(
+					orderObj.partnerCommissionOtaclub.toString()
+				),
+				partnerCNPJ: decrypt(orderObj.partnerCNPJ),
+				customerCPF: decrypt(orderObj.customerCPF),
+			};
+
+			res.status(200).json({ order: decryptedOrder });
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
 	static async getAllCustomerOrders(req: Request, res: Response) {
 		const token: any = getToken(req);
 		const customer = await getUserByToken(token);
@@ -379,6 +445,66 @@ class OrderController {
 			),
 			customerOtakuPointsEarned: decrypt(
 				orderObj.customerOtakuPointsEarned
+			),
+			partnerCNPJ: decrypt(orderObj.partnerCNPJ),
+			customerCPF: decrypt(orderObj.customerCPF),
+		};
+
+		res.status(200).json({ order: decryptedOrder });
+	}
+
+	static async getCustomerOrderOtaclubByID(req: Request, res: Response) {
+		const { id } = req.params;
+
+		// Verificar se o ID é um ObjectID válido
+		if (!isValidObjectId(id)) {
+			res.status(422).json({ message: "ID inválido" });
+			return;
+		}
+
+		const token: any = getToken(req);
+		const customer = await getUserByToken(token);
+
+		if (!customer) {
+			res.status(422).json({
+				message: "Customer/Usuário não encontrado!",
+			});
+			return;
+		}
+
+		if (customer.accountType !== "customer") {
+			res.status(422).json({
+				message: "Você não tem permissão para acessar esta página!",
+			});
+			return;
+		}
+
+		// Pegar o pedido da requisição
+		const order = await OrderOtaclubModel.findById({ _id: id });
+
+		if (!order) {
+			res.status(404).json({ message: "Produto não encontrado!" });
+			return;
+		}
+
+		const orderObj = order.toObject();
+
+		// Verificar se o usuário da requisição é o proprietário do Pedido
+		const customerIDAsString = orderObj.customerID.toString();
+		if (customer.id !== customerIDAsString) {
+			res.status(422).json({
+				message:
+					"Você não é o proprietário desse pedido, acesso negado!",
+			});
+			return;
+		}
+
+		// Descriptografar os campos sensíveis
+		const decryptedOrder = {
+			...orderObj,
+			customerOrderCostTotal: decrypt(orderObj.customerOrderCostTotal),
+			partnerCommissionOtaclub: decrypt(
+				orderObj.partnerCommissionOtaclub.toString()
 			),
 			partnerCNPJ: decrypt(orderObj.partnerCNPJ),
 			customerCPF: decrypt(orderObj.customerCPF),
@@ -789,6 +915,72 @@ class OrderController {
 		}
 	}
 
+	static async OtaclubMarkPacked(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(422).json({
+				message: "O ID do pedido é obrigatório!",
+			});
+			return;
+		}
+
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({
+				message: "Usuário não encontrado!",
+			});
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message:
+					"Você não possuo autorização para realizar essa requsição!",
+			});
+			return;
+		}
+
+		try {
+			const order = await OrderOtaclubModel.findById(id);
+
+			if (!order) {
+				res.status(422).json({
+					message: "Pedido não encontrado!",
+				});
+				return;
+			}
+
+			if (order.statusShipping === "Packed") {
+				res.status(422).json({
+					message: "Pedido já marcado como embalado!",
+				});
+				return;
+			}
+
+			if (order.statusShipping !== "Pending") {
+				res.status(422).json({
+					message: "O Pedido não pode ser marcado como embalado!",
+				});
+				return;
+			}
+
+			order.statusShipping = "Packed";
+			order.dateMarkedPacked = new Date(); // Aqui você insere a data atual
+
+			await order.save(); // Salva as alterações no banco de dados
+
+			res.status(200).json({
+				message: "Pedido marcado como embalado com sucesso!",
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ message: "Erro ao marcar como embalado!" });
+		}
+	}
+
 	static async markOrderDelivered(req: Request, res: Response) {
 		const { id } = req.params;
 
@@ -840,31 +1032,130 @@ class OrderController {
 			order.statusShipping = "Delivered";
 			order.markedDeliveredBy = user.accountType;
 
-			// Requisição teste para ativar outra requisição dentro da API
-			const transactionRequestConfig: AxiosRequestConfig = {
-				method: "post",
-				url: "http://localhost:5000/otakupay/realease-values",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`, // Se precisar de um token de autenticação
-				},
-				data: {
-					// Dados que precisam ser enviados para a transação
-					orderId: order._id,
-				},
-			};
+			if (user.accountType === "customer") {
+				// Requisição teste para ativar outra requisição dentro da API
+				const transactionRequestConfig: AxiosRequestConfig = {
+					method: "post",
+					url: "http://localhost:5000/otakupay/realease-values",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`, // Se precisar de um token de autenticação
+					},
+					data: {
+						// Dados que precisam ser enviados para a transação
+						orderId: order._id,
+					},
+				};
 
-			const transactionResponse = await axios(transactionRequestConfig);
-
-			if (transactionResponse.status !== 200) {
-				console.log(
-					"Erro ao processar a transação, status:",
-					transactionResponse.status
+				const transactionResponse = await axios(
+					transactionRequestConfig
 				);
-				res.status(500).json({
-					message: "Erro ao processar a transação!",
+
+				if (transactionResponse.status !== 200) {
+					console.log(
+						"Erro ao processar a transação, status:",
+						transactionResponse.status
+					);
+					res.status(500).json({
+						message: "Erro ao processar a transação!",
+					});
+					return;
+				}
+			}
+
+			// order.dateMarkedPacked = new Date(); // Aqui você insere a data atual
+
+			await order.save(); // Salva as alterações no banco de dados
+
+			res.status(200).json({
+				message: "Pedido marcado como entregue com sucesso!",
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ message: "Erro ao marcar como entregue!" });
+		}
+	}
+
+	static async OtaclubMarkOrderDelivered(req: Request, res: Response) {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(422).json({
+				message: "O ID do pedido é obrigatório!",
+			});
+			return;
+		}
+
+		const token: any = getToken(req);
+		const user = await getUserByToken(token);
+
+		if (!user) {
+			res.status(422).json({
+				message: "Usuário não encontrado!",
+			});
+			return;
+		}
+
+		try {
+			const order = await OrderOtaclubModel.findById(id);
+
+			if (!order) {
+				res.status(422).json({
+					message: "Pedido não encontrado!",
 				});
 				return;
+			}
+
+			if (order.statusShipping === "Delivered") {
+				res.status(422).json({
+					message: "Pedido já marcado como entregue!",
+				});
+				return;
+			}
+
+			if (
+				order.statusShipping !== "Shipped" &&
+				order.statusShipping !== "Not Delivered"
+			) {
+				res.status(422).json({
+					message: "O Pedido não pode ser marcado como entregue!",
+				});
+				return;
+			}
+
+			order.statusOrder = "Delivered";
+			order.statusShipping = "Delivered";
+			order.markedDeliveredBy = user.accountType;
+
+			if (user.accountType === "customer") {
+				// Requisição teste para ativar outra requisição dentro da API
+				const transactionRequestConfig: AxiosRequestConfig = {
+					method: "post",
+					url: "http://localhost:5000/otakupay/otaclub-release-values",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`, // Se precisar de um token de autenticação
+					},
+					data: {
+						// Dados que precisam ser enviados para a transação
+						orderId: order._id,
+					},
+				};
+
+				const transactionResponse = await axios(
+					transactionRequestConfig
+				);
+
+				if (transactionResponse.status !== 200) {
+					console.log(
+						"Erro ao processar a transação, status:",
+						transactionResponse.status
+					);
+					res.status(500).json({
+						message: "Erro ao processar a transação!",
+					});
+					return;
+				}
 			}
 
 			// order.dateMarkedPacked = new Date(); // Aqui você insere a data atual
@@ -983,6 +1274,87 @@ class OrderController {
 
 		try {
 			const order = await OrderModel.findById(id);
+
+			if (!order) {
+				res.status(422).json({
+					message: "Pedido não encontrado!",
+				});
+				return;
+			}
+
+			if (order.statusShipping === "Shipped") {
+				res.status(422).json({
+					message: "Pedido já enviado!",
+				});
+				return;
+			}
+
+			if (order.statusShipping !== "Packed") {
+				res.status(422).json({
+					message: "O Pedido não pode ser marcado como enviado!",
+				});
+				return;
+			}
+
+			// order.statusOrder = "Shipped";
+			order.statusShipping = "Shipped";
+			order.logisticOperator = logisticOperator;
+			order.trackingCode = trackingCode;
+
+			await order.save(); // Salva as alterações no banco de dados
+
+			res.status(200).json({ message: "Rastreio enviado com sucesso!" });
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({
+				message: "Erro ao atualizar o código de rastreamento!",
+			});
+		}
+	}
+
+	static async updateTrackingCodeOtaclub(req: Request, res: Response) {
+		const { id } = req.params;
+		const { logisticOperator, trackingCode } = req.body;
+
+		if (!id) {
+			res.status(422).json({ message: "O ID do pedido é obrigatório!" });
+			return;
+		}
+
+		const token: any = getToken(req);
+		const partner = await getUserByToken(token);
+
+		if (!partner) {
+			res.status(422).json({
+				message: "Usuário não encontrado!",
+			});
+			return;
+		}
+
+		if (partner.accountType !== "partner") {
+			res.status(422).json({
+				message:
+					"Você não possuo autorização para realizar essa requsição!",
+			});
+			return;
+		}
+
+		if (!logisticOperator) {
+			res.status(422).json({
+				message: "O Operador Logístico é obrigatório!",
+			});
+			return;
+		}
+
+		if (!trackingCode) {
+			res.status(422).json({
+				message: "O código de rastreio é obrigatório!",
+			});
+			return;
+		}
+
+		try {
+			const order = await OrderOtaclubModel.findById(id);
 
 			if (!order) {
 				res.status(422).json({

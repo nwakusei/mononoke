@@ -7,6 +7,7 @@ interface IOrderOtaclubItem {
 	productTitle: string;
 	productImage: string;
 	productPrice: number;
+	productQuantity: number;
 	daysShipping: number;
 }
 
@@ -73,9 +74,6 @@ const orderOtaclubSchema = new Schema<IOrderOtaclub>(
 				},
 				productPrice: {
 					type: Number,
-				},
-				productVariation: {
-					type: String,
 				},
 				productQuantity: {
 					type: Number,

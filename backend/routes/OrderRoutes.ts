@@ -22,6 +22,12 @@ router.get(
 );
 
 router.get(
+	"/partner-otaclub-orders/:id",
+	verifyToken,
+	OrderController.getPartnerOrderOtaclubByID
+);
+
+router.get(
 	"/customer-orders",
 	verifyToken,
 	OrderController.getAllCustomerOrders
@@ -39,6 +45,12 @@ router.get(
 	OrderController.getCustomerOrderByID
 );
 
+router.get(
+	"/customer-otaclub-orders/:id",
+	verifyToken,
+	OrderController.getCustomerOrderOtaclubByID
+);
+
 router.patch(
 	"/customer-receiptorder/:id",
 	verifyToken,
@@ -48,9 +60,21 @@ router.patch(
 router.patch("/mark-packed/:id", verifyToken, OrderController.markPacked);
 
 router.patch(
+	"/otaclub-mark-packed/:id",
+	verifyToken,
+	OrderController.OtaclubMarkPacked
+);
+
+router.patch(
 	"/mark-delivered/:id",
 	verifyToken,
 	OrderController.markOrderDelivered
+);
+
+router.patch(
+	"/otaclub-mark-delivered/:id",
+	verifyToken,
+	OrderController.OtaclubMarkOrderDelivered
 );
 
 router.patch(
@@ -63,6 +87,12 @@ router.patch(
 	"/update-trackingcode/:id",
 	verifyToken,
 	OrderController.updateTrackingCode
+);
+
+router.patch(
+	"/otaclub-update-trackingcode/:id",
+	verifyToken,
+	OrderController.updateTrackingCodeOtaclub
 );
 
 router.delete(

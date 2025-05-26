@@ -171,7 +171,14 @@ function MySalesPage() {
 																			</span>
 																		</h2>
 																		<span className="badge badge-info badge-sm text-white py-2">
-																			{`Total de ${mysale.itemsList.length} produtos`}
+																			{`Total de ${
+																				mysale
+																					.itemsList
+																					.length ===
+																				1
+																					? `${mysale.itemsList.length} produto`
+																					: `${mysale.itemsList.length} produtos`
+																			} `}
 																		</span>
 																	</div>
 																</div>

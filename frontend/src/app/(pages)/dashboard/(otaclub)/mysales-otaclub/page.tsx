@@ -53,7 +53,7 @@ function MySalesOtaclubPage() {
 	const handleClick = (orderId) => {
 		setLoadingButtonId(orderId); // Define o ID do pedido que está carregando
 		setTimeout(() => {
-			router.push(`/dashboard/mysales/${orderId}`);
+			router.push(`/dashboard/mysales-otaclub/${orderId}`);
 		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 
@@ -145,7 +145,7 @@ function MySalesOtaclubPage() {
 																<div className="avatar">
 																	<div className="mask mask-squircle w-12 h-12">
 																		<Image
-																			src={`http://backend:5000/images/products/${mysale.itemsList[0].productImage}`}
+																			src={`http://localhost:5000/images/products/${mysale.itemsList[0].productImage}`}
 																			alt={
 																				mysale
 																					.itemsList[0]
@@ -174,7 +174,14 @@ function MySalesOtaclubPage() {
 																			</span>
 																		</h2>
 																		<span className="badge badge-info badge-sm text-white py-2">
-																			{`Total de ${mysale.itemsList.length} produtos`}
+																			{`Total de ${
+																				mysale
+																					.itemsList
+																					.length ===
+																				1
+																					? `${mysale.itemsList.length} produto`
+																					: `${mysale.itemsList.length} produtos`
+																			} `}
 																		</span>
 																	</div>
 																</div>
@@ -182,15 +189,15 @@ function MySalesOtaclubPage() {
 														)}
 													</td>
 													<td className="text-black">
-														{decrypt(
+														{`${decrypt(
 															mysale.customerOrderCostTotal
 														)?.toLocaleString(
 															"pt-BR",
 															{
-																style: "currency",
-																currency: "BRL",
+																minimumFractionDigits: 2,
+																maximumFractionDigits: 2,
 															}
-														)}
+														)} OP`}
 														<br />
 														<span className="badge badge-info badge-sm text-white py-2">
 															{
@@ -213,7 +220,7 @@ function MySalesOtaclubPage() {
 														{mysale.customerName}
 													</td>
 													<td className="text-xs text-black">
-														{mysale.orderID}
+														{mysale.orderOtaclubID}
 													</td>
 													<th className="text-black">
 														{/* <button className="flex items-center btn btn-primary btn-xs shadow-md">

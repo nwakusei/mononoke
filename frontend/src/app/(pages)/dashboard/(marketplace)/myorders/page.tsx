@@ -117,7 +117,7 @@ function MyOrdersPage() {
 																<div className="avatar">
 																	<div className="mask mask-squircle w-12 h-12">
 																		<Image
-																			src={`http://backend:5000/images/products/${myorder.itemsList[0].productImage}`}
+																			src={`http://localhost:5000/images/products/${myorder.itemsList[0].productImage}`}
 																			alt={
 																				myorder
 																					.itemsList[0]
@@ -146,7 +146,14 @@ function MyOrdersPage() {
 																			</span>
 																		</h2>
 																		<span className="badge badge-info badge-sm text-white py-2">
-																			{`Total de ${myorder.itemsList.length} produtos`}
+																			{`Total de ${
+																				myorder
+																					.itemsList
+																					.length ===
+																				1
+																					? `${myorder.itemsList.length} produto`
+																					: `${myorder.itemsList.length} produtos`
+																			} `}
 																		</span>
 																	</div>
 																</div>
