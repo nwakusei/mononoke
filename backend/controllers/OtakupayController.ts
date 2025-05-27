@@ -5878,6 +5878,8 @@ class OtakupayController {
 			partnerOtakupay.balanceAvailable =
 				newPartnerBalanceAvailableEncrypted;
 
+			order.statusOrder = "Completed";
+
 			await customerOtakupay.save();
 			await partnerOtakupay.save();
 
@@ -5885,6 +5887,210 @@ class OtakupayController {
 			res.status(200).json({ message: "Valores liberados com sucesso!" });
 		} catch (error) {
 			console.log("Erro ao tentar liberar os valores do pedido!", error);
+		}
+	}
+
+	static async webhookAWSLambdaReleaseValuesOtamart(
+		req: Request,
+		res: Response
+	) {
+		try {
+			const now = new Date();
+			const sevenDaysAgo = new Date(
+				now.getTime() - 7 * 24 * 60 * 60 * 1000
+			);
+
+			const ordersToRelease = await OrderModel.find({
+				statusOrder: "Delivered",
+				statusShipping: "Delivered",
+				markedDeliveredBy: "partner",
+				markedDeliveredAt: { $lte: sevenDaysAgo },
+			});
+
+			console.log(
+				`Total de pedidos a liberar: ${ordersToRelease.length}`
+			);
+
+			for (const order of ordersToRelease) {
+				// OtakuPay do Customer
+				const customer = await CustomerModel.findById(order.customerID);
+
+				if (!customer || customer === null) {
+					res.status(404).json({
+						message: "Cliente não encontrado!",
+					});
+					return;
+				}
+
+				const customerOtakupay = await OtakupayModel.findById(
+					customer.otakupayID
+				);
+
+				if (!customerOtakupay || customerOtakupay === null) {
+					res.status(404).json({
+						message: "OtakuPay do cliente não encontrado!",
+					});
+					return;
+				}
+
+				const otakuPointsPendingDecrypted = decrypt(
+					customerOtakupay.otakuPointsPending
+				);
+
+				if (
+					!otakuPointsPendingDecrypted ||
+					otakuPointsPendingDecrypted === null
+				) {
+					res.status(404).json({
+						message: "Otaku Points Pendentes não encontrado!",
+					});
+					return;
+				}
+
+				const otakuPointsAvailableDecrypted = decrypt(
+					customerOtakupay.otakuPointsAvailable
+				);
+
+				if (
+					!otakuPointsAvailableDecrypted ||
+					otakuPointsAvailableDecrypted === null
+				) {
+					res.status(404).json({
+						message: "Otaku Points Disponíveis não encontrado!",
+					});
+					return;
+				}
+
+				const otakuPointsEarnedDecrypted = decrypt(
+					order.customerOtakuPointsEarned
+				);
+
+				if (
+					!otakuPointsEarnedDecrypted ||
+					otakuPointsEarnedDecrypted === null
+				) {
+					res.status(404).json({
+						message: "Pontos Ganho pelo Cliente não encontrado!",
+					});
+					return;
+				}
+
+				const newPending = (
+					otakuPointsPendingDecrypted - otakuPointsEarnedDecrypted
+				).toFixed(2);
+
+				const newAvailable = (
+					otakuPointsAvailableDecrypted + otakuPointsEarnedDecrypted
+				).toFixed(2);
+
+				customerOtakupay.otakuPointsPending = encrypt(newPending);
+				customerOtakupay.otakuPointsAvailable = encrypt(newAvailable);
+
+				// OtakuPay do Parceiro
+				const partner = await PartnerModel.findById(order.partnerID);
+
+				if (!partner || partner === null) {
+					res.status(404).json({
+						message: "Parceiro não encontrado!",
+					});
+					return;
+				}
+
+				const partnerOtakupay = await OtakupayModel.findById(
+					partner.otakupayID
+				);
+
+				if (!partnerOtakupay || partnerOtakupay === null) {
+					res.status(404).json({
+						message: "OtakuPay do parceiro não encontrado!",
+					});
+					return;
+				}
+
+				const balancePendingDecrypted = decrypt(
+					partnerOtakupay.balancePending
+				);
+
+				if (
+					!balancePendingDecrypted ||
+					balancePendingDecrypted === null
+				) {
+					res.status(404).json({
+						message: "Balance Pending do Parceiro não encontrado!",
+					});
+					return;
+				}
+
+				const balanceAvailableDecrypted = decrypt(
+					partnerOtakupay.balanceAvailable
+				);
+
+				const orderCostDecrypted = decrypt(
+					order.customerOrderCostTotal
+				);
+
+				if (!orderCostDecrypted || orderCostDecrypted === null) {
+					res.status(404).json({
+						message: "Valor total do Pedido não encontrado!",
+					});
+					return;
+				}
+
+				const shippingCostDecrypted = decrypt(order.shippingCostTotal);
+
+				if (!shippingCostDecrypted || shippingCostDecrypted === null) {
+					res.status(404).json({
+						message: "Valor total do Frete não encontrado!",
+					});
+					return;
+				}
+
+				const commissionDecrypted = decrypt(
+					order.partnerCommissionOtamart.toString()
+				);
+
+				if (!commissionDecrypted || commissionDecrypted === null) {
+					res.status(404).json({
+						message: "Comissão do Parceiro não encontrada!",
+					});
+					return;
+				}
+
+				const subtotal = orderCostDecrypted - shippingCostDecrypted;
+
+				const netAmount = subtotal - commissionDecrypted;
+
+				const finalAmount = (netAmount + shippingCostDecrypted).toFixed(
+					2
+				);
+
+				const newBalancePending = (
+					balancePendingDecrypted - orderCostDecrypted
+				).toFixed(2);
+				const newBalanceAvailable = (
+					Number(balanceAvailableDecrypted) + Number(finalAmount)
+				).toFixed(2);
+
+				partnerOtakupay.balancePending = encrypt(newBalancePending);
+				partnerOtakupay.balanceAvailable = encrypt(newBalanceAvailable);
+				order.statusOrder = "Completed";
+
+				await customerOtakupay.save();
+				await partnerOtakupay.save();
+
+				console.log(
+					`Valores liberados com sucesso para o pedido ${order._id}`
+				);
+			}
+
+			res.status(200).json({
+				message: "Processo de liberação concluído com sucesso.",
+			});
+		} catch (error) {
+			console.error("Erro ao liberar valores:", error);
+			res.status(500).json({
+				message: "Erro interno ao processar os pedidos.",
+			});
 		}
 	}
 
@@ -6062,6 +6268,8 @@ class OtakupayController {
 			partnerOtakupay.otakuPointsAvailable =
 				newParterOtakuPointsAvailableEncrypted;
 
+			order.statusOrder = "Completed";
+
 			// Salvamentos Após dar tudo certo
 			await partnerOtakupay.save();
 
@@ -6075,6 +6283,24 @@ class OtakupayController {
 			});
 			return;
 		}
+	}
+
+	static async webhookAWSLambdaReleaseValuesOtaclub(
+		req: Request,
+		res: Response
+	) {
+		const now = new Date();
+
+		const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+		const ordersToRelease = await OrderModel.find({
+			statusOrder: "Delivered",
+			statusShipping: "Delivered",
+			markedDeliveredBy: "partner",
+			markedDeliveredAt: { $lte: sevenDaysAgo },
+		});
+
+		console.log(`Total de pedidos a liberar: ${ordersToRelease.length}`);
 	}
 
 	static async getAllUserTransactions(req: Request, res: Response) {

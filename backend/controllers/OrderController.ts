@@ -902,7 +902,6 @@ class OrderController {
 			}
 
 			order.statusShipping = "Packed";
-			order.dateMarkedPacked = new Date(); // Aqui você insere a data atual
 
 			await order.save(); // Salva as alterações no banco de dados
 
@@ -1031,6 +1030,7 @@ class OrderController {
 			order.statusOrder = "Delivered";
 			order.statusShipping = "Delivered";
 			order.markedDeliveredBy = user.accountType;
+			order.markedDeliveredAt = new Date(); // Aqui você insere a data atual
 
 			if (user.accountType === "customer") {
 				// Requisição teste para ativar outra requisição dentro da API
@@ -1126,6 +1126,7 @@ class OrderController {
 			order.statusOrder = "Delivered";
 			order.statusShipping = "Delivered";
 			order.markedDeliveredBy = user.accountType;
+			order.markedDeliveredAt = new Date(); // Aqui você insere a data atual
 
 			if (user.accountType === "customer") {
 				// Requisição teste para ativar outra requisição dentro da API

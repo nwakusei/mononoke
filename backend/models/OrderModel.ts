@@ -44,7 +44,8 @@ interface IOrder {
 	shippingMethod: string;
 	statusShipping: string;
 	markedDeliveredBy: string;
-	dateMarkedPacked: Date;
+	markedDeliveredAt: Date;
+	// dateMarkedPacked: Date;
 	trackingCode: string;
 	logisticOperator: string;
 	discountsApplied: number;
@@ -157,9 +158,12 @@ const orderSchema = new Schema<IOrder>(
 		markedDeliveredBy: {
 			type: String,
 		},
-		dateMarkedPacked: {
+		markedDeliveredAt: {
 			type: Date,
 		},
+		// dateMarkedPacked: {
+		// 	type: Date,
+		// },
 		trackingCode: {
 			type: String,
 		},

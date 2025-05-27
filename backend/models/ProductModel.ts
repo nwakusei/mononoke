@@ -36,6 +36,7 @@ interface IProduct {
 	freeShipping: boolean;
 	freeShippingRegion: string;
 	adultProduct: boolean;
+	sponsoredProduct: boolean;
 	productsSold: number;
 	rating: number;
 	reviews: [Object];
@@ -132,6 +133,9 @@ const productSchema = new Schema<IProduct>(
 			type: String,
 		},
 		adultProduct: {
+			type: Boolean,
+		},
+		sponsoredProduct: {
 			type: Boolean,
 		},
 		productsSold: {

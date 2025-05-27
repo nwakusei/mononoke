@@ -37,7 +37,8 @@ interface IOrderOtaclub {
 	customerAddress: ICustomerAddress[];
 	statusShipping: string;
 	markedDeliveredBy: string;
-	dateMarkedPacked: Date;
+	markedDeliveredAt: Date;
+	// dateMarkedPacked: Date;
 	trackingCode: string;
 	logisticOperator: string;
 }
@@ -128,9 +129,12 @@ const orderOtaclubSchema = new Schema<IOrderOtaclub>(
 		markedDeliveredBy: {
 			type: String,
 		},
-		dateMarkedPacked: {
+		markedDeliveredAt: {
 			type: Date,
 		},
+		// dateMarkedPacked: {
+		// 	type: Date,
+		// },
 		trackingCode: {
 			type: String,
 		},

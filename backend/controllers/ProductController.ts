@@ -282,6 +282,7 @@ class ProductController {
 		const product = new ProductModel({
 			productTitle: productTitle,
 			slugTitle: slugWithCode,
+			imagesProduct: [],
 			description: description,
 			productVariations: processedVariations,
 			originalPrice: originalPrice,
@@ -298,7 +299,7 @@ class ProductController {
 			freeShipping: freeShipping,
 			freeShippingRegion: freeShippingRegion,
 			adultProduct: adultProduct,
-			imagesProduct: [],
+			sponsoredProduct: false,
 			productsSold: 0,
 			rating: 0,
 			reviews: [],

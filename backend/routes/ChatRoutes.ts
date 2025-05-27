@@ -7,7 +7,7 @@ const router = Router();
 import verifyToken from "../helpers/verify-token";
 import { imageUpload } from "../helpers/image-upload";
 
-router.post("/lambda", ChatController.lambdaFunction);
+// router.post("/lambda", ChatController.lambdaFunction);
 
 router.post(
 	"/send-message",

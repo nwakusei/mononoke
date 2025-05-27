@@ -55,9 +55,19 @@ router.post(
 router.post("/release-values", verifyToken, OtakupayController.releaseOfValues);
 
 router.post(
+	"/otamart-lambda-release-values",
+	OtakupayController.webhookAWSLambdaReleaseValuesOtamart
+);
+
+router.post(
 	"/otaclub-release-values",
 	verifyToken,
 	OtakupayController.releaseOfValuesOtaclub
+);
+
+router.post(
+	"/otaclub-lambda-release-values",
+	OtakupayController.webhookAWSLambdaReleaseValuesOtaclub
 );
 
 router.get(
