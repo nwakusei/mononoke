@@ -624,7 +624,7 @@ function StorePage() {
 								Nenhum produto encontrado!
 							</p>
 						</div>
-					) : returnedProducts.length > 0 ? (
+					) : returnedProducts && returnedProducts.length > 0 ? (
 						returnedProducts.map((returnedProduct) => {
 							const partner = partners.find(
 								(partner) =>

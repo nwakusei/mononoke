@@ -6289,18 +6289,123 @@ class OtakupayController {
 		req: Request,
 		res: Response
 	) {
-		const now = new Date();
+		try {
+			const now = new Date();
+			const sevenDaysAgo = new Date(
+				now.getTime() - 7 * 24 * 60 * 60 * 1000
+			);
 
-		const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+			const ordersToRelease = await OrderOtaclubModel.find({
+				statusOrder: "Delivered",
+				markedDeliveredBy: "partner",
+				markedDeliveredAt: { $lte: sevenDaysAgo },
+			});
 
-		const ordersToRelease = await OrderModel.find({
-			statusOrder: "Delivered",
-			statusShipping: "Delivered",
-			markedDeliveredBy: "partner",
-			markedDeliveredAt: { $lte: sevenDaysAgo },
-		});
+			console.log(
+				`Total de pedidos Otaclub a liberar: ${ordersToRelease.length}`
+			);
 
-		console.log(`Total de pedidos a liberar: ${ordersToRelease.length}`);
+			for (const order of ordersToRelease) {
+				const partner = await PartnerModel.findById(
+					order.partnerID
+				).select("-password");
+
+				if (!partner) {
+					console.warn(
+						`Parceiro não encontrado para o pedido ${order._id}`
+					);
+					continue;
+				}
+
+				const partnerOtakupay = await OtakupayModel.findById(
+					partner.otakupayID
+				).select("-password");
+
+				if (!partnerOtakupay) {
+					console.warn(
+						`OtakuPay do parceiro não encontrado para o pedido ${order._id}`
+					);
+					continue;
+				}
+
+				const otakuPointsPending = decrypt(
+					partnerOtakupay.otakuPointsPending
+				);
+
+				if (otakuPointsPending === null) {
+					console.warn(
+						`Otaku Points Pendentes inválidos para o pedido ${order._id}`
+					);
+					continue;
+				}
+
+				const otakuPointsAvailable = decrypt(
+					partnerOtakupay.otakuPointsAvailable
+				);
+
+				if (otakuPointsAvailable === null) {
+					console.warn(
+						`Otaku Points Disponíveis inválidos para o pedido ${order._id}`
+					);
+					continue;
+				}
+
+				const orderCostTotal = decrypt(
+					order.customerOrderCostTotal.toString()
+				);
+
+				if (orderCostTotal === null) {
+					console.warn(
+						`Valor total do pedido não encontrado para ${order._id}`
+					);
+					continue;
+				}
+
+				const partnerCommission = decrypt(
+					order.partnerCommissionOtaclub?.toString()
+				);
+
+				if (partnerCommission === null) {
+					console.warn(
+						`Comissão do parceiro não encontrada para ${order._id}`
+					);
+					continue;
+				}
+
+				const netProfit = orderCostTotal - partnerCommission;
+
+				const newPending = (
+					otakuPointsPending - orderCostTotal
+				).toFixed(2);
+
+				const newAvailable = (otakuPointsAvailable + netProfit).toFixed(
+					2
+				);
+
+				partnerOtakupay.otakuPointsPending = encrypt(newPending);
+				partnerOtakupay.otakuPointsAvailable = encrypt(newAvailable);
+
+				order.statusOrder = "Completed";
+
+				await partnerOtakupay.save();
+				await order.save();
+
+				console.log(
+					`Valores liberados com sucesso para o pedido Otaclub ${order._id}`
+				);
+			}
+
+			res.status(200).json({
+				message:
+					"Processo de liberação de pedidos Otaclub concluído com sucesso!",
+			});
+		} catch (error) {
+			console.error("Erro ao liberar valores Otaclub:", error);
+			res.status(500).json({
+				message: "Erro interno ao processar os pedidos Otaclub!",
+				error: error instanceof Error ? error.message : error,
+			});
+		}
 	}
 
 	static async getAllUserTransactions(req: Request, res: Response) {
@@ -6602,6 +6707,38 @@ class OtakupayController {
 				daysShipping: 10,
 			});
 
+			// Registrar a transação
+			const newTransaction = new TransactionModel({
+				transactionType: "Troca",
+				transactionTitle: "Troca no Otaclub",
+				transactionDescription: `Troca feita no Otaclub.`,
+				transactionValue: customerOrderCostTotalEncrypted,
+				transactionDetails: {
+					detailProductServiceTitle: product.productTitle,
+					detailCost: encrypt(
+						String(
+							newOrderOtaclub.itemsList.reduce((acc, item) => {
+								return (
+									acc +
+									item.productPrice * item.productQuantity
+								);
+							}, 0)
+						)
+					),
+					detailPaymentMethod: "Otaku Point",
+					detailShippingCost: "N/A",
+					detailSalesFee: partnerComissionEncrypted,
+					detailCashback: "N/A",
+				},
+				plataformName: "Mononoke - Otaclub",
+				payerID: customer.otakupayID,
+				payerName: customer.name,
+				payerProfileImage: customer.profileImage,
+				receiverID: partner.otakupayID,
+				receiverName: partner.name,
+				receiverProfileImage: partner.profileImage,
+			});
+
 			// Salvando o novo Otaku Points Available do Cliente no Banco de Dados
 			customerOtakupay.otakuPointsAvailable =
 				newCustomerOtakuPointsAvailableEncrypted;
@@ -6613,6 +6750,7 @@ class OtakupayController {
 			await newOrderOtaclub.save();
 			await customerOtakupay.save();
 			await partnerOtakupay.save();
+			await newTransaction.save();
 
 			res.status(200).json({
 				message: "Troca processada com sucesso!",

@@ -1103,7 +1103,7 @@ function ProductPage() {
 												freeShipping={
 													recommendedProduct.freeShipping
 												}
-												productImage={`http://localhost:5000/images/products/${recommendedProduct.imagesProduct[0]}`}
+												productImage={`http://backend:5000/images/products/${recommendedProduct.imagesProduct[0]}`}
 												title={
 													recommendedProduct.productTitle
 												}
