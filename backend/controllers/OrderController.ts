@@ -110,7 +110,18 @@ class OrderController {
 				return;
 			}
 
-			res.status(200).json({ orders: orders });
+			// Descriptografar apenas o valor total do pedido
+			const decryptedOrders = orders.map((order) => {
+				const orderObj = order.toObject();
+				return {
+					...orderObj,
+					customerOrderCostTotal: decrypt(
+						orderObj.customerOrderCostTotal
+					),
+				};
+			});
+
+			res.status(200).json({ orders: decryptedOrders });
 		} catch (error) {
 			if (error instanceof Error) {
 				res.status(500).json({ error: error.message });
@@ -152,7 +163,18 @@ class OrderController {
 				return;
 			}
 
-			res.status(200).json({ orders: orders });
+			// Descriptografar apenas o valor total do pedido
+			const decryptedOrders = orders.map((order) => {
+				const orderObj = order.toObject();
+				return {
+					...orderObj,
+					customerOrderCostTotal: decrypt(
+						orderObj.customerOrderCostTotal
+					),
+				};
+			});
+
+			res.status(200).json({ orders: decryptedOrders });
 		} catch (error) {
 			if (error instanceof Error) {
 				res.status(500).json({ error: error.message });
@@ -322,6 +344,12 @@ class OrderController {
 				customerID: customerID,
 			}).sort("-createdAt");
 
+			// Verificar se há orders
+			if (orders.length === 0) {
+				res.status(200).json({ orders: [] });
+				return;
+			}
+
 			// Descriptografar apenas o valor total do pedido
 			const decryptedOrders = orders.map((order) => {
 				const orderObj = order.toObject();
@@ -367,6 +395,12 @@ class OrderController {
 			const orders = await OrderOtaclubModel.find({
 				customerID: customerID,
 			}).sort("-createdAt");
+
+			// Verificar se há orders
+			if (orders.length === 0) {
+				res.status(200).json({ orders: [] });
+				return;
+			}
 
 			// Descriptografar apenas o valor total do pedido
 			const decryptedOrders = orders.map((order) => {

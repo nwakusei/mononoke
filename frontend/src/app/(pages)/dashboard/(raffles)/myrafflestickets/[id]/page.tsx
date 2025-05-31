@@ -75,7 +75,7 @@ function MyRafflesTicketsByID() {
 					<div className="text-white w-full bg-primary text-center text-lg py-1 mb-4 rounded-md shadow-md select-none">
 						Meus tickets deste Sorteio
 					</div>
-					<div className="flex flex-row justify-center items-center gap-2 mb-6 bg-white border-solid border-[1px] border-opacity-20 border-gray-800 text-black p-2 w-2/3 rounded-md shadow-md">
+					<div className="flex flex-row justify-center items-center gap-2 mb-6 bg-white border-solid border-[1px] border-opacity-20 border-gray-800 text-black p-2 w-[900px] rounded-md shadow-md">
 						<span>{`Organizador: ${raffle?.raffleOrganizer}`}</span>
 						<span>|</span>
 						<span>

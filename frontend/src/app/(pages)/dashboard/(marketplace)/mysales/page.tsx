@@ -54,40 +54,20 @@ function MySalesPage() {
 		}, 2000); // O tempo pode ser ajustado conforme necessário
 	};
 
-	// Função para Descriptografar dados sensíveis no Banco de Dados
-	function decrypt(encryptedBalance: string): number | null {
-		let decrypted = "";
-
-		try {
-			// Divide o IV do texto criptografado
-			const [ivHex, encryptedData] = encryptedBalance.split(":");
-			if (!ivHex || !encryptedData) {
-				throw new Error("Formato inválido do texto criptografado.");
-			}
-
-			const iv = Buffer.from(ivHex, "hex");
-
-			const decipher = crypto.createDecipheriv(
-				"aes-256-cbc",
-				Buffer.from(secretKey, "utf-8"),
-				iv
-			);
-
-			decipher.setAutoPadding(false);
-
-			decrypted = decipher.update(encryptedData, "hex", "utf8");
-			decrypted += decipher.final("utf8");
-
-			const balanceNumber = parseFloat(decrypted.trim()); // Remove espaços em branco extras
-			if (isNaN(balanceNumber)) {
-				return null;
-			}
-			return parseFloat(balanceNumber.toFixed(2));
-		} catch (error) {
-			console.error("Erro ao descriptografar o saldo:", error);
-			return null;
+	const translateOrderStatus = (status) => {
+		switch (status) {
+			case "Confirmed":
+				return "Confirmado";
+			case "Delivered":
+				return "Entregue";
+			case "Completed":
+				return "Concluído";
+			case "Canceled":
+				return "Cancelado";
+			default:
+				return status; // Retorna o original se não encontrar tradução
 		}
-	}
+	};
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -186,9 +166,7 @@ function MySalesPage() {
 														)}
 													</td>
 													<td className="text-black">
-														{decrypt(
-															mysale.customerOrderCostTotal
-														)?.toLocaleString(
+														{mysale.customerOrderCostTotal?.toLocaleString(
 															"pt-BR",
 															{
 																style: "currency",
@@ -204,7 +182,9 @@ function MySalesPage() {
 													</td>
 													<td className="text-black">
 														<div>
-															{mysale.statusOrder}
+															{translateOrderStatus(
+																mysale.statusOrder
+															)}
 														</div>
 														{/* <div className="text-xs opacity-50">
 															{

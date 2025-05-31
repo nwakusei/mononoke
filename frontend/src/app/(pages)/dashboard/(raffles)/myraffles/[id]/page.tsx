@@ -217,25 +217,43 @@ function MyRafflesByID() {
 						Vencedor do Sorteio
 					</div>
 					{raffleStatus === "completed" && myraffle?.winner ? (
-						<div className="flex flex-row justify-center my-4 mx-4 gap-2">
-							<div className="border-[1px] border-black border-opacity-20 bg-white flex flex-row justify-center py-2 px-4 rounded-md shadow-md gap-2">
-								<div className="w-[100px] h-[100px]">
-									<Image
-										className="object-contain w-full h-full pointer-events-none rounded shadow-md"
-										src={`http://localhost:5000/images/customers/${myraffle.winner.customerProfileImage}`}
-										alt="Vencedor"
-										width={260}
-										height={130}
-										unoptimized
-									/>
+						<div className="flex flex-row">
+							<div className="my-4 mx-4 gap-2">
+								<div className="flex flex-row w-[400px] h-[120px] border-[1px] border-black border-opacity-20 bg-white py-2 px-4 rounded-md shadow-md gap-2">
+									<div className="w-[100px] h-[100px]">
+										<Image
+											className="object-contain w-full h-full pointer-events-none rounded shadow-md"
+											src={`http://localhost:5000/images/customers/${myraffle.winner.customerProfileImage}`}
+											alt="Vencedor"
+											width={260}
+											height={130}
+											unoptimized
+										/>
+									</div>
+									<div className="flex flex-col">
+										<h1 className="text-black font-semibold">
+											{`Nome: ${myraffle?.winner.customerName}`}
+										</h1>
+										<h2 className="text-black">
+											{`Ticket Sorteado: ${myraffle?.winner.ticketNumber}`}
+										</h2>
+									</div>
 								</div>
-								<div className="flex flex-col">
-									<h1 className="text-black font-semibold">
-										{`Nome: ${myraffle?.winner.customerName}`}
-									</h1>
-									<h2 className="text-black">
-										{`Ticket Sorteado: ${myraffle?.winner.ticketNumber}`}
-									</h2>
+							</div>
+
+							<div className="my-4 mx-4 gap-2">
+								<div className=" w-[400px] h-[120px] flex flex-col border-[1px] border-black border-opacity-20 bg-white text-black py-2 px-4 rounded-md shadow-md gap-2">
+									<div className="font-semibold">
+										Endereço de Entrega
+									</div>
+
+									<div className="flex flex-col text-black">
+										<h1 className="">{`Rua/Avenida:`}</h1>
+										<h2 className="">{`Complemento:`}</h2>
+										<h2 className="">{`Bairro:`}</h2>
+										<h2 className="">{`Cidade/Estado:`}</h2>
+										<h2 className="">{`CEP::`}</h2>
+									</div>
 								</div>
 							</div>
 						</div>

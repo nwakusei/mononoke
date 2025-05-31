@@ -85,7 +85,7 @@ function MyProductsOtaclubPage() {
 															<div className="avatar">
 																<div className="mask mask-squircle w-12 h-12">
 																	<Image
-																		src={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
+																		src={`http://localhost:5000/images/products/${product.productImages[0]}`}
 																		alt="Avatar Tailwind CSS Component"
 																		width={
 																			12
