@@ -3,25 +3,40 @@ import mongoose, { Schema, model } from "mongoose";
 
 interface IRegisteredTickets {
 	customerID: string;
+	customerNickname: string;
 	customerName: string;
 	customerProfileImage: string;
 	ticketNumber: string;
 }
 
+// interface IAddress {
+// 	street?: string;
+// 	complement?: string;
+// 	neighborhood?: string;
+// 	city?: string;
+// 	state?: string;
+// 	postalCode?: string;
+// }
+
 // Interface para a estrutura de um vencedor
 interface IWinner {
 	customerID: string;
+	customerNickname: string;
 	customerName: string;
 	customerProfileImage: string;
 	ticketNumber: string;
+	address: {};
 }
 
 // Interface para a estrutura de um objeto de revisão
 interface IRaffle {
 	rafflePrize: string;
+	raffleStatus: string; // "active", "completed", "canceled"
 	imagesRaffle: string[];
 	raffleDate: Date;
 	raffleCost: number;
+	raffleAccumulatedValue: string;
+	rafflePartnerCommission: string;
 	raffleDescription: string;
 	raffleRules: string;
 	minNumberParticipants: Number;
@@ -31,6 +46,7 @@ interface IRaffle {
 	partnerID: Schema.Types.ObjectId;
 	registeredTickets: IRegisteredTickets[];
 	winner: IWinner;
+	statusShipping: string; // "pending", "shipped", "delivered", "canceled"
 }
 
 // Schema que corresponda a Interface
@@ -39,6 +55,9 @@ const raffleSchema = new Schema<IRaffle>(
 		rafflePrize: {
 			type: String,
 			required: true,
+		},
+		raffleStatus: {
+			type: String,
 		},
 		imagesRaffle: {
 			type: [String],
@@ -50,6 +69,14 @@ const raffleSchema = new Schema<IRaffle>(
 		},
 		raffleCost: {
 			type: Number,
+			required: true,
+		},
+		raffleAccumulatedValue: {
+			type: String,
+			required: true,
+		},
+		rafflePartnerCommission: {
+			type: String,
 			required: true,
 		},
 		raffleDescription: {
@@ -88,6 +115,10 @@ const raffleSchema = new Schema<IRaffle>(
 					ref: "CustomerModel",
 					required: true,
 				},
+				customerNickname: {
+					type: String,
+					required: true,
+				},
 				customerName: {
 					type: String,
 					required: true,
@@ -107,6 +138,9 @@ const raffleSchema = new Schema<IRaffle>(
 				type: String,
 				ref: "CustomerModel",
 			},
+			customerNickname: {
+				type: String,
+			},
 			customerName: {
 				type: String,
 			},
@@ -114,7 +148,10 @@ const raffleSchema = new Schema<IRaffle>(
 				type: String,
 			},
 			ticketNumber: {
-				type: String, // Deve corresponder ao campo ticketNumber da interface IWinner
+				type: String,
+			},
+			address: {
+				type: {},
 			},
 		},
 	},

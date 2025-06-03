@@ -10,6 +10,10 @@ import { OtakupayModel } from "../models/OtakupayModel.js";
 // Middlewares
 import getToken from "../helpers/get-token.js";
 import getUserByToken from "../helpers/get-user-by-token.js";
+import { CustomerModel } from "../models/CustomerModel.js";
+import { PartnerModel } from "../models/PartnerModel.js";
+import { console } from "inspector";
+import { TransactionModel } from "../models/TransactionModel.js";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -156,9 +160,12 @@ class RaffleController {
 
 			const raffle = new RaffleModel({
 				rafflePrize: rafflePrize,
+				raffleStatus: "Pending", // Status inicial do sorteio
 				imagesRaffle: [],
 				raffleDate: formattedRaffleDate,
 				raffleCost: raffleCost,
+				raffleAccumulatedValue: encrypt("0.00"), // Valor acumulado inicial é 0.00
+				rafflePartnerCommission: encrypt("0.00"), // Comissão inicial é 0.00
 				raffleDescription: raffleDescription,
 				raffleRules: raffleRules,
 				minNumberParticipants: minNumberParticipants,
@@ -167,6 +174,7 @@ class RaffleController {
 				adultRaffle: adultRaffle,
 				partnerID: partner.id,
 				// winner: {},
+				statusShipping: "", // Status de envio inicial
 			});
 
 			// Percorrer o Array de imagens e adicionar cada uma a uma ao sorteio que será criado
@@ -227,181 +235,6 @@ class RaffleController {
 		res.status(200).json({ raffle: raffle });
 	}
 
-	// static async subscriptionRaffle(req: Request, res: Response) {
-	// 	const { id } = req.params;
-
-	// 	if (!id) {
-	// 		res.status(422).json({ message: "O ID do Sorteio é obrigatório!" });
-	// 		return;
-	// 	}
-
-	// 	const raffleID = await RaffleModel.findById(id);
-
-	// 	if (!raffleID) {
-	// 		res.status(404).json({ message: "Sorteio não encontrado!" });
-	// 		return;
-	// 	}
-
-	// 	// Verifica se o sorteio já tem um vencedor
-	// 	if (raffleID.winner && raffleID.winner.ticketNumber) {
-	// 		res.status(422).json({
-	// 			message: "Este sorteio já tem um vencedor!",
-	// 		});
-	// 		return;
-	// 	}
-
-	// 	// Verifica se a data do sorteio já passou para sorteios pagos
-	// 	const currentDate = new Date();
-	// 	if (
-	// 		raffleID.raffleCost > 0 &&
-	// 		new Date(raffleID.raffleDate) < currentDate
-	// 	) {
-	// 		res.status(422).json({ message: "A data do sorteio já passou!" });
-	// 		return;
-	// 	}
-
-	// 	const token: any = getToken(req);
-	// 	const customer = await getUserByToken(token);
-
-	// 	if (!customer) {
-	// 		res.status(422).json({ message: "Customer não encontrado!" });
-	// 		return;
-	// 	}
-
-	// 	if (customer.accountType !== "customer") {
-	// 		res.status(422).json({
-	// 			message: "Usuário sem permissão para participar de Sorteios!",
-	// 		});
-	// 		return;
-	// 	}
-
-	// 	const otakuPayID = customer?.otakupayID;
-	// 	const customerOtakuPay = await OtakupayModel.findById(otakuPayID);
-
-	// 	if (!customerOtakuPay) {
-	// 		res.status(422).json({
-	// 			message: "OtakuPay do Customer não encontrado!",
-	// 		});
-	// 		return;
-	// 	}
-
-	// 	const otakuPointsAvailableCrypted =
-	// 		customerOtakuPay.otakuPointsAvailable;
-	// 	const otakuPointsAvailableDecrypted = decrypt(
-	// 		otakuPointsAvailableCrypted
-	// 	)?.toFixed(2);
-
-	// 	if (!otakuPointsAvailableDecrypted) {
-	// 		res.status(422).json({
-	// 			message: "Otaku Points Available não encontrado!",
-	// 		});
-	// 		return;
-	// 	}
-
-	// 	const raffleCost = raffleID?.raffleCost;
-
-	// 	if (raffleCost === undefined || raffleCost === null) {
-	// 		res.status(422).json({
-	// 			message: "Custo do Sorteio não encontrado!",
-	// 		});
-	// 		return;
-	// 	}
-
-	// 	if (typeof raffleCost !== "number") {
-	// 		res.status(422).json({
-	// 			message: "Custo do Sorteio é inválido!",
-	// 		});
-	// 		return;
-	// 	}
-
-	// 	try {
-	// 		// Verifica se o sorteio é gratuito e se o usuário já possui um ticket
-	// 		if (raffleCost === 0) {
-	// 			const existingTicket = raffleID.registeredTickets.find(
-	// 				(ticket) => ticket.customerID === customer._id.toString()
-	// 			);
-
-	// 			if (existingTicket) {
-	// 				res.status(422).json({
-	// 					message: "Você já está participando deste sorteio!",
-	// 				});
-	// 				return;
-	// 			}
-	// 		} else {
-	// 			// Verifica se o usuário tem Otaku Points suficientes para o sorteio pago
-	// 			if (
-	// 				Number(otakuPointsAvailableDecrypted) < Number(raffleCost)
-	// 			) {
-	// 				res.status(422).json({
-	// 					message: "Otaku Points insuficiente!",
-	// 				});
-	// 				return;
-	// 			}
-
-	// 			// Atualiza os pontos disponíveis do usuário
-	// 			const newOtakuPointsAvailableDecrypted =
-	// 				Number(otakuPointsAvailableDecrypted) - Number(raffleCost);
-	// 			const newOtakuPointsAvailableCrypted = encrypt(
-	// 				newOtakuPointsAvailableDecrypted.toString()
-	// 			);
-	// 			customerOtakuPay.otakuPointsAvailable =
-	// 				newOtakuPointsAvailableCrypted;
-	// 			await customerOtakuPay.save();
-	// 		}
-
-	// 		// Função para gerar um número de ticket único
-	// 		const generateSequentialTicket = async (): Promise<string> => {
-	// 			try {
-	// 				// Busca o maior número de ticket existente
-	// 				const lastTicket = await RaffleModel.aggregate([
-	// 					{ $unwind: "$registeredTickets" },
-	// 					{ $sort: { "registeredTickets.ticketNumber": -1 } },
-	// 					{ $limit: 1 },
-	// 				]);
-
-	// 				let ticketNumber = 100000; // Número inicial
-
-	// 				if (lastTicket.length > 0) {
-	// 					const lastTicketNumber = parseInt(
-	// 						lastTicket[0].registeredTickets.ticketNumber,
-	// 						10
-	// 					);
-
-	// 					if (!isNaN(lastTicketNumber)) {
-	// 						ticketNumber = lastTicketNumber + 1;
-	// 					}
-	// 				}
-
-	// 				return ticketNumber.toString();
-	// 			} catch (error) {
-	// 				console.error("Erro ao gerar número de ticket:", error);
-	// 				throw error;
-	// 			}
-	// 		};
-
-	// 		// Crie um novo participante ativo
-	// 		const newTicket = {
-	// 			customerID: customer._id.toString(),
-	// 			customerName: customer.name,
-	// 			ticketNumber: await generateSequentialTicket(),
-	// 		};
-
-	// 		// Adicione o novo participante ao sorteio
-	// 		raffleID.registeredTickets.push(newTicket);
-
-	// 		// Salve as alterações no sorteio
-	// 		await raffleID.save();
-
-	// 		res.status(201).json({
-	// 			message: "Ticket registrado com sucesso!",
-	// 			newTicket,
-	// 		});
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 		res.status(500).json({ message: "Erro ao registrar o ticket!" });
-	// 	}
-	// }
-
 	static async subscriptionRaffle(req: Request, res: Response) {
 		const { id } = req.params;
 
@@ -410,15 +243,15 @@ class RaffleController {
 			return;
 		}
 
-		const raffleID = await RaffleModel.findById(id);
+		const raffle = await RaffleModel.findById(id);
 
-		if (!raffleID) {
+		if (!raffle) {
 			res.status(404).json({ message: "Sorteio não encontrado!" });
 			return;
 		}
 
 		// Verifica se o sorteio já tem um vencedor
-		if (raffleID.winner && raffleID.winner.ticketNumber) {
+		if (raffle.winner && raffle.winner.ticketNumber) {
 			res.status(422).json({
 				message: "Este sorteio já foi realizado!",
 			});
@@ -427,9 +260,10 @@ class RaffleController {
 
 		// Verifica se a data do sorteio já passou para sorteios pagos
 		const currentDate = new Date();
+
 		if (
-			raffleID.raffleCost > 0 &&
-			new Date(raffleID.raffleDate) < currentDate
+			raffle.raffleCost > 0 &&
+			new Date(raffle.raffleDate) < currentDate
 		) {
 			res.status(422).json({ message: "A data do sorteio já passou!" });
 			return;
@@ -450,8 +284,11 @@ class RaffleController {
 			return;
 		}
 
-		const otakuPayID = customer?.otakupayID;
-		const customerOtakuPay = await OtakupayModel.findById(otakuPayID);
+		const customerOtakuPayID = customer?.otakupayID;
+
+		const customerOtakuPay = await OtakupayModel.findById(
+			customerOtakuPayID
+		);
 
 		if (!customerOtakuPay) {
 			res.status(422).json({
@@ -460,20 +297,21 @@ class RaffleController {
 			return;
 		}
 
-		const otakuPointsAvailableCrypted =
+		const customerOtakuPointsAvailableCrypted =
 			customerOtakuPay.otakuPointsAvailable;
-		const otakuPointsAvailableDecrypted = decrypt(
-			otakuPointsAvailableCrypted
+
+		const customerOtakuPointsAvailableDecrypted = decrypt(
+			customerOtakuPointsAvailableCrypted
 		)?.toFixed(2);
 
-		if (!otakuPointsAvailableDecrypted) {
+		if (!customerOtakuPointsAvailableDecrypted) {
 			res.status(422).json({
 				message: "Otaku Points Available não encontrado!",
 			});
 			return;
 		}
 
-		const raffleCost = raffleID?.raffleCost;
+		const raffleCost = raffle?.raffleCost;
 
 		if (raffleCost === undefined || raffleCost === null) {
 			res.status(422).json({
@@ -492,7 +330,7 @@ class RaffleController {
 		try {
 			// Verifica se o sorteio é gratuito e se o usuário já possui um ticket
 			if (raffleCost === 0) {
-				const existingTicket = raffleID.registeredTickets.find(
+				const existingTicket = raffle.registeredTickets.find(
 					(ticket) => ticket.customerID === customer._id.toString()
 				);
 
@@ -505,7 +343,8 @@ class RaffleController {
 			} else {
 				// Verifica se o usuário tem Otaku Points suficientes para o sorteio pago
 				if (
-					Number(otakuPointsAvailableDecrypted) < Number(raffleCost)
+					Number(customerOtakuPointsAvailableDecrypted) <
+					Number(raffleCost)
 				) {
 					res.status(422).json({
 						message: "Otaku Points insuficiente!",
@@ -514,13 +353,17 @@ class RaffleController {
 				}
 
 				// Atualiza os pontos disponíveis do usuário
-				const newOtakuPointsAvailableDecrypted =
-					Number(otakuPointsAvailableDecrypted) - Number(raffleCost);
-				const newOtakuPointsAvailableCrypted = encrypt(
-					newOtakuPointsAvailableDecrypted.toString()
+				const newCustomerOtakuPointsAvailableDecrypted =
+					Number(customerOtakuPointsAvailableDecrypted) -
+					Number(raffleCost);
+
+				const newCustomerOtakuPointsAvailableCrypted = encrypt(
+					newCustomerOtakuPointsAvailableDecrypted.toString()
 				);
+
 				customerOtakuPay.otakuPointsAvailable =
-					newOtakuPointsAvailableCrypted;
+					newCustomerOtakuPointsAvailableCrypted;
+
 				await customerOtakuPay.save();
 			}
 
@@ -567,16 +410,143 @@ class RaffleController {
 			// Crie um novo participante ativo
 			const newTicket = {
 				customerID: customer._id.toString(),
+				customerNickname: customer.nickname,
 				customerName: customer.name,
 				customerProfileImage: customer.profileImage,
 				ticketNumber: ticketNumber,
 			};
 
 			// Adicione o novo participante ao sorteio
-			raffleID.registeredTickets.push(newTicket);
+			raffle.registeredTickets.push(newTicket);
+
+			const PartnerID = raffle.partnerID;
+
+			const partner = await PartnerModel.findById(PartnerID);
+
+			if (!partner) {
+				res.status(404).json({ message: "Parceiro não encontrado!" });
+				return;
+			}
+
+			const partnerOtakuPayID = partner?.otakupayID;
+
+			const partnerOtakuPay = await OtakupayModel.findById(
+				partnerOtakuPayID
+			);
+
+			if (!partnerOtakuPay) {
+				res.status(422).json({
+					message: "OtakuPay do Parceiro não encontrado!",
+				});
+				return;
+			}
+
+			const partnerOtakuPointPedingEncrypted =
+				partnerOtakuPay.otakuPointsPending;
+
+			const partnerOtakuPointPedingDecrypted = decrypt(
+				partnerOtakuPointPedingEncrypted
+			)?.toFixed(2);
+
+			if (!partnerOtakuPointPedingDecrypted) {
+				res.status(422).json({
+					message: "Otaku Points Peding não encontrado!",
+				});
+				return;
+			}
+
+			const newPartnerOtakuPointPedingDecrypted =
+				partnerOtakuPointPedingDecrypted + Number(raffleCost);
+
+			const newPartnerOtakuPointPedingEncrypted = encrypt(
+				newPartnerOtakuPointPedingDecrypted.toString()
+			);
+
+			partnerOtakuPay.otakuPointsPending =
+				newPartnerOtakuPointPedingEncrypted;
+
+			const raffleAccumulatedValueEncrypted =
+				raffle.raffleAccumulatedValue;
+
+			console.log(
+				"Valor acumulado do sorteio - Criptografado:",
+				raffleAccumulatedValueEncrypted
+			);
+
+			const raffleAccumulatedValueDecrypted = decrypt(
+				raffleAccumulatedValueEncrypted
+			)?.toFixed(2);
+
+			console.log(
+				"Valor acumulado do sorteio - Descriptografado:",
+				raffleAccumulatedValueDecrypted
+			);
+
+			const newRaffleAccumulatedValueDecrypted =
+				Number(raffleAccumulatedValueDecrypted) + Number(raffleCost);
+
+			const newRaffleAccumulatedValueEncrypted = encrypt(
+				newRaffleAccumulatedValueDecrypted.toString()
+			);
+
+			// Comissão a ser paga pelo Partner
+			const partnerComission = (raffleCost * 0.04).toFixed(2); // 4% de comissão
+
+			const partnerComissionEncrypted = encrypt(partnerComission);
+
+			raffle.raffleAccumulatedValue = newRaffleAccumulatedValueEncrypted;
+
+			const rafflePartnerCommissionEncrypted =
+				raffle.rafflePartnerCommission;
+
+			if (!rafflePartnerCommissionEncrypted) {
+				res.status(422).json({
+					message: "Comissão do Parceiro não encontrada!",
+				});
+				return;
+			}
+
+			const rafflePartnerCommissionDecrypted = decrypt(
+				rafflePartnerCommissionEncrypted
+			)?.toFixed(2);
+
+			const newRafflePartnerCommissionDecrypted =
+				Number(rafflePartnerCommissionDecrypted) +
+				Number(partnerComission);
+
+			const newRafflePartnerCommissionEncrypted = encrypt(
+				newRafflePartnerCommissionDecrypted.toString()
+			);
+
+			raffle.rafflePartnerCommission =
+				newRafflePartnerCommissionEncrypted;
+
+			// Registrar a transação
+			const newTransaction = new TransactionModel({
+				transactionType: "Pagamento",
+				transactionTitle: "Aquisição de Ticket para Sorteio.",
+				transactionDescription: `Troca por Ticket.`,
+				transactionValue: encrypt(raffleCost.toFixed(2).toString()),
+				transactionDetails: {
+					detailProductServiceTitle: raffle.rafflePrize,
+					detailCost: encrypt(raffleCost.toFixed(2).toString()),
+					detailPaymentMethod: "Otaku Point",
+					detailShippingCost: "N/A",
+					detailSalesFee: partnerComissionEncrypted,
+					detailCashback: "N/A",
+				},
+				plataformName: "Mononoke - Sorteio",
+				payerID: customer.otakupayID,
+				payerName: customer.name,
+				payerProfileImage: customer.profileImage,
+				receiverID: partner.otakupayID,
+				receiverName: partner.name,
+				receiverProfileImage: partner.profileImage,
+			});
 
 			// Salve as alterações no sorteio
-			await raffleID.save();
+			await raffle.save();
+			await newTransaction.save();
 
 			// Responda com o novo ticket
 			res.status(201).json({
@@ -649,12 +619,32 @@ class RaffleController {
 
 			const winner = drawWinner(participants);
 
+			const customerID = winner.customerID;
+
+			const customer = await CustomerModel.findById(customerID);
+
+			if (!customer) {
+				res.status(404).json({
+					message: "Cliente não encontrado!",
+				});
+				return;
+			}
+
 			// Atualizar o documento do sorteio com o vencedor
 			raffle.winner = {
 				customerID: winner.customerID,
+				customerNickname: winner.customerNickname,
 				customerName: winner.customerName,
 				customerProfileImage: winner.customerProfileImage,
 				ticketNumber: winner.ticketNumber, // Adapte se necessário
+				address: {
+					street: customer.address[0].street || "",
+					complement: customer.address[0].complement || "",
+					neighborhood: customer.address[0].neighborhood || "",
+					city: customer.address[0].city || "",
+					state: customer.address[0].state || "",
+					postalCode: customer.address[0].postalCode || "",
+				},
 			};
 
 			await raffle.save();

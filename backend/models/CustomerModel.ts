@@ -21,7 +21,6 @@ interface ICustomer {
 	followingStores: IFollowingStores[];
 	newsletters: boolean;
 	otakupayID: string;
-
 	resetPasswordToken?: string;
 	resetPasswordExpires?: Date;
 }

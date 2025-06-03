@@ -216,7 +216,9 @@ function MyRafflesByID() {
 					<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none">
 						Vencedor do Sorteio
 					</div>
-					{raffleStatus === "completed" && myraffle?.winner ? (
+					{raffleStatus === "completed" &&
+					myraffle?.winner &&
+					myraffle?.winner.address ? (
 						<div className="flex flex-row">
 							<div className="my-4 mx-4 gap-2">
 								<div className="flex flex-row w-[400px] h-[120px] border-[1px] border-black border-opacity-20 bg-white py-2 px-4 rounded-md shadow-md gap-2">
@@ -231,7 +233,8 @@ function MyRafflesByID() {
 										/>
 									</div>
 									<div className="flex flex-col">
-										<h1 className="text-black font-semibold">
+										<div className="text-black">{`Nickname: ${myraffle?.winner.customerNickname}`}</div>
+										<h1 className="text-black">
 											{`Nome: ${myraffle?.winner.customerName}`}
 										</h1>
 										<h2 className="text-black">
@@ -242,23 +245,23 @@ function MyRafflesByID() {
 							</div>
 
 							<div className="my-4 mx-4 gap-2">
-								<div className=" w-[400px] h-[120px] flex flex-col border-[1px] border-black border-opacity-20 bg-white text-black py-2 px-4 rounded-md shadow-md gap-2">
+								<div className="w-[400px] min-h-[170px] flex flex-col border-[1px] border-black border-opacity-20 bg-white text-black py-2 px-4 rounded-md shadow-md gap-2">
 									<div className="font-semibold">
 										Endereço de Entrega
 									</div>
 
 									<div className="flex flex-col text-black">
-										<h1 className="">{`Rua/Avenida:`}</h1>
-										<h2 className="">{`Complemento:`}</h2>
-										<h2 className="">{`Bairro:`}</h2>
-										<h2 className="">{`Cidade/Estado:`}</h2>
-										<h2 className="">{`CEP::`}</h2>
+										<h1>{`Rua/Avenida: ${myraffle.winner.address.street}`}</h1>
+										<h2>{`Complemento: ${myraffle.winner.address.complement}`}</h2>
+										<h2>{`Bairro: ${myraffle.winner.address.neighborhood}`}</h2>
+										<h2>{`Cidade/Estado: ${myraffle.winner.address.city}/${myraffle.winner.address.state}`}</h2>
+										<h2>{`CEP: ${myraffle.winner.address.postalCode}`}</h2>
 									</div>
 								</div>
 							</div>
 						</div>
 					) : (
-						<div className="flex flex-row justify-center">
+						<div className="flex flex-row justify-center text-black">
 							<div className="flex flex-col items-center gap-2">
 								<p className="my-2 text-black text-center">
 									{raffleStatus === "countdown"
