@@ -295,18 +295,18 @@ function MyRafflesByID() {
 									<thead>
 										<tr>
 											<th className="text-sm text-black">
-												Produto
+												Prêmio do Cliente
 											</th>
 											<th className="text-sm text-black">
-												Custo
+												Custo por Ticket
 											</th>
 											<th className="text-sm text-black">
 												Quantidade
 											</th>
 
-											<th className="text-sm text-black">
+											{/* <th className="text-sm text-black">
 												Total
-											</th>
+											</th> */}
 										</tr>
 									</thead>
 									<tbody>
@@ -353,10 +353,15 @@ function MyRafflesByID() {
 											<td>
 												<div>1 un</div>
 											</td>
-											<td className="w-[200px] overflow-x-auto">
-												style: "currency", currency:
-												"BRL"
-											</td>
+											{/* <td className="w-[200px] overflow-x-auto">
+												{`${myraffle.raffleCost.toLocaleString(
+													"pt-BR",
+													{
+														minimumFractionDigits: 2,
+														maximumFractionDigits: 2,
+													}
+												)} OP`}
+											</td> */}
 										</tr>
 									</tbody>
 								</table>
@@ -373,12 +378,9 @@ function MyRafflesByID() {
 											<th className="text-sm text-black">
 												Total do Frete
 											</th>
-											<th className="text-sm text-black">
-												Desconto
-											</th>
-											<th className="text-sm text-black">
+											{/* <th className="text-sm text-black">
 												Total do Pedido
-											</th>
+											</th> */}
 										</tr>
 									</thead>
 									<tbody>
@@ -386,25 +388,21 @@ function MyRafflesByID() {
 
 										<tr>
 											<td>
-												{myraffle.raffleAccumulatedValue.toLocaleString(
+												{`${myraffle.raffleAccumulatedValue.toLocaleString(
 													"pt-BR",
 													{
 														minimumFractionDigits: 2,
 														maximumFractionDigits: 2,
 													}
-												)}
+												)} OP`}
 											</td>
 											<td>
 												<div>Por sua conta</div>
 											</td>
 
-											<td>
-												<div>N/A</div>
-											</td>
-
-											<td>
+											{/* <td>
 												<div>Outro Valor</div>
-											</td>
+											</td> */}
 										</tr>
 									</tbody>
 								</table>
@@ -418,7 +416,7 @@ function MyRafflesByID() {
 												Comissão a ser Paga
 											</th>
 											<th className="text-sm text-black">
-												A receber pelo Pedido
+												A receber pelo Sorteio
 											</th>
 										</tr>
 									</thead>
@@ -427,17 +425,25 @@ function MyRafflesByID() {
 										<tr>
 											<td>
 												<div>
-													{myraffle.rafflePartnerCommission.toLocaleString(
+													{`${myraffle.rafflePartnerCommission.toLocaleString(
 														"pt-BR",
 														{
 															minimumFractionDigits: 2,
 															maximumFractionDigits: 2,
 														}
-													)}
+													)} OP`}
 												</div>
 											</td>
 
-											<td>Outro valor</td>
+											<td>
+												{`${(
+													myraffle.raffleAccumulatedValue -
+													myraffle.rafflePartnerCommission
+												).toLocaleString("pt-BR", {
+													minimumFractionDigits: 2,
+													maximumFractionDigits: 2,
+												})} OP`}
+											</td>
 										</tr>
 									</tbody>
 								</table>

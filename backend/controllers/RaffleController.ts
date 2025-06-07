@@ -685,6 +685,12 @@ class RaffleController {
 				partnerID: partner._id,
 			}).sort("-createdAt");
 
+			// Verificar se há orders
+			if (raffles.length === 0) {
+				res.status(200).json({ raffles: [] });
+				return;
+			}
+
 			// Verifica se algum sorteio não está associado ao parceiro logado
 			if (
 				raffles.some(
@@ -698,7 +704,23 @@ class RaffleController {
 				return;
 			}
 
-			res.status(200).json({ raffles: raffles });
+			// Descriptografar apenas o valor total do pedido
+			const decryptedRaffles = raffles.map((raffle) => {
+				const raffleObj = raffle.toObject();
+				return {
+					...raffleObj,
+
+					raffleAccumulatedValue: decrypt(
+						raffleObj.raffleAccumulatedValue
+					),
+
+					rafflePartnerCommission: decrypt(
+						raffleObj.rafflePartnerCommission
+					),
+				};
+			});
+
+			res.status(200).json({ raffles: decryptedRaffles });
 		} catch (error) {
 			res.status(500).json({ error: "Erro ao carregar os Sorteios" });
 		}
@@ -723,6 +745,17 @@ class RaffleController {
 		try {
 			const raffle = await RaffleModel.findById(id);
 
+			// Encontra todos os sorteios associados ao parceiro
+			const raffles = await RaffleModel.find({
+				partnerID: partner._id,
+			}).sort("-createdAt");
+
+			// Verificar se há orders
+			if (raffles.length === 0) {
+				res.status(200).json({ raffles: [] });
+				return;
+			}
+
 			if (!raffle) {
 				res.status(404).json({ message: "Sorteio não encontrado!" });
 				return;
@@ -733,7 +766,16 @@ class RaffleController {
 				return;
 			}
 
-			res.status(200).json({ raffle: raffle });
+			// Descriptografar apenas o valor total do pedido
+			const decryptedRaffle = {
+				...raffle.toObject(),
+				raffleAccumulatedValue: decrypt(raffle.raffleAccumulatedValue),
+				rafflePartnerCommission: decrypt(
+					raffle.rafflePartnerCommission
+				),
+			};
+
+			res.status(200).json({ raffle: decryptedRaffle });
 		} catch (error) {
 			res.status(500).json({ message: "Erro ao buscar o sorteio!" });
 		}

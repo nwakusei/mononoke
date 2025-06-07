@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
+
 import Swal from "sweetalert2";
 
 // Axios
@@ -135,8 +136,10 @@ function RafflePage() {
 				.then((responser) => {
 					Swal.fire({
 						title: responser.data.message,
-						width: 800,
 						icon: "success",
+						width: 800,
+						confirmButtonColor: "#3085d6",
+						confirmButtonText: "OK",
 					});
 				});
 		} catch (error: any) {
