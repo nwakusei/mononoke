@@ -524,7 +524,13 @@ function MyOrderByIDPage() {
 						{/* Gadget 4 */}
 						<div className="bg-white  w-[325px] p-6 rounded-md shadow-md mt-4">
 							<div className="mb-4 text-black">
-								<h1>{`Transportadora: ${myorder?.shippingMethod}`}</h1>
+								<h1>
+									{`Tranportadora: ${
+										myorder?.logisticOperator
+											? myorder?.logisticOperator
+											: "A definir"
+									}`}
+								</h1>
 								{/* {myorder?.shippingCostTotal ? (
 									<h2>
 										{`Custo do Frete: ${`${

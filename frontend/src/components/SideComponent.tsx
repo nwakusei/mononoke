@@ -919,8 +919,8 @@ function SideComponent({ selectedVariation }) {
 				<div className="mr-2">
 					{/* Etiqueta de Encomenda */}
 					{product.preOrder === true ? (
-						<div className="flex flex-row justify-center items-center bg-sky-500 p-2 gap-3 rounded-md shadow-md mb-2">
-							<LuCalendarClock size={20} />
+						<div className="flex flex-row text-sm justify-center items-center bg-sky-500 p-2 gap-3 rounded-md shadow-md mb-2">
+							<LuCalendarClock size={18} />
 							<h1>
 								Encomenda (envio em {product.daysShipping} dias)
 							</h1>

@@ -27,6 +27,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { HiOutlineEllipsisVertical } from "react-icons/hi2";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 import { FiInfo } from "react-icons/fi";
+import { IoCloseSharp } from "react-icons/io5";
 
 function ChatPage() {
 	const inputFileRef = useRef(null);
@@ -45,6 +46,19 @@ function ChatPage() {
 		// Verifica se o sufixo da mensagem corresponde a uma imagem
 		return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(msg);
 	};
+
+	const [showBanner, setShowBanner] = useState(false);
+
+	useEffect(() => {
+		if (localStorage.getItem("chatBannerDismissed") !== "1") {
+			setShowBanner(true);
+		}
+	}, []);
+
+	function handleClose() {
+		localStorage.setItem("chatBannerDismissed", "1");
+		setShowBanner(false);
+	}
 
 	useEffect(() => {
 		if (chat) {
@@ -109,26 +123,26 @@ function ChatPage() {
 		fetchData();
 	}, [token]);
 
-	const handleUseClientButtonClick = () => {
-		inputFileRef.current.click();
-	};
+	// const handleUseClientButtonClick = () => {
+	// 	inputFileRef.current.click();
+	// };
 
-	const handleImageChange = (e) => {
-		const file = e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setSelectedImage(reader.result);
-				setIsTyping(true);
-			};
-			reader.readAsDataURL(file);
-		}
-	};
+	// const handleImageChange = (e) => {
+	// 	const file = e.target.files[0];
+	// 	if (file) {
+	// 		const reader = new FileReader();
+	// 		reader.onloadend = () => {
+	// 			setSelectedImage(reader.result);
+	// 			setIsTyping(true);
+	// 		};
+	// 		reader.readAsDataURL(file);
+	// 	}
+	// };
 
-	const handleImageRemove = () => {
-		setSelectedImage(null);
-		setIsTyping(false);
-	};
+	// const handleImageRemove = () => {
+	// 	setSelectedImage(null);
+	// 	setIsTyping(false);
+	// };
 
 	const handleGetChat = async (chatID) => {
 		if (!chatID) return;
@@ -218,13 +232,14 @@ function ChatPage() {
 						</div>
 					</div>
 				</div>
-				<div className="flex flex-row gap-4 mt-4 mb-4">
-					{/* Gadget 2 */}
-					<div className="bg-secondary w-[1200px] p-4 rounded-md shadow-md mr-4">
-						{/* Comunicado */}
-						<div className="flex flex-row gap-2">
+
+				{showBanner && (
+					<div
+						role="note"
+						className="col-start-2 col-span-4 w-[1200px] flex items-start justify-between bg-white text-black p-4 rounded-md shadow-md gap-4 mb-4">
+						<div className="flex flex-row gap-4">
 							<FiInfo className="animate-pulse" size={25} />
-							<p className="text-base font-semibold">
+							<p className="text-base text-gray-700 mb-2">
 								A funcionalidade de Chat ainda não está
 								funcionando 100%, portanto talvez seja
 								necessário intercalar entre os chats ou
@@ -234,8 +249,16 @@ function ChatPage() {
 								versões do site.
 							</p>
 						</div>
+
+						<button
+							onClick={handleClose}
+							aria-label="Fechar banner"
+							className="p-1 transition-all ease-in duration-150 border-[1px] border-dashed border-primary hover:bg-secondary hover:text-white rounded shrink-0">
+							<IoCloseSharp size={24} />
+						</button>
 					</div>
-				</div>
+				)}
+
 				<div className="flex flex-row">
 					<div className="bg-white border border-gray-900 border-t-0 border-r-1 border-b-0 border-l-0 w-[330px] rounded-tl-md rounded-tr-none rounded-br-none rounded-bl-md">
 						<div className="px-4 mt-4">
@@ -369,7 +392,7 @@ function ChatPage() {
 						)}
 					</div>
 					<div>
-						<div className="bg-white w-[900px] h-[95px] border border-gray-900 border-t-0 border-r-0 border-b-1 border-l-0 mr-4 p-6 rounded-tr-md">
+						<div className="bg-white w-[896px] h-[95px] border border-gray-900 border-t-0 border-r-0 border-b-1 border-l-0 mr-4 p-6 rounded-tr-md">
 							<div className="flex flex-row">
 								<div className="flex flex-row items-center gap-2">
 									<div className="avatar online">
@@ -414,7 +437,7 @@ function ChatPage() {
 								</div>
 							</div>
 						</div>
-						<div className="chat-messages bg-white w-[900px] min-h-[300px] rounded-b-nome rounded-t-none p-6 mr-4">
+						<div className="chat-messages bg-white w-[896px] min-h-[300px] rounded-b-nome rounded-t-none p-6 mr-4">
 							{chat && Array.isArray(chat.messages) ? (
 								chat.messages.map((message, index) => (
 									<div
@@ -587,9 +610,6 @@ function ChatPage() {
 							</form>
 						</div>
 					</div>
-					{/* <div className="bg-purple-400 w-[300px] p-6 rounded-md mr-4">
-						Lateral
-					</div> */}
 				</div>
 			</div>
 		</section>

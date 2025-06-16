@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const MainImageProductAdComponent = ({ selectedImage, product }) => {
 	// Inicializa o estado com a imagem padrão
-	const [imageUrl, setImageUrl] = useState(product?.imagesProduct?.[0] || ""); // Inicia com a primeira imagem se disponível
+	const [imageUrl, setImageUrl] = useState(product?.productImages?.[0] || ""); // Inicia com a primeira imagem se disponível
 
 	useEffect(() => {
 		// Define a imagem a ser renderizada com base nas seleções
@@ -13,9 +13,9 @@ const MainImageProductAdComponent = ({ selectedImage, product }) => {
 		// Verifica se o tipo é 'carousel' e pega a imagem do array de imagens do produto
 		if (
 			selectedImage.type === "carousel" &&
-			product?.imagesProduct?.[selectedImage.index]
+			product?.productImages?.[selectedImage.index]
 		) {
-			newImageUrl = product.imagesProduct[selectedImage.index];
+			newImageUrl = product.productImages[selectedImage.index];
 		}
 		// Verifica se o tipo é 'variation' e pega a imagem correta baseado nos índices fornecidos
 		else if (

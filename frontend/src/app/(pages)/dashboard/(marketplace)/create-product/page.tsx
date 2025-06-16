@@ -368,6 +368,7 @@ const createProductFormSchema = z
 		freeShippingRegion: z.string().refine((value) => value !== "", {
 			message: "※ Item obrigatório!",
 		}),
+		internationalShipping: z.string().min(1, "※ item obrigatório!"),
 	})
 	.refine(
 		(data) => {
@@ -800,6 +801,7 @@ function CreateProductPage() {
 			preOrder: "",
 			freeShipping: "",
 			freeShippingRegion: "",
+			internationalShipping: "",
 			productVariations: [],
 		},
 	});
@@ -2850,7 +2852,7 @@ function CreateProductPage() {
 									</label>
 								</div>
 
-								<div className="flex flex-row items-center ">
+								<div className="flex flex-row items-center">
 									<label className="form-control w-full max-w-2xl">
 										<div className="label">
 											<span className="label-text text-black">
@@ -2990,6 +2992,60 @@ function CreateProductPage() {
 													{
 														errors
 															.freeShippingRegion
+															.message
+													}
+												</span>
+											) : (
+												<span className="label-text-alt text-black opacity-0">
+													Label não visivel
+												</span>
+											)}
+										</div>
+									</label>
+
+									<label className="form-control w-full max-w-3xl">
+										<div className="label">
+											<span className="label-text text-black">
+												É um envio internacional?
+											</span>
+										</div>
+
+										<select
+											className={`select select-bordered ${getFieldClass(
+												"internationalShipping",
+												"select"
+											)} w-full max-w-xs`}
+											{...register(
+												"internationalShipping",
+												{
+													onChange: () =>
+														trigger(
+															"internationalShipping"
+														),
+												}
+											)}
+											onFocus={() =>
+												handleFocus(
+													"internationalShipping"
+												)
+											}
+											onBlur={() =>
+												handleBlur(
+													"internationalShipping"
+												)
+											}>
+											<option value="" disabled>
+												Selecione uma opção
+											</option>
+											<option value="true">Sim</option>
+											<option value="false">Não</option>
+										</select>
+										<div className="label">
+											{errors.internationalShipping ? (
+												<span className="label-text-alt text-red-500">
+													{
+														errors
+															.internationalShipping
 															.message
 													}
 												</span>

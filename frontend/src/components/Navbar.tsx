@@ -331,7 +331,7 @@ function Navbar() {
 													</span>
 												</Link>
 											</li>
-											<li>
+											{/* <li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
 														<RiExchangeFundsFill
@@ -343,8 +343,8 @@ function Navbar() {
 														New
 													</span>
 												</a>
-											</li>
-											<li>
+											</li> */}
+											{/* <li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
 														<HiOutlineGiftTop
@@ -356,7 +356,7 @@ function Navbar() {
 														New
 													</span>
 												</a>
-											</li>
+											</li> */}
 											<li>
 												<Link
 													href="/raffles"
@@ -372,7 +372,7 @@ function Navbar() {
 													</span>
 												</Link>
 											</li>
-											<li>
+											{/* <li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
 														<PokeballOne
@@ -384,7 +384,7 @@ function Navbar() {
 														New
 													</span>
 												</a>
-											</li>
+											</li> */}
 										</ul>
 									</div>
 								</div>
@@ -727,7 +727,7 @@ function Navbar() {
 													</span>
 												</a>
 											</li>
-											<li>
+											{/* <li>
 												<a className="flex flex-row items-center justify-between text-white">
 													<span className="flex flex-row items-center gap-2">
 														<RiExchangeFundsFill
@@ -739,7 +739,7 @@ function Navbar() {
 														New
 													</span>
 												</a>
-											</li>
+											</li> */}
 											<li>
 												<Link
 													href="/raffles"

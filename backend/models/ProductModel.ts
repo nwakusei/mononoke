@@ -35,6 +35,7 @@ interface IProduct {
 	daysShipping: number;
 	freeShipping: boolean;
 	freeShippingRegion: string;
+	internationaShipping: boolean;
 	adultProduct: boolean;
 	sponsoredProduct: boolean;
 	productsSold: number;
@@ -131,6 +132,9 @@ const productSchema = new Schema<IProduct>(
 		},
 		freeShippingRegion: {
 			type: String,
+		},
+		internationaShipping: {
+			type: Boolean,
 		},
 		adultProduct: {
 			type: Boolean,

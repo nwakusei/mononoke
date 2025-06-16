@@ -633,7 +633,13 @@ function MySaleByIDPage() {
 						{/* Gadget 4 */}
 						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4">
 							<div className="mb-4 text-black">
-								<h1>Tranportadora: {mysale?.shippingMethod}</h1>
+								<h1>
+									{`Tranportadora: ${
+										mysale?.logisticOperator
+											? mysale?.logisticOperator
+											: "A definir"
+									}`}
+								</h1>
 								{/* <h2>
 									Valor:{" "}
 									{mysale?.shippingCostTotal > 0
@@ -670,11 +676,11 @@ function MySaleByIDPage() {
 							)}
 
 							{mysale?.trackingCode !== "" && (
-								<div className="flex flex-row gap-2">
+								<div className="flex flex-row items-center gap-2">
 									<div className="text-black">
 										Cod. de Rastreio:
 									</div>
-									<div className="bg-primary cursor-pointer transition-all ease-in duration-150 active:scale-[.95] rounded shadow-md px-2">
+									<div className="bg-primary text-sm cursor-pointer transition-all ease-in duration-150 active:scale-[.95] rounded shadow-md px-2">
 										{mysale?.trackingCode}
 									</div>
 								</div>

@@ -483,11 +483,14 @@ function ProductPage() {
 
 						{/* Componente intermediário */}
 						<div className="flex flex-col w-[350px]">
-							{/* <span className="text-sm">{product?.condition}</span> */}
+							<span className="text-sm">
+								{product?.condition}
+							</span>
 							{/* Título */}
 							<h1 className="text-xl font-semibold text-black mb-1">
 								{product?.productTitle}
 							</h1>
+
 							{/* Avaliações e Vendidos */}
 							<div className="flex flex-row text-sm text-black mb-4 gap-1">
 								<div className="flex items-center gap-1 text-yellow-500">
@@ -1103,7 +1106,7 @@ function ProductPage() {
 												freeShipping={
 													recommendedProduct.freeShipping
 												}
-												productImage={`http://backend:5000/images/products/${recommendedProduct.imagesProduct[0]}`}
+												productImage={`http://localhost:5000/images/products/${recommendedProduct.productImages[0]}`}
 												title={
 													recommendedProduct.productTitle
 												}

@@ -33,6 +33,7 @@ class ProductController {
 			daysShipping,
 			freeShipping,
 			freeShippingRegion,
+			internationaShipping,
 			adultProduct,
 		} = req.body;
 
@@ -194,8 +195,6 @@ class ProductController {
 			return;
 		}
 
-		// adultProduct;
-
 		if (!productImages || productImages.length === 0) {
 			// Validação de Imagem
 			res.status(422).json({ message: "A imagem é obrigatória!" });
@@ -298,6 +297,7 @@ class ProductController {
 			daysShipping: daysShipping,
 			freeShipping: freeShipping,
 			freeShippingRegion: freeShippingRegion,
+			internationaShipping: internationaShipping,
 			adultProduct: adultProduct,
 			sponsoredProduct: false,
 			productsSold: 0,
