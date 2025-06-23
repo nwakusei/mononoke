@@ -254,7 +254,7 @@ function RegisterPage() {
 					) : (
 						<button
 							type="submit"
-							className="btn btn-secondary w-[320px] mt-4 shadow-md mb-2">
+							className="btn btn-secondary text-white w-[320px] mt-4 shadow-md mb-2">
 							Cadastrar
 						</button>
 					)}
@@ -263,7 +263,7 @@ function RegisterPage() {
 					<span>Já possui uma conta?</span>
 
 					<Link
-						className="text-violet-950 hover:underline active:scale-[.97]"
+						className="text-purple-900 hover:underline active:scale-[.97]"
 						href="/login">
 						Faça login
 					</Link>

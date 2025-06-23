@@ -542,7 +542,9 @@ function MyOrderByIDPage() {
 								) : (
 									`Custo do Frete: R$ 0,00`
 								)} */}
+
 								<div>{`Status: ${translateOrderShipping()}`}</div>
+
 								<div className="flex flex-row gap-2">
 									Cód. de Rastreio:
 									{myorder && myorder?.trackingCode ? (
@@ -553,6 +555,7 @@ function MyOrderByIDPage() {
 										<> — </>
 									)}
 								</div>
+
 								{myorder?.statusShipping === "Shipped" && (
 									<div className="mt-4 mb-2">
 										{packedLoading ? (

@@ -55,4 +55,18 @@ router.get(
 	RaffleController.getAllTicketsByCustomer
 );
 
+router.patch("/mark-packed/:id", RaffleController.markRafflePacked);
+
+router.patch(
+	"/raffle-update-trackingcode/:id",
+	verifyToken,
+	RaffleController.updateTrackingCodeRaffle
+);
+
+router.patch(
+	"/raffle-mark-delivered/:id",
+	verifyToken,
+	RaffleController.raffleMarkDelivered
+);
+
 export default router;

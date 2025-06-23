@@ -47,6 +47,10 @@ interface IRaffle {
 	registeredTickets: IRegisteredTickets[];
 	winner: IWinner;
 	statusShipping: string; // "pending", "shipped", "delivered", "canceled"
+	logisticOperator: string; // Operadora logística responsável pelo envi
+	trackingCode: string; // Código de rastreamento do envio
+	markedDeliveredBy: string;
+	markedDeliveredAt: Date;
 }
 
 // Schema que corresponda a Interface
@@ -153,6 +157,21 @@ const raffleSchema = new Schema<IRaffle>(
 			address: {
 				type: {},
 			},
+		},
+		statusShipping: {
+			type: String,
+		},
+		logisticOperator: {
+			type: String,
+		},
+		trackingCode: {
+			type: String,
+		},
+		markedDeliveredBy: {
+			type: String,
+		},
+		markedDeliveredAt: {
+			type: Date,
 		},
 	},
 	{ timestamps: true }

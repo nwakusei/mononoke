@@ -9,14 +9,53 @@ import Swal from "sweetalert2";
 import { Sidebar } from "@/components/Sidebar";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
+// Bliblioteca de Sanitização
+import DOMPurify from "dompurify";
+
 // Axios
 import api from "@/utils/api";
 
 // Icons
 import { Coupon } from "@icon-park/react";
 import { BsPersonFill } from "react-icons/bs";
-import { LuCalendarRange } from "react-icons/lu";
+import { LuCalendarRange, LuPackage, LuPackageCheck } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
+import { toast } from "react-toastify";
+import { GrMapLocation } from "react-icons/gr";
+
+// React Hook Form, Zod e ZodResolver
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const updateTrackingForm = z.object({
+	logisticOperator: z
+		.string()
+		.min(1, "※ O operador logístico é obrigatório!")
+		.trim()
+		.refine((value) => value !== "", {
+			message: "※ Item obrigatório!",
+		}),
+	trackingCode: z
+		.string()
+		.min(1, "※ O código de rastreio é obrigatório!")
+		.trim()
+		.toUpperCase()
+		.refine(
+			(tCode) => {
+				const sanitized = DOMPurify.sanitize(tCode);
+
+				const isValid = /^[A-Za-z0-9]+$/.test(sanitized); // Verificar se é alfanumérico
+
+				return isValid;
+			},
+			{
+				message: "※ O código possui caracteres inválidos!",
+			}
+		),
+});
+
+type TUpdateTrackingForm = z.infer<typeof updateTrackingForm>;
 
 function MyRafflesByID() {
 	const [myraffle, setMyraffle] = useState([]);
@@ -24,9 +63,19 @@ function MyRafflesByID() {
 	const { id } = useParams();
 	const [loadingBtn, setLoadingBtn] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [packedLoading, setPackedLoading] = useState(false);
+	const [trackingLoading, setTrackingLoading] = useState(false);
 
 	const [counter, setCounter] = useState(5);
 	const [raffleStatus, setRaffleStatus] = useState("not_started");
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<TUpdateTrackingForm>({
+		resolver: zodResolver(updateTrackingForm),
+	});
 
 	// Fetch inicial dos dados do sorteio
 	useEffect(() => {
@@ -80,7 +129,7 @@ function MyRafflesByID() {
 	}, [counter, raffleStatus]);
 
 	// Handler para realizar o sorteio
-	async function handleSubmit() {
+	async function handleDraw() {
 		if (raffleStatus === "completed") {
 			Swal.fire({
 				title: "Este sorteio já foi realizado!",
@@ -117,6 +166,88 @@ function MyRafflesByID() {
 		}
 		setLoadingBtn(false);
 	}
+
+	async function handleTracking(data) {
+		const logisticOperator = data.logisticOperator;
+		const trackingCode = data.trackingCode;
+
+		setTrackingLoading(true);
+		try {
+			const response = await api.patch(
+				`/raffles/raffle-update-trackingcode/${id}`,
+				{ logisticOperator, trackingCode },
+				{ headers: { Authorization: `Bearer ${JSON.parse(token)}` } }
+			);
+
+			// Atualiza o estado local do pedido
+			setMyraffle((prevMysale) => ({
+				...prevMysale,
+				statusShipping: "Enviado",
+				trackingCode: trackingCode, // Certifique-se de que está sendo atualizado corretamente
+			}));
+
+			toast.success(response.data.message);
+		} catch (error) {
+			toast.error(error.response.data.message);
+			console.error("Erro ao atualizar o código de rastreamento:", error);
+		}
+		setTrackingLoading(false);
+	}
+
+	async function handlePacked() {
+		setPackedLoading(true);
+		try {
+			const response = await api.patch(`/raffles/mark-packed/${id}`);
+
+			// Atualizar o estado localmente para refletir a mudança no status
+			setMyraffle((prevMysale) => ({
+				...prevMysale,
+				statusShipping: "Embalado", // Alteração do status local
+			}));
+
+			toast.success(response.data.message);
+		} catch (error: any) {
+			console.log(error);
+			toast.error(error.response.data.message);
+		}
+		setPackedLoading(false);
+	}
+
+	async function handleDelivered() {
+		setPackedLoading(true);
+		try {
+			const response = await api.patch(
+				`/raffles/raffle-mark-delivered/${id}`
+			);
+
+			// Atualizar o estado localmente para refletir a mudança no status
+			setMyraffle((prevMysale) => ({
+				...prevMysale,
+				statusShipping: "Entregue", // Alteração do status local
+			}));
+
+			toast.success(response.data.message);
+		} catch (error: any) {
+			console.log(error);
+			toast.error(error.response.data.message);
+		}
+		setPackedLoading(false);
+	}
+
+	// const handleInfo = () => {
+	// 	Swal.fire({
+	// 		title: "Prazo de resolução expirado",
+	// 		text: "O prazo de 3 dias para resolver o problema expirou. Cancele o pedido e reembolse os participantes do sorteio, do contrário faremos isso por você!",
+	// 		icon: "warning",
+	// 		width: 700,
+	// 		confirmButtonText: "Cancelar Pedido",
+	// 		confirmButtonColor: "#b81414", // vermelho padrão
+	// 	}).then((result) => {
+	// 		if (result.isConfirmed) {
+	// 			handleCancelOrder(myraffle?._id);
+	// 		}
+	// 	});
+	// };
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -451,6 +582,185 @@ function MyRafflesByID() {
 						)}
 				</div>
 
+				<div className="flex flex-col bg-white rounded-md shadow-md mt-4 ml-4 mr-8">
+					<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none mb-6">
+						Logística
+					</div>
+
+					<div className="ml-4">{`Status de Envio: ${myraffle?.statusShipping}`}</div>
+
+					<div className="ml-4">
+						{`Transportadora: ${myraffle?.logisticOperator}`}
+					</div>
+
+					{myraffle?.statusShipping === "Pending" &&
+					myraffle?.trackingCode === "" ? (
+						<div className="ml-4 mb-4">
+							{packedLoading ? (
+								<button className="btn btn-primary w-[300px]">
+									<span className="loading loading-spinner loading-sm"></span>
+								</button>
+							) : (
+								<button
+									onClick={handlePacked}
+									className="btn btn-primary w-[300px]">
+									<span>Marcar como embalado</span>
+									<LuPackage size={20} />
+								</button>
+							)}
+						</div>
+					) : (
+						<></>
+					)}
+
+					{myraffle?.trackingCode !== "" && (
+						<div className="flex flex-row items-center ml-4 mb-4 gap-2">
+							<div className="text-black">Cod. de Rastreio:</div>
+							<div className="bg-primary text-sm cursor-pointer transition-all ease-in duration-150 active:scale-[.95] rounded shadow-md px-2">
+								{myraffle?.trackingCode}
+							</div>
+						</div>
+					)}
+
+					{myraffle?.statusShipping === "Packed" &&
+						myraffle?.trackingCode === "" && (
+							<form onSubmit={handleSubmit(handleTracking)}>
+								<label className="form-control w-full max-w-xs mb-1">
+									<select
+										className={`select ${
+											errors.logisticOperator
+												? `select-error`
+												: `select-success`
+										} w-full max-w-xs`}
+										defaultValue=""
+										{...register("logisticOperator")} // Registrar o select
+									>
+										<option value="" disabled>
+											Qual é a transportadora?
+										</option>
+										<option value="Correios">
+											Correios
+										</option>
+										<option value="Loggi">Loggi</option>
+										<option value="Jadlog">Jadlog</option>
+										<option value="J&T">J&T Express</option>
+										<option value="Buslog">Buslog</option>
+										<option value="Latam">
+											Latam Cargo
+										</option>
+										<option value="Azul">
+											Azul Cargo Express
+										</option>
+										<option value="Japan Post">
+											Japan Post
+										</option>
+										<option value="DHL">DHL</option>
+										<option value="FedEx">FedEx</option>
+									</select>
+									<div className="label">
+										{errors.trackingCode && (
+											<span className="label-text-alt text-error">
+												{errors.trackingCode.message}
+											</span>
+										)}
+									</div>
+								</label>
+
+								<label className="form-control w-full max-w-xs mb-2">
+									{/* Input para código de rastreamento */}
+									<input
+										className={`input input-bordered ${
+											errors.trackingCode
+												? `input-error`
+												: `input-success`
+										} w-full`}
+										type="text"
+										placeholder="Insira o código de Rastreio"
+										{...register("trackingCode")} // Registrar o input
+									/>
+
+									{/* Exibir erro de validação do código de rastreamento */}
+									<div className="label">
+										{errors.trackingCode && (
+											<span className="label-text-alt text-error">
+												{errors.trackingCode.message}
+											</span>
+										)}
+									</div>
+								</label>
+
+								<div>
+									{trackingLoading ? (
+										<button className="btn btn-primary w-[300px]">
+											<span className="loading loading-spinner loading-sm"></span>
+										</button>
+									) : (
+										<button
+											type="submit"
+											className="btn btn-primary w-[300px] shadow-md">
+											Enviar Código de Rastreio
+											<GrMapLocation size={20} />
+										</button>
+									)}
+								</div>
+							</form>
+						)}
+
+					{myraffle?.statusShipping === "Shipped" && (
+						<div className="mt-4 mb-2">
+							{packedLoading ? (
+								<button className="btn btn-primary w-[300px]">
+									<span className="loading loading-spinner loading-sm"></span>
+								</button>
+							) : (
+								<button
+									onClick={handleDelivered}
+									className="btn btn-primary w-[300px]">
+									<span>Marcar como entregue</span>
+									<LuPackageCheck size={20} />
+								</button>
+							)}
+						</div>
+					)}
+
+					{myraffle?.statusShipping === "Not Delivered" && (
+						<div className="bg-white w-[325px] p-6 border-2 border-dashed border-violet-900 rounded-md shadow-md mt-4 flex flex-col gap-2 mb-4">
+							<p className="text-base font-semibold text-black mb-2">
+								Pedido marcado como não entregue, verifique
+								junto a transportadora o que ocorreu. Em caso de
+								extravio, cancele o pedido e reembolse o
+								comprador. Você tem 3 dias para resolver o
+								problema.
+							</p>
+
+							{/* <button className="bg-primary py-1 rounded shadow-md cursor-pointer transition-all ease-in duration-200 active:scale-[.97] mb-2">
+                                        Pedido encontrado e entregue
+                                      </button> */}
+
+							{(() => {
+								const updatedAt = new Date(myraffle.updatedAt);
+								const now = new Date();
+								const diffInMs =
+									now.getTime() - updatedAt.getTime();
+								const diffInDays =
+									diffInMs / (1000 * 60 * 60 * 24);
+
+								if (diffInDays >= 3) {
+									return (
+										<button
+											onClick={handleInfo}
+											className="bg-primary py-1 rounded shadow-md cursor-pointer transition-all ease-in duration-200 active:scale-[.97]">
+											Prazo de resolução expirado
+										</button>
+									);
+								}
+
+								return null;
+							})()}
+						</div>
+					)}
+				</div>
+
 				{/* Botão */}
 				<div className="flex flex-row justify-center mt-8">
 					{loadingBtn ? (
@@ -459,7 +769,7 @@ function MyRafflesByID() {
 						</button>
 					) : (
 						<button
-							onClick={handleSubmit}
+							onClick={handleDraw}
 							className="w-[250px] btn btn-primary shadow-md disabled:bg-gray-400 disabled:text-gray-500"
 							disabled={raffleStatus === "completed"}>
 							Sortear

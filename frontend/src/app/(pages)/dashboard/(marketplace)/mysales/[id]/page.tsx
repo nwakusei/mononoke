@@ -6,10 +6,8 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
-import crypto from "crypto";
 import { useRouter } from "next/navigation";
-
-const secretKey = "chaveSuperSecretaDe32charsdgklot";
+import Swal from "sweetalert2";
 
 // Axios
 import api from "@/utils/api";
@@ -32,8 +30,6 @@ import { MdOutlineCancel } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Swal from "sweetalert2";
-import { error } from "console";
 
 const updateTrackingForm = z.object({
 	logisticOperator: z
@@ -806,6 +802,7 @@ function MySaleByIDPage() {
 								</div>
 							)}
 						</div>
+
 						{/* Gadget 4 */}
 						{mysale?.statusShipping === "Not Delivered" && (
 							<div className="bg-white w-[325px] p-6 border-2 border-dashed border-violet-900 rounded-md shadow-md mt-4 flex flex-col gap-2 mb-4">
@@ -818,8 +815,8 @@ function MySaleByIDPage() {
 								</p>
 
 								{/* <button className="bg-primary py-1 rounded shadow-md cursor-pointer transition-all ease-in duration-200 active:scale-[.97] mb-2">
-                  Pedido encontrado e entregue
-                </button> */}
+                                        Pedido encontrado e entregue
+                                      </button> */}
 
 								{(() => {
 									const updatedAt = new Date(
