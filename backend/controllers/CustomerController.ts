@@ -129,14 +129,25 @@ class CustomerController {
 			return res.status(422).json({ errors: errorMessages });
 		}
 
-		// Verificar se o email já está cadastrado na plataforma
-		const customerEmailExist = await CustomerModel.findOne({
+		// Verificar se o partner existe
+		const otakupayEmailExist = await OtakupayModel.findOne({
 			email: email,
 		});
 
+		if (otakupayEmailExist) {
+			res.status(422).json({
+				message:
+					"Email já cadastrado em OtakuPay. Por favor utilize outro email!",
+			});
+			return;
+		}
+
+		const customerEmailExist = await PartnerModel.findOne({ email: email });
+
 		if (customerEmailExist) {
 			res.status(422).json({
-				message: "Já existe uma conta cadastrada com este email!",
+				message:
+					"Email já cadastrado como customer. Por favor utilize outro email!",
 			});
 			return;
 		}
@@ -149,6 +160,20 @@ class CustomerController {
 		const encryptedBalance = encrypt(balanceToEncrypt);
 
 		try {
+			// Criar um usuário Cliente
+			const customer = new CustomerModel({
+				accountStatus: "Active",
+				accountType: accountType,
+				name: name,
+				nickname: "",
+				email: email,
+				password: passwordHash,
+				viewAdultContent: false,
+				newsletters: true,
+			});
+
+			const newCustomer = await customer.save();
+
 			const otakupay = new OtakupayModel({
 				accountStatus: "Active",
 				accountType: accountType,
@@ -160,6 +185,13 @@ class CustomerController {
 				otakuPointsAvailable: encryptedBalance,
 				otakuPointsPending: encryptedBalance,
 			});
+
+			const newOtakupay = await otakupay.save();
+
+			// Atualiza o Partner com o otakupayID
+			newCustomer.otakupayID = newOtakupay._id.toString();
+
+			await newCustomer.save();
 
 			// let info = await transporter.sendMail({
 			// 	from: '"Mononoke" <rguedes_arq@hotmail.com>',
@@ -202,23 +234,6 @@ class CustomerController {
 					console.log("E-mail enviado:", info.response);
 				}
 			});
-
-			const newOtakupay = await otakupay.save();
-
-			// Criar um usuário Cliente
-			const customer = new CustomerModel({
-				accountStatus: "Active",
-				accountType: accountType,
-				name: name,
-				nickname: "",
-				email: email,
-				password: passwordHash,
-				viewAdultContent: false,
-				newsletters: true,
-				otakupayID: newOtakupay._id.toString(),
-			});
-
-			const newCustomer = await customer.save();
 
 			await createUserToken(newCustomer, req, res);
 		} catch (err) {
@@ -609,7 +624,7 @@ class CustomerController {
 				).select("-password");
 
 				res.status(200).json({
-					message: "Usuário atualizado com sucesso!",
+					message: "Dados atualizados com sucesso!",
 					updatedUser,
 				});
 			} else {

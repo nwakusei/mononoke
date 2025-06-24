@@ -113,13 +113,25 @@ class PartnerController {
 		}
 
 		// Verificar se o partner existe
+		const otakupayEmailExist = await OtakupayModel.findOne({
+			email: email,
+		});
+
+		if (otakupayEmailExist) {
+			res.status(422).json({
+				message:
+					"Email já cadastrado em OtakuPay. Por favor utilize outro email!",
+			});
+			return;
+		}
+
 		const partnerEmailExist = await PartnerModel.findOne({ email: email });
 
 		if (partnerEmailExist) {
 			res.status(422).json({
-				message: "Email já cadastrado, Por favor utilize outro email!",
+				message:
+					"Email já cadastrado como parceiro. Por favor utilize outro email!",
 			});
-
 			return;
 		}
 
@@ -135,22 +147,22 @@ class PartnerController {
 		const encryptedCashback = encrypt(cashbackToEncrypt);
 
 		try {
-			const otakupay = new OtakupayModel({
-				accountStatus: "Active",
-				accountType: accountType,
-				name: name,
-				email: email,
-				password: passwordHash,
-				balanceAvailable: encryptedBalance,
-				balancePending: encryptedBalance,
-				otakuPointsAvailable: encryptedBalance,
-				otakuPointsPending: encryptedBalance,
-				cashback: encryptedCashback,
-			});
+			// const otakupay = new OtakupayModel({
+			// 	accountStatus: "Active",
+			// 	accountType: accountType,
+			// 	name: name,
+			// 	email: email,
+			// 	password: passwordHash,
+			// 	balanceAvailable: encryptedBalance,
+			// 	balancePending: encryptedBalance,
+			// 	otakuPointsAvailable: encryptedBalance,
+			// 	otakuPointsPending: encryptedBalance,
+			// 	cashback: encryptedCashback,
+			// });
 
-			const newOtakupay = await otakupay.save();
+			// const newOtakupay = await otakupay.save();
 
-			// Criar um usuário Parceiro
+			// Cria Partner (sem otakupayID ainda)
 			const partner = new PartnerModel({
 				accountStatus: "Active",
 				accountType: accountType,
@@ -172,10 +184,32 @@ class PartnerController {
 				totalProducts: 0,
 				productsSold: 0,
 				viewAdultContent: false,
-				otakupayID: newOtakupay._id.toString(),
 			});
 
 			const newPartner = await partner.save();
+
+			// Cria OtakuPay
+			const otakupay = new OtakupayModel({
+				accountStatus: "Active",
+				accountType: accountType,
+				name: name,
+				email: email,
+				password: passwordHash,
+				balanceAvailable: encryptedBalance,
+				balancePending: encryptedBalance,
+				otakuPointsAvailable: encryptedBalance,
+				otakuPointsPending: encryptedBalance,
+				cashback: encryptedCashback,
+			});
+
+			const newOtakupay = await otakupay.save();
+
+			// Atualiza o Partner com o otakupayID
+			newPartner.otakupayID = newOtakupay._id.toString();
+
+			await newPartner.save();
+
+			// Gera o token
 			await createUserToken(newPartner, req, res);
 		} catch (err) {
 			console.log(err);
@@ -570,7 +604,7 @@ class PartnerController {
 				).select("-password");
 
 				res.status(200).json({
-					message: "Usuário atualizado com sucesso!",
+					message: "Dados atualizados com sucesso!",
 					updatedUser,
 				});
 			} else {

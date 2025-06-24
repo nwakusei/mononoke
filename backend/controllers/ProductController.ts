@@ -281,7 +281,7 @@ class ProductController {
 		const product = new ProductModel({
 			productTitle: productTitle,
 			slugTitle: slugWithCode,
-			imagesProduct: [],
+			productImages: [],
 			description: description,
 			productVariations: processedVariations,
 			originalPrice: originalPrice,

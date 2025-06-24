@@ -73,13 +73,12 @@ function LoginPage() {
 		<section className="bg-gray-100 flex min-h-screen flex-col items-center justify-center p-24">
 			<div className="flex flex-col items-center justify-center bg-primary w-[500px] h-[520px] rounded-md shadow-md m-4">
 				<Image
-					className="pointer-events-none select-none"
+					className="pointer-events-none select-none mb-4"
 					src={Logo}
 					width={200}
 					alt="logo"
 					unoptimized
 				/>
-				<h1 className="text-center text-2xl mt-2 mb-4">Login</h1>
 				<form onSubmit={handleSubmit(signinUser)} autoComplete="off">
 					<InputUserForm
 						htmlFor="email"
@@ -114,7 +113,7 @@ function LoginPage() {
 					<span>Não possui uma conta?</span>
 
 					<Link
-						className="text-violet-950 hover:underline active:scale-[.97]"
+						className="text-black hover:underline active:scale-[.97]"
 						href="/register">
 						Cadastre-se
 					</Link>
@@ -122,7 +121,7 @@ function LoginPage() {
 				<div className="flex flex-row gap-1">
 					<span>Esqueceu a senha?</span>
 					<Link
-						className="text-violet-950 hover:underline active:scale-[.97]"
+						className="text-black hover:underline active:scale-[.97]"
 						href="/send-email">
 						Resetar
 					</Link>

@@ -70,7 +70,7 @@ function ShippingCard({
 			].map((operator) => (
 				<div
 					key={operator}
-					className="bg-white w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
+					className="bg-white text-black w-[1200px] p-6 rounded-md shadow-md mr-4 mb-4">
 					<div className="mb-4">
 						<label className="flex justify-between mb-4">
 							<div className="flex flex-row items-center gap-4">
@@ -80,7 +80,7 @@ function ShippingCard({
 									checked={selectedOperators.some(
 										(o) => o.shippingOperator === operator
 									)}
-									className="checkbox"
+									className="checkbox bg-slate-200"
 								/>
 								{/* <span className="ml-2">{operator}</span> */}
 
@@ -136,7 +136,7 @@ function ShippingCard({
 														modality
 													) || false
 											}
-											className="checkbox"
+											className="checkbox bg-slate-200"
 										/>
 
 										<span className="ml-2">{modality}</span>

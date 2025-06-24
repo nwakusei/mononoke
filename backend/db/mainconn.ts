@@ -6,7 +6,7 @@ const mainDB: Connection = mongoose.createConnection(
 	process.env.DATABASE_MAIN as string,
 	{
 		// ALTERAR NOME DO BANCO DE DADOS ANTES DE SUBIR PARA PRODUÇÃO
-		dbName: "OtakuPrimeDB",
+		dbName: "MononokeDB",
 	}
 );
 

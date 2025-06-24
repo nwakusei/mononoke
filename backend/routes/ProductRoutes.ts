@@ -11,7 +11,7 @@ import { imageUpload } from "../helpers/image-upload.js";
 const numberOfVariations = 10; // Defina isso conforme necessário, ou calcule dinamicamente
 const optionsPerVariation = 50; // Defina o número de opções por variação conforme necessário
 
-const fields = [{ name: "imagesProduct", maxCount: 10 }];
+const fields = [{ name: "productImages", maxCount: 10 }];
 
 // Adicionando campos de imagem para cada variação e suas opções
 for (let i = 0; i < numberOfVariations; i++) {

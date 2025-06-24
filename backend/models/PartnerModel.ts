@@ -67,7 +67,6 @@ const partnerSchema = new Schema<IPartner>(
 		},
 		nickname: {
 			type: String,
-			unique: true,
 		},
 		verifiedBadge: {
 			type: String,

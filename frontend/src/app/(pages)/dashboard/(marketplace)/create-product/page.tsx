@@ -39,7 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const createProductFormSchema = z
 	.object({
-		imagesProduct: z
+		productImages: z
 			.instanceof(FileList)
 			.transform((list) => {
 				const files = [];
@@ -695,7 +695,7 @@ const createProductFormSchema = z
 type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
 
 function CreateProductPage() {
-	const [selectedImagesProduct, setSelectedImagesProduct] = useState<File[]>(
+	const [selectedProductImages, setSelectedProductImages] = useState<File[]>(
 		[]
 	);
 
@@ -829,7 +829,7 @@ function CreateProductPage() {
 		return () => clearTimeout(timer);
 	}, []); // Executa apenas uma vez na montagem do componente
 
-	const handleSelectedImagesProduct = (
+	const handleSelectedProductImages = (
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const files = event.target.files;
@@ -844,13 +844,13 @@ function CreateProductPage() {
 
 				// Define os erros conforme a validade
 				if (!isValidSize) {
-					setError("imagesProduct", {
+					setError("productImages", {
 						message: "※ Cada arquivo precisa ter no máximo 2Mb!",
 					});
 				}
 
 				if (!isValidFormat) {
-					setError("imagesProduct", {
+					setError("productImages", {
 						message:
 							"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
 					});
@@ -862,13 +862,13 @@ function CreateProductPage() {
 			// Verifica se há imagens válidas
 			if (validFiles.length > 0) {
 				// Se houver imagens válidas, atualiza o estado
-				setSelectedImagesProduct((prev) => [...prev, ...validFiles]);
-				clearErrors("imagesProduct"); // Limpa os erros anteriores
+				setSelectedProductImages((prev) => [...prev, ...validFiles]);
+				clearErrors("productImages"); // Limpa os erros anteriores
 			} else {
 				// Caso não haja imagens válidas, define uma mensagem de erro
-				setError("imagesProduct", {
-					message: errors.imagesProduct
-						? errors.imagesProduct.message
+				setError("productImages", {
+					message: errors.productImages
+						? errors.productImages.message
 						: "Nenhuma imagem válida selecionada!",
 				});
 			}
@@ -876,19 +876,19 @@ function CreateProductPage() {
 	};
 
 	const handleRemoveImageProduct = (index: number) => {
-		setSelectedImagesProduct((prev) => {
+		setSelectedProductImages((prev) => {
 			// Filtra a imagem removida
 			const updatedImages = prev.filter((_, i) => i !== index);
 
 			// Atualiza o estado com as imagens restantes (sem revalidação)
 			if (updatedImages.length === 0) {
 				// Se não houver imagens restantes, adicione o erro
-				setError("imagesProduct", {
+				setError("productImages", {
 					message: "※ Insira pelo menos 1 imagem!",
 				});
 			} else {
 				// Se houver imagens, remove o erro
-				clearErrors("imagesProduct");
+				clearErrors("productImages");
 			}
 
 			return updatedImages; // Apenas retorna o novo array de imagens
@@ -995,21 +995,21 @@ function CreateProductPage() {
 						}
 					});
 				});
-			} else if (key !== "imagesProduct") {
+			} else if (key !== "productImages") {
 				formData.append(key, value);
 			}
 		});
 
 		// Adiciona as imagens do produto principal ao FormData
-		if (selectedImagesProduct.length === 0) {
-			setError("imagesProduct", {
+		if (selectedProductImages.length === 0) {
+			setError("productImages", {
 				message: "※ Insira pelo menos 1 imagem!",
 			});
 			return;
 		}
 
-		selectedImagesProduct.forEach((image) => {
-			formData.append("imagesProduct", image);
+		selectedProductImages.forEach((image) => {
+			formData.append("productImages", image);
 		});
 
 		// Debugando o FormData
@@ -1072,7 +1072,7 @@ function CreateProductPage() {
 											className={`input input-bordered ${getFieldClass(
 												"productTitle",
 												"input"
-											)} bg-slate-200 text-black w-full`}
+											)} bg-slate-200 text-slate-900 w-full`}
 											type="text"
 											placeholder="Ex: One Piece Vol.1"
 											{...register("productTitle", {
@@ -1111,7 +1111,7 @@ function CreateProductPage() {
 											className={`textarea textarea-bordered ${getFieldClass(
 												"description",
 												"textarea"
-											)} w-[885px] h-[200px]`}
+											)} bg-slate-200 text-slate-900 w-[885px] h-[200px]`}
 											{...register("description", {
 												onChange: () =>
 													trigger("description"),
@@ -1142,7 +1142,7 @@ function CreateProductPage() {
 												className={`select select-bordered ${getFieldClass(
 													"category",
 													"select"
-												)} w-full`}
+												)} bg-slate-200 text-slate-900 w-full`}
 												{...register("category", {
 													onChange: () =>
 														trigger("category"),
@@ -1240,7 +1240,7 @@ function CreateProductPage() {
 												className={`select select-bordered ${getFieldClass(
 													"adultProduct",
 													"select"
-												)} w-full max-w-xs`}
+												)} bg-slate-200 text-slate-900 w-full max-w-xs`}
 												{...register("adultProduct", {
 													onChange: () =>
 														trigger("adultProduct"),
@@ -1287,7 +1287,7 @@ function CreateProductPage() {
 
 								<div className="form-control">
 									<label
-										htmlFor="imagesProductInput"
+										htmlFor="productImagesInput"
 										className="label cursor-pointer">
 										<span className="label-text text-black">
 											Imagem Principal
@@ -1295,7 +1295,7 @@ function CreateProductPage() {
 									</label>
 
 									<div className="flex flex-wrap items-center gap-2">
-										{selectedImagesProduct.map(
+										{selectedProductImages.map(
 											(imagem, index) => {
 												const imageUrl =
 													URL.createObjectURL(imagem);
@@ -1330,14 +1330,14 @@ function CreateProductPage() {
 
 										<div
 											className={`${
-												errors.imagesProduct
+												errors.productImages
 													? `border-error`
 													: `border-[#3e1d88]`
 											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
 											onClick={() => {
 												const input =
 													document.getElementById(
-														"imagesProductInput"
+														"productImagesInput"
 													);
 												input?.click();
 											}}>
@@ -1348,98 +1348,26 @@ function CreateProductPage() {
 										</div>
 
 										<input
-											id="imagesProductInput"
+											id="productImagesInput"
 											type="file"
 											accept="image/*"
 											multiple
 											className="hidden"
-											{...register("imagesProduct")}
+											{...register("productImages")}
 											onChange={
-												handleSelectedImagesProduct
+												handleSelectedProductImages
 											}
 										/>
 									</div>
 
 									<div className="label">
-										{errors.imagesProduct && (
+										{errors.productImages && (
 											<span className="label-text-alt text-red-500">
-												{errors.imagesProduct.message}
+												{errors.productImages.message}
 											</span>
 										)}
 									</div>
 								</div>
-
-								{/* <label className="form-control">
-									<div className="label">
-										<span className="label-text text-black">
-											Imagem Principal
-										</span>
-									</div>
-									<div className="flex flex-wrap items-center gap-2">
-										{selectedImagesProduct.map(
-											(imagem, index) => {
-												const imageUrl =
-													URL.createObjectURL(imagem);
-												return (
-													<div
-														key={index}
-														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded overflow-hidden">
-														<Image
-															src={imageUrl}
-															alt={`Imagem selecionada ${
-																index + 1
-															}`}
-															width={10}
-															height={10}
-															className="object-contain w-full h-full rounded-sm"
-														/>
-
-														<button
-															type="button"
-															className="absolute top-1 right-1 bg-red-500 text-white p-1 w-6 h-6 rounded z-50 flex items-center justify-center"
-															onClick={(e) => {
-																e.preventDefault();
-																handleRemoveImageProduct(
-																	index
-																);
-															}}>
-															X
-														</button>
-													</div>
-												);
-											}
-										)}
-
-										<div
-											className={`${
-												errors.imagesProduct
-													? `border-error`
-													: `border-[#3e1d88]`
-											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}>
-											<span className="text-xs">
-												Add Imagem
-											</span>
-											<AddPicture size={20} />
-											<input
-												type="file"
-												accept="image/*"
-												multiple
-												className="hidden"
-												{...register("imagesProduct")}
-												onChange={
-													handleSelectedImagesProduct
-												}
-											/>
-										</div>
-									</div>
-									<div className="label">
-										{errors.imagesProduct && (
-											<span className="label-text-alt text-red-500">
-												{errors.imagesProduct.message}
-											</span>
-										)}
-									</div>
-								</label> */}
 							</div>
 						</div>
 
@@ -2278,7 +2206,7 @@ function CreateProductPage() {
 															className={`input input-bordered ${getFieldClass(
 																"originalPrice",
 																"input"
-															)} w-full join-item`}
+															)} bg-slate-200 text-slate-900 w-full join-item`}
 															type="text"
 															placeholder="0,00"
 															{...register(
@@ -2344,7 +2272,7 @@ function CreateProductPage() {
 															className={`input input-bordered w-full ${getFieldClass(
 																"promotionalPrice",
 																"input"
-															)} join-item`}
+															)} bg-slate-200 text-slate-900 join-item`}
 															type="text"
 															placeholder="0,00"
 															{...register(
@@ -2402,7 +2330,7 @@ function CreateProductPage() {
 															className={`input input-bordered w-full ${getFieldClass(
 																"stock",
 																"input"
-															)} join-item`}
+															)} bg-slate-200 text-slate-900 join-item`}
 															type="text"
 															placeholder="0"
 															{...register(
@@ -2479,7 +2407,7 @@ function CreateProductPage() {
 											className={`select select-bordered ${getFieldClass(
 												"condition",
 												"select"
-											)} w-full max-w-xs`}
+											)} bg-slate-200 text-slate-900 w-full max-w-xs`}
 											{...register("condition", {
 												onChange: () =>
 													trigger("condition"),
@@ -2517,7 +2445,7 @@ function CreateProductPage() {
 											className={`select select-bordered ${getFieldClass(
 												"preOrder",
 												"select"
-											)} w-full max-w-xs`}
+											)} bg-slate-200 text-slate-900 w-full max-w-xs`}
 											{...register("preOrder", {
 												onChange: () =>
 													trigger("preOrder"),
@@ -2558,7 +2486,7 @@ function CreateProductPage() {
 														className={`input input-bordered ${getFieldClass(
 															"daysShipping",
 															"input"
-														)} join-item`}
+														)} bg-slate-200 text-slate-900 join-item`}
 														placeholder="0"
 														{...register(
 															"daysShipping",
@@ -2627,7 +2555,7 @@ function CreateProductPage() {
 														className={`input input-bordered ${getFieldClass(
 															"weight",
 															"input"
-														)} max-w-[120px] join-item`}
+														)} bg-slate-200 text-slate-900 max-w-[120px] join-item`}
 														placeholder="0,000"
 														{...register("weight", {
 															onChange: () =>
@@ -2681,7 +2609,7 @@ function CreateProductPage() {
 														className={`input input-bordered ${getFieldClass(
 															"length",
 															"input"
-														)} max-w-[120px] join-item`}
+														)} bg-slate-200 text-slate-900 max-w-[120px] join-item`}
 														placeholder="0"
 														{...register("length", {
 															onChange: () =>
@@ -2747,7 +2675,7 @@ function CreateProductPage() {
 														className={`input input-bordered ${getFieldClass(
 															"width",
 															"input"
-														)} max-w-[120px] join-item`}
+														)} bg-slate-200 text-slate-900 max-w-[120px] join-item`}
 														placeholder="0"
 														{...register("width", {
 															onChange: () =>
@@ -2811,7 +2739,7 @@ function CreateProductPage() {
 														className={`input input-bordered ${getFieldClass(
 															"height",
 															"input"
-														)} max-w-[120px] join-item`}
+														)} bg-slate-200 text-slate-900 max-w-[120px] join-item`}
 														placeholder="0"
 														{...register("height", {
 															onChange: () =>
@@ -2863,7 +2791,7 @@ function CreateProductPage() {
 											className={`select select-bordered ${getFieldClass(
 												"freeShipping",
 												"select"
-											)} w-full max-w-xs`}
+											)} bg-slate-200 text-slate-900 w-full max-w-xs`}
 											placeholder="0"
 											value={offerFreeShipping}
 											{...register("freeShipping", {
@@ -2911,7 +2839,7 @@ function CreateProductPage() {
 											className={`select select-bordered ${getFieldClass(
 												"freeShippingRegion",
 												"select"
-											)} w-full max-w-xs`}
+											)} bg-slate-200 text-slate-900 w-full max-w-xs`}
 											disabled={
 												offerFreeShipping === "false"
 											} // Desabilita se "Não" for selecionado
@@ -3014,7 +2942,7 @@ function CreateProductPage() {
 											className={`select select-bordered ${getFieldClass(
 												"internationalShipping",
 												"select"
-											)} w-full max-w-xs`}
+											)} bg-slate-200 text-slate-900 w-full max-w-xs`}
 											{...register(
 												"internationalShipping",
 												{
@@ -3092,7 +3020,7 @@ function CreateProductPage() {
 							</div>
 						</div>
 					</form>
-					<pre>{output}</pre>
+					{/* <pre>{output}</pre> */}
 					<br />
 				</div>
 			</div>

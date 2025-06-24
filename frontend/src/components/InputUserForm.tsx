@@ -1,3 +1,6 @@
+// Hook Form
+import { useForm } from "react-hook-form";
+
 interface IInputFormProps {
 	htmlFor: string;
 	labelTitle: string;
@@ -15,6 +18,10 @@ function InputUserForm({
 	register,
 	errors,
 }: IInputFormProps) {
+	const {
+		formState: { touchedFields },
+	} = useForm();
+
 	return (
 		<label className="form-control w-full max-w-xs" htmlFor={htmlFor}>
 			<div className="label">
@@ -24,9 +31,7 @@ function InputUserForm({
 				type={type}
 				id={inputName} // Defina o ID do input
 				className={`input input-bordered w-full max-w-xs ${
-					errors[inputName]
-						? "focus:outline-none focus:ring focus:ring-red-500"
-						: "focus:outline-none focus:ring focus:ring-green-500"
+					errors[inputName] ? "input-error" : "input-success"
 				}`}
 				{...register(inputName)} // Registre o input usando o nome recebido
 			/>

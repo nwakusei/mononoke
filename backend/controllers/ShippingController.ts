@@ -557,7 +557,7 @@ class ProductController {
 				).select("-password");
 
 				res.status(200).json({
-					message: "Usuário atualizado com sucesso!",
+					message: "Dados de envio atualizados com sucesso!",
 					updatedUser,
 				});
 			} else {

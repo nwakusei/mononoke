@@ -417,8 +417,6 @@ function CreateRafflePage() {
 			})
 		);
 
-		console.log("Dados sanitizados:", sanitizedData);
-
 		const formData = new FormData();
 
 		// Adiciona os campos texto no FormData (exceto as imagens)

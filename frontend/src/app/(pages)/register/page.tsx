@@ -167,8 +167,14 @@ function RegisterPage() {
 	return (
 		<section className="bg-gray-300 flex min-h-screen flex-col items-center justify-center p-24">
 			<div className="flex flex-col items-center justify-center bg-primary w-[500px] h-[820px] rounded-md shadow-md m-4">
-				<Image src={Logo} width={200} alt="logo" unoptimized />
-				<h1 className="text-center text-2xl mt-2 mb-4">Cadastre-se</h1>
+				<Image
+					className="pointer-events-none select-none mb-4"
+					src={Logo}
+					width={200}
+					alt="logo"
+					unoptimized
+				/>
+
 				<form onSubmit={handleSubmit(createUser)} autoComplete="off">
 					<div className="mb-2">
 						<div>
@@ -179,10 +185,10 @@ function RegisterPage() {
 							</div>
 							<div className="flex flex-row items-center">
 								<select
-									className={`select ${
+									className={`select select-bordered ${
 										errors.accountType
-											? "focus:outline-none focus:ring focus:ring-red-500"
-											: "focus:outline-none focus:ring focus:ring-green-500"
+											? "select-error"
+											: "select-success"
 									} w-full max-w-xs`}
 									{...register("accountType")}>
 									<option value="" disabled>
@@ -263,7 +269,7 @@ function RegisterPage() {
 					<span>Já possui uma conta?</span>
 
 					<Link
-						className="text-purple-900 hover:underline active:scale-[.97]"
+						className="text-black hover:underline active:scale-[.97]"
 						href="/login">
 						Faça login
 					</Link>

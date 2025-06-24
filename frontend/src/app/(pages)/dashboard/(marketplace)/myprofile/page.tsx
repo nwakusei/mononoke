@@ -1791,7 +1791,7 @@ function MyProfilePage() {
 							</div>
 						</div>
 					</form>
-					<pre>{output}</pre>
+					{/* <pre>{output}</pre> */}
 					<br />
 				</div>
 			</div>

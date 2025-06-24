@@ -33,15 +33,25 @@ function useAuth() {
 		try {
 			const data = await api
 				.post("/customers/register", customer)
-				.then((res) => res.data);
+				.then((res) => {
+					Swal.fire({
+						width: 800,
+						icon: "success",
+						title: res.data.message,
+						customClass: {
+							confirmButton: "swal2-custom-confirm",
+						},
+					});
+					return res.data;
+				});
 			await authUser(data);
 		} catch (error: any) {
 			Swal.fire({
+				width: 800,
+				icon: "error",
 				title:
 					error.response?.data?.message ||
 					"Erro ao registrar cliente",
-				width: 800,
-				icon: "error",
 			});
 			console.log(error);
 		}
@@ -53,20 +63,24 @@ function useAuth() {
 				.post("/partners/register", partner)
 				.then((res) => {
 					Swal.fire({
-						title: res.data.message,
 						width: 800,
 						icon: "success",
+						title: res.data.message,
+						confirmButtonText: "Ok",
+						customClass: {
+							confirmButton: "swal2-custom-confirm",
+						},
 					});
 					return res.data;
 				});
 			await authUser(data);
 		} catch (error: any) {
 			Swal.fire({
+				width: 800,
+				icon: "error",
 				title:
 					error.response?.data?.message ||
 					"Erro ao registrar parceiro",
-				width: 800,
-				icon: "error",
 			});
 			console.log(error);
 		}
