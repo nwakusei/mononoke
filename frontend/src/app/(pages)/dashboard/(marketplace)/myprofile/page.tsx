@@ -618,7 +618,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"name",
 												"input"
-											)} w-full max-w-3xl`}
+											)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 											placeholder={`...`}
 											defaultValue={user?.name}
 											{...register("name", {
@@ -651,7 +651,7 @@ function MyProfilePage() {
 												className={`input input-bordered ${getFieldClass(
 													"cpfCnpj",
 													"input"
-												)} w-full max-w-3xl`}
+												)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 												placeholder={`...`}
 												defaultValue={user?.cpfCnpj}
 												{...register("cpfCnpj", {
@@ -690,7 +690,7 @@ function MyProfilePage() {
 												className={`input input-bordered ${getFieldClass(
 													"cpf",
 													"input"
-												)} w-full max-w-3xl`}
+												)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 												placeholder={`...`}
 												defaultValue={user?.cpf}
 												{...register("cpf", {
@@ -727,7 +727,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"nickname",
 												"input"
-											)} w-[300px]`}
+											)} bg-slate-200 text-slate-900 w-[300px]`}
 											placeholder={`...`}
 											defaultValue={user?.nickname}
 											{...register("nickname", {
@@ -767,7 +767,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"email",
 												"input"
-											)} w-[500px]`}
+											)} bg-slate-200 text-slate-900 w-[500px]`}
 											placeholder={`...`}
 											defaultValue={user?.email}
 											{...register("email", {
@@ -800,7 +800,7 @@ function MyProfilePage() {
 											className={`select select-bordered ${getFieldClass(
 												"viewAdultContent",
 												"select"
-											)} w-full max-w-xs`}
+											)} bg-slate-200 text-slate-900 w-full max-w-xs`}
 											placeholder={`...`}
 											defaultValue={
 												user?.viewAdultContent !==
@@ -855,7 +855,7 @@ function MyProfilePage() {
 													className={`textarea textarea-bordered ${getFieldClass(
 														"description",
 														"textarea"
-													)} h-[150px]`}
+													)} bg-slate-200 text-slate-900 h-[150px]`}
 													placeholder={`...`}
 													defaultValue={
 														user?.description
@@ -915,7 +915,7 @@ function MyProfilePage() {
 											</span>
 										</div>
 										<div
-											className={`text-black hover:text-white flex flex-col justify-center items-center w-[150px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+											className={`text-black hover:text-white flex flex-col justify-center items-center w-[150px] h-[150px] border-[1px] border-dashed border-slate-900 hover:bg-slate-900 transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 											{selectedProfileImage ? (
 												<>
 													<Image
@@ -1072,7 +1072,7 @@ function MyProfilePage() {
 													</span>
 												</div>
 												<div
-													className={`text-black hover:text-white flex flex-col justify-center items-center w-[300px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+													className={`text-black hover:text-white flex flex-col justify-center items-center w-[300px] h-[150px] border-[1px] border-dashed border-slate-900 hover:bg-slate-900 transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 													{selectedLogoImage ? (
 														<Image
 															className="object-contain w-full h-full rounded"
@@ -1143,7 +1143,7 @@ function MyProfilePage() {
 													</span>
 												</div>
 												<div
-													className={`text-black hover:text-white flex flex-col justify-center items-center w-[300px] h-[150px] border-[1px] border-dashed border-primary hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
+													className={`text-black hover:text-white flex flex-col justify-center items-center w-[300px] h-[150px] border-[1px] border-dashed border-slate-900 hover:bg-slate-900 transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}>
 													{selectedLogoImage ? (
 														<>
 															<Image
@@ -1247,7 +1247,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"street",
 												"input"
-											)} w-full max-w-3xl`}
+											)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 											placeholder={`...`}
 											defaultValue={
 												user.address[0]?.street
@@ -1284,7 +1284,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"complement",
 												"input"
-											)} w-full max-w-3xl`}
+											)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 											placeholder={`...`}
 											defaultValue={
 												user.address[0]?.complement
@@ -1326,7 +1326,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"neighborhood",
 												"input"
-											)} w-full max-w-3xl`}
+											)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 											placeholder={`...`}
 											defaultValue={
 												user.address[0]?.neighborhood
@@ -1370,7 +1370,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"city",
 												"input"
-											)} w-full max-w-3xl`}
+											)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 											placeholder={`...`}
 											defaultValue={user.address[0]?.city}
 											{...register("city", {
@@ -1401,7 +1401,7 @@ function MyProfilePage() {
 											className={`select select-bordered ${getFieldClass(
 												"state",
 												"select"
-											)} w-full max-w-3xl`}
+											)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 											value={
 												user.address &&
 												user.address[0]?.state
@@ -1540,7 +1540,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"postalCode",
 												"input"
-											)} w-full max-w-3xl`}
+											)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 											placeholder="..."
 											defaultValue={
 												user.address[0]?.postalCode
@@ -1637,7 +1637,7 @@ function MyProfilePage() {
 												className={`input input-bordered ${getFieldClass(
 													"cashback",
 													"input"
-												)} w-full max-w-3xl`}
+												)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 												placeholder="..."
 												defaultValue={user?.cashback}
 												{...register("cashback", {
@@ -1690,7 +1690,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"password",
 												"input"
-											)} w-full max-w-3xl`}
+											)} bg-slate-200 text-slate-900 w-full max-w-3xl`}
 											placeholder="Digite a nova senha"
 											// defaultValue={user?.password}
 											{...register("password", {
@@ -1730,7 +1730,7 @@ function MyProfilePage() {
 											className={`input input-bordered ${getFieldClass(
 												"confirmPassword",
 												"input"
-											)} max-w-4xl`}
+											)} bg-slate-200 text-slate-900 max-w-4xl`}
 											placeholder="Confirme a senha"
 											// defaultValue={user?.confirmPassword}
 											{...register("confirmPassword", {

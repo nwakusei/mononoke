@@ -545,7 +545,7 @@ function CreateProductOtaclubPage() {
 											className={`input input-bordered ${getFieldClass(
 												"productTitle",
 												"input"
-											)} bg-slate-200 text-black w-full`}
+											)} bg-slate-200 text-slate-900 w-full`}
 											type="text"
 											placeholder="Ex: One Piece Vol.1"
 											{...register("productTitle", {
@@ -584,7 +584,7 @@ function CreateProductOtaclubPage() {
 											className={`textarea textarea-bordered ${getFieldClass(
 												"description",
 												"textarea"
-											)} w-[885px] h-[200px]`}
+											)} bg-slate-200 text-slate-900 w-[885px] h-[200px]`}
 											{...register("description", {
 												onChange: () =>
 													trigger("description"),
@@ -615,7 +615,7 @@ function CreateProductOtaclubPage() {
 												className={`select select-bordered ${getFieldClass(
 													"category",
 													"select"
-												)} w-full`}
+												)} bg-slate-200 text-slate-900 w-full`}
 												{...register("category", {
 													onChange: () =>
 														trigger("category"),
@@ -713,7 +713,7 @@ function CreateProductOtaclubPage() {
 												className={`select select-bordered ${getFieldClass(
 													"adultProduct",
 													"select"
-												)} w-full max-w-xs`}
+												)} bg-slate-200 text-slate-900 w-full max-w-xs`}
 												{...register("adultProduct", {
 													onChange: () =>
 														trigger("adultProduct"),
@@ -775,7 +775,7 @@ function CreateProductOtaclubPage() {
 												return (
 													<div
 														key={index}
-														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded overflow-hidden">
+														className="relative w-24 h-24 border-dashed border-slate-900 border rounded overflow-hidden">
 														<Image
 															src={imageUrl}
 															alt={`Imagem selecionada ${
@@ -805,8 +805,8 @@ function CreateProductOtaclubPage() {
 											className={`${
 												errors.imagesProduct
 													? `border-error`
-													: `border-[#3e1d88]`
-											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
+													: `border-slate-900`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-slate-900 transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
 											onClick={() => {
 												const input =
 													document.getElementById(
@@ -864,7 +864,7 @@ function CreateProductOtaclubPage() {
 														className={`input input-bordered ${getFieldClass(
 															"productPrice",
 															"input"
-														)} w-full join-item`}
+														)} bg-slate-200 text-slate-900 w-full join-item`}
 														type="text"
 														placeholder="0,00"
 														{...register(
@@ -926,7 +926,7 @@ function CreateProductOtaclubPage() {
 														className={`input input-bordered w-full ${getFieldClass(
 															"stock",
 															"input"
-														)} join-item`}
+														)} bg-slate-200 text-slate-900 join-item`}
 														type="text"
 														placeholder="0"
 														{...register("stock", {
@@ -988,7 +988,7 @@ function CreateProductOtaclubPage() {
 											className={`select select-bordered ${getFieldClass(
 												"condition",
 												"select"
-											)} w-full max-w-xs`}
+											)} bg-slate-200 text-slate-900 w-full max-w-xs`}
 											{...register("condition", {
 												onChange: () =>
 													trigger("condition"),
@@ -1029,7 +1029,7 @@ function CreateProductOtaclubPage() {
 														className={`input input-bordered ${getFieldClass(
 															"daysShipping",
 															"input"
-														)} join-item`}
+														)} bg-slate-200 text-slate-900 join-item`}
 														placeholder="0"
 														{...register(
 															"daysShipping",
@@ -1098,7 +1098,7 @@ function CreateProductOtaclubPage() {
 														className={`input input-bordered ${getFieldClass(
 															"weight",
 															"input"
-														)} max-w-[120px] join-item`}
+														)} bg-slate-200 text-slate-900 max-w-[120px] join-item`}
 														placeholder="0,000"
 														{...register("weight", {
 															onChange: () =>
@@ -1152,7 +1152,7 @@ function CreateProductOtaclubPage() {
 														className={`input input-bordered ${getFieldClass(
 															"length",
 															"input"
-														)} max-w-[120px] join-item`}
+														)} bg-slate-200 text-slate-900 max-w-[120px] join-item`}
 														placeholder="0"
 														{...register("length", {
 															onChange: () =>
@@ -1218,7 +1218,7 @@ function CreateProductOtaclubPage() {
 														className={`input input-bordered ${getFieldClass(
 															"width",
 															"input"
-														)} max-w-[120px] join-item`}
+														)} bg-slate-200 text-slate-900 max-w-[120px] join-item`}
 														placeholder="0"
 														{...register("width", {
 															onChange: () =>
@@ -1282,7 +1282,7 @@ function CreateProductOtaclubPage() {
 														className={`input input-bordered ${getFieldClass(
 															"height",
 															"input"
-														)} max-w-[120px] join-item`}
+														)} bg-slate-200 text-slate-900 max-w-[120px] join-item`}
 														placeholder="0"
 														{...register("height", {
 															onChange: () =>

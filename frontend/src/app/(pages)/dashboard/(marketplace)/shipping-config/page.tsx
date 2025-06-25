@@ -346,10 +346,10 @@ function ShippingConfigPage() {
 									<input
 										type="text"
 										placeholder="..."
-										className={`text-white input input-bordered ${getFieldClass(
+										className={`input input-bordered ${getFieldClass(
 											"tokenMelhorEnvio",
 											"input"
-										)} w-full`}
+										)} bg-slate-200 text-slate-900 w-full`}
 										defaultValue={user?.tokenMelhorEnvio}
 										{...register("tokenMelhorEnvio", {
 											onChange: () =>

@@ -1302,15 +1302,15 @@ function CreateProductPage() {
 												return (
 													<div
 														key={index}
-														className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded overflow-hidden">
+														className="relative w-24 h-24 border-dashed border-slate-900 border rounded overflow-hidden">
 														<Image
+															className="object-contain w-full h-full rounded-sm"
 															src={imageUrl}
 															alt={`Imagem selecionada ${
 																index + 1
 															}`}
 															width={10}
 															height={10}
-															className="object-contain w-full h-full rounded-sm"
 														/>
 														<button
 															type="button"
@@ -1332,8 +1332,8 @@ function CreateProductPage() {
 											className={`${
 												errors.productImages
 													? `border-error`
-													: `border-[#3e1d88]`
-											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
+													: `border-slate-900`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-slate-900 transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
 											onClick={() => {
 												const input =
 													document.getElementById(
@@ -1419,7 +1419,7 @@ function CreateProductPage() {
 																		className={`input input-bordered ${getFieldClass(
 																			`productVariations.${variationIndex}.title`,
 																			"select"
-																		)} w-[360px]`}
+																		)} bg-slate-200 text-slate-900 w-[360px]`}
 																		type="text"
 																		placeholder="Ex.: Cores"
 																		{...register(
@@ -1505,11 +1505,11 @@ function CreateProductPage() {
 																								?.imageUrl
 																								? "border-error"
 																								: "border-success"
-																						} text-black flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-[#3e1d88] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 relative ${
+																						} text-black flex flex-col justify-center items-center w-[48px] h-[48px] border-[1px] border-dashed border-slate-900 transition-all ease-in duration-150 rounded hover:shadow-md ml-1 relative ${
 																							!variationImages[
 																								`${variationIndex}-${optionIndex}`
 																							]
-																								? "hover:bg-[#8357e5] hover:text-white cursor-pointer"
+																								? "hover:bg-slate-900 hover:text-white cursor-pointer"
 																								: ""
 																						}`}>
 																						{variationImages[
@@ -1567,7 +1567,7 @@ function CreateProductPage() {
 																									<input
 																										type="file"
 																										accept="image/*"
-																										className="hidden"
+																										className="hidden bg-slate-200 text-slate-900"
 																										{...register(
 																											`productVariations.${variationIndex}.options.${optionIndex}.imageUrl`,
 																											{
@@ -1605,7 +1605,7 @@ function CreateProductPage() {
 																									className={`input input-bordered ${getFieldClass(
 																										`productVariations.${variationIndex}.options.${optionIndex}.name`,
 																										"select"
-																									)} w-[400px] join-item`}
+																									)} bg-slate-200 text-slate-900 w-[400px] join-item`}
 																									type="text"
 																									placeholder="Ex.: Preto"
 																									{...register(
@@ -1716,7 +1716,7 @@ function CreateProductPage() {
 																									className={`input input-bordered ${getFieldClass(
 																										`productVariations.${variationIndex}.options.${optionIndex}.originalPrice`,
 																										"select"
-																									)} w-[150px] join-item`}
+																									)} bg-slate-200 text-slate-900 w-[150px] join-item`}
 																									type="text"
 																									placeholder="0,00"
 																									{...register(
@@ -1860,7 +1860,7 @@ function CreateProductPage() {
 																									className={`input input-bordered ${getFieldClass(
 																										`productVariations.${variationIndex}.options.${optionIndex}.promotionalPrice`,
 																										"select"
-																									)} w-[150px] join-item`}
+																									)} bg-slate-200 text-slate-900 w-[150px] join-item`}
 																									type="text"
 																									placeholder="0,00"
 																									{...register(
@@ -1992,7 +1992,7 @@ function CreateProductPage() {
 																									className={`input input-bordered ${getFieldClass(
 																										`productVariations.${variationIndex}.options.${optionIndex}.stock`,
 																										"select"
-																									)} w-[130px] join-item`}
+																									)} bg-slate-200 text-slate-900 w-[130px] join-item`}
 																									type="text"
 																									placeholder="0"
 																									{...register(
@@ -2110,7 +2110,7 @@ function CreateProductPage() {
 																	)
 																)}
 																<button
-																	className="border-dashed border-[1px] border-primary hover:bg-primary hover:text-white transition-all ease-in duration-200 py-3 hover:shadow-md rounded-md w-[200px]"
+																	className="border-dashed border-[1px] border-slate-900 hover:bg-slate-900 hover:text-white transition-all ease-in duration-200 py-3 hover:shadow-md rounded-md w-[200px]"
 																	type="button"
 																	onClick={() => {
 																		const newOptions =
@@ -2146,7 +2146,7 @@ function CreateProductPage() {
 														)
 													)}
 												<button
-													className="border-dashed border-[1px] border-primary hover:bg-primary hover:text-white transition-all ease-in duration-200 py-3 hover:shadow-md rounded-md w-[200px]"
+													className="border-dashed border-[1px] border-slate-900 hover:bg-slate-900 hover:text-white transition-all ease-in duration-200 py-3 hover:shadow-md rounded-md w-[200px]"
 													type="button"
 													onClick={() => {
 														// Garante que value é sempre um array
@@ -2381,7 +2381,7 @@ function CreateProductPage() {
 										onClick={() =>
 											setDiisplayVariations(true)
 										}
-										className="btn btn-primary mt-4">
+										className="btn btn-neutral mt-4 w-[400px] mx-auto">
 										Criar Variações
 									</button>
 								</div>

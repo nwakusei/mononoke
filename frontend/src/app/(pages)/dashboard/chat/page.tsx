@@ -253,7 +253,7 @@ function ChatPage() {
 						<button
 							onClick={handleClose}
 							aria-label="Fechar banner"
-							className="p-1 transition-all ease-in duration-150 border-[1px] border-dashed border-primary hover:bg-secondary hover:text-white rounded shrink-0">
+							className="p-1 transition-all ease-in duration-150 border-[1px] border-dashed border-slate-900 hover:bg-slate-900 hover:text-white rounded shrink-0">
 							<IoCloseSharp size={24} />
 						</button>
 					</div>
@@ -264,9 +264,9 @@ function ChatPage() {
 						<div className="px-4 mt-4">
 							<div className="relative mb-4">
 								<input
+									className="input input-primary bg-slate-200 text-slate-900 w-full max-w-xs"
 									type="text"
 									placeholder="Pesquisar"
-									className="input input-primary w-full max-w-xs"
 									value={searchName}
 									onChange={(e) =>
 										setSearchName(e.target.value)
@@ -282,7 +282,7 @@ function ChatPage() {
 									}}
 								/>
 								<div
-									className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer transition-all ease-in duration-200 active:scale-[.97]"
+									className="absolute inset-y-0 right-0 flex items-center text-slate-900 pr-3 cursor-pointer transition-all ease-in duration-200 active:scale-[.97]"
 									onClick={() => {
 										console.log(
 											"Valor de searchName ao clicar no ícone:",
@@ -524,11 +524,13 @@ function ChatPage() {
 									</div>
 								))
 							) : (
-								<div>Nenhuma mensagem a ser exibida...</div>
+								<div className="text-black">
+									Nenhuma mensagem a ser exibida...
+								</div>
 							)}
 						</div>
 						<div
-							className="bg-white w-[900px] border border-gray-900 border-t-1 border-r-0 border-b-0 border-l-0 mr-4 pt-1 pb-6 px-6 relative overflow-auto rounded-br-md"
+							className="bg-white w-[897px] border border-gray-900 border-t-1 border-r-0 border-b-0 border-l-0 mr-4 pt-1 pb-6 px-6 relative overflow-auto rounded-br-md"
 							style={{
 								// Defina a altura máxima desejada para ativar a barra de rolagem
 								scrollbarWidth: "thin", // Tamanho da barra de rolagem (pode ser "auto" ou "thin")
@@ -569,7 +571,7 @@ function ChatPage() {
 								)}
 
 								<textarea
-									className="textarea textarea-primary w-full h-[100px] mt-2"
+									className="textarea textarea-primary w-full h-[100px] mt-2 bg-slate-200 text-slate-900"
 									placeholder="Digite a mensagem..."
 									value={message}
 									onChange={(e) =>

@@ -506,7 +506,7 @@ function CreateRafflePage() {
 															className={`input input-bordered ${getFieldClass(
 																"rafflePrize",
 																"input"
-															)} w-[1100px]`}
+															)} bg-slate-200 text-slate-900 w-[1100px]`}
 															placeholder={`Digite o título do prêmio...`}
 															{...register(
 																"rafflePrize",
@@ -567,7 +567,7 @@ function CreateRafflePage() {
 															className={`input input-bordered ${getFieldClass(
 																"raffleDate",
 																"input"
-															)} w-[296px] join-item`}
+															)} bg-slate-200 text-slate-900 w-[296px] join-item`}
 															placeholder={`dd/MM`}
 															{...register(
 																"raffleDate",
@@ -632,7 +632,7 @@ function CreateRafflePage() {
 															className={`input input-bordered ${getFieldClass(
 																"raffleCost",
 																"input"
-															)} w-[296px] join-item`}
+															)} bg-slate-200 text-slate-900 w-[296px] join-item`}
 															placeholder="0"
 															{...register(
 																"raffleCost",
@@ -697,7 +697,7 @@ function CreateRafflePage() {
 															className={`input input-bordered ${getFieldClass(
 																"minNumberParticipants",
 																"input"
-															)} w-[295px] join-item`}
+															)} bg-slate-200 text-slate-900 w-[295px] join-item`}
 															placeholder="0"
 															{...register(
 																"minNumberParticipants",
@@ -763,7 +763,7 @@ function CreateRafflePage() {
 												className={`textarea textarea-bordered ${getFieldClass(
 													"raffleDescription",
 													"textarea"
-												)} w-[535px] h-[150px]`}
+												)} bg-slate-200 text-slate-900 w-[535px] h-[150px]`}
 												placeholder="..."
 												{...register(
 													"raffleDescription",
@@ -813,7 +813,7 @@ function CreateRafflePage() {
 												className={`textarea textarea-bordered ${getFieldClass(
 													"raffleRules",
 													"textarea"
-												)} w-[535px] h-[150px]`}
+												)} bg-slate-200 text-slate-900 w-[535px] h-[150px]`}
 												placeholder="..."
 												{...register("raffleRules", {
 													onChange: () =>
@@ -855,7 +855,7 @@ function CreateRafflePage() {
 												className={`w-[220px] select select-bordered ${getFieldClass(
 													"adultRaffle",
 													"select"
-												)}`}
+												)} bg-slate-200 text-slate-900`}
 												placeholder="..."
 												{...register("adultRaffle", {
 													onChange: () =>
@@ -917,7 +917,7 @@ function CreateRafflePage() {
 											return (
 												<div
 													key={index}
-													className="relative w-24 h-24 border-dashed border-[#3e1d88] border rounded overflow-hidden">
+													className="relative w-24 h-24 border-dashed border-slate-900 border rounded overflow-hidden">
 													<Image
 														src={imageUrl}
 														alt={`Imagem selecionada ${
@@ -946,8 +946,8 @@ function CreateRafflePage() {
 											className={`${
 												errors.imagesRaffle
 													? `border-error`
-													: `border-[#3e1d88]`
-											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
+													: `border-slate-900`
+											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-slate-900 transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
 											onClick={() => {
 												const input =
 													document.getElementById(

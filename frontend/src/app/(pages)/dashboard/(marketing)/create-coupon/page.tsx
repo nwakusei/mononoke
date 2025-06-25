@@ -280,7 +280,7 @@ function CreateCouponPage() {
 														className={`input input-bordered ${getFieldClass(
 															"discountPercentage",
 															"input"
-														)} w-[325px] join-item`}
+														)} bg-slate-200 text-slate-900 w-[325px] join-item`}
 														placeholder="0"
 														{...register(
 															"discountPercentage",
@@ -344,7 +344,7 @@ function CreateCouponPage() {
 														className={`input input-bordered ${getFieldClass(
 															"couponCode",
 															"input"
-														)} w-[325px] join-item`}
+														)} bg-slate-200 text-slate-900 w-[325px] join-item`}
 														placeholder="..."
 														{...register(
 															"couponCode",
