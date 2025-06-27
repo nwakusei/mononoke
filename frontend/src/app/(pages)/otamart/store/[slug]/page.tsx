@@ -35,7 +35,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { BsCheck2All, BsCheck2 } from "react-icons/bs";
 
 // Components
-import { ProductAdCard } from "@/components/ProductAdCardOtamart";
+import { ProductAdCardOtamart } from "@/components/ProductAdCardOtamart";
 import { MiniCouponCard } from "@/components/MiniCouponCard";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { LoadingPage } from "@/components/LoadingPageComponent";
@@ -593,20 +593,20 @@ function StorePage() {
 					)}
 				</div>
 				<div>
-					<label className="input input-bordered input-primary flex items-center w-[262px] sm:w-[362px] md:sm:w-[562px] lg:w-[1072px] gap-2 mb-8">
+					<label className="input input-bordered input-primary bg-slate-200 flex items-center w-[262px] sm:w-[362px] md:sm:w-[562px] lg:w-[1072px] gap-2 mb-8">
 						<input
+							className="grow text-slate-900"
 							type="text"
-							className="grow bg-base-100"
-							placeholder="Pesquisar na Loja"
+							placeholder="Pesquisar na Loja..."
 							value={searchText}
 							onChange={(e) => setSearchText(e.target.value)}
 							onKeyDown={handleKeyDown}
 						/>
 						<svg
+							className="h-4 w-4 opacity-70 cursor-pointer active:scale-[.97] text-slate-900"
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 16 16"
 							fill="currentColor"
-							className="h-4 w-4 opacity-70 cursor-pointer active:scale-[.97]"
 							onClick={(e) => handleSearch(e)}>
 							<path
 								fillRule="evenodd"
@@ -633,7 +633,7 @@ function StorePage() {
 							const cashback = partner ? partner.cashback : 0;
 
 							return (
-								<ProductAdCard
+								<ProductAdCardOtamart
 									key={`returned-${returnedProduct._id}`}
 									viewAdultContent={user?.viewAdultContent}
 									product={returnedProduct}
@@ -677,12 +677,12 @@ function StorePage() {
 							const cashback = partner ? partner.cashback : 0;
 
 							return (
-								<ProductAdCard
+								<ProductAdCardOtamart
 									key={`product-${product._id}`}
 									viewAdultContent={user?.viewAdultContent}
 									product={product}
 									freeShipping={product.freeShipping}
-									productImage={`http://localhost:5000/images/products/${product.imagesProduct[0]}`}
+									productImage={`http://localhost:5000/images/products/${product.productImages[0]}`}
 									title={product.productTitle}
 									originalPrice={Number(
 										product.originalPrice
@@ -869,7 +869,7 @@ function StorePage() {
 							)}
 
 							<textarea
-								className="textarea textarea-primary w-full h-[80px] mt-2"
+								className="textarea textarea-primary w-full h-[80px] mt-2 bg-slate-200 text-slate-900"
 								placeholder="Digite a mensagem..."
 								value={message}
 								onChange={(e) =>

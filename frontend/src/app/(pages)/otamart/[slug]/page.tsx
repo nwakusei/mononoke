@@ -483,7 +483,7 @@ function ProductPage() {
 
 						{/* Componente intermediário */}
 						<div className="flex flex-col w-[350px]">
-							<span className="text-sm">
+							<span className="text-center text-sm text-black border border-dashed border-slate-900 w-[55px] px-1 rounded">
 								{product?.condition}
 							</span>
 							{/* Título */}

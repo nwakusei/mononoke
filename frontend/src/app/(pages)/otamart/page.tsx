@@ -224,20 +224,20 @@ function OtamartPage() {
 					</div>
 				)}
 				<div className="flex flex-row justify-center">
-					<label className="input input-bordered input-primary flex items-center w-[1072px] gap-2 mb-8">
+					<label className="input input-bordered input-primary bg-slate-200 flex items-center w-[1072px] gap-2 mb-8">
 						<input
+							className="grow text-slate-900"
 							type="text"
-							className="grow bg-base-100"
-							placeholder="Pesquisar no OtaMart"
+							placeholder="Pesquisar no OtaMart..."
 							value={searchText}
 							onChange={(e) => setSearchText(e.target.value)}
 							onKeyDown={handleKeyDown}
 						/>
 						<svg
+							className="h-4 w-4 opacity-70 cursor-pointer active:scale-[.97] text-slate-900"
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 16 16"
 							fill="currentColor"
-							className="h-4 w-4 opacity-70 cursor-pointer active:scale-[.97]"
 							onClick={(e) => handleSearch(e)}>
 							<path
 								fillRule="evenodd"

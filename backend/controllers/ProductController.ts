@@ -33,7 +33,7 @@ class ProductController {
 			daysShipping,
 			freeShipping,
 			freeShippingRegion,
-			internationaShipping,
+			internationalShipping,
 			adultProduct,
 		} = req.body;
 
@@ -297,7 +297,7 @@ class ProductController {
 			daysShipping: daysShipping,
 			freeShipping: freeShipping,
 			freeShippingRegion: freeShippingRegion,
-			internationaShipping: internationaShipping,
+			internationalShipping: internationalShipping,
 			adultProduct: adultProduct,
 			sponsoredProduct: false,
 			productsSold: 0,

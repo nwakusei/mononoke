@@ -324,8 +324,9 @@ function MyProductsPage() {
 															</div>
 														)}
 
-														<br />
+														{/* <br /> */}
 													</td>
+
 													<td className="text-black">
 														{`${
 															product.productVariations &&
@@ -357,13 +358,6 @@ function MyProductsPage() {
 														} un`}
 													</td>
 													<th>
-														{/* <button className="flex items-center btn btn-primary btn-xs shadow-md">
-															<Link
-																href={`/dashboard/myproducts/${product._id}`}>
-																+ Detalhes
-															</Link>
-														</button> */}
-
 														{loadingButtonId ===
 														product._id ? (
 															<button className="flex items-center btn btn-primary btn-xs shadow-md w-[100px]">

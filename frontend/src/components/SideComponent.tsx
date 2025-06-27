@@ -808,10 +808,12 @@ function SideComponent({ selectedVariation }) {
 		<div>
 			{/* Componente Lateral D. */}
 			<div className="flex flex-col w-[300px]">
-				<div className="flex flex-row items-center bg-primary px-2 py-1 rounded-lg shadow-md gap-2 mr-2 mb-2">
-					<LiaGlobeAmericasSolid size={22} />
-					<span>Compra Internacional</span>
-				</div>
+				{product?.internationalShipping === true && (
+					<div className="flex flex-row items-center bg-primary px-2 py-1 rounded-lg shadow-md gap-2 mr-2 mb-2">
+						<LiaGlobeAmericasSolid size={22} />
+						<span>Compra Internacional</span>
+					</div>
+				)}
 				<div className="bg-white border-black border-solid border-[1px] border-opacity-20 rounded-lg shadow-md mr-2 mb-2">
 					<div className="px-4 mb-2">
 						<h1 className="text-black mb-1">Quantidade</h1>
@@ -828,7 +830,7 @@ function SideComponent({ selectedVariation }) {
 										<span>-</span>
 									</button>
 									<input
-										className="text-lg text-center text-black bg-gray-300 w-[60px] h-[28px] rounded"
+										className="text-lg text-center border border-primary focus:outline-none bg-slate-200 text-slate-900 w-[60px] h-[28px] rounded"
 										type="text"
 										value={quantity}
 										readOnly
@@ -1038,9 +1040,9 @@ function SideComponent({ selectedVariation }) {
 									</h2>
 									<div className="flex flex-row gap-2 mb-2">
 										<input
+											className="input input-primary w-full max-w-[180px] bg-slate-200 text-slate-900"
 											type="text"
-											placeholder="Seu CEP"
-											className="input input-primary w-full max-w-[180px]"
+											placeholder="Digite Seu CEP"
 											value={cepDestino}
 											onChange={(e) => {
 												const value =
@@ -1056,7 +1058,7 @@ function SideComponent({ selectedVariation }) {
 										/>
 										<button
 											type="button"
-											className="btn btn-primary w-[120px]"
+											className="btn btn-primary w-[110px]"
 											onClick={handleButtonClick}
 											disabled={isCalculating}>
 											{isCalculating ? (
