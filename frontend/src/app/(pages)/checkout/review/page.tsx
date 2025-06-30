@@ -501,8 +501,8 @@ function ReviewInfoPage() {
 								</div>
 								<div className="flex flex-row gap-4 w-full text-white">
 									<textarea
-										className="textarea textarea-bordered w-full"
-										placeholder="Bio"></textarea>
+										className="textarea textarea-bordered textarea-primary bg-slate-200 text-slate-900 w-full"
+										placeholder="..."></textarea>
 								</div>
 								<button className="btn btn-primary w-[150px] shadow-md">
 									Salvar

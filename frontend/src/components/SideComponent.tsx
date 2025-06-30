@@ -440,7 +440,7 @@ function SideComponent({ selectedVariation }) {
 				partnerID: product.partnerID,
 				productID: product._id,
 				productTitle: product.productTitle,
-				imageProduct: product.imagesProduct[0],
+				imageProduct: product.productImages[0],
 				quantityThisProduct: Math.min(quantity, stock),
 				productPrice: productPrice,
 				productPriceTotal: Math.min(quantity, stock) * productPrice,
@@ -483,6 +483,8 @@ function SideComponent({ selectedVariation }) {
 			const subtotal = productsInCart.length > 0 ? totalCartValue : 0;
 			setSubtotal(subtotal);
 			setTransportadoras([]);
+
+			localStorage.removeItem("selectedVariations");
 		} catch (error) {
 			console.log("Erro ao adicionar o produto ao carrinho!", error);
 		}
@@ -753,7 +755,7 @@ function SideComponent({ selectedVariation }) {
 				partnerID: product.partnerID,
 				productID: product._id,
 				productTitle: product.productTitle,
-				imageProduct: product.imagesProduct[0],
+				imageProduct: product.productImages[0],
 				quantityThisProduct: Math.min(quantity, stock),
 				productPrice: productPrice,
 				productPriceTotal: Math.min(quantity, stock) * productPrice,

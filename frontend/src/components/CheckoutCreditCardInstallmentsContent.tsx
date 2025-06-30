@@ -5,8 +5,8 @@ import { v4 as uuidv4 } from "uuid"; // Importe o pacote uuid
 import { CardPayment } from "@mercadopago/sdk-react";
 import { initMercadoPago } from "@mercadopago/sdk-react";
 
-// Inicialize o Mercado Pago com sua chave pública
-initMercadoPago("TEST-29e2cf05-c112-48fe-802d-6562b8dfac15");
+// Inicialize o Mercado Pago com sua Public Key
+initMercadoPago("TEST-b02f7f6b-095f-4a80-b053-47d68107b77c");
 
 // Context
 import { CheckoutContext } from "@/context/CheckoutContext";
@@ -37,7 +37,7 @@ function CheckoutCreditCardInstallmentsContent({
 			style: {
 				theme: "flat", // | 'dark' | 'bootstrap' | 'flat'
 				customVariables: {
-					baseColor: "#6633cc",
+					baseColor: "#7250b0",
 					buttonTextColor: "#fff",
 					borderRadiusSmall: "4px", // Border Radius das Bandeiras
 					borderRadiusMedium: "8px", // Border Radius dos Inputs/Campos e do Button
@@ -75,7 +75,7 @@ function CheckoutCreditCardInstallmentsContent({
 		},
 		paymentMethods: {
 			minInstallments: 1,
-			maxInstallments: 3,
+			maxInstallments: 12,
 			// types: {
 			//  excluded: ["debit_card"],
 			// },
@@ -159,7 +159,8 @@ function CheckoutCreditCardInstallmentsContent({
 	};
 
 	useEffect(() => {
-		initMercadoPago("TEST-29e2cf05-c112-48fe-802d-6562b8dfac15");
+		// Inicialize o Mercado Pago com sua Public Key
+		initMercadoPago("TEST-b02f7f6b-095f-4a80-b053-47d68107b77c");
 
 		// Renderize o Brick de pagamento
 		const renderPaymentBrick = async (bricksBuilder) => {
@@ -180,8 +181,11 @@ function CheckoutCreditCardInstallmentsContent({
 			}
 		};
 
-		// Chame a função para renderizar o Brick de pagamento
-		renderPaymentBrick();
+		// // Chame a função para renderizar o Brick de pagamento
+		// renderPaymentBrick();
+		if (window && (window as any).mercadoPagoBrick) {
+			renderPaymentBrick((window as any).mercadoPagoBrick);
+		}
 
 		// Certifique-se de destruir a instância atual do Brick quando o componente for desmontado
 		return () => {

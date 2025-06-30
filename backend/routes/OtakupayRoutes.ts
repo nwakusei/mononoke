@@ -18,18 +18,18 @@ router.get(
 	OtakupayController.getUserOtakupay
 );
 
-// router.get(
-//   "/send-public-key",
-//   verifyToken,
-//   OtakupayController.stripeSendPublicKey
-// );
-// router.post(
-//   "/create-payment-intent",
-//   verifyToken,
-//   OtakupayController.createPaymentIntent
-// );
+router.get(
+	"/send-public-key",
+	verifyToken,
+	OtakupayController.stripeSendPublicKey
+);
+router.post(
+	"/create-payment-intent",
+	verifyToken,
+	OtakupayController.createPaymentIntent
+);
 
-// router.post("/credit-card-otamart", OtakupayController.creditCardOtamart);
+router.post("/credit-card-otamart", OtakupayController.creditCardStripe);
 
 router.post(
 	"/payment-creditcard-MP",

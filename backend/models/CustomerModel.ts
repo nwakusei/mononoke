@@ -76,7 +76,6 @@ const customerSchema = new Schema<ICustomer>(
 		},
 		otakupayID: {
 			type: String,
-			required: true,
 			ref: "OtakupayModel",
 		},
 

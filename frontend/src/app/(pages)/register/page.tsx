@@ -179,7 +179,7 @@ function RegisterPage() {
 					<div className="mb-2">
 						<div>
 							<div className="label">
-								<span className="label-text">
+								<span className="label-text text-white">
 									Que tipo de conta deseja criar?
 								</span>
 							</div>
@@ -189,7 +189,7 @@ function RegisterPage() {
 										errors.accountType
 											? "select-error"
 											: "select-success"
-									} w-full max-w-xs`}
+									} bg-bg-slate-200 text-slate-900 w-full max-w-xs`}
 									{...register("accountType")}>
 									<option value="" disabled>
 										Escolha uma opção

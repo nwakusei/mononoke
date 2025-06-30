@@ -56,6 +56,8 @@ function CartPage() {
 	const [productsInCart, setProductsInCart] = useState([]);
 	const [isFreightSimulated, setIsFreightSimulated] = useState(false);
 
+	console.log("Produtos no Carrinho:", productsInCart);
+
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
 
@@ -782,111 +784,6 @@ function CartPage() {
 		}
 	};
 
-	// const handleRemoveFromCart = async (productId, optionId) => {
-	// 	try {
-	// 		// Obter os produtos no carrinho do localStorage
-	// 		let productsInCart =
-	// 			JSON.parse(localStorage.getItem("productsInCart")) || [];
-
-	// 		// Filtrar o carrinho para remover o item correspondente
-	// 		const updatedCart = productsInCart.filter(
-	// 			(item) =>
-	// 				!(
-	// 					item.productID === productId &&
-	// 					item.productVariations?.[0]?.optionID === optionId
-	// 				)
-	// 		);
-
-	// 		// Verificar se ainda há produtos com "cepDestino" no carrinho
-	// 		const filteredProducts = updatedCart.filter(
-	// 			(product) =>
-	// 				product.cepDestino && product.cepDestino.trim() !== ""
-	// 		);
-
-	// 		if (filteredProducts.length > 0) {
-	// 			// Preparar dados para recalcular o frete
-	// 			const productInfo = {};
-	// 			let cepDestino = null;
-
-	// 			filteredProducts.forEach((product) => {
-	// 				const partnerID = product.partnerID;
-	// 				const weight = product.weight || 0;
-	// 				const quantity = product.quantityThisProduct || 1;
-
-	// 				if (!productInfo[partnerID]) {
-	// 					productInfo[partnerID] = {
-	// 						weight: weight * quantity,
-	// 						length: product.length || 0,
-	// 						width: product.width || 0,
-	// 						height: product.height || 0,
-	// 						productPriceTotal: product.productPriceTotal || 0,
-	// 						quantityThisProduct: quantity,
-	// 					};
-	// 				} else {
-	// 					productInfo[partnerID].weight += weight * quantity;
-	// 					productInfo[partnerID].productPriceTotal +=
-	// 						product.productPriceTotal || 0;
-	// 					productInfo[partnerID].quantityThisProduct += quantity;
-	// 				}
-
-	// 				if (
-	// 					product.cepDestino &&
-	// 					product.cepDestino.trim() !== ""
-	// 				) {
-	// 					cepDestino = product.cepDestino;
-	// 				}
-	// 			});
-
-	// 			// Recalcular o frete
-	// 			if (cepDestino) {
-	// 				await handleSimulateShipping(cepDestino, productInfo);
-	// 			} else {
-	// 				console.error("Erro: cepDestino não definido.");
-	// 			}
-	// 		} else {
-	// 			// Limpar transportadoraInfo se não houver produtos elegíveis para frete
-	// 			localStorage.removeItem("transportadoraInfo");
-	// 			setTransportadoraInfo({});
-	// 		}
-
-	// 		// Atualizar o localStorage e os estados
-	// 		localStorage.setItem("productsInCart", JSON.stringify(updatedCart));
-	// 		setProductsInCart(updatedCart);
-
-	// 		// Atualizar subtotal e carrinho
-	// 		if (updatedCart.length === 0) {
-	// 			setCart(0);
-	// 			setSubtotal(0);
-	// 		} else {
-	// 			const newSubtotal = updatedCart.reduce(
-	// 				(acc, item) => acc + (item.productPriceTotal || 0),
-	// 				0
-	// 			);
-	// 			setSubtotal(newSubtotal);
-	// 		}
-
-	// 		// Notificar o usuário
-	// 		toast.success("Produto removido com sucesso!");
-	// 	} catch (error) {
-	// 		console.error("Erro ao remover produto:", error);
-	// 		toast.error("Erro ao remover produto!");
-	// 	}
-	// };
-
-	// const calculateTotalFrete = () => {
-	// 	let totalFrete = 0;
-
-	// 	// Verifica se transportadoraInfo não é nulo antes de acessar suas propriedades
-	// 	if (transportadoraInfo) {
-	// 		Object.values(transportadoraInfo).forEach((info) => {
-	// 			console.log("Valor de vlrFrete:", info.vlrFrete);
-	// 			totalFrete += info.vlrFrete || 0;
-	// 		});
-	// 	}
-	// 	console.log(totalFrete);
-	// 	return totalFrete;
-	// };
-
 	return (
 		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
 			<div className="col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4 mb-8">
@@ -917,7 +814,7 @@ function CartPage() {
 					</ul>
 				</div>
 
-				<div className="flex flex-row justify-between bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8 p-4 gap-4">
+				<div className="flex flex-row justify-between bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8 p-4">
 					<div className="flex flex-col items-center gap-4">
 						{transportadoraInfo &&
 						Array.isArray(productsInCart) &&
@@ -937,37 +834,26 @@ function CartPage() {
 									className="flex flex-col border-[1px] border-black border-opacity-20 bg-white rounded-md shadow-md p-2 gap-2 w-full">
 									{partnerProducts.map((productInCart) => (
 										<div
-											key={productInCart.productID}
-											className="flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[672px] min-h-[100px] p-4 rounded-md shadow-md">
-											{/* Renderizar informações do produto */}
+											key={`${productInCart.productID}-${
+												productInCart
+													.productVariations?.[0]
+													?.optionID || "no-var"
+											}`}
+											className="flex flex-col gap-4 border-[1px] border-black border-opacity-20 bg-white w-[668px] min-h-[100px] p-4 rounded-md shadow-md">
 											<div className="flex flex-row justify-between items-center gap-4">
-												{productInCart.productVariations
-													?.length > 0 ? (
-													productInCart.productVariations.map(
-														(variation) => (
-															<div
-																key={
-																	variation.variationID
-																}
-																className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
-																<Image
-																	className="object-contain h-full"
-																	src={`http://localhost:5000/images/products/${variation.imageUrl}`}
-																	alt={
-																		productInCart.productTitle
-																	}
-																	width={100}
-																	height={100}
-																	unoptimized
-																/>
-															</div>
-														)
-													)
-												) : (
+												<div className="flex flex-row gap-4">
 													<div className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
 														<Image
 															className="object-contain h-full"
-															src={`http://localhost:5000/images/products/${productInCart.imageProduct}`}
+															src={`http://localhost:5000/images/products/${
+																productInCart
+																	.productVariations
+																	?.length > 0
+																	? productInCart
+																			.productVariations[0]
+																			.imageUrl
+																	: productInCart.imageProduct
+															}`}
 															alt={
 																productInCart.productTitle
 															}
@@ -976,104 +862,104 @@ function CartPage() {
 															unoptimized
 														/>
 													</div>
-												)}
 
-												<div>
-													<h1 className="text-lg text-black">
-														{
-															productInCart.productTitle
-														}
-													</h1>
-													{productInCart
-														.productVariations
-														?.length > 0 ? (
-														productInCart.productVariations.map(
-															(variation) => (
-																<h2
-																	key={
-																		variation.variationID
-																	}
-																	className="mb-2 text-black">
-																	{
-																		variation.variationName
-																	}
-																	:{" "}
-																	{
-																		variation.name
-																	}
-																</h2>
+													<div>
+														<h1 className="text-base text-black max-w-[300px]">
+															{
+																productInCart.productTitle
+															}
+														</h1>
+														{productInCart
+															.productVariations
+															?.length > 0 ? (
+															productInCart.productVariations.map(
+																(variation) => (
+																	<h2
+																		key={
+																			variation.variationID
+																		}
+																		className="text-black">
+																		{
+																			variation.name
+																		}
+																	</h2>
+																)
 															)
-														)
-													) : (
-														<h2 className="mb-2 text-black">
-															Sem variações
-														</h2>
-													)}
-													<div className="flex flex-row items-center text-black gap-2">
-														<button
-															onClick={() =>
-																decreaseQuantity(
-																	productInCart.productID
-																)
-															}
-															className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
-															<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
-																-
-															</h1>
-														</button>
-														<input
-															className="text-lg text-center bg-gray-300 w-[60px] h-[32px] rounded"
-															type="text"
-															value={
-																productInCart.quantityThisProduct
-															}
-															readOnly
-														/>
-														<button
-															onClick={() =>
-																increaseQuantity(
-																	productInCart.productID
-																)
-															}
-															className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
-															<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
-																+
-															</h1>
-														</button>
+														) : (
+															<></>
+														)}
+														<div className="flex flex-row items-center text-black mt-2 gap-2">
+															<button
+																onClick={() =>
+																	decreaseQuantity(
+																		productInCart.productID
+																	)
+																}
+																className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
+																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
+																	-
+																</h1>
+															</button>
+															<input
+																className="text-lg text-center bg-gray-300 w-[60px] h-[32px] rounded"
+																type="text"
+																value={
+																	productInCart.quantityThisProduct
+																}
+																readOnly
+															/>
+															<button
+																onClick={() =>
+																	increaseQuantity(
+																		productInCart.productID
+																	)
+																}
+																className="flex items-center justify-center w-[30px] h-[30px] select-none font-mono">
+																<h1 className="px-3 py-1 shadow-md shadow-gray-500/50 bg-black text-white rounded cursor-pointer active:scale-[.97]">
+																	+
+																</h1>
+															</button>
+														</div>
 													</div>
 												</div>
-												<div>
-													<h1 className="text-black">
-														{productInCart.productPrice.toLocaleString(
-															"pt-BR",
+
+												<div className="flex flex-row items-center gap-4">
+													<div>
+														<h1 className="text-black">
+															{productInCart.productPrice.toLocaleString(
+																"pt-BR",
+																{
+																	style: "currency",
+																	currency:
+																		"BRL",
+																}
+															)}{" "}
+															x{" "}
 															{
-																style: "currency",
-																currency: "BRL",
+																productInCart.quantityThisProduct
 															}
-														)}{" "}
-														x{" "}
-														{
-															productInCart.quantityThisProduct
+														</h1>
+													</div>
+
+													<div
+														onClick={() =>
+															handleRemoveFromCart(
+																productInCart.productID,
+																productInCart
+																	.productVariations?.[0]
+																	?.optionID
+															)
 														}
-													</h1>
-												</div>
-												<div
-													onClick={() =>
-														handleRemoveFromCart(
-															productInCart.productID,
-															productInCart
-																.productVariations?.[0]
-																?.optionID
-														)
-													}
-													className="text-black hover:text-white flex flex-col items-center justify-center border-dashed hover:border-solid border-[1px] border-primary hover:bg-secondary w-10 h-10 transition-all ease-in duration-200 hover:shadow-md active:scale-[.97] rounded cursor-pointer">
-													<MdOutlineDeleteOutline
-														size={25}
-													/>
+														className="text-black hover:text-white flex flex-col items-center justify-center border border-dashed border-slate-900 hover:bg-slate-900 w-10 h-10 transition-all ease-in duration-200 hover:shadow-md active:scale-[.97] rounded cursor-pointer">
+														<MdOutlineDeleteOutline
+															size={25}
+														/>
+													</div>
 												</div>
 											</div>
 										</div>
 									))}
+
 									{/* Transportadora Info */}
 									{Object.entries(transportadoraInfo).map(
 										([partnerID, info]) => {

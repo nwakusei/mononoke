@@ -716,11 +716,11 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 							<></>
 						) : (
 							<div className="flex flex-row gap-2 mt-4">
-								<div className="w-[260px] ">
+								<div className="w-[262px] ">
 									<input
+										className="input input-bordered input-primary w-full bg-slate-200 text-slate-900"
 										type="text"
 										placeholder="Insira o código do Cupom"
-										className="input input-bordered w-full"
 										value={couponCode}
 										onChange={(e) =>
 											setCouponCode(e.target.value)

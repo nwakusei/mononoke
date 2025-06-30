@@ -5,23 +5,21 @@ import { useRouter } from "next/navigation";
 
 import QRCode from "qrcode"; // Importe a biblioteca QRCode
 
+// Stripe Features
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
 // Axios
 import api from "@/utils/api";
 
 // Sweet Alert
-import Swal from "sweetalert2";
 import { toast } from "react-toastify";
-
-// imagens estáticas
-
-// Stripe Features
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
 
 // Components
 import { CheckoutBalanceContent } from "@/components/CheckoutBalanceContent";
 import { CheckoutPixContent } from "@/components/CheckoutPixContent";
 import { CheckoutCreditCardInstallmentsContent } from "@/components/CheckoutCreditCardInstallmentsContent";
+import { CheckoutCreditCardContent } from "@/components/CheckoutCreditCardContent";
 
 // Context
 import { CheckoutContext } from "@/context/CheckoutContext";
@@ -33,7 +31,6 @@ import { PiCreditCardBold } from "react-icons/pi";
 import { BiIdCard } from "react-icons/bi";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { IoWalletOutline } from "react-icons/io5";
-import { FaCheck } from "react-icons/fa";
 
 // Components
 import { YourOrderComp } from "@/components/YourOrderComp";
@@ -624,7 +621,7 @@ function PaymentPage() {
 							<div className="flex flex-row gap-4 text-black">
 								<div>
 									<h1 className="text-lg">
-										Escolha a forma de pagamento
+										Escolha o método de pagamento
 									</h1>
 								</div>
 							</div>
@@ -654,7 +651,7 @@ function PaymentPage() {
 								{clientSecret &&
 									visiblePaymentContent ===
 										"creditCardContent" && (
-										<CheckoutCreditCardInstallmentsContent
+										<CheckoutCreditCardContent
 											orderTotalCost={Number(
 												totalPedido.toFixed(2)
 											)}

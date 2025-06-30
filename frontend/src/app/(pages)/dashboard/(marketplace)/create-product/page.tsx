@@ -168,7 +168,7 @@ const createProductFormSchema = z
 									},
 									{
 										message:
-											"※ Insira um valor válido no formato 0,00!",
+											"※ Insira um valor válido. Ex.: 0,00!",
 									}
 								)
 								.transform((value) =>
@@ -1028,7 +1028,7 @@ function CreateProductPage() {
 			setLoadingButton(false);
 
 			toast.success(response.data.message);
-			// router.push("/dashboard/myproducts");
+			router.push("/dashboard/myproducts");
 			return response.data;
 		} catch (error: any) {
 			toast.error(error.response.data.message);

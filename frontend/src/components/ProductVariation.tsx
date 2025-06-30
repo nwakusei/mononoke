@@ -115,7 +115,7 @@ function ProductVariation({
 				const values = variationOption.options;
 
 				return (
-					<div key={variationKey} className="mb-4">
+					<div key={variationKey} className="mb-4 text-black text-sm">
 						<h2 className="mb-2">{variationOption.title}</h2>
 						<div className="flex flex-row flex-wrap gap-2 w-[350px]">
 							{values.length > 0 ? (

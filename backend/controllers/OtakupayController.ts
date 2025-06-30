@@ -14,6 +14,13 @@ import { OrderOtaclubModel } from "../models/OrderOtaclubModel.js";
 import { PaymentPixOtakuPayModel } from "../models/PixOtakuPayModel.js";
 // import { CustomerModel } from "../models/CustomerModel.js";
 
+// STRIPE
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+	apiVersion: "2024-11-20.acacia", // Use a versão mais recente da API do Stripe
+});
+
 // Import Mercado Pago
 import { Payment, MercadoPagoConfig } from "mercadopago";
 
@@ -1553,91 +1560,91 @@ class OtakupayController {
 		}
 	}
 
-	// // Requisição para enviar a Public Key Stripe para o frontend, segundo o tutorial
-	// static async stripeSendPublicKey(req: Request, res: Response) {
-	// 	res.send({
-	// 		publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-	// 	});
-	// }
+	// Requisição para enviar a Public Key Stripe para o frontend, segundo o tutorial
+	static async stripeSendPublicKey(req: Request, res: Response) {
+		res.send({
+			publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+		});
+	}
 
-	// // Requisição para criar uma intenção de pagamento
-	// static async createPaymentIntent(req: Request, res: Response) {
-	// 	try {
-	// 		const paymentIntent = await stripe.paymentIntents.create({
-	// 			currency: "brl",
-	// 			amount: 5999,
-	// 			automatic_payment_methods: {
-	// 				enabled: true,
-	// 			},
-	// 		});
+	// Requisição para criar uma intenção de pagamento
+	static async createPaymentIntent(req: Request, res: Response) {
+		try {
+			const paymentIntent = await stripe.paymentIntents.create({
+				currency: "brl",
+				amount: 5999,
+				automatic_payment_methods: {
+					enabled: true,
+				},
+			});
 
-	// 		res.send({ clientSecret: paymentIntent.client_secret });
-	// 	} catch (e: any) {
-	// 		return res.status(400).send({
-	// 			error: {
-	// 				message: e.message,
-	// 			},
-	// 		});
-	// 	}
-	// }
+			res.send({ clientSecret: paymentIntent.client_secret });
+		} catch (e: any) {
+			return res.status(400).send({
+				error: {
+					message: e.message,
+				},
+			});
+		}
+	}
 
-	// static async creditCardOtamart(req: Request, res: Response) {
-	// 	const sig = req.headers["stripe-signature"];
+	static async creditCardStripe(req: Request, res: Response) {
+		const sig = req.headers["stripe-signature"];
 
-	// 	const endpointSecret = "whsec_ocjQAeul3AsdiQowTFPgEmcBj91bmm94";
+		const endpointSecret = "whsec_ocjQAeul3AsdiQowTFPgEmcBj91bmm94";
 
-	// 	try {
-	// 		if (!sig) {
-	// 			console.error("Missing Stripe signature.");
-	// 			return res.status(400).json({
-	// 				success: false,
-	// 				message: "Missing Stripe signature",
-	// 			});
-	// 		}
+		try {
+			if (!sig) {
+				console.error("Missing Stripe signature.");
+				return res.status(400).json({
+					success: false,
+					message: "Missing Stripe signature",
+				});
+			}
 
-	// 		const payload = req.body;
+			const payload = req.body;
 
-	// 		let event;
+			let event;
 
-	// 		try {
-	// 			event = stripe.webhooks.constructEvent(
-	// 				payload,
-	// 				sig,
-	// 				endpointSecret
-	// 			);
-	// 		} catch (err: any) {
-	// 			console.error(
-	// 				`Webhook signature verification failed: ${err.message}`
-	// 			);
-	// 			return res.status(400).json({
-	// 				success: false,
-	// 				message: `Webhook signature verification failed: ${err.message}`,
-	// 			});
-	// 		}
+			try {
+				event = stripe.webhooks.constructEvent(
+					payload,
+					sig,
+					endpointSecret
+				);
+			} catch (err: any) {
+				console.error(
+					`Webhook signature verification failed: ${err.message}`
+				);
+				return res.status(400).json({
+					success: false,
+					message: `Webhook signature verification failed: ${err.message}`,
+				});
+			}
 
-	// 		// Tratar diferentes tipos de eventos
-	// 		switch (event.type) {
-	// 			case "payment_intent.canceled":
-	// 				console.log("Pagamento cancelado:", event);
-	// 				// Aqui você pode definir e chamar uma função para lidar com o evento de pagamento cancelado
-	// 				break;
-	// 			case "payment_intent.succeeded":
-	// 				console.log("Pagamento Realizado com sucesso!", event);
-	// 				// Aqui você pode definir e chamar uma função para lidar com o evento de pagamento realizado com sucesso
-	// 				break;
-	// 			default:
-	// 				console.log(`Unhandled event type ${event.type}`);
-	// 		}
+			// Tratar diferentes tipos de eventos
+			switch (event.type) {
+				case "payment_intent.canceled":
+					console.log("Pagamento cancelado:", event);
+					// Aqui você pode definir e chamar uma função para lidar com o evento de pagamento cancelado
+					break;
+				case "payment_intent.succeeded":
+					console.log("Pagamento Realizado com sucesso!", event);
+					// Aqui você pode definir e chamar uma função para lidar com o evento de pagamento realizado com sucesso
+					break;
+				default:
+					console.log(`Unhandled event type ${event.type}`);
+			}
 
-	// 		// Retornar uma resposta bem-sucedida
-	// 		return res.status(200).json({ received: true });
-	// 	} catch (error: any) {
-	// 		console.error(`Webhook Error: ${error.message}`);
-	// 		return res
-	// 			.status(400)
-	// 			.json({ success: false, message: error.message });
-	// 	}
-	// }
+			// Retornar uma resposta bem-sucedida
+			return res.status(200).json({ received: true });
+		} catch (error: any) {
+			console.error(`Webhook Error: ${error.message}`);
+			return res
+				.status(400)
+				.json({ success: false, message: error.message });
+		}
+	}
 
 	static async PaymentCreditcardMP(req: Request, res: Response) {
 		const idempotencyKey = req.headers["x-idempotency-key"];

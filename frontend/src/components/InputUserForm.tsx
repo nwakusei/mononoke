@@ -25,14 +25,14 @@ function InputUserForm({
 	return (
 		<label className="form-control w-full max-w-xs" htmlFor={htmlFor}>
 			<div className="label">
-				<span className="label-text">{labelTitle}</span>
+				<span className="label-text text-white">{labelTitle}</span>
 			</div>
 			<input
+				className={`input input-bordered  ${
+					errors[inputName] ? "input-error" : "input-success"
+				} bg-slate-200 text-slate-900 w-full max-w-xs`}
 				type={type}
 				id={inputName} // Defina o ID do input
-				className={`input input-bordered w-full max-w-xs ${
-					errors[inputName] ? "input-error" : "input-success"
-				}`}
 				{...register(inputName)} // Registre o input usando o nome recebido
 			/>
 			<div className="label">
