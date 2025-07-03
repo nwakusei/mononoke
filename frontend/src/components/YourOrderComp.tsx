@@ -612,7 +612,20 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
 										className="flex justify-between mb-2">
 										<h2>
 											{productInCart.quantityThisProduct}{" "}
-											x {productInCart.productTitle}
+											x {productInCart.productTitle}{" "}
+											{productInCart.productVariations
+												?.length > 0 &&
+												productInCart.productVariations.map(
+													(variation) => (
+														<h2
+															key={
+																variation.variationID
+															}
+															className="text-black text-sm">
+															{variation.name}
+														</h2>
+													)
+												)}
 										</h2>
 										<h2>
 											{productInCart.productPrice

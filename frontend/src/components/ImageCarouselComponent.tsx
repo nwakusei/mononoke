@@ -40,7 +40,7 @@ const ImageCarouselComponent = ({
 				className="embla w-full overflow-hidden relative"
 				ref={emblaRef}>
 				<div className="embla__container flex gap-2">
-					{product?.imagesProduct?.map((image, index) => (
+					{product?.productImages?.map((image, index) => (
 						<div
 							key={index}
 							className={`embla__slide flex-none bg-white border-black border-solid border-[1px] w-[74px] rounded relative shadow-md cursor-pointer ${

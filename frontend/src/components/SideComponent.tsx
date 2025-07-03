@@ -104,6 +104,13 @@ function SideComponent({ selectedVariation }) {
 	const customerStateAddress =
 		user.address && user.address.length > 0 ? user.address[0].state : "";
 
+	// Preenche automaticamente quando o usuário estiver carregado
+	useEffect(() => {
+		if (user?.address?.[0]?.postalCode) {
+			setCepDestino(user.address[0].postalCode);
+		}
+	}, [user]);
+
 	useEffect(() => {
 		if (!token) return;
 
@@ -314,6 +321,182 @@ function SideComponent({ selectedVariation }) {
 		}
 	};
 
+	// function handleAddProductInCart(quantity, product, selectedTransportadora) {
+	// 	if (quantity <= 0) {
+	// 		toast.info("A quantidade precisa ser maior que 0!");
+	// 		return;
+	// 	}
+
+	// 	// Recupera e descriptografa selectedVariations
+	// 	let selectedVariations = localStorage.getItem("selectedVariations");
+	// 	selectedVariations = selectedVariations
+	// 		? decryptData(selectedVariations)
+	// 		: {};
+
+	// 	const hasVariations = product.productVariations.length > 0;
+
+	// 	if (hasVariations) {
+	// 		const isVariationSelected = product.productVariations.every(
+	// 			(variation) =>
+	// 				selectedVariations && selectedVariations[variation._id]
+	// 		);
+
+	// 		if (!isVariationSelected) {
+	// 			toast.info(
+	// 				"Selecione uma variação antes de adicionar ao carrinho!"
+	// 			);
+	// 			return;
+	// 		}
+	// 	}
+
+	// 	const transportadoraSelecionada =
+	// 		selectedTransportadora &&
+	// 		Object.values(selectedTransportadora).some((value) => value);
+
+	// 	const transpFreeShipping = {
+	// 		companyID: 0,
+	// 		companyName: "Free Shipping",
+	// 		modalidyName: "",
+	// 		vlrFrete: 0.0,
+	// 		prazo: 3,
+	// 	};
+
+	// 	if (
+	// 		!transportadoraSelecionada &&
+	// 		(product.freeShipping !== true ||
+	// 			product.freeShippingRegion !== customerStateAddress)
+	// 	) {
+	// 		toast.info("Selecione uma opção de frete!");
+	// 		return;
+	// 	}
+
+	// 	// Recupera os produtos do localStorage e descriptografa
+	// 	let productsInCart = localStorage.getItem("productsInCart");
+
+	// 	if (productsInCart) {
+	// 		try {
+	// 			productsInCart = decryptData(productsInCart);
+	// 		} catch (error) {
+	// 			console.error(
+	// 				"Erro ao processar o carrinho do localStorage:",
+	// 				error
+	// 			);
+	// 			productsInCart = [];
+	// 		}
+	// 	} else {
+	// 		productsInCart = [];
+	// 	}
+
+	// 	let productPrice;
+	// 	let stock;
+
+	// 	if (hasVariations) {
+	// 		const selectedVariationValues = Object.values(selectedVariations);
+
+	// 		if (selectedVariationValues.length > 0) {
+	// 			const selectedVariation = selectedVariationValues[0];
+
+	// 			productPrice =
+	// 				selectedVariation.promotionalPrice > 0
+	// 					? selectedVariation.promotionalPrice
+	// 					: selectedVariation.originalPrice;
+
+	// 			stock = selectedVariation.stock;
+	// 		} else {
+	// 			productPrice =
+	// 				product.promotionalPrice > 0
+	// 					? product.promotionalPrice
+	// 					: product.originalPrice || 0;
+
+	// 			stock = product.stock;
+	// 		}
+	// 	} else {
+	// 		productPrice =
+	// 			product.promotionalPrice > 0
+	// 				? product.promotionalPrice
+	// 				: product.originalPrice || 0;
+
+	// 		stock = product.stock;
+	// 	}
+
+	// 	const existingProduct = productsInCart.find(
+	// 		(p) =>
+	// 			p.productID === product._id &&
+	// 			JSON.stringify(p.productVariations) ===
+	// 				JSON.stringify(Object.values(selectedVariations))
+	// 	);
+
+	// 	if (existingProduct) {
+	// 		const totalQuantity =
+	// 			existingProduct.quantityThisProduct + quantity;
+	// 		existingProduct.quantityThisProduct = Math.min(
+	// 			totalQuantity,
+	// 			stock
+	// 		);
+
+	// 		if (totalQuantity > stock) {
+	// 			toast.warning(
+	// 				"Você atingiu o limite de estoque para este produto!"
+	// 			);
+	// 		}
+
+	// 		existingProduct.productPriceTotal =
+	// 			existingProduct.quantityThisProduct * productPrice;
+	// 	} else {
+	// 		const newProduct = {
+	// 			partnerID: product.partnerID,
+	// 			productID: product._id,
+	// 			productTitle: product.productTitle,
+	// 			imageProduct: product.productImages[0],
+	// 			quantityThisProduct: Math.min(quantity, stock),
+	// 			productPrice: productPrice,
+	// 			productPriceTotal: Math.min(quantity, stock) * productPrice,
+	// 			weight: product.weight,
+	// 			length: product.length,
+	// 			width: product.width,
+	// 			height: product.height,
+	// 			cepDestino: cepDestino,
+	// 			daysShipping: product.daysShipping,
+	// 			freeShipping: product.freeShipping,
+	// 			transportadora: transportadoraSelecionada
+	// 				? selectedTransportadora
+	// 				: transpFreeShipping,
+	// 			productVariations:
+	// 				Object.values(selectedVariations).length > 0
+	// 					? Object.values(selectedVariations)
+	// 					: null,
+	// 		};
+
+	// 		productsInCart.push(newProduct);
+	// 	}
+
+	// 	// Criptografa o carrinho inteiro como uma string única
+	// 	try {
+	// 		const encryptedCart = encryptData(productsInCart);
+	// 		localStorage.setItem("productsInCart", encryptedCart);
+
+	// 		const totalQuantityProducts = productsInCart.reduce(
+	// 			(total, product) => total + product.quantityThisProduct,
+	// 			0
+	// 		);
+
+	// 		setCart(totalQuantityProducts);
+
+	// 		const totalCartValue = productsInCart.reduce(
+	// 			(total, product) => total + product.productPriceTotal,
+	// 			0
+	// 		);
+
+	// 		const subtotal = productsInCart.length > 0 ? totalCartValue : 0;
+	// 		setSubtotal(subtotal);
+	// 		setTransportadoras([]);
+
+	// 		localStorage.removeItem("selectedVariations");
+	// 	} catch (error) {
+	// 		console.log("Erro ao adicionar o produto ao carrinho!", error);
+	// 	}
+	// }
+
 	function handleAddProductInCart(quantity, product, selectedTransportadora) {
 		if (quantity <= 0) {
 			toast.info("A quantidade precisa ser maior que 0!");
@@ -384,10 +567,14 @@ function SideComponent({ selectedVariation }) {
 		let stock;
 
 		if (hasVariations) {
-			const selectedVariationValues = Object.values(selectedVariations);
+			// Correção: garantir que a variação pertence ao produto atual
+			const selectedVariationEntry = product.productVariations.find(
+				(variation) => selectedVariations.hasOwnProperty(variation._id)
+			);
 
-			if (selectedVariationValues.length > 0) {
-				const selectedVariation = selectedVariationValues[0];
+			if (selectedVariationEntry) {
+				const selectedVariation =
+					selectedVariations[selectedVariationEntry._id];
 
 				productPrice =
 					selectedVariation.promotionalPrice > 0
@@ -1046,6 +1233,7 @@ function SideComponent({ selectedVariation }) {
 											type="text"
 											placeholder="Digite Seu CEP"
 											value={cepDestino}
+											readOnly
 											onChange={(e) => {
 												const value =
 													e.target.value.replace(

@@ -77,41 +77,161 @@ function ReviewInfoPage() {
 		});
 	}, [token]);
 
+	// useEffect(() => {
+	// 	const savedProductsInCart = localStorage.getItem("productsInCart");
+
+	// 	if (savedProductsInCart) {
+	// 		try {
+	// 			// Descriptografa a string antes de tentar parsear
+	// 			const decryptedString = decryptData(savedProductsInCart);
+
+	// 			if (decryptedString) {
+	// 				// Teste se a string já é JSON ou precisa ser convertida
+	// 				try {
+	// 					const parsedData = JSON.parse(decryptedString);
+
+	// 					setProductsInCart(parsedData);
+	// 				} catch (parseError) {
+	// 					console.error(
+	// 						"Erro ao tentar fazer JSON.parse:",
+	// 						parseError
+	// 					);
+	// 					console.error(
+	// 						"String que causou erro:",
+	// 						decryptedString
+	// 					);
+	// 				}
+	// 			} else {
+	// 				console.error(
+	// 					"Erro ao descriptografar os produtos. Retorno vazio ou inválido."
+	// 				);
+	// 			}
+	// 		} catch (error) {
+	// 			console.error(
+	// 				"Erro ao processar os produtos do carrinho:",
+	// 				error
+	// 			);
+	// 		}
+	// 	}
+	// }, []);
+
 	useEffect(() => {
 		const savedProductsInCart = localStorage.getItem("productsInCart");
 
-		if (savedProductsInCart) {
-			try {
-				// Descriptografa a string antes de tentar parsear
-				const decryptedString = decryptData(savedProductsInCart);
+		if (!savedProductsInCart) {
+			setProductsInCart([]);
+			return;
+		}
 
-				if (decryptedString) {
-					// Teste se a string já é JSON ou precisa ser convertida
-					try {
-						const parsedData = JSON.parse(decryptedString);
-
-						setProductsInCart(parsedData);
-					} catch (parseError) {
-						console.error(
-							"Erro ao tentar fazer JSON.parse:",
-							parseError
-						);
-						console.error(
-							"String que causou erro:",
-							decryptedString
-						);
-					}
-				} else {
-					console.error(
-						"Erro ao descriptografar os produtos. Retorno vazio ou inválido."
-					);
-				}
-			} catch (error) {
-				console.error(
-					"Erro ao processar os produtos do carrinho:",
-					error
-				);
+		try {
+			const decryptedString = decryptData(savedProductsInCart);
+			if (!decryptedString) {
+				setProductsInCart([]);
+				return;
 			}
+
+			const parsedData = JSON.parse(decryptedString);
+			if (!Array.isArray(parsedData)) {
+				setProductsInCart([]);
+				return;
+			}
+
+			const updateProducts = async () => {
+				const updated = await Promise.all(
+					parsedData.map(async (item: any) => {
+						try {
+							const res = await api.get(
+								`/products/${item.productID}`
+							);
+							const data = res.data.product;
+
+							let updatedPrice = 0;
+							let updatedImage = item.imageProduct;
+
+							if (
+								data.productVariations?.length > 0 &&
+								item.productVariations?.length > 0
+							) {
+								const selectedVariation =
+									item.productVariations[0];
+
+								const matchedOption =
+									data.productVariations[0]?.options.find(
+										(opt: any) =>
+											opt.name === selectedVariation.name
+									);
+
+								if (matchedOption) {
+									const promo = Number(
+										matchedOption.promotionalPrice
+									);
+									const original = Number(
+										matchedOption.originalPrice
+									);
+
+									updatedPrice =
+										promo > 0
+											? promo
+											: original > 0
+											? original
+											: data.promotionalPrice > 0
+											? data.promotionalPrice
+											: data.originalPrice;
+
+									updatedImage =
+										matchedOption.imageUrl ?? updatedImage;
+								} else {
+									const promo = Number(data.promotionalPrice);
+									const original = Number(data.originalPrice);
+
+									updatedPrice = promo > 0 ? promo : original;
+									updatedImage =
+										data.productImages?.[0] ?? updatedImage;
+								}
+							} else {
+								const promo = Number(data.promotionalPrice);
+								const original = Number(data.originalPrice);
+
+								updatedPrice = promo > 0 ? promo : original;
+								updatedImage =
+									data.productImages?.[0] ?? updatedImage;
+							}
+
+							if (
+								typeof updatedPrice !== "number" ||
+								isNaN(updatedPrice) ||
+								updatedPrice <= 0
+							) {
+								throw new Error("❌ Preço final inválido");
+							}
+
+							return {
+								...item,
+								productTitle:
+									data.productTitle ?? item.productTitle,
+								productPrice: updatedPrice,
+								productPriceTotal:
+									updatedPrice * item.quantityThisProduct,
+								imageProduct: updatedImage,
+							};
+						} catch (err) {
+							console.warn(
+								`❗ Erro ao buscar produto ${item.productID}`,
+								err
+							);
+							return item;
+						}
+					})
+				);
+
+				localStorage.setItem("productsInCart", encryptData(updated));
+				setProductsInCart(updated);
+			};
+
+			updateProducts();
+		} catch (err) {
+			console.error("Erro ao atualizar carrinho", err);
+			setProductsInCart([]);
 		}
 	}, []);
 

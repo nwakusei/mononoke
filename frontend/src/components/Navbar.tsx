@@ -50,12 +50,12 @@ import { CheckoutContext } from "@/context/CheckoutContext";
 
 import CryptoJS from "crypto-js";
 
-// function encryptData(data) {
-// 	return CryptoJS.AES.encrypt(
-// 		JSON.stringify(data), // Converte o objeto inteiro para string
-// 		"chave-secreta"
-// 	).toString();
-// }
+function encryptData(data) {
+	return CryptoJS.AES.encrypt(
+		JSON.stringify(data), // Converte o objeto inteiro para string
+		"chave-secreta"
+	).toString();
+}
 
 function decryptData(encryptedData) {
 	try {
@@ -116,68 +116,183 @@ function Navbar() {
 		return () => clearTimeout(timer); // Limpar o timer ao desmontar o componente
 	}, [token]); // Esse efeito depende do token
 
+	// useEffect(() => {
+	// 	// Recupera os produtos do carrinho do localStorage
+	// 	const encryptedProducts = localStorage.getItem("productsInCart");
+
+	// 	console.log("Encrypted Products:", encryptedProducts);
+
+	// 	if (!encryptedProducts) {
+	// 		console.log(
+	// 			"Nenhum dado criptografado encontrado no localStorage."
+	// 		);
+	// 		return;
+	// 	}
+
+	// 	try {
+	// 		// Tenta descriptografar os produtos
+	// 		const decryptedString = decryptData(encryptedProducts);
+
+	// 		// Verifica se a descriptografia retornou uma string válida e a converte de volta para um objeto
+	// 		if (decryptedString) {
+	// 			const productsInCart = JSON.parse(decryptedString);
+
+	// 			// Verifica se a estrutura é um array
+	// 			if (Array.isArray(productsInCart)) {
+	// 				console.log(
+	// 					"Produtos no carrinho após descriptografar:",
+	// 					productsInCart
+	// 				);
+
+	// 				// Calcula a quantidade total de produtos no carrinho
+	// 				const totalQuantityProducts = productsInCart.reduce(
+	// 					(total, product) =>
+	// 						total + (product.quantityThisProduct || 0),
+	// 					0
+	// 				);
+	// 				setCart(totalQuantityProducts);
+
+	// 				// Calcula o valor total do carrinho
+	// 				const totalCartValue = productsInCart.reduce(
+	// 					(total, product) =>
+	// 						total + (product.productPriceTotal || 0),
+	// 					0
+	// 				);
+
+	// 				// Define o subtotal do carrinho
+	// 				const subtotalValue =
+	// 					totalCartValue > 0 ? totalCartValue : 0;
+	// 				setSubtotal(subtotalValue);
+	// 			} else {
+	// 				console.error(
+	// 					"Erro: produtos descriptografados não são um array válido"
+	// 				);
+	// 			}
+	// 		} else {
+	// 			console.error("Falha na descriptografia dos dados");
+	// 		}
+	// 	} catch (error) {
+	// 		// Erro de descriptografia
+	// 		console.error(
+	// 			"Erro ao descriptografar os dados do carrinho:",
+	// 			error
+	// 		);
+	// 	}
+	// }, []);
+
 	useEffect(() => {
-		// Recupera os produtos do carrinho do localStorage
-		const encryptedProducts = localStorage.getItem("productsInCart");
-
-		console.log("Encrypted Products:", encryptedProducts);
-
-		if (!encryptedProducts) {
-			console.log(
-				"Nenhum dado criptografado encontrado no localStorage."
-			);
-			return;
-		}
-
-		try {
-			// Tenta descriptografar os produtos
-			const decryptedString = decryptData(encryptedProducts);
-
-			// Verifica se a descriptografia retornou uma string válida e a converte de volta para um objeto
-			if (decryptedString) {
-				const productsInCart = JSON.parse(decryptedString);
-
-				// Verifica se a estrutura é um array
-				if (Array.isArray(productsInCart)) {
-					console.log(
-						"Produtos no carrinho após descriptografar:",
-						productsInCart
-					);
-
-					// Calcula a quantidade total de produtos no carrinho
-					const totalQuantityProducts = productsInCart.reduce(
-						(total, product) =>
-							total + (product.quantityThisProduct || 0),
-						0
-					);
-					setCart(totalQuantityProducts);
-
-					// Calcula o valor total do carrinho
-					const totalCartValue = productsInCart.reduce(
-						(total, product) =>
-							total + (product.productPriceTotal || 0),
-						0
-					);
-
-					// Define o subtotal do carrinho
-					const subtotalValue =
-						totalCartValue > 0 ? totalCartValue : 0;
-					setSubtotal(subtotalValue);
-				} else {
-					console.error(
-						"Erro: produtos descriptografados não são um array válido"
-					);
+		async function atualizarCarrinho() {
+			try {
+				const encryptedProducts =
+					localStorage.getItem("productsInCart");
+				if (!encryptedProducts) {
+					setCart(0);
+					setSubtotal(0);
+					return;
 				}
-			} else {
-				console.error("Falha na descriptografia dos dados");
+
+				const decryptedString = decryptData(encryptedProducts);
+				if (!decryptedString) {
+					setCart(0);
+					setSubtotal(0);
+					return;
+				}
+
+				const productsInCart = JSON.parse(decryptedString);
+				if (!Array.isArray(productsInCart)) {
+					setCart(0);
+					setSubtotal(0);
+					return;
+				}
+
+				const updatedProducts = await Promise.all(
+					productsInCart.map(async (item) => {
+						try {
+							const res = await api.get(
+								`/products/${item.productID}`
+							);
+							const productData = res.data.product;
+
+							let updatedPrice = 0;
+							let updatedImage = item.imageProduct;
+
+							if (
+								productData.productVariations?.length > 0 &&
+								item.productVariations?.length > 0
+							) {
+								const selectedVariation =
+									item.productVariations[0];
+								const matchedOption =
+									productData.productVariations[0]?.options.find(
+										(opt) =>
+											opt.name === selectedVariation.name
+									);
+								if (matchedOption) {
+									updatedPrice =
+										matchedOption.promotionalPrice > 0
+											? matchedOption.promotionalPrice
+											: matchedOption.originalPrice;
+									updatedImage =
+										matchedOption.imageUrl || updatedImage;
+								} else {
+									updatedPrice =
+										productData.promotionalPrice > 0
+											? productData.promotionalPrice
+											: productData.originalPrice;
+									updatedImage =
+										productData.productImages?.[0] ||
+										updatedImage;
+								}
+							} else {
+								updatedPrice =
+									productData.promotionalPrice > 0
+										? productData.promotionalPrice
+										: productData.originalPrice;
+								updatedImage =
+									productData.productImages?.[0] ||
+									updatedImage;
+							}
+
+							return {
+								...item,
+								productTitle:
+									productData.productTitle ||
+									item.productTitle,
+								productPrice: updatedPrice,
+								productPriceTotal:
+									updatedPrice * item.quantityThisProduct,
+								imageProduct: updatedImage,
+							};
+						} catch {
+							return item;
+						}
+					})
+				);
+
+				localStorage.setItem(
+					"productsInCart",
+					encryptData(updatedProducts)
+				);
+
+				const totalQuantity = updatedProducts.reduce(
+					(acc, p) => acc + (Number(p.quantityThisProduct) || 0),
+					0
+				);
+				setCart(totalQuantity);
+
+				const totalValue = updatedProducts.reduce(
+					(acc, p) => acc + (Number(p.productPriceTotal) || 0),
+					0
+				);
+				setSubtotal(totalValue);
+			} catch (err) {
+				setCart(0);
+				setSubtotal(0);
+				console.error("Erro ao atualizar carrinho:", err);
 			}
-		} catch (error) {
-			// Erro de descriptografia
-			console.error(
-				"Erro ao descriptografar os dados do carrinho:",
-				error
-			);
 		}
+
+		atualizarCarrinho();
 	}, []);
 
 	// Função para remover itens do carrinho de compra
@@ -535,7 +650,7 @@ function Navbar() {
 								</label>
 								<ul
 									tabIndex={0}
-									className="mt-[20px] z-[1] p-2 shadow-md menu menu-sm dropdown-content bg-primary text-white rounded-box w-[250px]">
+									className="mt-[20px] z-50 p-2 shadow-md menu menu-sm dropdown-content bg-primary text-white rounded-box w-[250px]">
 									{/* <li>
 										<Link
 											className="flex flex-row items-center justify-between text-white"

@@ -1301,7 +1301,7 @@ class OtakupayController {
 										}
 
 										// Definir o nome da variação (exemplo: "Tamanho: M")
-										productVariationName = `${variation.title}: ${option.name}`;
+										productVariationName = `${option.name}`;
 									}
 								}
 							}
@@ -2821,7 +2821,7 @@ class OtakupayController {
 										}
 
 										// Definir o nome da variação (exemplo: "Tamanho: M")
-										productVariationName = `${variation.title}: ${option.name}`;
+										productVariationName = `${option.name}`;
 									}
 								}
 							}
