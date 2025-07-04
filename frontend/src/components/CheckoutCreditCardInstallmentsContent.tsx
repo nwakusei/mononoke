@@ -6,7 +6,7 @@ import { CardPayment } from "@mercadopago/sdk-react";
 import { initMercadoPago } from "@mercadopago/sdk-react";
 
 // Inicialize o Mercado Pago com sua Public Key
-initMercadoPago("TEST-b02f7f6b-095f-4a80-b053-47d68107b77c");
+initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY as string);
 
 // Context
 import { CheckoutContext } from "@/context/CheckoutContext";
@@ -121,6 +121,9 @@ function CheckoutCreditCardInstallmentsContent({
 					title: "Pagamento Realizado com Sucesso!",
 					width: 900,
 					icon: "success",
+					customClass: {
+						confirmButton: "swal2-custom-confirm",
+					},
 				});
 
 				router.push("/otamart");
@@ -160,7 +163,7 @@ function CheckoutCreditCardInstallmentsContent({
 
 	useEffect(() => {
 		// Inicialize o Mercado Pago com sua Public Key
-		initMercadoPago("TEST-b02f7f6b-095f-4a80-b053-47d68107b77c");
+		initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY as string);
 
 		// Renderize o Brick de pagamento
 		const renderPaymentBrick = async (bricksBuilder) => {

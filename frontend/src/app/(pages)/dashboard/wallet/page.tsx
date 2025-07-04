@@ -150,11 +150,11 @@ function WalletPage() {
 				</div>
 
 				{/* Gadget 2 */}
-				<div className="flex flex-col gap-4 mb-4">
-					<div className="flex flex-row items-center justify-between w-[1220px] =">
+				<div className="flex flex-col gap-4 mb-2">
+					<div className="flex flex-row items-center justify-between w-[1200px]">
 						<div className="bg-white w-[520px] h-[120px] p-6 rounded-md shadow-md">
 							{/* Saldo Disponivel */}
-							<div className="flex flex-col -mb-4">
+							<div className="flex flex-col">
 								<div className="flex flex-row items-center ml-6 gap-5">
 									<div>
 										<h2 className="text-sm text-black">
@@ -170,7 +170,7 @@ function WalletPage() {
 											})}
 										</h1>
 									</div>
-									<div className="flex flex-col mx-6 gap-4">
+									<div className="flex flex-col gap-4">
 										{loadingButtonId ? (
 											<button className="flex flex-row items-center btn btn-primary shadow-md w-[200px]">
 												<span className="loading loading-dots loading-md"></span>
@@ -258,7 +258,7 @@ function WalletPage() {
 							</div>
 						</div>
 
-						<div className="bg-white w-[212px] h-[120px] p-6 rounded-md shadow-md mr-4">
+						<div className="bg-white w-[212px] h-[120px] p-6 rounded-md shadow-md">
 							{/* Saldo Otaku Point Pending */}
 							<div className="flex flex-col">
 								<div className="flex flex-row">
@@ -283,7 +283,7 @@ function WalletPage() {
 						</div>
 					</div>
 				</div>
-				<div className="flex flex-col gap-4 mb-4">
+				<div className="flex flex-col gap-4 mb-2 mt-2">
 					{cryptocurrencyBalance &&
 						cryptocurrencyBalance.length > 0 && (
 							<div className="flex flex-row w-[1200px]">

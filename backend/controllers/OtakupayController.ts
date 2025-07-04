@@ -1588,7 +1588,7 @@ class OtakupayController {
 		}
 	}
 
-	static async creditCardStripe(req: Request, res: Response) {
+	static async paymentCreditCardStripe(req: Request, res: Response) {
 		const sig = req.headers["stripe-signature"];
 
 		const endpointSecret = "whsec_ocjQAeul3AsdiQowTFPgEmcBj91bmm94";
@@ -1646,7 +1646,7 @@ class OtakupayController {
 		}
 	}
 
-	static async PaymentCreditcardMP(req: Request, res: Response) {
+	static async paymentCreditcardMP(req: Request, res: Response) {
 		const idempotencyKey = req.headers["x-idempotency-key"];
 
 		console.log(req.body.transaction_amount);
@@ -2676,10 +2676,10 @@ class OtakupayController {
 										cashback.partnerID === partnerID
 								)?.encryptedCustomerCashback,
 							itemsList: [],
-							partnerID: partnerID,
+							partnerID: partnerID.toString(),
 							partnerName: partner.name,
 							partnerCNPJ: partner.cpfCnpj,
-							customerID: customer._id,
+							customerID: customer._id.toString(),
 							customerName: customer.name,
 							customerCPF: customer.cpf,
 							customerAddress: [

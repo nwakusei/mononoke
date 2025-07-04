@@ -48,7 +48,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .swal2-custom-confirm {
-	@apply bg-[#0e4bef] transition-all ease-in duration-150 text-white px-4 py-2 rounded font-semibold shadow hover:bg-[#b3b3b3];
+	@apply bg-[#7250b0] transition-all ease-in duration-150 text-white px-4 py-2 rounded font-semibold shadow hover:bg-[#b3b3b3];
 }
 
 .swal2-custom-cancel {

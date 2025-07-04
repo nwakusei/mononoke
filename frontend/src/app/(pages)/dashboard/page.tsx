@@ -66,12 +66,16 @@ function DashboardPage() {
 						{/* Avatar e Boas vindas */}
 						<div className="flex flex-row items-center gap-4 text-lg font-semibold mb-6">
 							<div className="avatar">
-								<div className="w-12 rounded-full">
+								<div className="w-12 h-12 rounded">
 									<Image
-										src={imageProfile}
+										src={
+											user?.accountType === "customer"
+												? `http://localhost:5000/images/customers/${user?.profileImage}`
+												: `http://localhost:5000/images/partners/${user?.profileImage}`
+										}
 										alt="image profile"
-										width={10}
-										height={10}
+										width={48}
+										height={48}
 										unoptimized
 									/>
 								</div>
@@ -81,8 +85,8 @@ function DashboardPage() {
 							</h1>
 						</div>
 
-						<div className="flex flex-row">
-							{/* Total de Vendas e Performance Hoje */}
+						{/* Total de Vendas e Performance Hoje */}
+						{/* <div className="flex flex-row">
 							<div className="border-r-[1px] border-black pr-6">
 								<h1 className="flex flex-row items-center text-3xl font-semibold text-black gap-2">
 									R$ 999,90{" "}
@@ -108,7 +112,7 @@ function DashboardPage() {
 									Performance
 								</h2>
 							</div>
-						</div>
+						</div> */}
 					</div>
 
 					{/* Gadget 2 */}

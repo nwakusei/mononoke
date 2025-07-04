@@ -313,9 +313,15 @@ function MySaleByIDPage() {
 																	</div>
 																	<div>
 																		<h2>
-																			{
+																			{item.productVariation ===
+																			"Sem variação" ? (
+																				<div className="opacity-0">
+																					Sem
+																					variação
+																				</div>
+																			) : (
 																				item.productVariation
-																			}
+																			)}
 																		</h2>
 																	</div>
 																</div>
@@ -597,7 +603,7 @@ function MySaleByIDPage() {
 					{/* Gadget 3 */}
 					<div className="flex flex-col">
 						<div className="bg-white w-[325px] p-6 rounded-md shadow-md mt-4 text-black">
-							<h1 className="text-lg">{mysale?.customerName}</h1>
+							<h1>{mysale?.customerName}</h1>
 							<h2>CPF: {mysale?.customerCPF}</h2>
 
 							<div className="divider before:border-t-[1px] after:border-t-[1px] before:bg-black after:bg-black"></div>
@@ -606,7 +612,7 @@ function MySaleByIDPage() {
 								mysale?.customerAddress.length > 0 &&
 								mysale?.customerAddress.map((end) => (
 									<div key={end._id}>
-										<div className="text-lg mb-3">
+										<div className="font-semibold mb-3">
 											Endereço de entrega
 										</div>
 										<div>Endereço: {end.street}</div>

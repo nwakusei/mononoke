@@ -95,7 +95,7 @@ function MySalesPage() {
 											<th className="text-sm text-black">
 												{/* Produtos */}
 											</th>
-											<th className="text-sm text-black">
+											<th className="text-sm text-black w-[160px]">
 												Total do Pedido
 											</th>
 											<th className="text-sm text-black">

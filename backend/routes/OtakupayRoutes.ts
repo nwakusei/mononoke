@@ -29,12 +29,12 @@ router.post(
 	OtakupayController.createPaymentIntent
 );
 
-router.post("/credit-card-otamart", OtakupayController.creditCardStripe);
+router.post("/credit-card-otamart", OtakupayController.paymentCreditCardStripe);
 
 router.post(
 	"/payment-creditcard-MP",
 	verifyToken,
-	OtakupayController.PaymentCreditcardMP
+	OtakupayController.paymentCreditcardMP
 );
 router.post(
 	"/finish-payment-creditcard-MP",

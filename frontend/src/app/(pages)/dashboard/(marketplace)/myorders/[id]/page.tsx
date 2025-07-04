@@ -257,9 +257,15 @@ function MyOrderByIDPage() {
 																	</div>
 																	<div>
 																		<h2>
-																			{
+																			{item.productVariation ===
+																			"Sem variação" ? (
+																				<div className="opacity-0">
+																					Sem
+																					variação
+																				</div>
+																			) : (
 																				item.productVariation
-																			}
+																			)}
 																		</h2>
 																	</div>
 																</div>
@@ -478,7 +484,7 @@ function MyOrderByIDPage() {
 								</table>
 							</div>
 							<div>
-								<h1 className="text-xl text-black">
+								<h1 className="text-black font-semibold">
 									Método de Pagamento
 								</h1>
 								<div className="text-black">
@@ -491,7 +497,7 @@ function MyOrderByIDPage() {
 					<div className="flex flex-col">
 						{/* Gadget 3 */}
 						<div className="bg-white text-black w-[325px] p-6 rounded-md shadow-md mt-4">
-							<h1 className="text-lg">{`Loja: ${myorder?.partnerName}`}</h1>
+							<h1>{`Loja: ${myorder?.partnerName}`}</h1>
 							<h2>{`CNPJ/CPF: ${myorder?.partnerCNPJ}`}</h2>
 
 							<div className="divider before:bg-black after:bg-black before:border-t-[1px] after:border-t-[1px]"></div>
@@ -501,7 +507,7 @@ function MyOrderByIDPage() {
 								myorder.customerAddress.length > 0 &&
 								myorder.customerAddress.map((myAddress) => (
 									<div key={myAddress?._id || myAddress?.id}>
-										<h1 className="text-lg font-semibold mb-3">
+										<h1 className="font-semibold mb-3">
 											Endereço de entrega e cobrança
 										</h1>
 										<h2>
