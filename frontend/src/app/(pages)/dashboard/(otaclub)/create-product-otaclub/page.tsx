@@ -38,7 +38,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const createProductFormSchema = z.object({
-	imagesProduct: z
+	productImages: z
 		.instanceof(FileList)
 		.transform((list) => {
 			const files = [];
@@ -261,7 +261,7 @@ function CreateProductOtaclubPage() {
 	const [loadingPage, setLoadingPage] = useState(true);
 	const [loadingButton, setLoadingButton] = useState(false);
 
-	const [selectedImagesProduct, setSelectedImagesProduct] = useState<File[]>(
+	const [selectedProductImages, setSelectedProductImages] = useState<File[]>(
 		[]
 	);
 
@@ -371,7 +371,7 @@ function CreateProductOtaclubPage() {
 		},
 	});
 
-	const handleSelectedImagesProduct = (
+	const handleSelectedProductImages = (
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const files = event.target.files;
@@ -386,13 +386,13 @@ function CreateProductOtaclubPage() {
 
 				// Define os erros conforme a validade
 				if (!isValidSize) {
-					setError("imagesProduct", {
+					setError("productImages", {
 						message: "※ Cada arquivo precisa ter no máximo 2Mb!",
 					});
 				}
 
 				if (!isValidFormat) {
-					setError("imagesProduct", {
+					setError("productImages", {
 						message:
 							"※ Insira apenas imagens com extensão .JPG, .JPEG ou .PNG!",
 					});
@@ -404,13 +404,13 @@ function CreateProductOtaclubPage() {
 			// Verifica se há imagens válidas
 			if (validFiles.length > 0) {
 				// Se houver imagens válidas, atualiza o estado
-				setSelectedImagesProduct((prev) => [...prev, ...validFiles]);
-				clearErrors("imagesProduct"); // Limpa os erros anteriores
+				setSelectedProductImages((prev) => [...prev, ...validFiles]);
+				clearErrors("productImages"); // Limpa os erros anteriores
 			} else {
 				// Caso não haja imagens válidas, define uma mensagem de erro
-				setError("imagesProduct", {
-					message: errors.imagesProduct
-						? errors.imagesProduct.message
+				setError("productImages", {
+					message: errors.productImages
+						? errors.productImages.message
 						: "Nenhuma imagem válida selecionada!",
 				});
 			}
@@ -418,19 +418,19 @@ function CreateProductOtaclubPage() {
 	};
 
 	const handleRemoveImageProduct = (index: number) => {
-		setSelectedImagesProduct((prev) => {
+		setSelectedProductImages((prev) => {
 			// Filtra a imagem removida
 			const updatedImages = prev.filter((_, i) => i !== index);
 
 			// Atualiza o estado com as imagens restantes (sem revalidação)
 			if (updatedImages.length === 0) {
 				// Se não houver imagens restantes, adicione o erro
-				setError("imagesProduct", {
+				setError("productImages", {
 					message: "※ Insira pelo menos 1 imagem!",
 				});
 			} else {
 				// Se houver imagens, remove o erro
-				clearErrors("imagesProduct");
+				clearErrors("productImages");
 			}
 
 			return updatedImages; // Apenas retorna o novo array de imagens
@@ -470,21 +470,21 @@ function CreateProductOtaclubPage() {
 					key,
 					isNaN(numericValue) ? "0" : numericValue.toString()
 				);
-			} else if (key !== "imagesProduct") {
+			} else if (key !== "productImages") {
 				formData.append(key, value);
 			}
 		});
 
 		// Adiciona as imagens do produto principal ao FormData
-		if (selectedImagesProduct.length === 0) {
-			setError("imagesProduct", {
+		if (selectedProductImages.length === 0) {
+			setError("productImages", {
 				message: "※ Insira pelo menos 1 imagem!",
 			});
 			return;
 		}
 
-		selectedImagesProduct.forEach((image) => {
-			formData.append("imagesProduct", image);
+		selectedProductImages.forEach((image) => {
+			formData.append("productImages", image);
 		});
 
 		try {
@@ -760,7 +760,7 @@ function CreateProductOtaclubPage() {
 
 								<div className="form-control">
 									<label
-										htmlFor="imagesProductInput"
+										htmlFor="productImagesInput"
 										className="label cursor-pointer">
 										<span className="label-text text-black">
 											Imagem Principal
@@ -768,7 +768,7 @@ function CreateProductOtaclubPage() {
 									</label>
 
 									<div className="flex flex-wrap items-center gap-2">
-										{selectedImagesProduct.map(
+										{selectedProductImages.map(
 											(imagem, index) => {
 												const imageUrl =
 													URL.createObjectURL(imagem);
@@ -803,14 +803,14 @@ function CreateProductOtaclubPage() {
 
 										<div
 											className={`${
-												errors.imagesProduct
+												errors.productImages
 													? `border-error`
 													: `border-slate-900`
 											} text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed hover:bg-slate-900 transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer`}
 											onClick={() => {
 												const input =
 													document.getElementById(
-														"imagesProductInput"
+														"productImagesInput"
 													);
 												input?.click();
 											}}>
@@ -821,22 +821,22 @@ function CreateProductOtaclubPage() {
 										</div>
 
 										<input
-											id="imagesProductInput"
+											id="productImagesInput"
 											type="file"
 											accept="image/*"
 											multiple
 											className="hidden"
-											{...register("imagesProduct")}
+											{...register("productImages")}
 											onChange={
-												handleSelectedImagesProduct
+												handleSelectedProductImages
 											}
 										/>
 									</div>
 
 									<div className="label">
-										{errors.imagesProduct && (
+										{errors.productImages && (
 											<span className="label-text-alt text-red-500">
-												{errors.imagesProduct.message}
+												{errors.productImages.message}
 											</span>
 										)}
 									</div>
@@ -929,6 +929,8 @@ function CreateProductOtaclubPage() {
 														)} bg-slate-200 text-slate-900 join-item`}
 														type="text"
 														placeholder="0"
+														// defaultValue={1}
+														// readOnly
 														{...register("stock", {
 															onChange: () =>
 																trigger(
@@ -1358,7 +1360,7 @@ function CreateProductOtaclubPage() {
 							</div>
 						</div>
 					</form>
-					<pre>{output}</pre>
+					{/* <pre>{output}</pre> */}
 					<br />
 				</div>
 			</div>

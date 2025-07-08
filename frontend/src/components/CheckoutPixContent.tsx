@@ -76,6 +76,9 @@ function CheckoutPixContent({
 						title: response.data.message,
 						width: 800,
 						icon: "success",
+						customClass: {
+							confirmButton: "swal2-custom-confirm",
+						},
 					});
 				} else {
 					Swal.fire({

@@ -50,8 +50,8 @@ function MyRafflesTicketsPage() {
 					<div className="bg-white w-[1200px] h-full p-6 rounded-md shadow-md mt-4 mr-4">
 						{/* Adicionar Order */}
 						<div className="flex flex-col gap-2 ml-6 mb-6">
-							<h1 className="text-2xl font-semibold">
-								Meus Sorteios
+							<h1 className="text-2xl font-semibold text-black">
+								Meus Tickets
 							</h1>
 
 							{/* Lista de Pedidos */}

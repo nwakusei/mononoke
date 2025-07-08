@@ -66,6 +66,9 @@ function CheckoutBalanceContent({ products, shippingCost, coupons, token }) {
 				title: "Pagamento Realizado com Sucesso!",
 				width: 900,
 				icon: "success",
+				customClass: {
+					confirmButton: ".swal2-custom-confirm",
+				},
 			});
 
 			router.push("/otamart");

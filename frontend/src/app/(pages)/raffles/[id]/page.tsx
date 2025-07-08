@@ -137,17 +137,21 @@ function RafflePage() {
 					Swal.fire({
 						title: responser.data.message,
 						icon: "success",
-						width: 800,
-						confirmButtonColor: "#3085d6",
-						confirmButtonText: "OK",
+						width: 900,
+						customClass: {
+							confirmButton: "swal2-custom-confirm",
+						},
 					});
 				});
 		} catch (error: any) {
 			console.log(error);
 			Swal.fire({
 				title: error.response.data.message,
-				width: 800,
+				width: 900,
 				icon: "error",
+				customClass: {
+					confirmButton: "swal2-custom-confirm",
+				},
 			});
 		}
 		setLoadingBtn(false);
