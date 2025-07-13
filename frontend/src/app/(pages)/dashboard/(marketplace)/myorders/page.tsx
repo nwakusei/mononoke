@@ -62,6 +62,8 @@ function MyOrdersPage() {
 				return "Concluído";
 			case "Canceled":
 				return "Cancelado";
+			case "Not Delivered":
+				return "Não entregue";
 			default:
 				return status; // Retorna o original se não encontrar tradução
 		}

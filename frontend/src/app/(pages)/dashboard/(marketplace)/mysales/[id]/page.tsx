@@ -208,6 +208,22 @@ function MySaleByIDPage() {
 		});
 	};
 
+	const translateOrderShipping = () => {
+		if (mysale?.statusShipping === "Pending") {
+			return "Pendente";
+		} else if (mysale?.statusShipping === "Packed") {
+			return "Embalado";
+		} else if (mysale?.statusShipping === "Shipped") {
+			return "Enviado";
+		} else if (mysale?.statusShipping === "Delivered") {
+			return "Entregue";
+		} else if (mysale?.statusShipping === "Not Delivered") {
+			return "Não entregue";
+		} else if (mysale?.statusShipping === "Canceled") {
+			return "Cancelado";
+		}
+	};
+
 	if (isLoading) {
 		return <LoadingPage />;
 	}
@@ -654,7 +670,8 @@ function MySaleByIDPage() {
 										  )
 										: "R$ 0,00"}
 								</h2> */}
-								<h2>Status: {mysale?.statusShipping}</h2>
+
+								<div>{`Status: ${translateOrderShipping()}`}</div>
 							</div>
 
 							{mysale?.statusShipping === "Pending" &&
@@ -698,7 +715,7 @@ function MySaleByIDPage() {
 													errors.logisticOperator
 														? `select-error`
 														: `select-success`
-												} w-full max-w-xs`}
+												} bg-slate-200 text-slate-900 w-full max-w-xs`}
 												defaultValue=""
 												{...register(
 													"logisticOperator"
@@ -755,7 +772,7 @@ function MySaleByIDPage() {
 													errors.trackingCode
 														? `input-error`
 														: `input-success`
-												} w-full`}
+												} bg-slate-200 text-slate-900 w-full`}
 												type="text"
 												placeholder="Insira o código de Rastreio"
 												{...register("trackingCode")} // Registrar o input
@@ -801,8 +818,8 @@ function MySaleByIDPage() {
 										<button
 											onClick={handleDelivered}
 											className="btn btn-primary w-full">
-											<span>Marcar como entregue</span>
 											<LuPackageCheck size={20} />
+											<span>Marcar como entregue</span>
 										</button>
 									)}
 								</div>

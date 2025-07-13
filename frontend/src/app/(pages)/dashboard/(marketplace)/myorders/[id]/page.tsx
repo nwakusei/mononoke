@@ -551,10 +551,10 @@ function MyOrderByIDPage() {
 
 								<div>{`Status: ${translateOrderShipping()}`}</div>
 
-								<div className="flex flex-row gap-2">
+								<div className="flex flex-row justify-center items-center gap-2">
 									Cód. de Rastreio:
 									{myorder && myorder?.trackingCode ? (
-										<div className="bg-primary text-white cursor-pointer transition-all ease-in duration-150 active:scale-[.95] rounded shadow-md px-2">
+										<div className="bg-primary text-white text-sm text-center cursor-pointer transition-all ease-in duration-150 active:scale-[.95] rounded shadow-md px-2">
 											{myorder?.trackingCode}
 										</div>
 									) : (
@@ -582,8 +582,8 @@ function MyOrderByIDPage() {
 								)}
 
 								{myorder?.statusShipping === "Delivered" &&
-									myorder?.markedDeliveredBy ===
-										"partner" && (
+									myorder?.markedDeliveredBy === "partner" &&
+									myorder?.statusOrder !== "Completed" && (
 										<div className="mt-4 mb-2">
 											{packedLoading ? (
 												<button className="btn btn-primary w-full">
@@ -593,10 +593,10 @@ function MyOrderByIDPage() {
 												<button
 													onClick={handleNotReceived}
 													className="btn btn-primary w-full">
+													<LuPackageX size={20} />
 													<span>
 														Não recebi o pedido
 													</span>
-													<LuPackageX size={20} />
 												</button>
 											)}
 										</div>

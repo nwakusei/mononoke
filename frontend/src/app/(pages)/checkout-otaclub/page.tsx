@@ -116,9 +116,11 @@ function CheckoutOtaclubPage() {
 
 			Swal.fire({
 				title: response.data.message,
-				text: "Qualquer coisa",
 				icon: "success",
-				width: 700,
+				width: 900,
+				customClass: {
+					confirmButton: "swal2-custom-confirm",
+				},
 			});
 		} catch (error: any) {
 			Swal.fire({
@@ -234,7 +236,7 @@ function CheckoutOtaclubPage() {
 								<div className="flex flex-row gap-4">
 									<div>
 										<Image
-											src={`http://backend:5000/images/products/${product.imageProduct}`}
+											src={`http://backend:5000/images/products/${product.productImage}`}
 											alt="Product Image Miniature"
 											width={60}
 											height={10}

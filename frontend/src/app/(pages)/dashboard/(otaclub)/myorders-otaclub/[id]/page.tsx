@@ -266,7 +266,7 @@ function MyOrderOtaclubByIDPage() {
 								</table>
 							</div>
 							<div>
-								<h1 className="text-xl text-black">
+								<h1 className="text-black font-semibold">
 									Método de Pagamento
 								</h1>
 								<div className="text-black">
@@ -312,7 +312,14 @@ function MyOrderOtaclubByIDPage() {
 						{/* Gadget 4 */}
 						<div className="bg-white  w-[325px] p-6 rounded-md shadow-md mt-4">
 							<div className="mb-4 text-black">
-								<h1>{`Transportadora: ${myorder?.shippingMethod}`}</h1>
+								<div>
+									{`Tranportadora: ${
+										myorder?.logisticOperator !== undefined
+											? myorder?.logisticOperator
+											: "A definir"
+									}`}
+								</div>
+
 								{/* {myorder?.shippingCostTotal ? (
                                     <h2>
                                         {`Custo do Frete: ${`${
@@ -345,10 +352,10 @@ function MyOrderOtaclubByIDPage() {
 											<button
 												onClick={handleReceived}
 												className="btn btn-primary w-full mb-4">
+												<LuPackageCheck size={20} />
 												<span>
 													Marcar como recebido
 												</span>
-												<LuPackageCheck size={20} />
 											</button>
 										)}
 									</div>

@@ -1061,7 +1061,20 @@ class OrderController {
 				return;
 			}
 
-			order.statusOrder = "Delivered";
+			switch (user.accountType) {
+				case "partner":
+					order.statusOrder = "Delivered";
+					break;
+				case "customer":
+					order.statusOrder = "Completed";
+					break;
+				default:
+					res.status(422).json({
+						message: "Tipo de usuário inválido!",
+					});
+					return;
+			}
+
 			order.statusShipping = "Delivered";
 			order.markedDeliveredBy = user.accountType;
 			order.markedDeliveredAt = new Date(); // Aqui você insere a data atual
@@ -1070,7 +1083,7 @@ class OrderController {
 				// Requisição teste para ativar outra requisição dentro da API
 				const transactionRequestConfig: AxiosRequestConfig = {
 					method: "post",
-					url: "http://localhost:5000/otakupay/realease-values",
+					url: "http://localhost:5000/otakupay/release-values",
 					headers: {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${token}`, // Se precisar de um token de autenticação
@@ -1157,7 +1170,20 @@ class OrderController {
 				return;
 			}
 
-			order.statusOrder = "Delivered";
+			switch (user.accountType) {
+				case "partner":
+					order.statusOrder = "Delivered";
+					break;
+				case "customer":
+					order.statusOrder = "Completed";
+					break;
+				default:
+					res.status(422).json({
+						message: "Tipo de usuário inválido!",
+					});
+					return;
+			}
+
 			order.statusShipping = "Delivered";
 			order.markedDeliveredBy = user.accountType;
 			order.markedDeliveredAt = new Date(); // Aqui você insere a data atual

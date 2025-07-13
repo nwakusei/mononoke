@@ -5787,12 +5787,12 @@ class OtakupayController {
 				order.partnerCommissionOtamart;
 
 			if (
-				!partnerCommissionOtamartEncrypted ||
-				partnerCommissionOtamartEncrypted === null
+				partnerCommissionOtamartEncrypted === null ||
+				partnerCommissionOtamartEncrypted === undefined
 			) {
 				res.status(404).json({
-					messsage:
-						"Valor da Comissão a ser Paga pelo Parceiro encontrado!",
+					message:
+						"Valor da Comissão a ser Paga pelo Parceiro não encontrado!",
 				});
 				return;
 			}
@@ -5807,12 +5807,12 @@ class OtakupayController {
 			);
 
 			if (
-				!partnerCommissionOtamartDecrypted ||
-				partnerCommissionOtamartDecrypted === null
+				partnerCommissionOtamartDecrypted === null ||
+				partnerCommissionOtamartDecrypted === undefined
 			) {
 				res.status(404).json({
-					messsage:
-						"Valor da Comissão a ser Paga pelo Parceiro encontrado!",
+					message:
+						"Valor da Comissão a ser Paga pelo Parceiro não encontrado!",
 				});
 				return;
 			}
@@ -5824,7 +5824,6 @@ class OtakupayController {
 
 			const orderCostTotalWithoutCommission =
 				orderCostSubtotal - partnerCommissionOtamartDecrypted;
-
 			console.log(
 				"Subtotal do Pedido sem a Comissão a ser Paga pelo Parceiro",
 				orderCostTotalWithoutCommission
@@ -6205,7 +6204,16 @@ class OtakupayController {
 			const partnerCommissionOtaclubEncrypted =
 				order.partnerCommissionOtaclub;
 
-			if (!partnerCommissionOtaclubEncrypted) {
+			console.log(
+				"COMMISSÃO DO PARCEIRO OTACLUB CRIPTOGRAFADA",
+				partnerCommissionOtaclubEncrypted
+			);
+
+			// Valida explicitamente se o valor é nulo ou indefinido (não apenas falsy)
+			if (
+				partnerCommissionOtaclubEncrypted === null ||
+				partnerCommissionOtaclubEncrypted === undefined
+			) {
 				res.status(404).json({
 					message: "Comissão do Parceiro não encontrada!",
 				});
@@ -6216,7 +6224,16 @@ class OtakupayController {
 				partnerCommissionOtaclubEncrypted.toString()
 			);
 
-			if (!partnerCommissionOtaclubDecrypted) {
+			console.log(
+				"COMMISSÃO DO PARCEIRO OTACLUB DESCRIPTOGRAFADA",
+				partnerCommissionOtaclubDecrypted
+			);
+
+			// Mesmo princípio: valida apenas null ou undefined
+			if (
+				partnerCommissionOtaclubDecrypted === null ||
+				partnerCommissionOtaclubDecrypted === undefined
+			) {
 				res.status(404).json({
 					message: "Comissão do Parceiro não encontrada!",
 				});
