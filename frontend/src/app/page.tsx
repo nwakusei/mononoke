@@ -2,6 +2,8 @@ import Image from "next/image";
 
 // Imaagens
 import Banner from "../../public/banner.png";
+import marketplace from "../../public/ecommerce.png";
+import cashback from "../../public/cashback.png";
 
 function HomePage() {
 	return (
@@ -16,58 +18,46 @@ function HomePage() {
 					priority
 				/>
 			</div>
-			<div className="bg-yellow-500 col-start-2 col-span-6">
+			<div className="bg-white text-black col-start-2 col-span-6 rounded-xl shadow-md">
 				<h1 className="text-2xl font-semibold mb-2">
-					O que é o "Otaku Prime"?
+					Shop any store in Japan.
 				</h1>
-				<p>
-					Somos o primeiro programa de benefícios totalmente voltado
-					para Otakus.
-				</p>
+				<p className="text-xl">We'll buy and ship it to you.</p>
 			</div>
 
-			<div className="bg-yellow-500 col-start-2 col-span-6">
+			<div className="bg-white text-black col-start-2 col-span-6 rounded-xl shadow-md px-8">
 				<h1 className="text-2xl font-semibold mb-2">
-					O que oferecemos?!
+					Multi Plataforma
 				</h1>
-				<p>
-					O Otaku Prime oferece diversos benefícios, pra você ou pra
-					sua loja: <br />
-					◉ Cashbacks* exclusivos em lojas parceiras <br />
-					◉ Cupons de desconto exclusivos em lojas parceiras
-					<br />◉ Temos um Market Place voltados para itens
-					promocionais
-				</p>
-			</div>
+				<p className="text-xl mb-4">Aproveito os diveros benefícios.</p>
 
-			<div className="bg-yellow-500 col-start-2 col-span-6">
-				<h2 className="text-2xl font-semibold mb-2">
-					Que tal aproveitar todos os nossos Benefícios?
-				</h2>
-				<p>Cadastre-se agora mesmo e explore o Otaku Prime</p>
-			</div>
+				<div className="flex flex-row gap-8">
+					<div className="flex flex-col items-center justify-center">
+						<Image
+							className="w-[80px]"
+							src={marketplace}
+							alt=""
+							width={10}
+							height={10}
+							unoptimized
+							priority
+						/>
+						<span>Marketplace</span>
+					</div>
 
-			<div className="bg-yellow-500 col-start-2 col-span-6">
-				<h3 className="text-2xl font-semibold mb-2">
-					Ainda possui dúvidas?
-				</h3>
-				<p>Acesse nossa FAQ</p>
-			</div>
-
-			<div className="bg-yellow-500">
-				<p>COLUNA 5</p>
-			</div>
-
-			<div className="bg-yellow-500">
-				<p>COLUNA 6</p>
-			</div>
-
-			<div className="bg-yellow-500">
-				<p>COLUNA 7</p>
-			</div>
-
-			<div className="bg-yellow-500">
-				<p>COLUNA 8</p>
+					<div className="flex flex-col items-center justify-center">
+						<Image
+							className="w-[80px]"
+							src={cashback}
+							alt=""
+							width={10}
+							height={10}
+							unoptimized
+							priority
+						/>
+						<span>Cashback</span>
+					</div>
+				</div>
 			</div>
 		</section>
 	);

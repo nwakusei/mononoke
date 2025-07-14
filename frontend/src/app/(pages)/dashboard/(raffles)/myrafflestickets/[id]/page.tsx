@@ -18,8 +18,9 @@ import api from "@/utils/api";
 // Icons
 import { Coupon } from "@icon-park/react";
 import { BsPersonFill } from "react-icons/bs";
-import { LuCalendarRange } from "react-icons/lu";
+import { LuCalendarRange, LuPackageCheck } from "react-icons/lu";
 import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
+import { toast } from "react-toastify";
 
 function MyRafflesTicketsByID() {
 	const [raffle, setRaffle] = useState({});
@@ -28,6 +29,25 @@ function MyRafflesTicketsByID() {
 	const { id } = useParams();
 	const [loadingBtn, setLoadingBtn] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [packedLoading, setPackedLoading] = useState(false);
+
+	const [user, setUser] = useState(null); // Inicializa como null para identificar se já foi carregado
+
+	useEffect(() => {
+		api.get("/mononoke/check-user", {
+			headers: {
+				Authorization: `Bearer ${JSON.parse(token)}`,
+			},
+		})
+			.then((response) => {
+				setUser(response.data);
+				setIsLoading(false); // Termina o loading após os dados serem carregados
+			})
+			.catch((error) => {
+				console.error("Erro ao buscar usuário:", error);
+				setIsLoading(false); // Mesmo se der erro, encerra o loading
+			});
+	}, [token]);
 
 	useEffect(() => {
 		api.get(`/raffles/customer-tickets/${id}`, {
@@ -61,6 +81,27 @@ function MyRafflesTicketsByID() {
 
 		fetchRaffle();
 	}, [id, token]);
+
+	async function handleReceived() {
+		setPackedLoading(true);
+		try {
+			const response = await api.patch(
+				`/raffles/raffle-mark-delivered/${id}`
+			);
+
+			// Atualizar o estado localmente para refletir a mudança no status
+			setRaffle((prevMysale) => ({
+				...prevMysale,
+				statusShipping: "Entregue", // Alteração do status local
+			}));
+
+			toast.success(response.data.message);
+		} catch (error: any) {
+			console.log(error);
+			toast.error(error.response.data.message);
+		}
+		setPackedLoading(false);
+	}
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -115,6 +156,51 @@ function MyRafflesTicketsByID() {
 							})}
 					</div>
 				</div>
+
+				{raffle.winner?.customerID === user?._id && (
+					<div className="flex flex-col bg-white rounded-md shadow-md mt-4 ml-4 mr-8">
+						<div className="w-full bg-primary text-center text-xl py-2 rounded-t-md shadow-md select-none mb-6">
+							Logística
+						</div>
+
+						<div className="ml-4 text-black">
+							{`Transportadora: ${
+								raffle?.logisticOperator
+									? raffle?.logisticOperator
+									: "A definir"
+							}`}
+						</div>
+
+						<div className="ml-4 mb-4 text-black">{`Status de Envio: ${raffle?.statusShipping}`}</div>
+
+						{/* {myraffle?.trackingCode !== "" && (
+										<div className="flex flex-row items-center ml-4 mb-4 gap-2">
+											<div className="text-black">Cod. de Rastreio:</div>
+											<div className="bg-primary text-sm cursor-pointer transition-all ease-in duration-150 active:scale-[.95] rounded shadow-md px-2">
+												{myraffle?.trackingCode}
+											</div>
+										</div>
+									)}
+				 */}
+
+						{raffle?.statusShipping === "Shipped" && (
+							<div className="mt-4 mb-2">
+								{packedLoading ? (
+									<button className="btn btn-primary w-[300px]">
+										<span className="loading loading-spinner loading-sm"></span>
+									</button>
+								) : (
+									<button
+										onClick={handleReceived}
+										className="btn btn-primary w-[300px]">
+										<LuPackageCheck size={20} />
+										<span>Marcar como recebido</span>
+									</button>
+								)}
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 		</section>
 	);

@@ -74,6 +74,17 @@ router.post(
 	OtakupayController.webhookAWSLambdaReleaseValuesOtaclub
 );
 
+router.post(
+	"/raffle-release-values",
+	verifyToken,
+	OtakupayController.releaseOfValuesRaffle
+);
+
+// router.post(
+// 	"/raffle-lambda-release-values",
+// 	OtakupayController.webhookAWSLambdaReleaseValuesOtaclub
+// );
+
 router.get(
 	"/transactions",
 	verifyToken,

@@ -6494,7 +6494,10 @@ class OtakupayController {
 			const partnerOtakuPointsPendingEncrypted =
 				partnerOtakupay?.otakuPointsPending;
 
-			if (!partnerOtakuPointsPendingEncrypted) {
+			if (
+				partnerOtakuPointsPendingEncrypted === null ||
+				partnerOtakuPointsPendingEncrypted === undefined
+			) {
 				res.status(404).json({
 					message:
 						"Otaku Points Pendentes Criptografado do Parceiro não encontrado!",
@@ -6503,10 +6506,13 @@ class OtakupayController {
 			}
 
 			const partnerOtakuPointsPendingDencrypted = decrypt(
-				partnerOtakuPointsPendingEncrypted
+				partnerOtakuPointsPendingEncrypted.toString()
 			);
 
-			if (!partnerOtakuPointsPendingDencrypted) {
+			if (
+				partnerOtakuPointsPendingDencrypted === null ||
+				partnerOtakuPointsPendingDencrypted === undefined
+			) {
 				res.status(404).json({
 					message:
 						"Otaku Points Pendentes Descriptografado do Parceiro não encontrado!",
@@ -6515,11 +6521,14 @@ class OtakupayController {
 			}
 
 			const raffleAccumulatedValueEncrypted =
-				raffle.raffleAccumulatedValue.toString();
+				raffle.raffleAccumulatedValue?.toString();
 
-			if (!raffleAccumulatedValueEncrypted) {
+			if (
+				raffleAccumulatedValueEncrypted === null ||
+				raffleAccumulatedValueEncrypted === undefined
+			) {
 				res.status(404).json({
-					messsage:
+					message:
 						"Valor total do Sorteio criptografado não encontrado!",
 				});
 				return;
@@ -6529,9 +6538,12 @@ class OtakupayController {
 				raffleAccumulatedValueEncrypted
 			);
 
-			if (!raffleAccumulatedValueDecrypted) {
+			if (
+				raffleAccumulatedValueDecrypted === null ||
+				raffleAccumulatedValueDecrypted === undefined
+			) {
 				res.status(404).json({
-					messsage:
+					message:
 						"Valor total do Sorteio descriptografado não encontrado!",
 				});
 				return;
@@ -6540,7 +6552,10 @@ class OtakupayController {
 			const rafflePartnerCommissionEncrypted =
 				raffle.rafflePartnerCommission;
 
-			if (!rafflePartnerCommissionEncrypted) {
+			if (
+				rafflePartnerCommissionEncrypted === null ||
+				rafflePartnerCommissionEncrypted === undefined
+			) {
 				res.status(404).json({
 					message: "Comissão do Parceiro não encontrada!",
 				});
@@ -6551,7 +6566,10 @@ class OtakupayController {
 				rafflePartnerCommissionEncrypted.toString()
 			);
 
-			if (!rafflePartnerCommissionDecrypted) {
+			if (
+				rafflePartnerCommissionDecrypted === null ||
+				rafflePartnerCommissionDecrypted === undefined
+			) {
 				res.status(404).json({
 					message: "Comissão do Parceiro não encontrada!",
 				});
@@ -6588,7 +6606,6 @@ class OtakupayController {
 				parterOtakuPointsAvailableEncrypted.toString()
 			);
 
-			// Aqui verifica se o resultado é null ou undefined, não zero
 			if (
 				parterOtakuPointsAvailableDencrypted === null ||
 				parterOtakuPointsAvailableDencrypted === undefined

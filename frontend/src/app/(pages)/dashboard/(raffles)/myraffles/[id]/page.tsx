@@ -122,8 +122,11 @@ function MyRafflesByID() {
 				text: `O vencedor foi: ${
 					myraffle?.winner?.customerName || "Desconhecido"
 				}`,
-				width: 800,
+				width: 900,
 				icon: "success",
+				customClass: {
+					confirmButton: "swal2-custom-confirm",
+				},
 			});
 		}
 	}, [counter, raffleStatus]);
@@ -167,6 +170,25 @@ function MyRafflesByID() {
 		setLoadingBtn(false);
 	}
 
+	async function handlePacked() {
+		setPackedLoading(true);
+		try {
+			const response = await api.patch(`/raffles/mark-packed/${id}`);
+
+			// Atualizar o estado localmente para refletir a mudança no status
+			setMyraffle((prevMysale) => ({
+				...prevMysale,
+				statusShipping: "Embalado", // Alteração do status local
+			}));
+
+			toast.success(response.data.message);
+		} catch (error: any) {
+			console.log(error);
+			toast.error(error.response.data.message);
+		}
+		setPackedLoading(false);
+	}
+
 	async function handleTracking(data) {
 		const logisticOperator = data.logisticOperator;
 		const trackingCode = data.trackingCode;
@@ -192,25 +214,6 @@ function MyRafflesByID() {
 			console.error("Erro ao atualizar o código de rastreamento:", error);
 		}
 		setTrackingLoading(false);
-	}
-
-	async function handlePacked() {
-		setPackedLoading(true);
-		try {
-			const response = await api.patch(`/raffles/mark-packed/${id}`);
-
-			// Atualizar o estado localmente para refletir a mudança no status
-			setMyraffle((prevMysale) => ({
-				...prevMysale,
-				statusShipping: "Embalado", // Alteração do status local
-			}));
-
-			toast.success(response.data.message);
-		} catch (error: any) {
-			console.log(error);
-			toast.error(error.response.data.message);
-		}
-		setPackedLoading(false);
 	}
 
 	async function handleDelivered() {
@@ -614,8 +617,8 @@ function MyRafflesByID() {
 								<button
 									onClick={handlePacked}
 									className="btn btn-primary w-[300px]">
-									<span>Marcar como embalado</span>
 									<LuPackage size={20} />
+									<span>Marcar como embalado</span>
 								</button>
 							)}
 						</div>
@@ -641,7 +644,7 @@ function MyRafflesByID() {
 											errors.logisticOperator
 												? `select-error`
 												: `select-success`
-										} w-full max-w-xs`}
+										} bg-slate-200 text-slate-900 w-full max-w-xs`}
 										defaultValue=""
 										{...register("logisticOperator")} // Registrar o select
 									>
@@ -683,7 +686,7 @@ function MyRafflesByID() {
 											errors.trackingCode
 												? `input-error`
 												: `input-success`
-										} w-full`}
+										} bg-slate-200 text-slate-900 w-full`}
 										type="text"
 										placeholder="Insira o código de Rastreio"
 										{...register("trackingCode")} // Registrar o input
@@ -726,8 +729,8 @@ function MyRafflesByID() {
 								<button
 									onClick={handleDelivered}
 									className="btn btn-primary w-[300px]">
-									<span>Marcar como entregue</span>
 									<LuPackageCheck size={20} />
+									<span>Marcar como entregue</span>
 								</button>
 							)}
 						</div>

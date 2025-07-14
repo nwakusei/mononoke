@@ -14,6 +14,7 @@ import { CustomerModel } from "../models/CustomerModel.js";
 import { PartnerModel } from "../models/PartnerModel.js";
 import { console } from "inspector";
 import { TransactionModel } from "../models/TransactionModel.js";
+import axios, { AxiosRequestConfig } from "axios";
 
 // Chave para criptografar e descriptografar dados sensíveis no Banco de Dados
 const secretKey = process.env.AES_SECRET_KEY as string;
@@ -174,7 +175,8 @@ class RaffleController {
 				adultRaffle: adultRaffle,
 				partnerID: partner.id,
 				// winner: {},
-				statusShipping: "", // Status de envio inicial
+				statusShipping: "Pending", // Status de envio inicial
+				trackingCode: "",
 			});
 
 			// Percorrer o Array de imagens e adicionar cada uma a uma ao sorteio que será criado
@@ -456,7 +458,7 @@ class RaffleController {
 			}
 
 			const newPartnerOtakuPointPedingDecrypted =
-				partnerOtakuPointPedingDecrypted + Number(raffleCost);
+				Number(partnerOtakuPointPedingDecrypted) + Number(raffleCost);
 
 			const newPartnerOtakuPointPedingEncrypted = encrypt(
 				newPartnerOtakuPointPedingDecrypted.toString()
@@ -546,6 +548,7 @@ class RaffleController {
 
 			// Salve as alterações no sorteio
 			await raffle.save();
+			await partnerOtakuPay.save();
 			await newTransaction.save();
 
 			// Responda com o novo ticket
@@ -646,6 +649,8 @@ class RaffleController {
 					postalCode: customer.address[0].postalCode || "",
 				},
 			};
+
+			raffle.raffleStatus = "Executed";
 
 			await raffle.save();
 
@@ -1069,12 +1074,106 @@ class RaffleController {
 		}
 	}
 
+	// static async raffleMarkDelivered(req: Request, res: Response) {
+	// 	const { id } = req.params;
+
+	// 	if (!id) {
+	// 		res.status(422).json({
+	// 			message: "O ID do pedido é obrigatório!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	const token: any = getToken(req);
+	// 	const user = await getUserByToken(token);
+
+	// 	if (!user) {
+	// 		res.status(422).json({
+	// 			message: "Usuário não encontrado!",
+	// 		});
+	// 		return;
+	// 	}
+
+	// 	try {
+	// 		const raffle = await RaffleModel.findById(id);
+
+	// 		if (!raffle) {
+	// 			res.status(422).json({
+	// 				message: "Sorteio não encontrado!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		if (raffle.statusShipping === "Delivered") {
+	// 			res.status(422).json({
+	// 				message: "Sorteio já marcado como entregue!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		if (
+	// 			raffle.statusShipping !== "Shipped" &&
+	// 			raffle.statusShipping !== "Not Delivered"
+	// 		) {
+	// 			res.status(422).json({
+	// 				message: "O Pedido não pode ser marcado como entregue!",
+	// 			});
+	// 			return;
+	// 		}
+
+	// 		raffle.raffleStatus = "Delivered";
+	// 		raffle.statusShipping = "Delivered";
+	// 		raffle.markedDeliveredBy = user.accountType;
+	// 		raffle.markedDeliveredAt = new Date(); // Aqui você insere a data atual
+
+	// 		// if (user.accountType === "customer") {
+	// 		// 	// Requisição teste para ativar outra requisição dentro da API
+	// 		// 	const transactionRequestConfig: AxiosRequestConfig = {
+	// 		// 		method: "post",
+	// 		// 		url: "http://localhost:5000/otakupay/realease-values",
+	// 		// 		headers: {
+	// 		// 			"Content-Type": "application/json",
+	// 		// 			Authorization: `Bearer ${token}`, // Se precisar de um token de autenticação
+	// 		// 		},
+	// 		// 		data: {
+	// 		// 			// Dados que precisam ser enviados para a transação
+	// 		// 			orderId: order._id,
+	// 		// 		},
+	// 		// 	};
+
+	// 		// 	const transactionResponse = await axios(
+	// 		// 		transactionRequestConfig
+	// 		// 	);
+
+	// 		// 	if (transactionResponse.status !== 200) {
+	// 		// 		console.log(
+	// 		// 			"Erro ao processar a transação, status:",
+	// 		// 			transactionResponse.status
+	// 		// 		);
+	// 		// 		res.status(500).json({
+	// 		// 			message: "Erro ao processar a transação!",
+	// 		// 		});
+	// 		// 		return;
+	// 		// 	}
+	// 		// }
+
+	// 		await raffle.save(); // Salva as alterações no banco de dados
+
+	// 		res.status(200).json({
+	// 			message: "Pedido marcado como entregue com sucesso!",
+	// 		});
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		res.status(500).json({ message: "Erro ao marcar como entregue!" });
+	// 	}
+	// }
+
 	static async raffleMarkDelivered(req: Request, res: Response) {
 		const { id } = req.params;
 
 		if (!id) {
 			res.status(422).json({
-				message: "O ID do pedido é obrigatório!",
+				message: "O ID do Sorteio é obrigatório!",
 			});
 			return;
 		}
@@ -1094,14 +1193,14 @@ class RaffleController {
 
 			if (!raffle) {
 				res.status(422).json({
-					message: "Pedido não encontrado!",
+					message: "Sorteio não encontrado!",
 				});
 				return;
 			}
 
 			if (raffle.statusShipping === "Delivered") {
 				res.status(422).json({
-					message: "Pedido já marcado como entregue!",
+					message: "Sorteio já marcado como entregue!",
 				});
 				return;
 			}
@@ -1111,51 +1210,66 @@ class RaffleController {
 				raffle.statusShipping !== "Not Delivered"
 			) {
 				res.status(422).json({
-					message: "O Pedido não pode ser marcado como entregue!",
+					message: "O Sorteio não pode ser marcado como entregue!",
 				});
 				return;
 			}
 
-			raffle.raffleStatus = "Delivered";
+			switch (user.accountType) {
+				case "partner":
+					raffle.raffleStatus = "Delivered";
+					break;
+				case "customer":
+					raffle.raffleStatus = "Completed";
+					break;
+				default:
+					res.status(422).json({
+						message: "Tipo de usuário inválido!",
+					});
+					return;
+			}
+
 			raffle.statusShipping = "Delivered";
 			raffle.markedDeliveredBy = user.accountType;
 			raffle.markedDeliveredAt = new Date(); // Aqui você insere a data atual
 
-			// if (user.accountType === "customer") {
-			// 	// Requisição teste para ativar outra requisição dentro da API
-			// 	const transactionRequestConfig: AxiosRequestConfig = {
-			// 		method: "post",
-			// 		url: "http://localhost:5000/otakupay/realease-values",
-			// 		headers: {
-			// 			"Content-Type": "application/json",
-			// 			Authorization: `Bearer ${token}`, // Se precisar de um token de autenticação
-			// 		},
-			// 		data: {
-			// 			// Dados que precisam ser enviados para a transação
-			// 			orderId: order._id,
-			// 		},
-			// 	};
+			if (user.accountType === "customer") {
+				// Requisição teste para ativar outra requisição dentro da API
+				const transactionRequestConfig: AxiosRequestConfig = {
+					method: "post",
+					url: "http://localhost:5000/otakupay/raffle-release-values",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`, // Se precisar de um token de autenticação
+					},
+					data: {
+						// Dados que precisam ser enviados para a transação
+						raffleID: raffle._id,
+					},
+				};
 
-			// 	const transactionResponse = await axios(
-			// 		transactionRequestConfig
-			// 	);
+				const transactionResponse = await axios(
+					transactionRequestConfig
+				);
 
-			// 	if (transactionResponse.status !== 200) {
-			// 		console.log(
-			// 			"Erro ao processar a transação, status:",
-			// 			transactionResponse.status
-			// 		);
-			// 		res.status(500).json({
-			// 			message: "Erro ao processar a transação!",
-			// 		});
-			// 		return;
-			// 	}
-			// }
+				if (transactionResponse.status !== 200) {
+					console.log(
+						"Erro ao processar a transação, status:",
+						transactionResponse.status
+					);
+					res.status(500).json({
+						message: "Erro ao processar a transação!",
+					});
+					return;
+				}
+			}
+
+			// raffle.dateMarkedPacked = new Date(); // Aqui você insere a data atual
 
 			await raffle.save(); // Salva as alterações no banco de dados
 
 			res.status(200).json({
-				message: "Pedido marcado como entregue com sucesso!",
+				message: "Sorteio marcado como entregue com sucesso!",
 			});
 		} catch (error) {
 			console.log(error);
