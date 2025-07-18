@@ -203,8 +203,8 @@ function CheckoutCreditCardInstallmentsContent({
 			id="paymentBrick_container"
 			className="border-[1px] border-black border-opacity-20 bg-white rounded-md shadow-md p-4">
 			<div className="flex flex-row justify-center items-center w-[650px] bg-primary px-2 py-1 gap-2 rounded shadow-md mt-4 mb-4">
-				<h1 className="select-none">Pague com Cartão de Crédito</h1>
 				<PiCreditCardBold size={17} />
+				<span className="select-none">Pague com Cartão de Crédito</span>
 			</div>
 			<CardPayment
 				initialization={initialization}

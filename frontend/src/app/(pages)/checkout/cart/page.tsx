@@ -1036,24 +1036,26 @@ function CartPage() {
 					<ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
 						<li className="step step-primary">
 							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded shadow-md">
-								<p>Carrinho</p> <ShoppingCartOne size={18} />
+								<ShoppingCartOne size={18} />
+								<p>Carrinho</p>
 							</span>
 						</li>
 						<li className="step">
 							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded shadow-md">
-								<p>Entrega</p>
 								<LiaShippingFastSolid size={18} />
+								<p>Entrega</p>
 							</span>
 						</li>
 						<li className="step">
 							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded shadow-md">
-								<p>Revisão</p> <BiIdCard size={20} />
+								<BiIdCard size={20} />
+								<p>Revisão</p>
 							</span>
 						</li>
 						<li className="step">
 							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded shadow-md">
-								<p>Pagamento</p>
 								<PiCreditCardBold size={20} />
+								<p>Pagamento</p>
 							</span>
 						</li>
 					</ul>

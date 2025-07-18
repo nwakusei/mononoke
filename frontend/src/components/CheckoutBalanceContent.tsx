@@ -87,8 +87,8 @@ function CheckoutBalanceContent({ products, shippingCost, coupons, token }) {
 	return (
 		<div className="border-[1px] border-black border-opacity-20 bg-white rounded-md shadow-md p-4 -mt-12">
 			<div className="flex flex-row justify-center items-center w-[650px] bg-primary px-2 py-1 gap-1 rounded shadow-md mb-8">
-				<h1 className="select-none">Pague com Saldo em Conta!</h1>
 				<PaymentMethod size={17} />
+				<span className="select-none">Pague com Saldo em Conta</span>
 			</div>
 			<div className="flex flex-row justify-center items-center gap-4">
 				{payLoading ? (

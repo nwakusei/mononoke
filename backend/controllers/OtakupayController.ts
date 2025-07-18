@@ -3159,7 +3159,7 @@ class OtakupayController {
 			return;
 		}
 
-		const customerCPF = customer.cpf.toString().replace(/\D/g, "");
+		const customerCPF = decrypt(customer.cpf)
 
 		if (!customerCPF) {
 			res.status(422).json({
@@ -3180,7 +3180,7 @@ class OtakupayController {
 					nome: customerOtakupay.name,
 				},
 				valor: {
-					original: originalValue,
+					original: originalValue.toFixed(2),
 					modalidadeAlteracao: 0,
 				},
 				chave: process.env.INTER_PIX_KEY,

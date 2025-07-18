@@ -77,8 +77,8 @@ function PaymentPage() {
 
 	const [isFreightSimulated, setIsFreightSimulated] = useState(false);
 
-	// constante para teste PIX
-	const totalPedido2 = 0.01;
+	// // constante para teste PIX
+	// const totalPedido2 = 0.01;
 
 	const productsList = productsInCart.map((product) => ({
 		productID: product.productID,
@@ -635,7 +635,7 @@ function PaymentPage() {
 	const showPixPaymentContent = async () => {
 		setVisiblePaymentContent("pixContent");
 
-		await handleQRCode(totalPedido2);
+		await handleQRCode(totalPedido);
 	};
 
 	const showCreditCardContent = () => {
@@ -703,24 +703,26 @@ function PaymentPage() {
 					<ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
 						<li className="step step-primary">
 							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
-								<p>Carrinho</p> <ShoppingCartOne size={18} />
+								<ShoppingCartOne size={18} />
+								<p>Carrinho</p>
 							</span>
 						</li>
 						<li className="step step-primary">
 							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
-								<p>Entrega</p>
 								<LiaShippingFastSolid size={18} />
+								<p>Entrega</p>
 							</span>
 						</li>
 						<li className="step step-primary">
 							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
-								<p>Revisão</p> <BiIdCard size={20} />
+								<BiIdCard size={20} />
+								<p>Revisão</p>
 							</span>
 						</li>
 						<li className="step step-primary">
 							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
-								<p>Pagamento</p>
 								<PiCreditCardBold size={20} />
+								<p>Pagamento</p>
 							</span>
 						</li>
 					</ul>

@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 
 import api from "@/utils/api";
 import { toast } from "react-toastify";
+import { FaArrowDownLong } from "react-icons/fa6";
 
 function CheckoutPixContent({
 	qrCodeUrl,
@@ -102,8 +103,8 @@ function CheckoutPixContent({
 	return (
 		<div className="flex flex-col justify-center items-center border-[1px] border-black border-opacity-20 bg-white rounded-md shadow-md p-4 -mt-12">
 			<div className="flex flex-row justify-center items-center w-[650px] bg-primary px-2 py-1 gap-1 rounded shadow-md mb-4">
-				<h1 className="select-none">Pague com Pix!</h1>
 				<MdOutlinePix size={16} />
+				<span className="select-none">Pague com Pix</span>
 			</div>
 			<div className="flex flex-col justify-center items-center gap-8 text-black mb-6">
 				<div>
@@ -121,11 +122,13 @@ function CheckoutPixContent({
 						</div>
 					) : (
 						<div className="flex justify-center items-center border border-1 border-dashed border-primary w-[210px] h-[210px] rounded">
-							<h2 className="mb-2">Nenhum QR Code gerado</h2>
+							<h2 className="mb-2 text-sm">
+								Nenhum QR Code gerado
+							</h2>
 						</div>
 					)}
 				</div>
-				<div className="divider divider-vertical divider-success">
+				<div className="divider divider-vertical divider-primary">
 					OU
 				</div>
 				<div className="relative">
@@ -142,6 +145,10 @@ function CheckoutPixContent({
 						</div>
 					)}
 				</div>
+			</div>
+			<div className="flex flex-row items-center justify-center gap-2 w-[480px] text-center text-black mb-8 border-dashed border-info border-[1px] py-2 rounded">
+				<span>Após realizar o pagamento, finalize o pedido.</span>{" "}
+				<FaArrowDownLong size={18} />
 			</div>
 			<button
 				onClick={handlePaymentPix}

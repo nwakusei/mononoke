@@ -16,6 +16,12 @@
 	}
 }
 
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+
+.font-poppins {
+	font-family: "Poppins", sans-serif;
+}
+
 body {
 	color: rgb(var(--foreground-rgb));
 	background: linear-gradient(
@@ -47,9 +53,9 @@ body::-webkit-scrollbar-thumb {
 	border: 3px solid #8357e5;
 }
 
-.bg-home {
+/* .bg-home {
 	@apply bg-gradient-to-b from-[#7759b1] to-[#8357e5];
-}
+} */
 
 .swal2-custom-confirm {
 	@apply bg-[#7250b0] transition-all ease-in duration-150 text-white px-4 py-2 rounded font-semibold shadow hover:bg-[#b3b3b3];

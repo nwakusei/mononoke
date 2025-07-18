@@ -3,9 +3,6 @@ import { OtakupayModel } from "../models/OtakupayModel.js";
 
 // import { CustomerModel } from "../models/CustomerModel.js";
 import crypto from "crypto";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { Multer } from "multer";
-import { isValidObjectId } from "mongoose";
 
 import https from "https";
 import * as fs from "fs";
@@ -146,7 +143,7 @@ class InterApiController {
 
 		const { access_token } = responseToken.data;
 
-		const customerCPF = customer.cpf.toString().replace(/\D/g, "");
+		const customerCPF = decrypt(customer.cpf);
 
 		if (!customerCPF) {
 			res.status(422).json({
@@ -167,7 +164,7 @@ class InterApiController {
 					nome: customerOtakupay.name,
 				},
 				valor: {
-					original: originalValue,
+					original: originalValue.toFixed(2),
 					modalidadeAlteracao: 0,
 				},
 				chave: process.env.INTER_PIX_KEY,

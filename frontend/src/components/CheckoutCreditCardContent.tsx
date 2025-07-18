@@ -65,8 +65,8 @@ function CheckoutCreditCardContent({
 	return (
 		<div className="flex flex-col justify-center items-center">
 			<div className="flex flex-row justify-center items-center w-[650px] bg-primary px-2 py-1 mb-4 gap-1 rounded shadow-md">
-				<h1 className="select-none">Pague com Cartão de Crédito</h1>
-				<PiCreditCardBold size={18} />
+				<PiCreditCardBold size={18} />{" "}
+				<span className="select-none">Pague com Cartão de Crédito</span>
 			</div>
 			{stripePromise && clientSecret && (
 				<Elements stripe={stripePromise} options={{ clientSecret }}>
