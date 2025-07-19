@@ -147,7 +147,7 @@ function MyProductsPage() {
 															<div className="avatar">
 																<div className="mask mask-squircle w-12 h-12">
 																	<Image
-																		src={`http://localhost:5000/images/products/${product.productImages[0]}`}
+																		src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${product.productImages[0]}`}
 																		alt="Avatar Tailwind CSS Component"
 																		width={
 																			12

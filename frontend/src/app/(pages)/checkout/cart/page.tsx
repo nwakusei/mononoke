@@ -1092,7 +1092,7 @@ function CartPage() {
 													<div className="flex justify-center border-[1px] border-black border-opacity-20 bg-white w-28 h-28 rounded shadow-md">
 														<Image
 															className="object-contain h-full"
-															src={`http://localhost:5000/images/products/${
+															src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${
 																productInCart
 																	.productVariations
 																	?.length > 0

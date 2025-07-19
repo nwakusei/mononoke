@@ -125,7 +125,7 @@ function MySalesOtaclubPage() {
 																<div className="avatar">
 																	<div className="mask mask-squircle w-12 h-12">
 																		<Image
-																			src={`http://localhost:5000/images/products/${mysale.itemsList[0].productImage}`}
+																			src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${mysale.itemsList[0].productImage}`}
 																			alt={
 																				mysale
 																					.itemsList[0]

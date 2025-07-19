@@ -92,7 +92,7 @@ function MyRafflesTicketsPage() {
 																	<div className="avatar">
 																		<div className="mask mask-squircle w-12 h-12">
 																			<Image
-																				src={`http://localhost:5000/images/raffles/${myTicket.imagesRaffle[0]}`} // Acessa apenas o índice 0
+																				src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${myTicket.imagesRaffle[0]}`} // Acessa apenas o índice 0
 																				alt={
 																					myTicket
 																						.imagesRaffle[0]

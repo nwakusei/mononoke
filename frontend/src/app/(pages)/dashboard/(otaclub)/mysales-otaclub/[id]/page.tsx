@@ -316,7 +316,7 @@ function MySaleOtaclubByIDPage() {
 																<div>
 																	<div className="w-[60px] pointer-events-none">
 																		<Image
-																			src={`http://localhost:5000/images/products/${item.productImage}`}
+																			src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${item.productImage}`}
 																			alt={
 																				item.productTitle
 																			}

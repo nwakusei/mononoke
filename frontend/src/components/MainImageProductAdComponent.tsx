@@ -49,7 +49,7 @@ const MainImageProductAdComponent = ({ selectedImage, product }) => {
 				{imageUrl && (
 					<Image
 						className="object-contain w-full h-full"
-						src={`http://localhost:5000/images/products/${imageUrl}`}
+						src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${imageUrl}`}
 						alt={product?.productTitle}
 						width={10}
 						height={10}

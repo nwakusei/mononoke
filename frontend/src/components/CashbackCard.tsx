@@ -32,7 +32,7 @@ function CashbackCard({
 					className="object-contain w-full h-full pointer-events-none"
 					src={
 						partnerLogo
-							? `http://localhost:5000/images/partners/${partnerLogo}`
+							? `https://mononokebucket.s3.us-east-1.amazonaws.com/${partnerLogo}`
 							: Otakuyasan
 					}
 					alt="Partner Logo"

@@ -437,16 +437,12 @@ function CreateProductOtaclubPage() {
 		});
 	};
 
-	const [output, setOutput] = useState("");
-
 	async function handleCreateProductOtaclub(productData: {
 		[key: string]: any;
 	}) {
 		console.log(productData);
 
 		setLoadingButton(true);
-
-		setOutput(JSON.stringify(productData, null, 2));
 
 		// Sanitiza os dados antes de usá-los
 		const sanitizedData = Object.fromEntries(
@@ -501,7 +497,7 @@ function CreateProductOtaclubPage() {
 			setLoadingButton(false);
 
 			toast.success(response.data.message);
-			// router.push("/dashboard/myproducts");
+			router.push("/dashboard/myproducts-otaclub");
 			return response.data;
 		} catch (error: any) {
 			toast.error(error.response.data.message);

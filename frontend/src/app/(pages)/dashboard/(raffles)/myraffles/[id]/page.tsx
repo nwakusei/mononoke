@@ -268,7 +268,7 @@ function MyRafflesByID() {
 								{myraffle?.imagesRaffle?.length > 0 && (
 									<Image
 										className="object-contain h-full pointer-events-none"
-										src={`http://localhost:5000/images/raffles/${myraffle.imagesRaffle[0]}`}
+										src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${myraffle.imagesRaffle[0]}`}
 										alt={
 											myraffle?.productTitle ||
 											"Imagem Principal do Sorteio!"
@@ -359,7 +359,7 @@ function MyRafflesByID() {
 									<div className="w-[100px] h-[100px]">
 										<Image
 											className="object-contain w-full h-full pointer-events-none rounded shadow-md"
-											src={`http://localhost:5000/images/customers/${myraffle.winner.customerProfileImage}`}
+											src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${myraffle.winner.customerProfileImage}`}
 											alt="Vencedor"
 											width={260}
 											height={130}
@@ -452,7 +452,7 @@ function MyRafflesByID() {
 														<div>
 															<div className="w-[60px] pointer-events-none">
 																<Image
-																	src={`http://localhost:5000/images/raffles/${myraffle.imagesRaffle[0]}`}
+																	src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${myraffle.imagesRaffle[0]}`}
 																	alt={
 																		myraffle.rafflePrize
 																	}

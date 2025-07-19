@@ -491,12 +491,12 @@ function MyProfilePage() {
 			if (user.accountType === "partner") {
 				setSelectedProfileImage(
 					user?.profileImage
-						? `http://localhost:5000/images/partners/${user.profileImage}`
+						? `https://mononokebucket.s3.us-east-1.amazonaws.com/${user.profileImage}`
 						: ""
 				);
 				setSelectedLogoImage(
 					user?.logoImage
-						? `http://localhost:5000/images/partners/${user.logoImage}`
+						? `https://mononokebucket.s3.us-east-1.amazonaws.com/${user.logoImage}`
 						: ""
 				);
 			} else {

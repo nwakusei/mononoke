@@ -333,7 +333,7 @@ function RafflePage() {
 										<div className="w-[100px] h-[100px]">
 											<Image
 												className="object-contain w-full h-full pointer-events-none rounded-md shadow-md"
-												src={`http://localhost:5000/images/customers/${raffle.winner.customerProfileImage}`}
+												src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${raffle.winner.customerProfileImage}`}
 												alt="Vencedor"
 												width={260}
 												height={130}

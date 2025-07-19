@@ -236,7 +236,7 @@ function CheckoutOtaclubPage() {
 								<div className="flex flex-row gap-4">
 									<div>
 										<Image
-											src={`http://backend:5000/images/products/${product.productImage}`}
+											src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${product.productImage}`}
 											alt="Product Image Miniature"
 											width={60}
 											height={10}

@@ -6,8 +6,17 @@ import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Multer } from "multer";
 import mongoose, { ObjectId, isValidObjectId } from "mongoose";
-
 import slugify from "slugify";
+
+// import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+
+// const s3Client = new S3Client({
+// 	region: process.env.AWS_REGION,
+// 	credentials: {
+// 		accessKeyId: process.env.AWS_ACCESS_KEY!,
+// 		secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+// 	},
+// });
 
 // Middlewares/Helpers
 import getToken from "../helpers/get-token.js";
@@ -47,8 +56,6 @@ class ProductController {
 		const variationImages = req.files as {
 			[key: string]: Express.Multer.File[];
 		};
-
-		console.log("Variation Images:", variationImages); // Debug para verificar a estrutura
 
 		const processedVariations = Array.isArray(productVariations)
 			? productVariations.map((variation: any, index: number) => {
@@ -1133,116 +1140,32 @@ class ProductController {
 		}
 	}
 
-	// Função funcionando anteriormente, caso de problema retornar a ela
-	// static async simulateShipping(req: Request, res: Response) {
-	// 	const {
-	// 		cepDestino,
-	// 		weight,
-	// 		height,
-	// 		width,
-	// 		length,
-	// 		productPrice,
-	// 		productPriceTotal,
-	// 		quantityThisProduct,
-	// 	} = req.body;
-
-	// 	if (!cepDestino) {
-	// 		res.status(422).json({ message: "O CEP é obrigatório!" });
-	// 		return;
-	// 	}
-
-	// 	const kanguApiUrl =
-	// 		"https://portal.kangu.com.br/tms/transporte/simular";
-
-	// 	const tokenKangu = "8bdcdd65ac61c68aa615f3da4a3754b4";
-
-	// 	const requestBody = {
-	// 		cepOrigem: "04821180",
-	// 		cepDestino: cepDestino,
-	// 		vlrMerc: productPriceTotal,
-	// 		pesoMerc: weight * quantityThisProduct,
-	// 		volumes: [
-	// 			{
-	// 				peso: weight * quantityThisProduct + 0.011,
-	// 				altura: height + 0.1,
-	// 				largura: width,
-	// 				comprimento: length,
-	// 				valor: productPrice,
-	// 				quantidade: quantityThisProduct,
-	// 			},
-	// 		],
-	// 		servicos: ["string"],
-	// 	};
-
-	// 	console.log(requestBody);
-
+	// static async deleteImageFromS3(req: Request, res: Response) {
 	// 	try {
-	// 		const response = await fetch(kanguApiUrl, {
-	// 			method: "POST",
-	// 			headers: {
-	// 				"Content-Type": "application/json",
-	// 				token: tokenKangu,
-	// 			},
-	// 			body: JSON.stringify(requestBody),
+	// 		const bucketName = process.env.AWS_BUCKET;
+
+	// 		console.log(bucketName);
+
+	// 		const key = "1752896201517431.jpg";
+
+	// 		if (typeof bucketName !== "string" || typeof key !== "string") {
+	// 			return res.status(400).json({ error: "Parâmetros inválidos." });
+	// 		}
+
+	// 		const command = new DeleteObjectCommand({
+	// 			Bucket: bucketName,
+	// 			Key: key,
 	// 		});
 
-	// 		let data = await response.json();
+	// 		await s3Client.send(command);
 
-	// 		// Verificar se data é um array
-	// 		if (Array.isArray(data)) {
-	// 			// Filtrar apenas as transportadoras dos Correios com os serviços desejados (X, E, M)
-	// 			data = data.filter((transportadora: any) => {
-	// 				const servico = transportadora.servico;
-	// 				return (
-	// 					servico === "X" || servico === "E" || servico === "M"
-	// 				);
-	// 			});
-
-	// 			// Ordenar as transportadoras pelo valor do frete (do mais barato ao mais caro)
-	// 			data.sort((a: any, b: any) => a.vlrFrete - b.vlrFrete);
-
-	// 			console.log(data);
-	// 			res.json(data); // Retorna os dados recebidos da API como resposta
-	// 		} else {
-	// 			console.error(
-	// 				"Os dados retornados pela API não estão no formato esperado."
-	// 			);
-	// 			res.status(500).json({
-	// 				error: "Erro ao processar os dados da API",
-	// 			});
-	// 		}
+	// 		console.log(`Imagem ${key} removida com sucesso.`);
+	// 		res.status(200).json({ message: "Imagem removida com sucesso." });
 	// 	} catch (error) {
-	// 		console.error("Ocorreu um erro:", error);
-	// 		res.status(500).json({ error: "Erro ao fazer a requisição à API" }); // Retorna um erro 500 em caso de falha na requisição
+	// 		console.error("Erro ao remover imagem do S3:", error);
+	// 		res.status(500).json({ error: "Erro interno ao remover imagem." });
 	// 	}
 	// }
-
-	// static async searchProductsInOtamart(req: Request, res: Response) {
-	// 	const { productName } = req.body;
-
-	// 	if (!productName) {
-	// 		res.status(422).json({
-	// 			message: "O nome do produto é obrigatório!",
-	// 		});
-	// 		return;
-	// 	}
-
-	// 	try {
-	// 		const products = await ProductModel.find({
-	// 			productName: { $regex: productName, $options: "i" },
-	// 		});
-
-	// 		if (products.length > 0) {
-	// 			res.status(200).json({ products: products });
-	// 		} else {
-	// 			res.status(404).json({ message: "Produto não encontrado!" });
-	// 		}
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 	}
-	// }
-
-	// ******************************************************************************************************************** //
 }
 
 export default ProductController;

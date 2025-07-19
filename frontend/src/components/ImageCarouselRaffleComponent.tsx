@@ -52,7 +52,7 @@ const ImageCarouselRaffleComponent = ({
 							<div className="h-[74px] flex items-center justify-center">
 								<Image
 									className="object-contain h-full cursor-pointer"
-									src={`http://backend:5000/images/raffles/${image}`}
+									src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${image}`}
 									alt={`Thumbnail ${index}`}
 									width={50}
 									height={10}

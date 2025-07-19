@@ -68,11 +68,7 @@ function DashboardPage() {
 							<div className="avatar">
 								<div className="w-12 h-12 rounded">
 									<Image
-										src={
-											user?.accountType === "customer"
-												? `http://localhost:5000/images/customers/${user?.profileImage}`
-												: `http://localhost:5000/images/partners/${user?.profileImage}`
-										}
+										src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${user?.profileImage}`}
 										alt="image profile"
 										width={48}
 										height={48}

@@ -273,7 +273,7 @@ function OtaclubPage() {
 									key={categoryProduct._id}
 									viewAdultContent={user?.viewAdultContent}
 									product={categoryProduct}
-									productImage={`http://localhost:5000/images/products/${categoryProduct.productImages[0]}`}
+									productImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${categoryProduct.productImages[0]}`}
 									title={categoryProduct.productTitle}
 									price={Number(categoryProduct.productPrice)}
 								/>
@@ -293,7 +293,7 @@ function OtaclubPage() {
 									key={`returned-${returnedProduct._id}`}
 									viewAdultContent={user?.viewAdultContent}
 									product={returnedProduct}
-									productImage={`http://localhost:5000/images/products/${returnedProduct.productImages[0]}`}
+									productImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${returnedProduct.productImages[0]}`}
 									title={returnedProduct.productTitle}
 									price={Number(returnedProduct.productPrice)}
 								/>
@@ -312,7 +312,7 @@ function OtaclubPage() {
 									key={`product-${product._id}`}
 									viewAdultContent={user?.viewAdultContent}
 									product={product}
-									productImage={`http://localhost:5000/images/products/${product.productImages[0]}`}
+									productImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${product.productImages[0]}`}
 									title={product.productTitle}
 									price={Number(product.productPrice)}
 								/>

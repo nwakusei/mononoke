@@ -30,7 +30,7 @@ const MainImageRaffleComponent = ({ selectedImage, raffle }) => {
 				{imageUrl && (
 					<Image
 						className="object-contain w-full h-full"
-						src={`http://localhost:5000/images/raffles/${imageUrl}`}
+						src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${imageUrl}`}
 						alt={
 							raffle?.raffleTitle || "Imagem Miniatura do sorteio"
 						}

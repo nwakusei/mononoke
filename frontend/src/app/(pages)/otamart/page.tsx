@@ -270,7 +270,7 @@ function OtamartPage() {
 									viewAdultContent={user?.viewAdultContent}
 									product={categoryProduct}
 									freeShipping={categoryProduct.freeShipping}
-									productImage={`http://localhost:5000/images/products/${categoryProduct.productImages[0]}`}
+									productImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${categoryProduct.productImages[0]}`}
 									title={categoryProduct.productTitle}
 									originalPrice={Number(
 										categoryProduct.originalPrice
@@ -310,7 +310,7 @@ function OtamartPage() {
 									viewAdultContent={user?.viewAdultContent}
 									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
-									productImage={`http://localhost:5000/images/products/${returnedProduct.productImages[0]}`}
+									productImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${returnedProduct.productImages[0]}`}
 									title={returnedProduct.productTitle}
 									originalPrice={Number(
 										returnedProduct.originalPrice
@@ -353,7 +353,8 @@ function OtamartPage() {
 									viewAdultContent={user?.viewAdultContent}
 									product={product}
 									freeShipping={product.freeShipping}
-									productImage={`http://localhost:5000/images/products/${product.productImages[0]}`}
+									// productImage={`http://localhost:5000/images/products/${product.productImages[0]}`}
+									productImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${product.productImages[0]}`}
 									title={product.productTitle}
 									originalPrice={Number(
 										product.originalPrice
@@ -381,90 +382,6 @@ function OtamartPage() {
 							);
 						})
 					)}
-
-					{/* ESSE CÓDIGO DE RETORNO DE PRODUTO FUNCIONA, MAS AO DEIXAR ASSIM EU TERIA PROBLEMAS COM O RETORNO DE INFO PARA CATEGORIA */}
-					{/* {noResults ? (
-						<div className="min-h-screen">
-							<p className="text-black text-center bg-white p-4 w-[500px] rounded-md shadow-md">
-								Produto não encontrado!
-							</p>
-						</div>
-					) : returnedProducts.length > 0 ? (
-						returnedProducts.map((returnedProduct) => {
-							const partner = partners.find(
-								(partner) =>
-									partner._id === returnedProduct.partnerID
-							);
-							const cashback = partner ? partner.cashback : 0;
-
-							return (
-								<ProductAdCard
-									key={returnedProduct._id}
-									product={returnedProduct}
-									freeShipping={returnedProduct.freeShipping}
-									productImage={`http://localhost:5000/images/products/${returnedProduct.productImages[0]}`}
-									title={returnedProduct.productTitle}
-									originalPrice={Number(
-										returnedProduct.originalPrice
-									)}
-									promotionalPrice={Number(
-										returnedProduct.promotionalPrice
-									)}
-									price={Number(
-										returnedProduct.originalPrice
-									)}
-									promoPrice={Number(
-										returnedProduct.promotionalPrice
-									)}
-									cashback={cashback}
-									rating={returnedProduct.rating}
-									quantitySold={
-										returnedProduct.productsSold > 1
-											? `${returnedProduct.productsSold} Vendidos`
-											: `${returnedProduct.productsSold} Vendido`
-									}
-									linkProductPage={`/otamart/${returnedProduct.slugTitle}`}
-								/>
-							);
-						})
-					) : (
-						products &&
-						products.length > 0 &&
-						products.map((product) => {
-							const partner = partners.find(
-								(partner) => partner._id === product.partnerID
-							);
-							const cashback = partner ? partner.cashback : 0;
-
-							return (
-								<ProductAdCard
-									key={product._id}
-									product={product}
-									freeShipping={product.freeShipping}
-									productImage={`http://localhost:5000/images/products/${product.productImages[0]}`}
-									title={product.productTitle}
-									originalPrice={Number(
-										product.originalPrice
-									)}
-									promotionalPrice={Number(
-										product.promotionalPrice
-									)}
-									price={Number(product.originalPrice)}
-									promoPrice={Number(
-										product.promotionalPrice
-									)}
-									cashback={cashback}
-									rating={product.rating}
-									quantitySold={
-										product.productsSold > 1
-											? `${product.productsSold} Vendidos`
-											: `${product.productsSold} Vendido`
-									}
-									linkProductPage={`/otamart/${product.slugTitle}`}
-								/>
-							);
-						})
-					)} */}
 				</div>
 			</div>
 		</section>

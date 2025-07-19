@@ -71,7 +71,7 @@ function RafflesPage() {
 								viewAdultContent={user?.viewAdultContent}
 								raffle={raffle}
 								rafflePrize={raffle.rafflePrize}
-								raffleImage={`http://localhost:5000/images/raffles/${raffle.imagesRaffle[0]}`}
+								raffleImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${raffle.imagesRaffle[0]}`}
 								raffleDate={`${format(
 									new Date(raffle.raffleDate),
 									"dd/MM"

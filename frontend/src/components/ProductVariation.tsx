@@ -141,7 +141,7 @@ function ProductVariation({
 										{option.imageUrl && (
 											<Image
 												className="w-6 rounded-sms pointer-events-none select-none"
-												src={`http://localhost:5000/images/products/${option.imageUrl}`}
+												src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${option.imageUrl}`}
 												alt={option.name}
 												width={10}
 												height={10}

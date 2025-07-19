@@ -72,6 +72,8 @@ router.get("/convert/:slug", ProductController.convertSlugProductToID);
 
 router.get("/:id", ProductController.getProductById);
 
+// router.delete("/aws-delete-image", ProductController.deleteImageFromS3);
+
 router.delete("/:id", verifyToken, ProductController.removeProductById);
 
 router.get("/recommended-product/:id", ProductController.recommendedProduct);

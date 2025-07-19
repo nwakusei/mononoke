@@ -14,13 +14,8 @@ import { Sidebar } from "@/components/Sidebar";
 import api from "@/utils/api";
 
 // icons
-import { GrMapLocation } from "react-icons/gr";
-import { ShoppingCartOne } from "@icon-park/react";
-import { LiaShippingFastSolid } from "react-icons/lia";
-import { PiCreditCardBold } from "react-icons/pi";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 import { LuPackageCheck, LuPackageX } from "react-icons/lu";
-import { FiInfo } from "react-icons/fi";
 
 function MyOrderOtaclubByIDPage() {
 	const { id } = useParams();
@@ -198,7 +193,7 @@ function MyOrderOtaclubByIDPage() {
 																<div>
 																	<div className="w-[60px] pointer-events-none">
 																		<Image
-																			src={`http://localhost:5000/images/products/${item.productImage}`}
+																			src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${item.productImage}`}
 																			alt={
 																				item.productTitle
 																			}

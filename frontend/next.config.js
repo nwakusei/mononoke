@@ -11,6 +11,10 @@ module.exports = {
 	...nextConfig,
 	images: {
 		...nextConfig.images,
-		domains: ["localhost", "backend"],
+		domains: [
+			"localhost",
+			"backend",
+			"mononokebucket.s3.us-east-1.amazonaws.com",
+		],
 	},
 };

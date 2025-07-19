@@ -799,7 +799,7 @@ function ProductPage() {
 									<div className="w-[258px] h-[129px] bg-pink-200 border-solid border-[1px] border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
 										<Image
 											className="object-contain w-full h-full pointer-events-none"
-											src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
+											src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${partner?.logoImage}`}
 											alt="Logo Shop"
 											width={260}
 											height={130}
@@ -1027,7 +1027,7 @@ function ProductPage() {
 																	<div className="h-[74px] flex items-center justify-center">
 																		<Image
 																			className="object-contain h-full cursor-pointer"
-																			src={`http://localhost:5000/images/reviews/${image}`}
+																			src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${image}`}
 																			alt="Imagem da avaliação"
 																			width={
 																				55
@@ -1047,7 +1047,7 @@ function ProductPage() {
 														<div className="mt-4">
 															<Image
 																className="w-[300px] object-contain border-black border-solid border-[1px] border-opacity-20 rounded shadow-md"
-																src={`http://localhost:5000/images/reviews/${expandedImages[index]}`}
+																src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${expandedImages[index]}`}
 																alt="Imagem ampliada"
 																width={10}
 																height={10}
@@ -1106,7 +1106,7 @@ function ProductPage() {
 												freeShipping={
 													recommendedProduct.freeShipping
 												}
-												productImage={`http://localhost:5000/images/products/${recommendedProduct.productImages[0]}`}
+												productImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${recommendedProduct.productImages[0]}`}
 												title={
 													recommendedProduct.productTitle
 												}
