@@ -119,7 +119,7 @@ function OtacryptoPage() {
 	// }
 
 	return (
-		<div className="h-screen bg-gray-100">
+		<div className="min-h-screen bg-gray-100">
 			<section className={`grid grid-cols-6 grid-rows-1 gap-4`}>
 				<div className="col-start-2 col-span-4 flex flex-row justify-center items-center bg-primary p-4 text-white rounded-md shadow-md gap-2 mt-8">
 					<span>

@@ -89,12 +89,12 @@ function StorePage() {
 
 					// Ajustar a posição do botão conforme a quantidade do footer visível
 					// O botão deve subir proporcionalmente até 120px
-					const newButtonPosition = Math.min(20 + visibleFooter, 120);
+					const newButtonPosition = Math.min(15 + visibleFooter, 240);
 
 					setButtonPosition(newButtonPosition);
 				} else {
 					// O footer ainda não está visível, o botão fica a 20px
-					setButtonPosition(20);
+					setButtonPosition(15);
 				}
 			}
 		};
@@ -442,7 +442,7 @@ function StorePage() {
 						<div className="w-[297px] h-[149px] bg-pink-200 border border-black border-opacity-20 rounded-md overflow-hidden shadow-md">
 							<Image
 								className="object-contain w-full h-full pointer-events-none"
-								src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
+								src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${partner?.logoImage}`}
 								alt="Logo Shop"
 								width={300}
 								height={150}
@@ -638,7 +638,7 @@ function StorePage() {
 									viewAdultContent={user?.viewAdultContent}
 									product={returnedProduct}
 									freeShipping={returnedProduct.freeShipping}
-									productImage={`http://localhost:5000/images/products/${returnedProduct.imagesProduct[0]}`}
+									productImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${returnedProduct.imagesProduct[0]}`}
 									title={returnedProduct.productTitle}
 									originalPrice={Number(
 										returnedProduct.originalPrice
@@ -682,7 +682,7 @@ function StorePage() {
 									viewAdultContent={user?.viewAdultContent}
 									product={product}
 									freeShipping={product.freeShipping}
-									productImage={`http://localhost:5000/images/products/${product.productImages[0]}`}
+									productImage={`https://mononokebucket.s3.us-east-1.amazonaws.com/${product.productImages[0]}`}
 									title={product.productTitle}
 									originalPrice={Number(
 										product.originalPrice
@@ -725,7 +725,7 @@ function StorePage() {
 									<div className="w-10 rounded-full">
 										<Image
 											className="object-contain w-full h-full pointer-events-none"
-											src={`http://localhost:5000/images/partners/${partner?.logoImage}`}
+											src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${partner?.logoImage}`}
 											alt="Logo Shop"
 											width={300}
 											height={150}
@@ -769,7 +769,7 @@ function StorePage() {
 												user?._id ? (
 													<Image
 														className="object-contain w-full h-full pointer-events-none"
-														src={`http://localhost:5000/images/customers/${user?.profileImage}`}
+														src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${user?.profileImage}`}
 														alt="Logo Shop"
 														width={300}
 														height={150}
@@ -778,7 +778,7 @@ function StorePage() {
 												) : (
 													<Image
 														className="object-contain w-full h-full pointer-events-none"
-														src={`http://localhost:5000/images/partners/${partner?.profileImage}`}
+														src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${partner?.profileImage}`}
 														alt="Logo Shop"
 														width={300}
 														height={150}
@@ -808,7 +808,7 @@ function StorePage() {
 										{isImage(message.message) ? (
 											<Image
 												className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-												src={`http://localhost:5000/images/chats/${message.message}`}
+												src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${message.message}`}
 												alt="Logo Shop"
 												width={300}
 												height={150}

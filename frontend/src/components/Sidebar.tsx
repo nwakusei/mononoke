@@ -243,7 +243,7 @@ function Sidebar() {
 									</span>
 								</Link>
 
-								<Link
+								{/* <Link
 									className="flex flex-row items-center ml-7 gap-2"
 									href={"/dashboard/create-coupon"}>
 									<span className="text-xs text-black">
@@ -252,7 +252,7 @@ function Sidebar() {
 									<span className="text-black hover:text-white hover:bg-secondary active:scale-[.95] px-2 py-1 rounded transition-all ease-in duration-150 mb-1">
 										Vendedor Afiliado
 									</span>
-								</Link>
+								</Link> */}
 							</div>
 						</div>
 
@@ -325,7 +325,7 @@ function Sidebar() {
 							</div>
 						</div>
 
-						<div className="flex flex-col ml-8 mb-4">
+						{/* <div className="flex flex-col ml-8 mb-4">
 							<h2 className="text-black flex flex-row items-center gap-2 mb-3">
 								<MdVerified size={18} />
 								Loja Verificada
@@ -355,6 +355,7 @@ function Sidebar() {
 								</Link>
 							</div>
 						</div>
+						*/}
 
 						{/* <div className="flex flex-col ml-8 mb-4">
 				<h1 className="flex flex-row items-center gap-2 mb-2">
@@ -612,22 +613,22 @@ function Sidebar() {
 						</div>
 
 						{/* <div className="flex flex-col ml-8 mb-4">
-				<h1 className="flex flex-row items-center gap-2 mb-2">
-					<RiAccountPinBoxLine size={18} />
-					PROFILE?
-				</h1>
+							<h1 className="flex flex-row items-center gap-2 mb-2">
+								<RiAccountPinBoxLine size={18} />
+								PROFILE?
+							</h1>
 
-				<Link
-					className="flex flex-row items-center ml-7 gap-2"
-					href={"/dashboard/myprofile"}>
-					<span className="text-xs">○</span>
-					<span className="text-black hover:text-secondary transition-all ease-in duration-150">
-						My Profile
-					</span>
-				</Link>
-			</div> */}
+							<Link
+								className="flex flex-row items-center ml-7 gap-2"
+								href={"/dashboard/myprofile"}>
+								<span className="text-xs">○</span>
+								<span className="text-black hover:text-secondary transition-all ease-in duration-150">
+									My Profile
+								</span>
+							</Link>
+						</div> */}
 
-						<div className="flex flex-col ml-8 mb-4">
+						{/* <div className="flex flex-col ml-8 mb-4">
 							<h1 className="flex flex-row items-center gap-2 mb-3 text-black">
 								<TbAffiliate size={18} />
 								Afiliado Mononoke
@@ -645,7 +646,7 @@ function Sidebar() {
 									</span>
 								</Link>
 							</div>
-						</div>
+						</div> */}
 
 						<div className="flex flex-col ml-8 mb-4">
 							<h1 className="flex flex-row items-center gap-2 mb-3 text-black">

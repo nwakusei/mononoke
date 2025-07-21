@@ -72,7 +72,7 @@ function HomePage() {
 				</div>
 			)}
 			<section
-				className={`bg-home grid grid-cols-8 ${
+				className={`min-h-screen bg-home grid grid-cols-8 ${
 					showBanner
 						? "blur-sm sm:blur-none pointer-events-none select-none"
 						: ""

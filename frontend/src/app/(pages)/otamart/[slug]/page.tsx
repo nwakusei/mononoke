@@ -461,7 +461,7 @@ function ProductPage() {
 
 			{/* Conteúdo da página */}
 			<section
-				className={`bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 ${
+				className={`min-h-screen bg-gray-100 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 ${
 					showAgeModal ? "blur-sm pointer-events-none" : "blur-none"
 				}`}>
 				<main className="flex flex-col bg-white p-4 rounded-md shadow-md col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-8">

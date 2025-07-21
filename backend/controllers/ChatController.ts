@@ -23,13 +23,21 @@ class ChatController {
 	static async sendMessageByChat(req: Request, res: Response): Promise<void> {
 		const { userTwoID, message } = req.body;
 
-		// Upload de Imagens
+		// Upload de Imagens - local ou AWS S3
 		let imageMessage = "";
 
-		if (req.file) {
-			imageMessage = req.file.filename;
+		if (req.file as Express.Multer.File) {
+			if ("key" in req.file && typeof req.file.key === "string") {
+				// Arquivo enviado para AWS S3
+				imageMessage = req.file.key;
+			} else if (
+				"filename" in req.file &&
+				typeof req.file.filename === "string"
+			) {
+				// Arquivo salvo localmente
+				imageMessage = req.file.filename;
+			}
 		}
-
 		const token: any = getToken(req);
 		const user = await getUserByToken(token);
 

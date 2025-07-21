@@ -109,7 +109,7 @@ function ResetPassword() {
 	};
 
 	return (
-		<section className="bg-gray-100 flex min-h-screen flex-col items-center justify-center p-24">
+		<section className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-24">
 			<div className="flex flex-col items-center justify-center bg-primary w-[500px] h-[520px] rounded-md shadow-md m-4">
 				<Image
 					className="pointer-events-none select-none"

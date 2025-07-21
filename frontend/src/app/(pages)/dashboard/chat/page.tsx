@@ -311,7 +311,7 @@ function ChatPage() {
 											"customer" ? (
 												<Image
 													className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-													src={`http://localhost:5000/images/customers/${returnedChat.userTwoProfileImage}`}
+													src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${returnedChat.userTwoProfileImage}`}
 													alt="Chat Image"
 													width={300}
 													height={150}
@@ -320,7 +320,7 @@ function ChatPage() {
 											) : (
 												<Image
 													className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-													src={`http://localhost:5000/images/partners/${returnedChat.userTwoProfileImage}`}
+													src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${returnedChat.userTwoProfileImage}`}
 													alt="Chat Image"
 													width={300}
 													height={150}
@@ -357,7 +357,7 @@ function ChatPage() {
 												"customer" ? (
 													<Image
 														className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-														src={`http://localhost:5000/images/customers/${chat.userTwoProfileImage}`}
+														src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${chat.userTwoProfileImage}`}
 														alt="Chat Image"
 														width={300}
 														height={150}
@@ -366,7 +366,7 @@ function ChatPage() {
 												) : (
 													<Image
 														className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-														src={`http://localhost:5000/images/partners/${chat.userTwoProfileImage}`}
+														src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${chat.userTwoProfileImage}`}
 														alt="Chat Image"
 														width={300}
 														height={150}
@@ -401,7 +401,7 @@ function ChatPage() {
 											<div className="w-12 rounded-full">
 												<Image
 													className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-													src={`http://localhost:5000/images/customers/${chat.userTwoProfileImage}`}
+													src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${chat.userTwoProfileImage}`}
 													alt="Chat Image"
 													width={300}
 													height={150}
@@ -413,7 +413,7 @@ function ChatPage() {
 											<div className="w-12 rounded-full">
 												<Image
 													className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-													src={`http://localhost:5000/images/partners/${chat.userTwoProfileImage}`}
+													src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${chat.userTwoProfileImage}`}
 													alt="Chat Image"
 													width={300}
 													height={150}
@@ -453,12 +453,7 @@ function ChatPage() {
 												message.senderID ? (
 													<Image
 														className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-														src={`http://localhost:5000/images/${
-															user.accountType ===
-															"customer"
-																? "customers"
-																: "partners"
-														}/${user.profileImage}`}
+														src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${user.profileImage}`}
 														alt="User Profile Image"
 														width={300}
 														height={150}
@@ -467,14 +462,7 @@ function ChatPage() {
 												) : (
 													<Image
 														className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-														src={`http://localhost:5000/images/${
-															chat.userTwoAccountType ===
-															"customer"
-																? "customers"
-																: "partners"
-														}/${
-															chat.userTwoProfileImage
-														}`}
+														src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${chat.userTwoProfileImage}`}
 														alt="Chat User Profile Image"
 														width={300}
 														height={150}
@@ -507,7 +495,7 @@ function ChatPage() {
 										{isImage(message.message) ? (
 											<Image
 												className="object-contain w-[120px] pointer-events-none rounded shadow-md"
-												src={`http://localhost:5000/images/chats/${message.message}`}
+												src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${message.message}`}
 												alt="Logo Shop"
 												width={300}
 												height={150}
@@ -562,7 +550,7 @@ function ChatPage() {
 												onClick={() =>
 													setImageMessage(null)
 												} // Limpa a imagem
-												className="text-white"
+												className="text-error"
 												aria-label="Close">
 												×
 											</button>

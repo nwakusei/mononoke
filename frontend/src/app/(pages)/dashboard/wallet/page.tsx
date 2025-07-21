@@ -135,7 +135,7 @@ function WalletPage() {
 	}
 
 	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="min-h-screen bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mt-4">
 				{/* Gadget 1 */}
@@ -370,7 +370,7 @@ function WalletPage() {
 
 						<tbody className="p-10">
 							{/* rows */}
-							{transactions.map((transaction) => {
+							{transactions.slice(0, 10).map((transaction) => {
 								const modalId = `modal_${transaction._id}`; // ID único para cada modal
 
 								return (
@@ -382,14 +382,14 @@ function WalletPage() {
 														{user?.otakupayID !==
 														transaction.payerID ? (
 															<Image
-																src={`http://backend:5000/images/customers/${transaction.payerProfileImage}`}
+																src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${transaction.payerProfileImage}`}
 																alt="Imagem miniatura do usuário"
 																width={50}
 																height={50}
 															/>
 														) : (
 															<Image
-																src={`http://backend:5000/images/partners/${transaction.receiverProfileImage}`}
+																src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${transaction.receiverProfileImage}`}
 																alt="Imagem miniatura do usuário"
 																width={50}
 																height={50}

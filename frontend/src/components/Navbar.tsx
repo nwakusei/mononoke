@@ -605,7 +605,7 @@ function Navbar() {
 												{user.accountType ===
 												"partner" ? (
 													<Image
-														src={`http://localhost:5000/images/partners/${user.profileImage}`}
+														src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${user.profileImage}`}
 														width={450}
 														height={450}
 														alt="Profile Image"
@@ -625,7 +625,7 @@ function Navbar() {
 													/>
 												) : (
 													<Image
-														src={`http://localhost:5000/images/customers/${user.profileImage}`}
+														src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${user.profileImage}`}
 														width={450}
 														height={450}
 														alt="Profile Image"

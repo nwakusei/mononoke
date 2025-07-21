@@ -107,7 +107,7 @@ function MyProductsPage() {
 	};
 
 	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
+		<section className="min-h-screen bg-gray-300 grid grid-cols-6 md:grid-cols-10 grid-rows-1 gap-4">
 			<Sidebar />
 			<div className="col-start-3 col-span-4 md:col-start-3 md:col-span-10 mb-4">
 				<div className="flex flex-col gap-4 mb-8">
@@ -365,6 +365,7 @@ function MyProductsPage() {
 															</button>
 														) : (
 															<button
+																disabled
 																onClick={() =>
 																	handleClick(
 																		product._id
