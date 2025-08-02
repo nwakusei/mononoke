@@ -25,8 +25,6 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Imagens
-// import Amora from "../../../../../public/amora.jpg";
-import imageProfile from "../../../../../public/kon.jpg";
 
 // Icons
 import { Currency, Peoples } from "@icon-park/react";

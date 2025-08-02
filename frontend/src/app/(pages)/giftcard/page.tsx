@@ -11,7 +11,6 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 
 // Imagens
 import Logo from "../../../../public/logo.png";
-import Logo3 from "../../../../public/logo3.png";
 
 function GiftCardPage() {
   const { partners } = useContext(Context);
@@ -44,7 +43,7 @@ function GiftCardPage() {
             <div className="flex flex-row justify-between bg-primary w-[300px] h-[160px] rounded-lg shadow-md">
               <div className="w-[100px] ml-10 mt-7 pointer-events-none">
                 <Image
-                  src={Logo3}
+                  src={Logo}
                   alt="Logo Mononoke"
                   width={150}
                   height={80}
