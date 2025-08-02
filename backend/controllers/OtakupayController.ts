@@ -5711,11 +5711,15 @@ class OtakupayController {
           continue;
         }
 
-        const netProfit = orderCostTotal - partnerCommission;
+        const netProfit = Number(orderCostTotal) - Number(partnerCommission);
 
-        const newPending = (otakuPointsPending - orderCostTotal).toFixed(2);
+        const newPending = (
+          Number(otakuPointsPending) - Number(orderCostTotal)
+        ).toFixed(2);
 
-        const newAvailable = (otakuPointsAvailable + netProfit).toFixed(2);
+        const newAvailable = (Number(otakuPointsAvailable) + netProfit).toFixed(
+          2
+        );
 
         partnerOtakupay.otakuPointsPending = encrypt(newPending);
         partnerOtakupay.otakuPointsAvailable = encrypt(newAvailable);
@@ -5724,10 +5728,6 @@ class OtakupayController {
 
         await partnerOtakupay.save();
         await order.save();
-
-        console.log(
-          `Valores liberados com sucesso para o pedido Otaclub ${order._id}`
-        );
       }
 
       res.status(200).json({
@@ -5886,10 +5886,12 @@ class OtakupayController {
       }
 
       const raffleProfitFromSaleDecrypted =
-        raffleAccumulatedValueDecrypted - rafflePartnerCommissionDecrypted;
+        Number(raffleAccumulatedValueDecrypted) -
+        Number(rafflePartnerCommissionDecrypted);
 
       const newPartnerOtakuPointsPendingDecrypted =
-        partnerOtakuPointsPendingDencrypted - raffleProfitFromSaleDecrypted;
+        Number(partnerOtakuPointsPendingDencrypted) -
+        raffleProfitFromSaleDecrypted;
 
       const newPartnerOtakuPointsPendingEncrypted = encrypt(
         newPartnerOtakuPointsPendingDecrypted.toString()
