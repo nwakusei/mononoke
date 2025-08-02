@@ -4781,7 +4781,10 @@ class OtakupayController {
 
       const currentPartnerBalanceAvailable = decryptedPartnerBalanceAvailable;
 
-      if (isNaN(amountSentNumber) || isNaN(currentPartnerBalanceAvailable)) {
+      if (
+        isNaN(amountSentNumber) ||
+        isNaN(Number(currentPartnerBalanceAvailable))
+      ) {
         res.status(422).json({
           message: "Valores inválidos!",
         });
@@ -4790,7 +4793,7 @@ class OtakupayController {
 
       // Realizando a operação de adição e convertendo de volta para string com duas casas decimais
       const newPartnerBalanceAvailable = (
-        currentPartnerBalanceAvailable + amountSentNumber
+        Number(currentPartnerBalanceAvailable) + amountSentNumber
       ).toFixed(2);
 
       // Criptografar o novo Customer Balance Available para armazenar no Otakupay
@@ -4837,21 +4840,29 @@ class OtakupayController {
 
       const otakupayNotNull = userOtakupay!;
 
-      const newUserBalanceAvailable = decrypt(
-        otakupayNotNull.balanceAvailable
-      )?.toFixed(2);
+      const newUserBalanceAvailable =
+        otakupayNotNull.balanceAvailable &&
+        !isNaN(Number(decrypt(otakupayNotNull.balanceAvailable)))
+          ? Number(decrypt(otakupayNotNull.balanceAvailable)).toFixed(2)
+          : null;
 
-      const newUserBalancePending = decrypt(
-        otakupayNotNull.balancePending
-      )?.toFixed(2);
+      const newUserBalancePending =
+        otakupayNotNull.balancePending &&
+        !isNaN(Number(decrypt(otakupayNotNull.balancePending)))
+          ? Number(decrypt(otakupayNotNull.balancePending)).toFixed(2)
+          : null;
 
-      const newUserOtakuPointsAvailable = decrypt(
-        otakupayNotNull.otakuPointsAvailable
-      )?.toFixed(2);
+      const newUserOtakuPointsAvailable =
+        otakupayNotNull.otakuPointsAvailable &&
+        !isNaN(Number(decrypt(otakupayNotNull.otakuPointsAvailable)))
+          ? Number(decrypt(otakupayNotNull.otakuPointsAvailable)).toFixed(2)
+          : null;
 
-      const newUserOtakuPointsPending = decrypt(
-        otakupayNotNull.otakuPointsPending
-      )?.toFixed(2);
+      const newUserOtakuPointsPending =
+        otakupayNotNull.otakuPointsPending &&
+        !isNaN(Number(decrypt(otakupayNotNull.otakuPointsPending)))
+          ? Number(decrypt(otakupayNotNull.otakuPointsPending)).toFixed(2)
+          : null;
 
       const newUserOtakupay = {
         balanceAvailable: newUserBalanceAvailable,
@@ -4859,8 +4870,6 @@ class OtakupayController {
         otakuPointsAvailable: newUserOtakuPointsAvailable,
         otakuPointsPending: newUserOtakuPointsPending,
       };
-
-      console.log(newUserOtakupay);
 
       res.status(200).json(newUserOtakupay);
     } catch (error) {
