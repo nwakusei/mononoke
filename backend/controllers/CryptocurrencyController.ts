@@ -62,7 +62,7 @@ function decrypt(encryptedBalance: string): number | null {
     }
     return parseFloat(balanceNumber.toFixed(2));
   } catch (error) {
-    console.error("Erro ao descriptografar o saldo:", error);
+    console.log("Erro ao descriptografar o saldo:", error);
     return null;
   }
 }
@@ -85,8 +85,11 @@ const getDollarRate = async () => {
     );
     return rate;
   } catch (error) {
-    console.error("❌ Erro na API da CoinGecko:", error.message);
-    return null;
+    if (error instanceof Error) {
+      console.log(error.message);
+    } else {
+      console.log(String(error));
+    }
   }
 };
 
@@ -572,7 +575,7 @@ class CryptocurrencyController {
 
       res.status(200).json({ cryptocurrency }); // Agora é seguro fazer isso
     } catch (error) {
-      console.error(error);
+      console.log(error);
       res.status(500).json({ message: "Erro ao buscar criptomoeda" });
     }
   }
