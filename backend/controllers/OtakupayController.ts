@@ -72,12 +72,9 @@ function encrypt(balance: string): string {
 }
 
 // Esta função processa o texto criptografado com o IV concatenado:
-function decrypt(encryptedBalance: string): number | null {
-  let decrypted = "";
-
+function decrypt(encryptedValue: string): string | null {
   try {
-    // Divide o IV do texto criptografado
-    const [ivHex, encryptedData] = encryptedBalance.split(":");
+    const [ivHex, encryptedData] = encryptedValue.split(":");
     if (!ivHex || !encryptedData) {
       throw new Error("Formato inválido do texto criptografado.");
     }
@@ -90,16 +87,12 @@ function decrypt(encryptedBalance: string): number | null {
       iv
     );
 
-    decrypted = decipher.update(encryptedData, "hex", "utf8");
+    let decrypted = decipher.update(encryptedData, "hex", "utf8");
     decrypted += decipher.final("utf8");
 
-    const balanceNumber = parseFloat(decrypted);
-    if (isNaN(balanceNumber)) {
-      return null;
-    }
-    return parseFloat(balanceNumber.toFixed(2));
+    return decrypted;
   } catch (error) {
-    console.error("Erro ao descriptografar o saldo:", error);
+    console.error("Erro ao descriptografar o valor:", error);
     return null;
   }
 }
@@ -143,18 +136,8 @@ class OtakupayController {
         return;
       }
 
-      console.log(
-        "Balance Available Atual do Customer",
-        currentCustomerBalanceAvailableDecrypted?.toFixed(2)
-      );
-
       const newCustomerBalanceAvailable =
         currentCustomerBalanceAvailableDecrypted + parseFloat(value);
-
-      console.log(
-        "Novo Balance Available Atual do Customer",
-        newCustomerBalanceAvailable?.toFixed(2)
-      );
 
       const newCustomerBalanceAvailableEncrypted = encrypt(
         newCustomerBalanceAvailable.toString()
@@ -215,18 +198,8 @@ class OtakupayController {
         return;
       }
 
-      console.log(
-        "Balance Available Atual do Customer",
-        currentCustomerOtakuPointsAvailableDecrypted?.toFixed(2)
-      );
-
       const newCustomerOtakuPointsAvailable =
         currentCustomerOtakuPointsAvailableDecrypted + parseFloat(value);
-
-      console.log(
-        "Novo Balance Available Atual do Customer",
-        newCustomerOtakuPointsAvailable?.toFixed(2)
-      );
 
       const newCustomerOtakuPointsAvailableEncrypted = encrypt(
         newCustomerOtakuPointsAvailable.toString()
@@ -610,7 +583,7 @@ class OtakupayController {
       }
 
       if (
-        isNaN(decryptedCustomerBalanceAvailable) ||
+        isNaN(Number(decryptedCustomerBalanceAvailable)) ||
         isNaN(customerOrderCostTotal)
       ) {
         res.status(422).json({
@@ -619,7 +592,7 @@ class OtakupayController {
         return;
       }
 
-      if (decryptedCustomerBalanceAvailable < customerOrderCostTotal) {
+      if (Number(decryptedCustomerBalanceAvailable) < customerOrderCostTotal) {
         res.status(422).json({
           message: "Customer Balance Available insuficiente!",
         });
@@ -628,7 +601,7 @@ class OtakupayController {
 
       // Limitando o Customer Balance Available para duas casas decimais
       const newCustomerBalanceAvailable = (
-        decryptedCustomerBalanceAvailable - customerOrderCostTotal
+        Number(decryptedCustomerBalanceAvailable) - customerOrderCostTotal
       ).toFixed(2);
 
       // Criptografar o novo Customer Balance Available para armazenar no banco de dados
@@ -5343,7 +5316,7 @@ class OtakupayController {
       );
 
       const newPartnerBalanceAvailableDecrypted = (
-        partnerBalanceAvailableDecrypted +
+        Number(partnerBalanceAvailableDecrypted) +
         Number(newOrderCostTotalWithShippingCostTotal)
       ).toFixed(2);
 

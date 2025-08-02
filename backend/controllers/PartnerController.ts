@@ -38,12 +38,9 @@ function encrypt(balance: string): string {
 }
 
 // Esta função processa o texto criptografado com o IV concatenado:
-function decrypt(encryptedBalance: string): number | null {
-  let decrypted = "";
-
+function decrypt(encryptedValue: string): string | null {
   try {
-    // Divide o IV do texto criptografado
-    const [ivHex, encryptedData] = encryptedBalance.split(":");
+    const [ivHex, encryptedData] = encryptedValue.split(":");
     if (!ivHex || !encryptedData) {
       throw new Error("Formato inválido do texto criptografado.");
     }
@@ -56,16 +53,12 @@ function decrypt(encryptedBalance: string): number | null {
       iv
     );
 
-    decrypted = decipher.update(encryptedData, "hex", "utf8");
+    let decrypted = decipher.update(encryptedData, "hex", "utf8");
     decrypted += decipher.final("utf8");
 
-    const balanceNumber = parseFloat(decrypted);
-    if (isNaN(balanceNumber)) {
-      return null;
-    }
-    return parseFloat(balanceNumber.toFixed(2));
+    return decrypted;
   } catch (error) {
-    console.error("Erro ao descriptografar o saldo:", error);
+    console.error("Erro ao descriptografar o valor:", error);
     return null;
   }
 }

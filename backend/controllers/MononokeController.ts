@@ -14,12 +14,9 @@ import { PartnerModel } from "../models/PartnerModel.js";
 const secretKey = process.env.AES_SECRET_KEY!;
 
 // Função de descriptografar os campos sensíveis
-function decrypt(encryptedBalance: string): number | null {
-  let decrypted = "";
-
+function decrypt(encryptedValue: string): string | null {
   try {
-    // Divide o IV do texto criptografado
-    const [ivHex, encryptedData] = encryptedBalance.split(":");
+    const [ivHex, encryptedData] = encryptedValue.split(":");
     if (!ivHex || !encryptedData) {
       throw new Error("Formato inválido do texto criptografado.");
     }
@@ -32,16 +29,12 @@ function decrypt(encryptedBalance: string): number | null {
       iv
     );
 
-    decrypted = decipher.update(encryptedData, "hex", "utf8");
+    let decrypted = decipher.update(encryptedData, "hex", "utf8");
     decrypted += decipher.final("utf8");
 
-    const balanceNumber = parseFloat(decrypted);
-    if (isNaN(balanceNumber)) {
-      return null;
-    }
-    return parseFloat(balanceNumber.toFixed(2));
+    return decrypted;
   } catch (error) {
-    console.error("Erro ao descriptografar o saldo:", error);
+    console.error("Erro ao descriptografar o valor:", error);
     return null;
   }
 }
@@ -117,7 +110,7 @@ class OtakuPrimeController {
             if ("cpfCnpj" in currentUser && currentUser.cpfCnpj) {
               const decryptedCpfCnpj = decrypt(currentUser.cpfCnpj);
 
-              currentUser.cpfCnpj = decryptedCpfCnpj;
+              currentUser.cpfCnpj = decryptedCpfCnpj ?? "";
             } else {
               console.log("cpfCnpj não encontrado para o usuário.");
             }
@@ -125,7 +118,7 @@ class OtakuPrimeController {
             // Verifique se o cpf existe no usuário e, se sim, descriptografe
             if ("cpf" in currentUser && currentUser.cpf) {
               const decryptedCpf = decrypt(currentUser.cpf);
-              currentUser.cpf = decryptedCpf;
+              currentUser.cpf = decryptedCpf ?? "";
             } else {
               console.log("cpf não encontrado para o usuário.");
             }
@@ -133,7 +126,7 @@ class OtakuPrimeController {
             // Verifique se o cashback existe no usuário e, se sim, descriptografe
             if ("cashback" in currentUser && currentUser.cashback) {
               const decryptedCashback = decrypt(currentUser.cashback);
-              currentUser.cashback = decryptedCashback;
+              currentUser.cashback = decryptedCashback ?? "";
             } else {
               console.log("cashback não encontrado para o usuário.");
             }
