@@ -6113,11 +6113,6 @@ class OtakupayController {
 
       const customerOtakuPointAvailableDecrypted = decrypt(
         customerOtakuPointsAvailableEncrypted
-      )?.toFixed(2);
-
-      console.log(
-        "customerOtakuPointAvailableDecrypted",
-        customerOtakuPointAvailableDecrypted
       );
 
       if (!customerOtakuPointAvailableDecrypted) {
@@ -6134,22 +6129,13 @@ class OtakupayController {
         return;
       }
 
-      const newCustomerOtakuPointsAvailableDecrypted =
+      const newCustomerOtakuPointsAvailableDecrypted = (
         Number(customerOtakuPointAvailableDecrypted) -
-        Number(product.productPrice);
-
-      console.log(
-        "newCustomerOtakuPointsAvailableDecrypted",
-        newCustomerOtakuPointsAvailableDecrypted.toFixed(2)
-      );
+        Number(product.productPrice)
+      ).toFixed(2);
 
       const newCustomerOtakuPointsAvailableEncrypted = encrypt(
         newCustomerOtakuPointsAvailableDecrypted.toString()
-      );
-
-      console.log(
-        "newCustomerOtakuPointsAvailableEncrypted",
-        newCustomerOtakuPointsAvailableEncrypted
       );
 
       ////////////////////////////// Comissão a ser Paga pelo Parceiro //////////////////////////////////////////
