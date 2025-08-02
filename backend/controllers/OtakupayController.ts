@@ -612,11 +612,6 @@ class OtakupayController {
       // Atualizar o Customer Balance Available criptografado no banco de dados
       customerOtakupay.balanceAvailable = newEncryptedCustomerBalanceAvailable;
 
-      // Console log para exibir o Customer Balance Available descriptografado
-      const logDecryptedCustomerBalanceAvailable = decrypt(
-        customerOtakupay.balanceAvailable
-      );
-
       // Array para armazenar os parceiros
       const partners = [];
 
@@ -1960,11 +1955,6 @@ class OtakupayController {
       // // Atualizar o Customer Balance Available criptografado no banco de dados
       // customerOtakupay.balanceAvailable =
       // 	newEncryptedCustomerBalanceAvailable;
-
-      // Console log para exibir o Customer Balance Available descriptografado
-      const logDecryptedCustomerBalanceAvailable = decrypt(
-        customerOtakupay.balanceAvailable
-      );
 
       // Array para armazenar os parceiros
       const partners = [];
@@ -3597,22 +3587,6 @@ class OtakupayController {
                   // customerOtakupay.balanceAvailable =
                   // 	newEncryptedCustomerBalanceAvailable;
 
-                  // Console log para exibir o Customer Balance Available descriptografado
-                  const logDecryptedCustomerBalanceAvailable = decrypt(
-                    customerOtakupay.balanceAvailable
-                  );
-
-                  if (logDecryptedCustomerBalanceAvailable !== null) {
-                    console.log(
-                      "NOVO CUSTOMER BALANCE AVAILABLE DISPONÍVEL:",
-                      logDecryptedCustomerBalanceAvailable.toFixed(2) // Exibindo o saldo com 2 casas decimais
-                    );
-                  } else {
-                    console.error(
-                      "Erro ao descriptografar o Customer Balance Available"
-                    );
-                  }
-
                   // Array para armazenar os parceiros
                   const partners = [];
 
@@ -4754,7 +4728,10 @@ class OtakupayController {
       const amountSentNumber = parseFloat(amoutSent);
       const currentCustomerBalanceAvailable = decryptedCustomerBalanceAvailable;
 
-      if (isNaN(amountSentNumber) || isNaN(currentCustomerBalanceAvailable)) {
+      if (
+        isNaN(amountSentNumber) ||
+        isNaN(Number(currentCustomerBalanceAvailable))
+      ) {
         res.status(422).json({
           message: "Valores inválidos!",
         });
@@ -4763,7 +4740,7 @@ class OtakupayController {
 
       // Realizando a operação de subtração e convertendo de volta para string com duas casas decimais
       const newCustomerBalanceAvailable = (
-        currentCustomerBalanceAvailable - amountSentNumber
+        Number(currentCustomerBalanceAvailable) - amountSentNumber
       ).toFixed(2);
 
       // Criptografar o novo Customer Balance Available para armazenar no Otakupay
@@ -4773,19 +4750,6 @@ class OtakupayController {
 
       customerOtakupay.balanceAvailable =
         newCustomerEncryptedBalanceAvalable.toString();
-
-      const logDecryptedCustomerBalanceAvailable = decrypt(
-        customerOtakupay.balanceAvailable
-      );
-
-      if (logDecryptedCustomerBalanceAvailable !== null) {
-        console.log(
-          "Novo Customer Balance Available disponível:",
-          logDecryptedCustomerBalanceAvailable.toFixed(2) // Exibindo o saldo com 2 casas decimais
-        );
-      } else {
-        console.error("Erro ao descriptografar o Customer Balance Available");
-      }
 
       //********************************************************************************************************//
 
@@ -4836,19 +4800,6 @@ class OtakupayController {
 
       partnerOtakupay.balanceAvailable =
         newPartnerEncryptedBalanceAvalable.toString();
-
-      const logDecryptedPartnerBalanceAvailable = decrypt(
-        partnerOtakupay.balanceAvailable
-      );
-
-      if (logDecryptedPartnerBalanceAvailable !== null) {
-        console.log(
-          "Novo Partner Balance Available disponível:",
-          logDecryptedPartnerBalanceAvailable.toFixed(2) // Exibindo o saldo com 2 casas decimais
-        );
-      } else {
-        console.error("Erro ao descriptografar o Partner Balance Available");
-      }
 
       //********************************************************************************************************//
 
