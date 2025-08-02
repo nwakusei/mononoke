@@ -206,7 +206,7 @@ class TrackingController {
       res.json(resultado);
       return;
     } catch (error) {
-      console.error("Erro ao rastrear Loggi:", error.message);
+      console.log(error);
       res.status(500).json({ error: "Erro ao rastrear encomenda" });
       return;
     }

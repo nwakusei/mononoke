@@ -152,9 +152,11 @@ class ProductController {
       partner.shippingConfiguration?.forEach((service) => {
         if (supportedOperators.includes(service.shippingOperator)) {
           service.modalityOptions?.forEach((modality) => {
-            const code = modalityCodeMap[modality];
-            if (code) {
-              selectedModalityCodes.push(code);
+            if (typeof modality === "string") {
+              const code = modalityCodeMap[modality];
+              if (code) {
+                selectedModalityCodes.push(code);
+              }
             }
           });
         }
@@ -490,7 +492,7 @@ class ProductController {
           partner.shippingConfiguration.forEach((existingConfig, index) => {
             // Verifica se o operador da configuração existente ainda existe na requisição
             const newConfig = shippingConfigurationArray.find(
-              (config) =>
+              (config: { shippingOperator: string | undefined }) =>
                 config.shippingOperator === existingConfig.shippingOperator
             );
 
@@ -501,34 +503,40 @@ class ProductController {
           });
 
           // Agora, adicionamos ou atualizamos as configurações recebidas
-          shippingConfigurationArray.forEach((newConfig) => {
-            const existingShippingConfig = partner.shippingConfiguration.find(
-              (config) => config.shippingOperator === newConfig.shippingOperator
-            );
-
-            if (!existingShippingConfig) {
-              // Se o operador não existe, adicionamos a nova configuração
-              partner.shippingConfiguration.push({
-                shippingOperator: newConfig.shippingOperator,
-                modalityOptions: newConfig.modalityOptions,
-              });
-            } else {
-              // Se o operador já existe, vamos remover o antigo e adicionar a nova configuração
-              const indexToRemove = partner.shippingConfiguration.findIndex(
+          shippingConfigurationArray.forEach(
+            (newConfig: {
+              shippingOperator: string | undefined;
+              modalityOptions: any;
+            }) => {
+              const existingShippingConfig = partner.shippingConfiguration.find(
                 (config) =>
                   config.shippingOperator === newConfig.shippingOperator
               );
-              if (indexToRemove !== -1) {
-                partner.shippingConfiguration.splice(indexToRemove, 1);
-              }
 
-              // Adiciona a nova configuração de modalidades
-              partner.shippingConfiguration.push({
-                shippingOperator: newConfig.shippingOperator,
-                modalityOptions: newConfig.modalityOptions,
-              });
+              if (!existingShippingConfig) {
+                // Se o operador não existe, adicionamos a nova configuração
+                partner.shippingConfiguration.push({
+                  shippingOperator: newConfig.shippingOperator,
+                  modalityOptions: newConfig.modalityOptions,
+                });
+              } else {
+                // Se o operador já existe, vamos remover o antigo e adicionar a nova configuração
+                const indexToRemove = partner.shippingConfiguration.findIndex(
+                  (config) =>
+                    config.shippingOperator === newConfig.shippingOperator
+                );
+                if (indexToRemove !== -1) {
+                  partner.shippingConfiguration.splice(indexToRemove, 1);
+                }
+
+                // Adiciona a nova configuração de modalidades
+                partner.shippingConfiguration.push({
+                  shippingOperator: newConfig.shippingOperator,
+                  modalityOptions: newConfig.modalityOptions,
+                });
+              }
             }
-          });
+          );
         }
 
         partner.tokenMelhorEnvio = req.body.tokenMelhorEnvio;
