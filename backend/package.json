@@ -8,9 +8,10 @@
   },
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon -e ts -w ./ -x yarn start:server",
-    "start:server": "tsx ./server.ts localhost 5000"
+    "start:server": "tsx ./server.ts localhost 5000",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
