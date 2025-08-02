@@ -150,7 +150,10 @@ class ProductController {
       const selectedModalityCodes: number[] = [];
 
       partner.shippingConfiguration?.forEach((service) => {
-        if (supportedOperators.includes(service.shippingOperator)) {
+        if (
+          service.shippingOperator &&
+          supportedOperators.includes(service.shippingOperator)
+        ) {
           service.modalityOptions?.forEach((modality) => {
             if (typeof modality === "string") {
               const code = modalityCodeMap[modality];

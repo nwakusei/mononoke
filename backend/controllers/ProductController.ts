@@ -237,7 +237,7 @@ class ProductController {
       }
     }
 
-    const createSlugWithCode = async (productTitle) => {
+    const createSlugWithCode = async (productTitle: string) => {
       // Substituição de ~ e . por -
       const processedTitle = productTitle
         .replace(/~/g, "-")
