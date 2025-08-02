@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 
 // Interface para a estrutura das variações do produto
 interface IVariationOption {
+  _id: string; // ID da opção (opcional, para uso interno)
   imageUrl?: string; // URL da imagem associada (opcional)
   name: string; // Nome da opção (ex: "rosa")
   originalPrice: number;
