@@ -3,7 +3,7 @@ name: Build and Upload Artifacts
 on:
   push:
     branches:
-      - main  # ou sua branch principal
+      - main # ou a branch principal do seu projeto
 
 jobs:
   build-backend:
@@ -17,10 +17,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install dependencies backend
-        run: npm install
+        run: npm ci
 
       - name: Build backend
         run: npm run build
@@ -29,7 +29,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-build
-          path: ./dist  # pasta onde o build backend fica (ajuste se for diferente)
+          path: ./dist # ajuste se seu build for salvo em outro local
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -42,10 +42,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install dependencies frontend
-        run: npm install
+        run: npm ci
 
       - name: Build frontend
         run: npm run build
@@ -54,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
-          path: ./.next  # pasta padrão do build Next.js
+          path: ./.next # ajuste se estiver usando outputDir diferente no next.config.js
