@@ -4968,7 +4968,8 @@ class OtakupayController {
       }
 
       const newCustomerOtakuPointsPendingDecrypted = (
-        customerOtakuPointsPendingDecrypted - customerOtakuPointsEarnedDecrypted
+        Number(customerOtakuPointsPendingDecrypted) -
+        Number(customerOtakuPointsEarnedDecrypted)
       ).toFixed(2);
 
       // Novo Valor do Otaku Points Pending criptografado a ser Armazenado no Banco de dados
@@ -5000,28 +5001,13 @@ class OtakupayController {
         return;
       }
 
-      console.log(
-        "Novo valor de Otaku Points Descriptografado a ser armazenado no banco de dados",
-        customerOtakuPointAvailableDecrypted
-      );
-
       const newCustomerOtakuPointsAvailableDecrypted = (
-        customerOtakuPointAvailableDecrypted +
-        customerOtakuPointsEarnedDecrypted
+        Number(customerOtakuPointAvailableDecrypted) +
+        Number(customerOtakuPointsEarnedDecrypted)
       ).toFixed(2);
-
-      console.log(
-        "Novo valor de Otaku Points Descriptografado a ser armazenado no banco de dados",
-        newCustomerOtakuPointsAvailableDecrypted
-      );
 
       const newCustomerOtakuPointsAvailableEncrypted = encrypt(
         newCustomerOtakuPointsAvailableDecrypted.toString()
-      );
-
-      console.log(
-        "Novo valor de Otaku Points Criptografado a ser armazenado no banco de dados",
-        newCustomerOtakuPointsAvailableEncrypted
       );
 
       //////////////////////////// Partner //////////////////////////////////////////
@@ -5163,7 +5149,7 @@ class OtakupayController {
       );
 
       const orderCostSubtotal =
-        orderCostTotalDecrypted - shippingCostTotalDecrypted;
+        Number(orderCostTotalDecrypted) - Number(shippingCostTotalDecrypted);
 
       console.log(
         "Valor total do pedido sem o Frete Descriptografado",
@@ -5201,43 +5187,19 @@ class OtakupayController {
         return;
       }
 
-      console.log(
-        "Valor da Comissão a ser Paga pelo Parceiro Descriptografada",
-        partnerCommissionOtamartDecrypted
-      );
-
       const orderCostTotalWithoutCommission =
-        orderCostSubtotal - partnerCommissionOtamartDecrypted;
-      console.log(
-        "Subtotal do Pedido sem a Comissão a ser Paga pelo Parceiro",
-        orderCostTotalWithoutCommission
-      );
+        orderCostSubtotal - Number(partnerCommissionOtamartDecrypted);
 
       const newOrderCostTotalWithShippingCostTotal = (
-        orderCostTotalWithoutCommission + shippingCostTotalDecrypted
+        orderCostTotalWithoutCommission + Number(shippingCostTotalDecrypted)
       ).toFixed(2);
-
-      console.log(
-        "Valor total do pedido com Frete, com a Comissão descontada",
-        newOrderCostTotalWithShippingCostTotal
-      );
 
       const newPartnerBalancePendindDecrypted = (
-        partnerBalancePendingDecrypted - orderCostTotalDecrypted
+        Number(partnerBalancePendingDecrypted) - Number(orderCostTotalDecrypted)
       ).toFixed(2);
-
-      console.log(
-        "Novo Saldo Pendente do Parceiro descriptografado",
-        newPartnerBalancePendindDecrypted
-      );
 
       const newPartnerBalancePendindEncrypted = encrypt(
         newPartnerBalancePendindDecrypted.toString()
-      );
-
-      console.log(
-        "Novo Saldo Pendente do Parceiro criptografado",
-        newPartnerBalancePendindEncrypted
       );
 
       const newPartnerBalanceAvailableDecrypted = (
@@ -5245,18 +5207,8 @@ class OtakupayController {
         Number(newOrderCostTotalWithShippingCostTotal)
       ).toFixed(2);
 
-      console.log(
-        "Novo Saldo Disponível do Parceiro Descriptografado",
-        newPartnerBalanceAvailableDecrypted
-      );
-
       const newPartnerBalanceAvailableEncrypted = encrypt(
         newPartnerBalanceAvailableDecrypted
-      );
-
-      console.log(
-        "Novo Saldo Disponível do Parceiro Criptografado",
-        newPartnerBalanceAvailableEncrypted
       );
 
       // Salvamentos Após dar tudo certo
@@ -5362,11 +5314,13 @@ class OtakupayController {
         }
 
         const newPending = (
-          otakuPointsPendingDecrypted - otakuPointsEarnedDecrypted
+          Number(otakuPointsPendingDecrypted) -
+          Number(otakuPointsEarnedDecrypted)
         ).toFixed(2);
 
         const newAvailable = (
-          otakuPointsAvailableDecrypted + otakuPointsEarnedDecrypted
+          Number(otakuPointsAvailableDecrypted) +
+          Number(otakuPointsEarnedDecrypted)
         ).toFixed(2);
 
         customerOtakupay.otakuPointsPending = encrypt(newPending);
@@ -5435,14 +5389,17 @@ class OtakupayController {
           return;
         }
 
-        const subtotal = orderCostDecrypted - shippingCostDecrypted;
+        const subtotal =
+          Number(orderCostDecrypted) - Number(shippingCostDecrypted);
 
-        const netAmount = subtotal - commissionDecrypted;
+        const netAmount = subtotal - Number(commissionDecrypted);
 
-        const finalAmount = (netAmount + shippingCostDecrypted).toFixed(2);
+        const finalAmount = (netAmount + Number(shippingCostDecrypted)).toFixed(
+          2
+        );
 
         const newBalancePending = (
-          balancePendingDecrypted - orderCostDecrypted
+          Number(balancePendingDecrypted) - Number(orderCostDecrypted)
         ).toFixed(2);
         const newBalanceAvailable = (
           Number(balanceAvailableDecrypted) + Number(finalAmount)
@@ -5454,15 +5411,13 @@ class OtakupayController {
 
         await customerOtakupay.save();
         await partnerOtakupay.save();
-
-        console.log(`Valores liberados com sucesso para o pedido ${order._id}`);
-      }
+      } // <-- Add this closing brace to end the for loop
 
       res.status(200).json({
         message: "Processo de liberação concluído com sucesso.",
       });
     } catch (error) {
-      console.error("Erro ao liberar valores:", error);
+      console.log(error);
       res.status(500).json({
         message: "Erro interno ao processar os pedidos.",
       });
@@ -5609,10 +5564,12 @@ class OtakupayController {
       }
 
       const OtaclubProfitFromSaleDecrypted =
-        orderCostTotalDecrypted - partnerCommissionOtaclubDecrypted;
+        Number(orderCostTotalDecrypted) -
+        Number(partnerCommissionOtaclubDecrypted);
 
       const newPartnerOtakuPointsPendingDecrypted =
-        partnerOtakuPointsPendingDencrypted - orderCostTotalDecrypted;
+        Number(partnerOtakuPointsPendingDencrypted) -
+        Number(orderCostTotalDecrypted);
 
       const newPartnerOtakuPointsPendingEncrypted = encrypt(
         newPartnerOtakuPointsPendingDecrypted.toString()
