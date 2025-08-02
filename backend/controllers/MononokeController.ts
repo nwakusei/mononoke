@@ -15,35 +15,35 @@ const secretKey = process.env.AES_SECRET_KEY!;
 
 // Função de descriptografar os campos sensíveis
 function decrypt(encryptedBalance: string): number | null {
-	let decrypted = "";
+  let decrypted = "";
 
-	try {
-		// Divide o IV do texto criptografado
-		const [ivHex, encryptedData] = encryptedBalance.split(":");
-		if (!ivHex || !encryptedData) {
-			throw new Error("Formato inválido do texto criptografado.");
-		}
+  try {
+    // Divide o IV do texto criptografado
+    const [ivHex, encryptedData] = encryptedBalance.split(":");
+    if (!ivHex || !encryptedData) {
+      throw new Error("Formato inválido do texto criptografado.");
+    }
 
-		const iv = Buffer.from(ivHex, "hex");
+    const iv = Buffer.from(ivHex, "hex");
 
-		const decipher = crypto.createDecipheriv(
-			"aes-256-cbc",
-			Buffer.from(secretKey, "utf-8"),
-			iv
-		);
+    const decipher = crypto.createDecipheriv(
+      "aes-256-cbc",
+      Buffer.from(secretKey, "utf-8"),
+      iv
+    );
 
-		decrypted = decipher.update(encryptedData, "hex", "utf8");
-		decrypted += decipher.final("utf8");
+    decrypted = decipher.update(encryptedData, "hex", "utf8");
+    decrypted += decipher.final("utf8");
 
-		const balanceNumber = parseFloat(decrypted);
-		if (isNaN(balanceNumber)) {
-			return null;
-		}
-		return parseFloat(balanceNumber.toFixed(2));
-	} catch (error) {
-		console.error("Erro ao descriptografar o saldo:", error);
-		return null;
-	}
+    const balanceNumber = parseFloat(decrypted);
+    if (isNaN(balanceNumber)) {
+      return null;
+    }
+    return parseFloat(balanceNumber.toFixed(2));
+  } catch (error) {
+    console.error("Erro ao descriptografar o saldo:", error);
+    return null;
+  }
 }
 
 class OtakuPrimeController {
@@ -51,11 +51,13 @@ class OtakuPrimeController {
     const { email, password } = req.body;
 
     if (!email) {
-      return res.status(422).json({ message: "O email é obrigatório!" });
+      res.status(422).json({ message: "O email é obrigatório!" });
+      return;
     }
 
     if (!password) {
-      return res.status(422).json({ message: "A senha é obrigatória!" });
+      res.status(422).json({ message: "A senha é obrigatória!" });
+      return;
     }
 
     // Verificar se o usuário existe
@@ -64,26 +66,28 @@ class OtakuPrimeController {
       (await PartnerModel.findOne({ email: email }));
 
     if (!user) {
-      return res.status(422).json({
+      res.status(422).json({
         message: "Não há usuário cadastrado com esse email!",
       });
+      return;
     }
 
     // Verificar se a senha digitada é igual a senha no banco de dados
     const checkPassword = await bcrypt.compare(password, user.password);
 
     if (!checkPassword) {
-      return res.status(422).json({
+      res.status(422).json({
         message: "Senha inválida !",
       });
+      return;
     }
 
     await createUserToken(user, req, res);
   }
 
-	static async checkUser(req: Request, res: Response) {
-		// Usuário atual (a variável começa indefinida)
-		let currentUser;
+  static async checkUser(req: Request, res: Response) {
+    // Usuário atual (a variável começa indefinida)
+    let currentUser;
 
     if (req.headers.authorization) {
       const token: any = getToken(req);
@@ -105,67 +109,47 @@ class OtakuPrimeController {
             (await CustomerModel.findById(decoded.id)) ||
             (await PartnerModel.findById(decoded.id));
 
-					if (currentUser) {
-						// Garantindo que a senha não seja retornada
-						currentUser.password = "";
+          if (currentUser) {
+            // Garantindo que a senha não seja retornada
+            currentUser.password = "";
 
-						// Verifique se o cpfCnpj existe no usuário e, se sim, descriptografe
-						if (currentUser.cpfCnpj) {
-							console.log(
-								"cpfCnpj criptografado:",
-								currentUser.cpfCnpj
-							); // Log para ver o valor criptografado
-							const decryptedCpfCnpj = decrypt(
-								currentUser.cpfCnpj
-							);
-							console.log(
-								"cpfCnpj descriptografado:",
-								decryptedCpfCnpj
-							); // Log para ver o valor descriptografado
-							currentUser.cpfCnpj = decryptedCpfCnpj; // Atualiza o campo com o valor descriptografado
-						} else {
-							console.log(
-								"cpfCnpj não encontrado para o usuário."
-							); // Caso o campo não exista
-						}
+            // Verifique se o cpfCnpj existe no usuário e, se sim, descriptografe
+            if (currentUser.cpfCnpj) {
+              console.log("cpfCnpj criptografado:", currentUser.cpfCnpj); // Log para ver o valor criptografado
+              const decryptedCpfCnpj = decrypt(currentUser.cpfCnpj);
+              console.log("cpfCnpj descriptografado:", decryptedCpfCnpj); // Log para ver o valor descriptografado
+              currentUser.cpfCnpj = decryptedCpfCnpj; // Atualiza o campo com o valor descriptografado
+            } else {
+              console.log("cpfCnpj não encontrado para o usuário."); // Caso o campo não exista
+            }
 
-						// Verifique se o cpf existe no usuário e, se sim, descriptografe
-						if (currentUser.cpf) {
-							console.log("cpf criptografado:", currentUser.cpf); // Log para ver o valor criptografado
-							const decryptedCpf = decrypt(currentUser.cpf);
-							console.log("cpf descriptografado:", decryptedCpf); // Log para ver o valor descriptografado
-							currentUser.cpf = decryptedCpf; // Atualiza o campo com o valor descriptografado
-						} else {
-							console.log("cpf não encontrado para o usuário.");
-						}
+            // Verifique se o cpf existe no usuário e, se sim, descriptografe
+            if (currentUser.cpf) {
+              console.log("cpf criptografado:", currentUser.cpf); // Log para ver o valor criptografado
+              const decryptedCpf = decrypt(currentUser.cpf);
+              console.log("cpf descriptografado:", decryptedCpf); // Log para ver o valor descriptografado
+              currentUser.cpf = decryptedCpf; // Atualiza o campo com o valor descriptografado
+            } else {
+              console.log("cpf não encontrado para o usuário.");
+            }
 
-						// Verifique se o cashback existe no usuário e, se sim, descriptografe
-						if (currentUser.cashback) {
-							console.log(
-								"cashback criptografado:",
-								currentUser.cashback
-							); // Log para ver o valor criptografado
-							const decryptedCashback = decrypt(
-								currentUser.cashback
-							);
-							console.log(
-								"cashback descriptografado:",
-								decryptedCashback
-							); // Log para ver o valor descriptografado
-							currentUser.cashback = decryptedCashback; // Atualiza o campo com o valor descriptografado
-						} else {
-							console.log(
-								"cashback não encontrado para o usuário."
-							);
-						}
-					}
-				} catch (error) {
-					console.error("Erro na verificação do token:", error);
-				}
-			}
-		} else {
-			currentUser = null;
-		}
+            // Verifique se o cashback existe no usuário e, se sim, descriptografe
+            if (currentUser.cashback) {
+              console.log("cashback criptografado:", currentUser.cashback); // Log para ver o valor criptografado
+              const decryptedCashback = decrypt(currentUser.cashback);
+              console.log("cashback descriptografado:", decryptedCashback); // Log para ver o valor descriptografado
+              currentUser.cashback = decryptedCashback; // Atualiza o campo com o valor descriptografado
+            } else {
+              console.log("cashback não encontrado para o usuário.");
+            }
+          }
+        } catch (error) {
+          console.error("Erro na verificação do token:", error);
+        }
+      }
+    } else {
+      currentUser = null;
+    }
 
     res.status(200).send(currentUser);
   }
