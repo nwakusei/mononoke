@@ -26,7 +26,7 @@ jobs:
         run: npm run build
 
       - name: Upload backend build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-build
           path: ./dist  # pasta onde o build backend fica (ajuste se for diferente)
@@ -51,7 +51,7 @@ jobs:
         run: npm run build
 
       - name: Upload frontend build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: ./.next  # pasta padrão do build Next.js
