@@ -493,7 +493,7 @@ class ProductController {
       }
     }
 
-    const createSlugWithCode = async (productTitle) => {
+    const createSlugWithCode = async (productTitle: string) => {
       // Substituição de ~ e . por -
       const processedTitle = productTitle
         .replace(/~/g, "-")
@@ -876,7 +876,7 @@ class ProductController {
 
     console.log(product.partnerID as mongoose.Schema.Types.ObjectId);
 
-    await ProductModel.findByIdAndRemove(id);
+    await ProductModel.findByIdAndDelete(id);
 
     res.status(200).json({ message: "Produto removido com sucesso!" });
   }
