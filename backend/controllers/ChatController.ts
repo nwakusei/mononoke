@@ -15,313 +15,323 @@ AWS.config.update({ region: "us-east-1" }); // ajuste para sua região
 const lambda = new AWS.Lambda();
 
 class ChatController {
-	// static async lambdaFunction(req: Request, res: Response): Promise<void> {
-	// 	console.log("Função Lambda chamada com sucesso!");
-	// 	res.status(200).json({ message: "Ok" }); // <-- finalize a requisição
-	// }
+  // static async lambdaFunction(req: Request, res: Response): Promise<void> {
+  // 	console.log("Função Lambda chamada com sucesso!");
+  // 	res.status(200).json({ message: "Ok" }); // <-- finalize a requisição
+  // }
 
-	static async sendMessageByChat(req: Request, res: Response): Promise<void> {
-		const { userTwoID, message } = req.body;
+  static async sendMessageByChat(req: Request, res: Response): Promise<void> {
+    const { userTwoID, message } = req.body;
 
-		// Upload de Imagens - local ou AWS S3
-		let imageMessage = "";
+    // Upload de Imagens - local ou AWS S3
+    let imageMessage = "";
 
-		if (req.file as Express.Multer.File) {
-			if ("key" in req.file && typeof req.file.key === "string") {
-				// Arquivo enviado para AWS S3
-				imageMessage = req.file.key;
-			} else if (
-				"filename" in req.file &&
-				typeof req.file.filename === "string"
-			) {
-				// Arquivo salvo localmente
-				imageMessage = req.file.filename;
-			}
-		}
-		const token: any = getToken(req);
-		const user = await getUserByToken(token);
+    // // FUnciona, mas req.file é undefined
+    // if (req.file as Express.Multer.File) {
+    // 	if ("key" in req.file && typeof req.file.key === "string") {
+    // 		// Arquivo enviado para AWS S3
+    // 		imageMessage = req.file.key;
+    // 	} else if (
+    // 		"filename" in req.file &&
+    // 		typeof req.file.filename === "string"
+    // 	) {
+    // 		// Arquivo salvo localmente
+    // 		imageMessage = req.file.filename;
+    // 	}
+    // }
 
-		if (!user) {
-			res.status(401).json({ message: "Não autorizado!" });
-			return;
-		}
+    if (req.file) {
+      if ("key" in req.file && typeof req.file.key === "string") {
+        imageMessage = req.file.key;
+      } else if (
+        "filename" in req.file &&
+        typeof req.file.filename === "string"
+      ) {
+        imageMessage = req.file.filename;
+      }
+    }
 
-		const userOneID = user._id.toString();
+    const token: any = getToken(req);
+    const user = await getUserByToken(token);
 
-		if (userOneID === userTwoID) {
-			res.status(401).json({
-				message: "Não é possível enviar mensagens para você mesmo!",
-			});
-			return;
-		}
+    if (!user) {
+      res.status(401).json({ message: "Não autorizado!" });
+      return;
+    }
 
-		try {
-			// Verificar se userTwo é um Customer
-			let userTwo = await CustomerModel.findById(userTwoID);
-			let userTwoAccountType = "customer";
+    const userOneID = user._id.toString();
 
-			// Se não for um Customer, verificar se é um Partner
-			if (!userTwo) {
-				userTwo = await PartnerModel.findById(userTwoID);
-				userTwoAccountType = "partner";
-			}
+    if (userOneID === userTwoID) {
+      res.status(401).json({
+        message: "Não é possível enviar mensagens para você mesmo!",
+      });
+      return;
+    }
 
-			// Caso não encontre em nenhum dos dois modelos
-			if (!userTwo) {
-				res.status(404).json({
-					message: "Usuário destinatário não encontrado.",
-				});
-				return;
-			}
+    try {
+      // Verificar se userTwo é um Customer
+      let userTwo = await CustomerModel.findById(userTwoID);
+      let userTwoAccountType = "customer";
 
-			// Determinar nickname e profileImage para userTwo
-			const userTwoNickname = userTwo.nickname;
-			const userTwoProfileImage = userTwo.profileImage;
+      // Se não for um Customer, verificar se é um Partner
+      if (!userTwo) {
+        userTwo = await PartnerModel.findById(userTwoID);
+        userTwoAccountType = "partner";
+      }
 
-			// Dados do usuário atual (remetente)
-			const userOneNickname = user.nickname;
-			const userOneProfileImage = user.profileImage;
-			const userOneAccountType = user.accountType; // Tipo de conta do remetente
+      // Caso não encontre em nenhum dos dois modelos
+      if (!userTwo) {
+        res.status(404).json({
+          message: "Usuário destinatário não encontrado.",
+        });
+        return;
+      }
 
-			const messageContent =
-				message === undefined || message === ""
-					? imageMessage
-					: message;
+      // Determinar nickname e profileImage para userTwo
+      const userTwoNickname = userTwo.nickname;
+      const userTwoProfileImage = userTwo.profileImage;
 
-			// Verificar se o chat do cliente para a loja já existe
-			let chatFromClientToStore = await ChatModel.findOne({
-				userOneID: userOneID,
-				userTwoID: userTwoID,
-			});
+      // Dados do usuário atual (remetente)
+      const userOneNickname = user.nickname;
+      const userOneProfileImage = user.profileImage;
+      const userOneAccountType = user.accountType; // Tipo de conta do remetente
 
-			// Verificar se o chat da loja para o cliente já existe
-			let chatFromStoreToClient = await ChatModel.findOne({
-				userOneID: userTwoID,
-				userTwoID: userOneID,
-			});
+      const messageContent =
+        message === undefined || message === "" ? imageMessage : message;
 
-			// Atualizar ou criar chat do cliente para a loja
-			if (!chatFromClientToStore) {
-				chatFromClientToStore = new ChatModel({
-					userOneID: userOneID,
-					userTwoID: userTwoID,
-					userTwoNickname,
-					userTwoProfileImage,
-					userTwoAccountType, // Armazena o tipo de conta do destinatário
-					messages: [
-						{
-							senderID: userOneID,
-							message: messageContent,
-							timestamp: new Date(),
-						},
-					],
-				});
-			} else {
-				// Atualizar nickname, profileImage e accountType
-				chatFromClientToStore.userTwoNickname = userTwoNickname;
-				chatFromClientToStore.userTwoProfileImage = userTwoProfileImage;
-				chatFromClientToStore.userTwoAccountType = userTwoAccountType;
+      // Verificar se o chat do cliente para a loja já existe
+      let chatFromClientToStore = await ChatModel.findOne({
+        userOneID: userOneID,
+        userTwoID: userTwoID,
+      });
 
-				// Adicionar mensagem
-				chatFromClientToStore.messages.push({
-					senderID: userOneID,
-					message: messageContent,
-					timestamp: new Date(),
-				});
-			}
+      // Verificar se o chat da loja para o cliente já existe
+      let chatFromStoreToClient = await ChatModel.findOne({
+        userOneID: userTwoID,
+        userTwoID: userOneID,
+      });
 
-			await chatFromClientToStore.save();
+      // Atualizar ou criar chat do cliente para a loja
+      if (!chatFromClientToStore) {
+        chatFromClientToStore = new ChatModel({
+          userOneID: userOneID,
+          userTwoID: userTwoID,
+          userTwoNickname,
+          userTwoProfileImage,
+          userTwoAccountType, // Armazena o tipo de conta do destinatário
+          messages: [
+            {
+              senderID: userOneID,
+              message: messageContent,
+              timestamp: new Date(),
+            },
+          ],
+        });
+      } else {
+        // Atualizar nickname, profileImage e accountType
+        chatFromClientToStore.userTwoNickname = userTwoNickname;
+        chatFromClientToStore.userTwoProfileImage = userTwoProfileImage;
+        chatFromClientToStore.userTwoAccountType = userTwoAccountType;
 
-			// Atualizar ou criar chat da loja para o cliente
-			if (!chatFromStoreToClient) {
-				chatFromStoreToClient = new ChatModel({
-					userOneID: userTwoID,
-					userTwoID: userOneID,
-					userTwoNickname: userOneNickname, // Dados do remetente
-					userTwoProfileImage: userOneProfileImage,
-					userTwoAccountType: userOneAccountType, // Tipo de conta do remetente
-					messages: [
-						{
-							senderID: userOneID,
-							message: messageContent,
-							timestamp: new Date(),
-						},
-					],
-				});
-			} else {
-				// Atualizar nickname, profileImage e accountType
-				chatFromStoreToClient.userTwoNickname = userOneNickname;
-				chatFromStoreToClient.userTwoProfileImage = userOneProfileImage;
-				chatFromStoreToClient.userTwoAccountType = userOneAccountType;
+        // Adicionar mensagem
+        chatFromClientToStore.messages.push({
+          senderID: userOneID,
+          message: messageContent,
+          timestamp: new Date(),
+        });
+      }
 
-				// Adicionar mensagem
-				chatFromStoreToClient.messages.push({
-					senderID: userOneID,
-					message: messageContent,
-					timestamp: new Date(),
-				});
-			}
+      await chatFromClientToStore.save();
 
-			await chatFromStoreToClient.save();
+      // Atualizar ou criar chat da loja para o cliente
+      if (!chatFromStoreToClient) {
+        chatFromStoreToClient = new ChatModel({
+          userOneID: userTwoID,
+          userTwoID: userOneID,
+          userTwoNickname: userOneNickname, // Dados do remetente
+          userTwoProfileImage: userOneProfileImage,
+          userTwoAccountType: userOneAccountType, // Tipo de conta do remetente
+          messages: [
+            {
+              senderID: userOneID,
+              message: messageContent,
+              timestamp: new Date(),
+            },
+          ],
+        });
+      } else {
+        // Atualizar nickname, profileImage e accountType
+        chatFromStoreToClient.userTwoNickname = userOneNickname;
+        chatFromStoreToClient.userTwoProfileImage = userOneProfileImage;
+        chatFromStoreToClient.userTwoAccountType = userOneAccountType;
 
-			res.status(200).json({
-				message: "Mensagem enviada com sucesso.",
-				chatFromClientToStore,
-				chatFromStoreToClient,
-			});
-		} catch (error) {
-			console.error("Erro ao criar ou atualizar o chat:", error);
-			res.status(500).json({ message: "Internal server error" });
-		}
-	}
+        // Adicionar mensagem
+        chatFromStoreToClient.messages.push({
+          senderID: userOneID,
+          message: messageContent,
+          timestamp: new Date(),
+        });
+      }
 
-	static async getChatMessagesByUser(req: Request, res: Response) {
-		const { id } = req.params;
+      await chatFromStoreToClient.save();
 
-		const userTwoID = id;
+      res.status(200).json({
+        message: "Mensagem enviada com sucesso.",
+        chatFromClientToStore,
+        chatFromStoreToClient,
+      });
+    } catch (error) {
+      console.error("Erro ao criar ou atualizar o chat:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
 
-		if (!userTwoID) {
-			res.status(400).json({ message: "ID inválido" });
-			return;
-		}
+  static async getChatMessagesByUser(req: Request, res: Response) {
+    const { id } = req.params;
 
-		const token: any = getToken(req);
-		const user = await getUserByToken(token);
+    const userTwoID = id;
 
-		if (!user) {
-			res.status(401).json({ message: "Não autorizado!" });
-			return;
-		}
+    if (!userTwoID) {
+      res.status(400).json({ message: "ID inválido" });
+      return;
+    }
 
-		const userOneID = user._id.toString();
+    const token: any = getToken(req);
+    const user = await getUserByToken(token);
 
-		try {
-			// Verificar se o chat do cliente para a loja já existe
-			const chatFromClientToStore = await ChatModel.findOne({
-				userOneID: userOneID,
-				userTwoID: userTwoID,
-			});
+    if (!user) {
+      res.status(401).json({ message: "Não autorizado!" });
+      return;
+    }
 
-			if (!chatFromClientToStore) {
-				res.status(404).json({ message: "Chat não encontrado" });
-				return;
-			}
+    const userOneID = user._id.toString();
 
-			res.status(200).json({
-				message: "View chat messages",
-				chatFromClientToStore,
-			});
-		} catch (error) {
-			console.error("Erro ao visualizar mensagens do chat:", error);
-			res.status(500).json({ message: "Internal server error" });
-			return;
-		}
-	}
+    try {
+      // Verificar se o chat do cliente para a loja já existe
+      const chatFromClientToStore = await ChatModel.findOne({
+        userOneID: userOneID,
+        userTwoID: userTwoID,
+      });
 
-	static async getChatsByUser(req: Request, res: Response) {
-		const token: any = getToken(req);
-		const user = await getUserByToken(token);
+      if (!chatFromClientToStore) {
+        res.status(404).json({ message: "Chat não encontrado" });
+        return;
+      }
 
-		if (!user) {
-			res.status(401).json({ message: "Não autorizado!" });
-			return;
-		}
+      res.status(200).json({
+        message: "View chat messages",
+        chatFromClientToStore,
+      });
+    } catch (error) {
+      console.error("Erro ao visualizar mensagens do chat:", error);
+      res.status(500).json({ message: "Internal server error" });
+      return;
+    }
+  }
 
-		const userOneID = user._id.toString();
+  static async getChatsByUser(req: Request, res: Response) {
+    const token: any = getToken(req);
+    const user = await getUserByToken(token);
 
-		try {
-			const chats = await ChatModel.find({ userOneID: userOneID }).sort(
-				"-updatedAt"
-			);
+    if (!user) {
+      res.status(401).json({ message: "Não autorizado!" });
+      return;
+    }
 
-			res.status(200).json({ chats: chats });
-		} catch (error) {
-			console.log(error);
-		}
-	}
+    const userOneID = user._id.toString();
 
-	static async getChatByID(req: Request, res: Response) {
-		const { id } = req.params;
+    try {
+      const chats = await ChatModel.find({ userOneID: userOneID }).sort(
+        "-updatedAt"
+      );
 
-		if (!id) {
-			res.status(400).json({ message: "O ID do Chat é obrigatório!" });
-			return;
-		}
+      res.status(200).json({ chats: chats });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-		const token: any = getToken(req);
-		const user = await getUserByToken(token);
+  static async getChatByID(req: Request, res: Response) {
+    const { id } = req.params;
 
-		if (!user) {
-			res.status(401).json({ message: "Usuário não encontrado!" });
-			return;
-		}
+    if (!id) {
+      res.status(400).json({ message: "O ID do Chat é obrigatório!" });
+      return;
+    }
 
-		try {
-			const chat = await ChatModel.findById(id);
+    const token: any = getToken(req);
+    const user = await getUserByToken(token);
 
-			if (!chat) {
-				res.status(404).json({ message: "Chat não encontrado!" });
-				return;
-			}
+    if (!user) {
+      res.status(401).json({ message: "Usuário não encontrado!" });
+      return;
+    }
 
-			const userOneID = user._id.toString();
-			const chatUserOneID = chat.userOneID;
+    try {
+      const chat = await ChatModel.findById(id);
 
-			// Verificar se o usuário tem permissão para acessar o chat
-			if (userOneID !== chatUserOneID) {
-				res.status(401).json({
-					message:
-						"Você não possui autorização para acessar este chat!",
-				});
-				return;
-			}
+      if (!chat) {
+        res.status(404).json({ message: "Chat não encontrado!" });
+        return;
+      }
 
-			res.status(200).json({ chat });
-		} catch (error) {
-			res.status(500).json({ message: "Erro interno do servidor!" });
-			return;
-		}
-	}
+      const userOneID = user._id.toString();
+      const chatUserOneID = chat.userOneID;
 
-	static async searchChat(req: Request, res: Response) {
-		const { searchName } = req.body;
+      // Verificar se o usuário tem permissão para acessar o chat
+      if (userOneID !== chatUserOneID) {
+        res.status(401).json({
+          message: "Você não possui autorização para acessar este chat!",
+        });
+        return;
+      }
 
-		if (!searchName) {
-			res.status(404).json({ message: "O nome do user é obrigatório!" });
-			return;
-		}
+      res.status(200).json({ chat });
+    } catch (error) {
+      res.status(500).json({ message: "Erro interno do servidor!" });
+      return;
+    }
+  }
 
-		const token: any = getToken(req);
-		const user = await getUserByToken(token);
+  static async searchChat(req: Request, res: Response) {
+    const { searchName } = req.body;
 
-		if (!user) {
-			res.status(404).json({ message: "Usuário não encontrado!" });
-			return;
-		}
+    if (!searchName) {
+      res.status(404).json({ message: "O nome do user é obrigatório!" });
+      return;
+    }
 
-		const userID = user._id.toString();
+    const token: any = getToken(req);
+    const user = await getUserByToken(token);
 
-		try {
-			// Criando a expressão regular para buscar uma correspondência insensível a maiúsculas e minúsculas
-			const searchRegex = new RegExp(searchName, "i"); // 'i' torna a busca insensível ao caso
+    if (!user) {
+      res.status(404).json({ message: "Usuário não encontrado!" });
+      return;
+    }
 
-			// Buscando o chat que corresponda ao nome do usuário e à pesquisa
-			const chat = await ChatModel.findOne({
-				userOneID: userID,
-				userTwoNickname: { $regex: searchRegex }, // Aqui estamos usando a regex para fazer uma busca parcial
-			});
+    const userID = user._id.toString();
 
-			if (chat === null) {
-				res.status(404).json({ message: "Nenhum chat encontrado!" });
-				return;
-			}
+    try {
+      // Criando a expressão regular para buscar uma correspondência insensível a maiúsculas e minúsculas
+      const searchRegex = new RegExp(searchName, "i"); // 'i' torna a busca insensível ao caso
 
-			res.status(200).json({ chat: chat });
-		} catch (error) {
-			res.status(500).json({ message: "Erro interno do servidor!" });
-			return;
-		}
-	}
+      // Buscando o chat que corresponda ao nome do usuário e à pesquisa
+      const chat = await ChatModel.findOne({
+        userOneID: userID,
+        userTwoNickname: { $regex: searchRegex }, // Aqui estamos usando a regex para fazer uma busca parcial
+      });
+
+      if (chat === null) {
+        res.status(404).json({ message: "Nenhum chat encontrado!" });
+        return;
+      }
+
+      res.status(200).json({ chat: chat });
+    } catch (error) {
+      res.status(500).json({ message: "Erro interno do servidor!" });
+      return;
+    }
+  }
 }
 
 export default ChatController;
