@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
@@ -14,13 +13,8 @@ import { Sidebar } from "@/components/Sidebar";
 import api from "@/utils/api";
 
 // icons
-import { GrMapLocation } from "react-icons/gr";
-import { ShoppingCartOne } from "@icon-park/react";
-import { LiaShippingFastSolid } from "react-icons/lia";
-import { PiCreditCardBold } from "react-icons/pi";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 import { LuPackageCheck, LuPackageX } from "react-icons/lu";
-import { FiInfo } from "react-icons/fi";
 
 function MyOrderByIDPage() {
 	const { id } = useParams();

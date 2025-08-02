@@ -19,7 +19,7 @@ import api from "@/utils/api";
 import { Coupon } from "@icon-park/react";
 import { BsPersonFill } from "react-icons/bs";
 import { LuCalendarRange, LuPackage, LuPackageCheck } from "react-icons/lu";
-import { MdOutlineLocalActivity, MdOutlineStore } from "react-icons/md";
+import { MdOutlineLocalActivity } from "react-icons/md";
 import { toast } from "react-toastify";
 import { GrMapLocation } from "react-icons/gr";
 
