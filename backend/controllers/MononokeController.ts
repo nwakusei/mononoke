@@ -114,31 +114,26 @@ class OtakuPrimeController {
             currentUser.password = "";
 
             // Verifique se o cpfCnpj existe no usuário e, se sim, descriptografe
-            if (currentUser.cpfCnpj) {
-              console.log("cpfCnpj criptografado:", currentUser.cpfCnpj); // Log para ver o valor criptografado
+            if ("cpfCnpj" in currentUser && currentUser.cpfCnpj) {
               const decryptedCpfCnpj = decrypt(currentUser.cpfCnpj);
-              console.log("cpfCnpj descriptografado:", decryptedCpfCnpj); // Log para ver o valor descriptografado
-              currentUser.cpfCnpj = decryptedCpfCnpj; // Atualiza o campo com o valor descriptografado
+
+              currentUser.cpfCnpj = decryptedCpfCnpj;
             } else {
-              console.log("cpfCnpj não encontrado para o usuário."); // Caso o campo não exista
+              console.log("cpfCnpj não encontrado para o usuário.");
             }
 
             // Verifique se o cpf existe no usuário e, se sim, descriptografe
-            if (currentUser.cpf) {
-              console.log("cpf criptografado:", currentUser.cpf); // Log para ver o valor criptografado
+            if ("cpf" in currentUser && currentUser.cpf) {
               const decryptedCpf = decrypt(currentUser.cpf);
-              console.log("cpf descriptografado:", decryptedCpf); // Log para ver o valor descriptografado
-              currentUser.cpf = decryptedCpf; // Atualiza o campo com o valor descriptografado
+              currentUser.cpf = decryptedCpf;
             } else {
               console.log("cpf não encontrado para o usuário.");
             }
 
             // Verifique se o cashback existe no usuário e, se sim, descriptografe
-            if (currentUser.cashback) {
-              console.log("cashback criptografado:", currentUser.cashback); // Log para ver o valor criptografado
+            if ("cashback" in currentUser && currentUser.cashback) {
               const decryptedCashback = decrypt(currentUser.cashback);
-              console.log("cashback descriptografado:", decryptedCashback); // Log para ver o valor descriptografado
-              currentUser.cashback = decryptedCashback; // Atualiza o campo com o valor descriptografado
+              currentUser.cashback = decryptedCashback;
             } else {
               console.log("cashback não encontrado para o usuário.");
             }

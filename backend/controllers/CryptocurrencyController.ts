@@ -517,11 +517,19 @@ class CryptocurrencyController {
         return;
       }
     } catch (error) {
-      console.log(error);
-      res.status(500).json({
-        message: "Erro interno no servidor.",
-        error: error.message,
-      });
+      if (error instanceof Error) {
+        console.log(error);
+        res.status(500).json({
+          message: "Erro interno no servidor.",
+          error: error.message,
+        });
+      } else {
+        console.log(error);
+        res.status(500).json({
+          message: "Erro interno no servidor.",
+          error: String(error),
+        });
+      }
       return;
     }
   }
