@@ -617,15 +617,6 @@ class OtakupayController {
         customerOtakupay.balanceAvailable
       );
 
-      if (logDecryptedCustomerBalanceAvailable !== null) {
-        console.log(
-          "NOVO CUSTOMER BALANCE AVAILABLE DISPONÍVEL:",
-          logDecryptedCustomerBalanceAvailable.toFixed(2) // Exibindo o saldo com 2 casas decimais
-        );
-      } else {
-        console.error("Erro ao descriptografar o Customer Balance Available");
-      }
-
       // Array para armazenar os parceiros
       const partners = [];
 
@@ -858,7 +849,9 @@ class OtakupayController {
         // Calcular o cashback do cliente com base na porcentagem de cashback do parceiro
         const customerCashbackAmount =
           Math.floor(
-            partnerCost.totalCost * (partnerOtakupay.cashback / 100) * 100
+            partnerCost.totalCost *
+              (Number(partnerOtakupay.cashback) / 100) *
+              100
           ) / 100;
 
         // Adicionar o cashback do cliente ao array de cashbacks do cliente
@@ -926,8 +919,7 @@ class OtakupayController {
 
       // Somar o total de cashback (Otaku Points) ao Otaku Points Pending do Customer
       const newOtakuPointsPending =
-        (decryptedOtakuPointsPending as number) +
-        (totalCustomerCashback as number);
+        Number(decryptedOtakuPointsPending) + Number(totalCustomerCashback);
 
       console.log(
         "NOVO OTAKU POINTS PENDING DO CUSTOMER EM NÚMEROS:",
@@ -1001,7 +993,7 @@ class OtakupayController {
         } else {
           // Calcular o cashback que o parceiro está oferecendo
           const cashbackAmount =
-            partnerCost.totalCost * (partnerOtakupay.cashback / 100);
+            partnerCost.totalCost * (Number(partnerOtakupay.cashback) / 100);
 
           console.log("VALOR DO CASHBACK", cashbackAmount);
 
@@ -1939,7 +1931,7 @@ class OtakupayController {
       }
 
       if (
-        isNaN(decryptedCustomerBalanceAvailable) ||
+        isNaN(Number(decryptedCustomerBalanceAvailable)) ||
         isNaN(customerOrderCostTotal)
       ) {
         res.status(422).json({
@@ -1973,15 +1965,6 @@ class OtakupayController {
       const logDecryptedCustomerBalanceAvailable = decrypt(
         customerOtakupay.balanceAvailable
       );
-
-      if (logDecryptedCustomerBalanceAvailable !== null) {
-        console.log(
-          "NOVO CUSTOMER BALANCE AVAILABLE DISPONÍVEL:",
-          logDecryptedCustomerBalanceAvailable.toFixed(2) // Exibindo o saldo com 2 casas decimais
-        );
-      } else {
-        console.error("Erro ao descriptografar o Customer Balance Available");
-      }
 
       // Array para armazenar os parceiros
       const partners = [];
@@ -2215,7 +2198,9 @@ class OtakupayController {
         // Calcular o cashback do cliente com base na porcentagem de cashback do parceiro
         const customerCashbackAmount =
           Math.floor(
-            partnerCost.totalCost * (partnerOtakupay.cashback / 100) * 100
+            partnerCost.totalCost *
+              (Number(partnerOtakupay.cashback) / 100) *
+              100
           ) / 100;
 
         // Adicionar o cashback do cliente ao array de cashbacks do cliente
@@ -2286,22 +2271,11 @@ class OtakupayController {
       // 	decryptedOtakuPointsPending + totalCustomerCashback;
 
       const newOtakuPointsPending =
-        (decryptedOtakuPointsPending as number) +
-        (totalCustomerCashback as number);
-
-      console.log(
-        "NOVO OTAKU POINTS PENDING DO CUSTOMER EM NÚMEROS:",
-        newOtakuPointsPending
-      );
+        Number(decryptedOtakuPointsPending) + Number(totalCustomerCashback);
 
       // Criptografar o novo Otaku Points Pending do Customer
       const encryptedNewOtakuPointsPending = encrypt(
         newOtakuPointsPending.toString()
-      );
-
-      console.log(
-        "NOVO OTAKU POINTS PENDING DO CUSTOMER CRIPTOGRAFADO:",
-        encryptedNewOtakuPointsPending
       );
 
       // Atualizar os Customer Otaku Points Pending criptografados no banco de dados
@@ -2361,14 +2335,10 @@ class OtakupayController {
         } else {
           // Calcular o cashback que o parceiro está oferecendo
           const cashbackAmount =
-            partnerCost.totalCost * (partnerOtakupay.cashback / 100);
-
-          console.log("VALOR DO CASHBACK", cashbackAmount);
+            partnerCost.totalCost * (Number(partnerOtakupay.cashback) / 100);
 
           // Somar o cashback ao valor da comissão
           const totalAmount = commissionAmount + cashbackAmount;
-
-          console.log("VALOR DO CASHBACK + COMISSÃO", totalAmount);
 
           // Adicionar a comissão do parceiro ao array de comissões
           partnerCommissions.push({
@@ -2377,11 +2347,6 @@ class OtakupayController {
           });
         }
       }
-
-      console.log(
-        "COMISSÕES A SEREM PAGAS PELOS PARTNERS:",
-        partnerCommissions
-      );
 
       // Array para armazenar as comissões criptografadas por parceiros
       const encryptedPartnerCommissions: {
@@ -3602,7 +3567,7 @@ class OtakupayController {
                   }
 
                   if (
-                    isNaN(decryptedCustomerBalanceAvailable) ||
+                    isNaN(Number(decryptedCustomerBalanceAvailable)) ||
                     isNaN(customerOrderCostTotal)
                   ) {
                     res.status(422).json({
@@ -3896,7 +3861,7 @@ class OtakupayController {
                     const customerCashbackAmount =
                       Math.floor(
                         partnerCost.totalCost *
-                          (partnerOtakupay.cashback / 100) *
+                          (Number(partnerOtakupay.cashback) / 100) *
                           100
                       ) / 100;
 
@@ -3969,8 +3934,8 @@ class OtakupayController {
                   // 	decryptedOtakuPointsPending + totalCustomerCashback;
 
                   const newOtakuPointsPending =
-                    (decryptedOtakuPointsPending as number) +
-                    (totalCustomerCashback as number);
+                    Number(decryptedOtakuPointsPending) +
+                    Number(totalCustomerCashback);
 
                   console.log(
                     "NOVO OTAKU POINTS PENDING DO CUSTOMER EM NÚMEROS:",
@@ -4048,7 +4013,7 @@ class OtakupayController {
                       // Calcular o cashback que o parceiro está oferecendo
                       const cashbackAmount =
                         partnerCost.totalCost *
-                        (partnerOtakupay.cashback / 100);
+                        (Number(partnerOtakupay.cashback) / 100);
 
                       console.log("VALOR DO CASHBACK", cashbackAmount);
 
