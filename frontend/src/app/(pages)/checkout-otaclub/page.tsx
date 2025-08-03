@@ -82,7 +82,7 @@ interface OtaclubProduct {
 }
 
 function CheckoutOtaclubPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState<ICustomer | null>(null);
   const [product, setProduct] = useState<OtaclubProduct | null>(null);
   const [loadingButton, setLoadingButton] = useState(false);
@@ -95,6 +95,13 @@ function CheckoutOtaclubPage() {
     state: user?.address?.[0]?.state || "",
     postalCode: user?.address?.[0]?.postalCode || "",
   };
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     const decryptedProduct = localStorage.getItem("otaclubProduct");

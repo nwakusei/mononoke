@@ -41,7 +41,7 @@ type TCreatePixCodeFormSchema = z.infer<typeof createPixCodeFormSchema>;
 function AddBalance() {
   const [user, setUser] = useState({});
   // const [userOtakupay, setUserOtakupay] = useState({});
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [pix, setPix] = useState({});
   const [qrCodeUrl, setQrCodeUrl] = useState(""); // Estado para armazenar a URL do QR Code
   const [btnLoading, setBtnLoading] = useState(false);
@@ -51,6 +51,13 @@ function AddBalance() {
   const [loadingButtonId, setLoadingButtonId] = useState(false);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   const {
     register,
