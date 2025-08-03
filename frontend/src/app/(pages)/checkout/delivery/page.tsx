@@ -24,21 +24,43 @@ import { YourOrderComp } from "@/components/YourOrderComp";
 
 import CryptoJS from "crypto-js";
 
-function encryptData(data) {
-  return CryptoJS.AES.encrypt(
-    JSON.stringify(data), // Converte o objeto inteiro para string
-    "chave-secreta"
-  ).toString();
+const secretKey = process.env.NEXT_PUBLIC_AES_SECRET_KEY as string;
+
+function encryptData(data: unknown): string {
+  const key = CryptoJS.enc.Utf8.parse(secretKey);
+  const iv = CryptoJS.lib.WordArray.random(16);
+
+  const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+
+  // Retorna o IV + ":" + texto cifrado, para decodificação posterior
+  return iv.toString() + ":" + encrypted.toString();
 }
 
-function decryptData(encryptedData) {
+function decryptData(encryptedData: string): string | null {
   try {
-    const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
-    const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+    const [ivHex, encryptedHex] = encryptedData.split(":");
+    if (!ivHex || !encryptedHex) {
+      console.error("Formato de dados inválido para descriptografia");
+      return null;
+    }
 
-    // Garantir que o dado retornado seja uma string JSON válida
+    const key = CryptoJS.enc.Utf8.parse(secretKey);
+    const iv = CryptoJS.enc.Hex.parse(ivHex);
+
+    const decrypted = CryptoJS.AES.decrypt(encryptedHex, key, {
+      iv: iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    });
+
+    const decryptedString = decrypted.toString(CryptoJS.enc.Utf8);
+
     if (decryptedString) {
-      return decryptedString; // Retorna como uma string
+      return decryptedString;
     } else {
       console.error("Falha ao descriptografar: Dado inválido.");
       return null;

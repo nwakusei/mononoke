@@ -56,7 +56,6 @@ if (secretKey.length !== 32) {
 }
 
 // Função para Criptografar dados sensíveis no Banco de Dados
-
 function encrypt(balance: string): string {
   const iv = crypto.randomBytes(16); // Gera um IV aleatório
   const cipher = crypto.createCipheriv(
