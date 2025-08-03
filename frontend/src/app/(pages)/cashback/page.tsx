@@ -5,14 +5,14 @@ import { useState, useEffect, useContext } from "react";
 import api from "@/utils/api";
 
 // Context
-import { Context } from "@/context/UserContext";
+import { usePartners } from "@/hooks/usePartners";
 
 // Components
 import { CashbackCard } from "@/components/CashbackCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function CashbackPage() {
-  const { partners } = useContext(Context);
+  const { partners } = usePartners();
   const [coupons, setCoupons] = useState([]);
   const couponExist = "+ Cupom de Desconto";
   const [isLoading, setIsLoading] = useState(true);

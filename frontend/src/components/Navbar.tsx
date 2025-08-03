@@ -264,7 +264,7 @@ function Navbar() {
     }
 
     atualizarCarrinho();
-  }, []);
+  }, [setCart, setSubtotal]);
 
   // Função para remover itens do carrinho de compra
   const handleRemoveFromCart = () => {

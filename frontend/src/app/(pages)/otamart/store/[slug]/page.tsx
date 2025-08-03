@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { useParams } from "next/navigation";
 import api from "@/utils/api";
 import Image from "next/image";
@@ -257,8 +257,7 @@ function StorePage() {
     }
   };
 
-  // Função para buscar a lista de lojas seguidas
-  const fetchFollowedStores = async () => {
+  const fetchFollowedStores = useCallback(async () => {
     if (!token) return;
 
     try {
@@ -271,12 +270,11 @@ function StorePage() {
     } catch (error) {
       console.error("Erro ao buscar lojas seguidas:", error);
     }
-  };
+  }, [token]);
 
-  // Chama a função para buscar as lojas seguidas quando o componente é montado
   useEffect(() => {
     fetchFollowedStores();
-  }, [token]);
+  }, [fetchFollowedStores]);
 
   const handleSearch = async () => {
     // Verifica se há texto na pesquisa antes de fazer a requisição
@@ -772,10 +770,13 @@ function StorePage() {
                 <>
                   <hr />
                   <div className="flex mt-[4px] relative gap-1">
-                    <img
+                    <Image
+                      className="w-[40px] object-cover rounded-sm shadow-md"
                       src={URL.createObjectURL(imageMessage)} // Gera um URL temporário para a imagem
                       alt="Imagem Selecionada"
-                      className="w-[40px] object-cover rounded-sm shadow-md"
+                      width={40}
+                      height={40}
+                      unoptimized
                     />
                     {/* Botão de close */}
                     <button
