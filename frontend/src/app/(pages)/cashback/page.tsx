@@ -11,9 +11,15 @@ import { usePartners } from "@/hooks/usePartners";
 import { CashbackCard } from "@/components/CashbackCard";
 import { LoadingPage } from "@/components/LoadingPageComponent";
 
+type Coupon = {
+  partnerID: string;
+  discountAmount: number;
+  // adicione outros campos se houver
+};
+
 function CashbackPage() {
   const { partners } = usePartners();
-  const [coupons, setCoupons] = useState([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
   const couponExist = "+ Cupom de Desconto";
   const [isLoading, setIsLoading] = useState(true);
 
