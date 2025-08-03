@@ -867,14 +867,14 @@ class ProductController {
       return;
     }
 
-    if (product.partnerID as mongoose.Schema.Types.ObjectId) {
+    if (product.partnerID as string) {
       res.status(401).json({
         message: "Acesso não autorizado para esta solicitação!",
       });
       return;
     }
 
-    console.log(product.partnerID as mongoose.Schema.Types.ObjectId);
+    console.log(product.partnerID as string);
 
     await ProductModel.findByIdAndDelete(id);
 
