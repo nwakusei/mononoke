@@ -15,7 +15,6 @@ import api from "@/utils/api";
 function MyRafflesTicketsPage() {
   const [myTickets, setMyTickets] = useState([]);
   const [token, setToken] = useState("");
-  const [deleteLoading, setDeletLoading] = useState(null);
   const [loadingButtonId, setLoadingButtonId] = useState(null);
 
   useEffect(() => {
