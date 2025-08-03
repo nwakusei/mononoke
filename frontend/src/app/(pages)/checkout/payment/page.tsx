@@ -613,6 +613,8 @@ function PaymentPage() {
   };
 
   async function handleQRCode(totalPedido) {
+    if (!token) return;
+
     let originalValue = totalPedido;
 
     // // Verificar se a entrada contém uma vírgula e substituí-la por um ponto

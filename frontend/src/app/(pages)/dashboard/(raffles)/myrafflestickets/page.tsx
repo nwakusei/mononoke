@@ -26,10 +26,12 @@ function MyRafflesTicketsPage() {
   }, []);
 
   useEffect(() => {
+    if (!token) return;
+
     api
       .get("/raffles/customer-raffles", {
         headers: {
-          Authorization: `Bearer ${JSON.parse(token)}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
