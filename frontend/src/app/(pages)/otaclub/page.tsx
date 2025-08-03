@@ -212,7 +212,7 @@ function OtaclubPage() {
           <div className="flex flex-row items-center justify-center gap-3 bg-primary w-[1100px] text-center text-xl md:text-2xl font-semibold overflow-hidden text-ellipsis whitespace-nowrap py-2 mt-8 mb-4 rounded-md shadow-md select-none">
             <FiInfo className="mt-[2px]" size={20} />
             <span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[800px]">
-              Resultado da pesquisa para '{searchedText}'
+              Resultado da pesquisa para &apos;{searchedText}&apos;
             </span>
           </div>
         )}
