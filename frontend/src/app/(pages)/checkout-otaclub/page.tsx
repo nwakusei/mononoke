@@ -48,9 +48,36 @@ function decryptData(encryptedData: string): string | null {
 
 // Components
 
+interface IAddress {
+  street?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+}
+
+interface ICustomer {
+  accountStatus: string;
+  accountType: string;
+  profileImage: string;
+  name: string;
+  nickname: string;
+  email: string;
+  password: string;
+  cpf: string;
+  address: IAddress[];
+  viewAdultContent: boolean;
+  followingStores: any[];
+  newsletters: boolean;
+  otakupayID: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+}
+
 function CheckoutOtaclubPage() {
   const [token] = useState(localStorage.getItem("token") || "");
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState<ICustomer | null>(null);
   const [product, setProduct] = useState({});
   const [loadingButton, setLoadingButton] = useState(false);
 
