@@ -75,13 +75,17 @@ interface ICustomer {
   resetPasswordExpires?: Date;
 }
 
+interface OtaclubProduct {
+  productImage: string;
+  productTitle: string;
+  productPrice: number;
+}
+
 function CheckoutOtaclubPage() {
   const [token] = useState(localStorage.getItem("token") || "");
   const [user, setUser] = useState<ICustomer | null>(null);
-  const [product, setProduct] = useState({});
+  const [product, setProduct] = useState<OtaclubProduct | null>(null);
   const [loadingButton, setLoadingButton] = useState(false);
-
-  console.log("PRODUTO", product);
 
   const customerAddress = {
     street: user?.address?.[0]?.street || "",
@@ -254,7 +258,7 @@ function CheckoutOtaclubPage() {
                 <div className="flex flex-row gap-4">
                   <div>
                     <Image
-                      src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${product.productImage}`}
+                      src={`https://mononokebucket.s3.us-east-1.amazonaws.com/${product?.productImage}`}
                       alt="Product Image Miniature"
                       width={60}
                       height={10}
@@ -292,8 +296,13 @@ function CheckoutOtaclubPage() {
           </button>
         ) : (
           <button
-            onClick={() => swapOtaclubProcess(product, customerAddress)}
+            onClick={() => {
+              if (product) {
+                swapOtaclubProcess(product, customerAddress);
+              }
+            }}
             className="flex flex-row items-center btn btn-primary w-[200px]"
+            disabled={!product}
           >
             <RiSwap2Line size={20} />
             <span>Processar Troca</span>

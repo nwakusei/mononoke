@@ -43,7 +43,7 @@ interface IProduct {
   productsSold: number;
   rating: number;
   reviews: [Object];
-  partnerID: Schema.Types.ObjectId;
+  partnerID: string;
 }
 
 // Schema que corresponda a Interface
@@ -154,7 +154,7 @@ const productSchema = new Schema<IProduct>(
       type: [Object],
     },
     partnerID: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "PartnerModel",
     },
   },
