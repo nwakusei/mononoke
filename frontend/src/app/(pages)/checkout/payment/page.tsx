@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 import QRCode from "qrcode"; // Importe a biblioteca QRCode
@@ -23,7 +23,6 @@ import { CheckoutPixContent } from "@/components/CheckoutPixContent";
 import { CheckoutCreditCardInstallmentsContent } from "@/components/CheckoutCreditCardInstallmentsContent";
 
 // Context
-import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
 import { PaymentMethod, ShoppingCartOne } from "@icon-park/react";
@@ -96,7 +95,7 @@ interface ProductInCart {
 }
 
 function PaymentPage() {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(null);
   const { transportadoraInfo, setTransportadoraInfo } = useCheckout();
   const [productsInCart, setProductsInCart] = useState<ProductInCart[]>([]);
   const router = useRouter();

@@ -73,6 +73,7 @@ function ResetPassword() {
   const [loadingButton, setLoadingButton] = useState(false);
 
   const searchParams = useSearchParams();
+
   const token = searchParams.get("token");
 
   const {
