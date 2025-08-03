@@ -1,3 +1,87 @@
+# name: Build and Upload Artifacts
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build-backend:
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: ./backend
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+
+#       - name: Setup Node.js for backend
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 18
+
+#       - name: Install backend dependencies
+#         run: npm install
+
+#       - name: Build backend
+#         run: npm run build
+
+#       - name: Upload backend build artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: backend-build
+#           path: ./dist
+
+#   build-frontend:
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: ./frontend
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+
+#       - name: Setup Node.js for frontend
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 18
+
+#       - name: Install frontend dependencies
+#         run: npm install
+
+#       - name: Build frontend
+#         run: npm run build
+
+#       - name: Upload frontend build artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: frontend-build
+#           path: ./.next
+
+#   build-nginx:
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: ./nginx
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+
+#       - name: Build nginx Docker image
+#         run: |
+#           docker build -t mononoke-nginx .
+
+#       - name: Save nginx Docker image as tar
+#         run: |
+#           mkdir -p ../artifacts
+#           docker save mononoke-nginx -o ../artifacts/nginx-image.tar
+
+#       - name: Upload nginx image artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: nginx-image
+#           path: ./artifacts/nginx-image.tar
+
 name: Build and Upload Artifacts
 
 on:
@@ -26,11 +110,12 @@ jobs:
       - name: Build backend
         run: npm run build
 
-      - name: Copy backend to shared folder
+      - name: Copy backend build to shared output folder
         run: |
           mkdir -p ../output/backend
           cp -r dist ../output/backend/
-          cp -r Dockerfile ../output/backend/
+          # Se tiver Dockerfile na raiz do backend
+          cp Dockerfile ../output/backend/ || true
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -52,10 +137,10 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Copy frontend to shared folder
+      - name: Copy frontend build to shared output folder
         run: |
           mkdir -p ../output/frontend
-          cp -r .next public package.json next.config.js Dockerfile ../output/frontend/
+          cp -r .next public package.json next.config.js Dockerfile ../output/frontend/ || true
 
   build-nginx:
     runs-on: ubuntu-latest
@@ -66,7 +151,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Copy nginx to shared folder
+      - name: Copy nginx config to shared output folder
         run: |
           mkdir -p ../output/nginx
           cp -r conf.d certs Dockerfile ../output/nginx/
@@ -78,10 +163,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Package full project
+      - name: Prepare output folder and copy docker-compose.yml
         run: |
           mkdir -p output
           cp docker-compose.yml output/
+
+      - name: Copy build artifacts from previous jobs
+        run: |
+          # Copy all build outputs into output folder
+          cp -r backend output/backend
+          cp -r frontend output/frontend
+          cp -r nginx output/nginx
+
+      - name: Create final package archive
+        run: |
           tar -czf mononoke-full-package.tar.gz -C output .
 
       - name: Upload final project package
