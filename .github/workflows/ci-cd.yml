@@ -57,3 +57,27 @@ jobs:
         with:
           name: frontend-build
           path: ./.next
+
+  build-nginx:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./nginx
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build nginx Docker image
+        run: |
+          docker build -t mononoke-nginx .
+
+      - name: Save nginx Docker image as tar
+        run: |
+          mkdir -p ../artifacts
+          docker save mononoke-nginx -o ../artifacts/nginx-image.tar
+
+      - name: Upload nginx image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nginx-image
+          path: ./artifacts/nginx-image.tar
