@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -13,12 +13,8 @@ import Lycoris from "../../../../../public/lycoris.jpg";
 import { CheckoutContext } from "@/context/CheckoutContext";
 
 // Icons
-import { Coupon, IdCardH, ShoppingCartOne } from "@icon-park/react";
-import {
-	MdOutlineDeleteOutline,
-	MdArrowBackIos,
-	MdArrowForwardIos,
-} from "react-icons/md";
+import { ShoppingCartOne } from "@icon-park/react";
+import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import { GrLocation } from "react-icons/gr";
 import { HiOutlineCreditCard } from "react-icons/hi";
 import { PiCreditCardBold } from "react-icons/pi";
@@ -34,597 +30,564 @@ import { YourOrderComp } from "@/components/YourOrderComp";
 import CryptoJS from "crypto-js";
 
 function encryptData(data) {
-	return CryptoJS.AES.encrypt(
-		JSON.stringify(data), // Converte o objeto inteiro para string
-		"chave-secreta"
-	).toString();
+  return CryptoJS.AES.encrypt(
+    JSON.stringify(data), // Converte o objeto inteiro para string
+    "chave-secreta"
+  ).toString();
 }
 
 function decryptData(encryptedData) {
-	try {
-		const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
-		const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedData, "chave-secreta");
+    const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
 
-		// Garantir que o dado retornado seja uma string JSON válida
-		if (decryptedString) {
-			return decryptedString; // Retorna como uma string
-		} else {
-			console.error("Falha ao descriptografar: Dado inválido.");
-			return null;
-		}
-	} catch (error) {
-		console.error("Erro ao descriptografar:", error);
-		return null;
-	}
+    // Garantir que o dado retornado seja uma string JSON válida
+    if (decryptedString) {
+      return decryptedString; // Retorna como uma string
+    } else {
+      console.error("Falha ao descriptografar: Dado inválido.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Erro ao descriptografar:", error);
+    return null;
+  }
 }
 
 function ReviewInfoPage() {
-	const { transportadoraInfo, setTransportadoraInfo } =
-		useContext(CheckoutContext);
-	const [productsInCart, setProductsInCart] = useState([]);
-	const [token] = useState(localStorage.getItem("token") || "");
-	const [user, setUser] = useState({});
+  const { transportadoraInfo, setTransportadoraInfo } =
+    useContext(CheckoutContext);
+  const [productsInCart, setProductsInCart] = useState([]);
+  const [token] = useState(localStorage.getItem("token") || "");
+  const [user, setUser] = useState({});
 
-	const [isFreightSimulated, setIsFreightSimulated] = useState(false);
+  const [isFreightSimulated, setIsFreightSimulated] = useState(false);
 
-	useEffect(() => {
-		api.get("/mononoke/check-user", {
-			headers: {
-				Authorization: `Bearer ${JSON.parse(token)}`,
-			},
-		}).then((response) => {
-			setUser(response.data);
-		});
-	}, [token]);
+  useEffect(() => {
+    api
+      .get("/mononoke/check-user", {
+        headers: {
+          Authorization: `Bearer ${JSON.parse(token)}`,
+        },
+      })
+      .then((response) => {
+        setUser(response.data);
+      });
+  }, [token]);
 
+  useEffect(() => {
+    const savedProductsInCart = localStorage.getItem("productsInCart");
 
-	useEffect(() => {
-		const savedProductsInCart = localStorage.getItem("productsInCart");
+    if (!savedProductsInCart) {
+      setProductsInCart([]);
+      return;
+    }
 
-		if (!savedProductsInCart) {
-			setProductsInCart([]);
-			return;
-		}
+    try {
+      const decryptedString = decryptData(savedProductsInCart);
+      if (!decryptedString) {
+        setProductsInCart([]);
+        return;
+      }
 
-		try {
-			const decryptedString = decryptData(savedProductsInCart);
-			if (!decryptedString) {
-				setProductsInCart([]);
-				return;
-			}
+      const parsedData = JSON.parse(decryptedString);
+      if (!Array.isArray(parsedData)) {
+        setProductsInCart([]);
+        return;
+      }
 
-			const parsedData = JSON.parse(decryptedString);
-			if (!Array.isArray(parsedData)) {
-				setProductsInCart([]);
-				return;
-			}
+      const updateProducts = async () => {
+        const updated = await Promise.all(
+          parsedData.map(async (item: any) => {
+            try {
+              const res = await api.get(`/products/${item.productID}`);
+              const data = res.data.product;
 
-			const updateProducts = async () => {
-				const updated = await Promise.all(
-					parsedData.map(async (item: any) => {
-						try {
-							const res = await api.get(
-								`/products/${item.productID}`
-							);
-							const data = res.data.product;
+              let updatedPrice = 0;
+              let updatedImage = item.imageProduct;
 
-							let updatedPrice = 0;
-							let updatedImage = item.imageProduct;
+              if (
+                data.productVariations?.length > 0 &&
+                item.productVariations?.length > 0
+              ) {
+                const selectedVariation = item.productVariations[0];
 
-							if (
-								data.productVariations?.length > 0 &&
-								item.productVariations?.length > 0
-							) {
-								const selectedVariation =
-									item.productVariations[0];
+                const matchedOption = data.productVariations[0]?.options.find(
+                  (opt: any) => opt.name === selectedVariation.name
+                );
 
-								const matchedOption =
-									data.productVariations[0]?.options.find(
-										(opt: any) =>
-											opt.name === selectedVariation.name
-									);
+                if (matchedOption) {
+                  const promo = Number(matchedOption.promotionalPrice);
+                  const original = Number(matchedOption.originalPrice);
 
-								if (matchedOption) {
-									const promo = Number(
-										matchedOption.promotionalPrice
-									);
-									const original = Number(
-										matchedOption.originalPrice
-									);
+                  updatedPrice =
+                    promo > 0
+                      ? promo
+                      : original > 0
+                      ? original
+                      : data.promotionalPrice > 0
+                      ? data.promotionalPrice
+                      : data.originalPrice;
 
-									updatedPrice =
-										promo > 0
-											? promo
-											: original > 0
-											? original
-											: data.promotionalPrice > 0
-											? data.promotionalPrice
-											: data.originalPrice;
+                  updatedImage = matchedOption.imageUrl ?? updatedImage;
+                } else {
+                  const promo = Number(data.promotionalPrice);
+                  const original = Number(data.originalPrice);
 
-									updatedImage =
-										matchedOption.imageUrl ?? updatedImage;
-								} else {
-									const promo = Number(data.promotionalPrice);
-									const original = Number(data.originalPrice);
+                  updatedPrice = promo > 0 ? promo : original;
+                  updatedImage = data.productImages?.[0] ?? updatedImage;
+                }
+              } else {
+                const promo = Number(data.promotionalPrice);
+                const original = Number(data.originalPrice);
 
-									updatedPrice = promo > 0 ? promo : original;
-									updatedImage =
-										data.productImages?.[0] ?? updatedImage;
-								}
-							} else {
-								const promo = Number(data.promotionalPrice);
-								const original = Number(data.originalPrice);
+                updatedPrice = promo > 0 ? promo : original;
+                updatedImage = data.productImages?.[0] ?? updatedImage;
+              }
 
-								updatedPrice = promo > 0 ? promo : original;
-								updatedImage =
-									data.productImages?.[0] ?? updatedImage;
-							}
+              if (
+                typeof updatedPrice !== "number" ||
+                isNaN(updatedPrice) ||
+                updatedPrice <= 0
+              ) {
+                throw new Error("❌ Preço final inválido");
+              }
 
-							if (
-								typeof updatedPrice !== "number" ||
-								isNaN(updatedPrice) ||
-								updatedPrice <= 0
-							) {
-								throw new Error("❌ Preço final inválido");
-							}
+              return {
+                ...item,
+                productTitle: data.productTitle ?? item.productTitle,
+                productPrice: updatedPrice,
+                productPriceTotal: updatedPrice * item.quantityThisProduct,
+                imageProduct: updatedImage,
+              };
+            } catch (err) {
+              console.warn(`❗ Erro ao buscar produto ${item.productID}`, err);
+              return item;
+            }
+          })
+        );
 
-							return {
-								...item,
-								productTitle:
-									data.productTitle ?? item.productTitle,
-								productPrice: updatedPrice,
-								productPriceTotal:
-									updatedPrice * item.quantityThisProduct,
-								imageProduct: updatedImage,
-							};
-						} catch (err) {
-							console.warn(
-								`❗ Erro ao buscar produto ${item.productID}`,
-								err
-							);
-							return item;
-						}
-					})
-				);
+        localStorage.setItem("productsInCart", encryptData(updated));
+        setProductsInCart(updated);
+      };
 
-				localStorage.setItem("productsInCart", encryptData(updated));
-				setProductsInCart(updated);
-			};
+      updateProducts();
+    } catch (err) {
+      console.error("Erro ao atualizar carrinho", err);
+      setProductsInCart([]);
+    }
+  }, []);
 
-			updateProducts();
-		} catch (err) {
-			console.error("Erro ao atualizar carrinho", err);
-			setProductsInCart([]);
-		}
-	}, []);
+  const handleSimulateShipping = useCallback(
+    async (cepDestino, productInfo) => {
+      try {
+        let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
 
-	useEffect(() => {
-		// 🚨 Se ainda não carregou os produtos ou já simulou o frete, não executa
-		if (
-			!Array.isArray(productsInCart) ||
-			productsInCart.length === 0 ||
-			isFreightSimulated
-		)
-			return;
+        for (const partnerID in productInfo) {
+          if (productInfo.hasOwnProperty(partnerID)) {
+            const partnerData = productInfo[partnerID];
 
-		// 🔥 Objeto para armazenar as informações dos produtos por parceiro
-		const productInfo = {};
-		let cepDestino = null;
+            let fretesRecebidos = []; // 🔥 Resetando para cada parceiro
 
-		// 🔹 Filtrar produtos elegíveis para cálculo de frete
-		const eligibleProducts = productsInCart.filter(
-			(product) => product.cepDestino && product.cepDestino.trim() !== ""
-		);
+            try {
+              const requests = [];
 
-		eligibleProducts.forEach((product) => {
-			const partnerID = product.partnerID;
+              // Simulação de Melhor Envio
+              requests.push(
+                api
+                  .post("/shippings/simulate-melhor-envio", {
+                    productID: partnerData.productID,
+                    cepDestino: cepDestino,
+                    weight: partnerData.weight,
+                    height: partnerData.height,
+                    width: partnerData.width,
+                    length: partnerData.length,
+                    productPrice: partnerData.productPrice,
+                    productPriceTotal: partnerData.productPriceTotal,
+                    quantityThisProduct: partnerData.quantityThisProduct,
+                  })
+                  .catch((error) => {
+                    console.warn(
+                      `Erro ao simular Melhor Envio para ${partnerID}:`,
+                      error
+                    );
+                    return { data: [] }; // Retorna array vazio para evitar falhas
+                  })
+              );
 
-			if (!productInfo[partnerID]) {
-				productInfo[partnerID] = {
-					weight: product.weight || 0,
-					length: product.length || 0,
-					width: product.width || 0,
-					height: product.height || 0,
-					productPrice: product.productPrice || 0,
-					productPriceTotal: product.productPriceTotal || 0,
-					quantityThisProduct: product.quantityThisProduct || 0,
-					transportadora: {
-						companyID: product.transportadora?.companyID,
-					},
-					productID: product.productID,
-				};
-			} else {
-				// 🔹 Acumulando valores de produtos do mesmo parceiro
-				productInfo[partnerID].weight += product.weight || 0;
-				productInfo[partnerID].length += product.length || 0;
-				productInfo[partnerID].width += product.width || 0;
-				productInfo[partnerID].height += product.height || 0;
-				productInfo[partnerID].productPrice +=
-					product.productPrice || 0;
-				productInfo[partnerID].productPriceTotal +=
-					product.productPriceTotal || 0;
-				productInfo[partnerID].quantityThisProduct +=
-					product.quantityThisProduct || 0;
-			}
+              // Simulação de Modico
+              requests.push(
+                api
+                  .post("/shippings/simulate-modico", {
+                    productID: partnerData.productID,
+                    cepDestino: cepDestino,
+                    weight: partnerData.weight,
+                    height: partnerData.height,
+                    width: partnerData.width,
+                    length: partnerData.length,
+                    productPrice: partnerData.productPrice,
+                    productPriceTotal: partnerData.productPriceTotal,
+                    quantityThisProduct: partnerData.quantityThisProduct,
+                  })
+                  .catch((error) => {
+                    console.warn(
+                      `Erro ao simular Modico para ${partnerID}:`,
+                      error
+                    );
+                    return { data: [] }; // Retorna array vazio para evitar falhas
+                  })
+              );
 
-			if (product.cepDestino && product.cepDestino.trim() !== "") {
-				cepDestino = product.cepDestino;
-			}
-		});
+              // Aguarda ambas as requisições e coleta os resultados
+              const [responseMelhorEnvio, responseModico] = await Promise.all(
+                requests
+              );
 
-		if (cepDestino) {
-			handleSimulateShipping(cepDestino, productInfo)
-				.then(() => setIsFreightSimulated(true)) // 🔥 Evita simulações duplicadas
-				.catch((error) => console.error("Erro na simulação:", error));
-		}
+              // Verifica se as respostas são válidas e são arrays
+              const fretesMelhorEnvio = Array.isArray(responseMelhorEnvio.data)
+                ? responseMelhorEnvio.data
+                : [];
+              const fretesModico = Array.isArray(responseModico.data)
+                ? responseModico.data
+                : [];
 
-		// 🔹 Processa produtos com frete grátis
-		const freeShippingProducts = productsInCart.filter(
-			(product) => !product.cepDestino || product.cepDestino.trim() === ""
-		);
+              // Junta os fretes das duas fontes
+              fretesRecebidos = [...fretesMelhorEnvio, ...fretesModico];
 
-		if (freeShippingProducts.length > 0) {
-			const defaultTransportadoraData = {};
+              // Ordena pelo menor preço
+              const sortedFretes = fretesRecebidos.sort(
+                (a, b) => Number(a.price) - Number(b.price)
+              );
 
-			freeShippingProducts.forEach((product) => {
-				const partnerID = product.partnerID;
-				if (!defaultTransportadoraData[partnerID]) {
-					defaultTransportadoraData[partnerID] = {
-						partnerID: partnerID,
-						companyName: "Frete Grátis",
-						modalidyName: "",
-						vlrFrete: 0.0,
-						prazo: 3,
-					};
-				}
-			});
+              // Filtra a transportadora correta com base no companyID salvo no banco de dados
+              const transportadoraCorreta = sortedFretes.find(
+                (transportadora) =>
+                  transportadora.company?.id ===
+                  partnerData.transportadora?.companyID
+              );
 
-			// Criptografando o transportadoraInfo antes de salvar
-			const encryptedTransportadoraInfo = encryptData(
-				defaultTransportadoraData
-			);
+              if (transportadoraCorreta) {
+                console.log(
+                  "Transportadora encontrada:",
+                  transportadoraCorreta
+                );
+              } else {
+                console.log(
+                  "Nenhuma transportadora correspondente encontrada."
+                );
+              }
 
-			// Atualiza o estado com as informações criptografadas
-			setTransportadoraInfo((prevInfo) => ({
-				...prevInfo,
-				...defaultTransportadoraData,
-			}));
+              // Atualiza o objeto transportadoraData
+              transportadoraData[partnerID] = {
+                partnerID: partnerID,
+                companyName:
+                  transportadoraCorreta?.company?.name ?? "Desconhecida",
+                modalidyName: transportadoraCorreta?.name ?? "-",
+                vlrFrete: Number(transportadoraCorreta?.price) || 0,
+                prazo: transportadoraCorreta?.delivery_time || "-",
+              };
+            } catch (error) {
+              console.error(
+                `Erro ao simular frete para o parceiro ${partnerID}:`,
+                error
+              );
+            }
+          }
+        }
 
-			// Salva no localStorage
-			localStorage.setItem(
-				"transportadoraInfo",
-				encryptedTransportadoraInfo
-			);
-		}
-	}, [productsInCart]);
+        // Verifica se transportadoraData não está vazio
+        if (Object.keys(transportadoraData).length === 0) {
+          console.log("Transportadora data está vazio.");
+        } else {
+          console.log("Transportadora data:", transportadoraData);
+        }
 
-	async function handleSimulateShipping(cepDestino, productInfo) {
-		try {
-			let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
+        // 🔥 Atualizando o estado sem acumular valores antigos
+        setTransportadoraInfo(transportadoraData);
 
-			for (const partnerID in productInfo) {
-				if (productInfo.hasOwnProperty(partnerID)) {
-					const partnerData = productInfo[partnerID];
+        // 🔥 Criptografando o transportadoraData antes de salvar no localStorage
+        const encryptedTransportadoraData = encryptData(transportadoraData);
 
-					let fretesRecebidos = []; // 🔥 Resetando para cada parceiro
+        // 🔥 Salvando os dados criptografados no localStorage
+        try {
+          console.log(
+            "Salvando dados no localStorage:",
+            encryptedTransportadoraData
+          );
+          localStorage.setItem(
+            "transportadoraInfo",
+            encryptedTransportadoraData
+          );
+        } catch (error) {
+          console.error("Erro ao salvar no localStorage:", error);
+        }
+      } catch (error) {
+        console.error("Ocorreu um erro:", error);
+      }
+    },
+    [setTransportadoraInfo]
+  );
 
-					try {
-						const requests = [];
+  useEffect(() => {
+    // 🚨 Se ainda não carregou os produtos ou já simulou o frete, não executa
+    if (
+      !Array.isArray(productsInCart) ||
+      productsInCart.length === 0 ||
+      isFreightSimulated
+    )
+      return;
 
-						// Simulação de Melhor Envio
-						requests.push(
-							api
-								.post("/shippings/simulate-melhor-envio", {
-									productID: partnerData.productID,
-									cepDestino: cepDestino,
-									weight: partnerData.weight,
-									height: partnerData.height,
-									width: partnerData.width,
-									length: partnerData.length,
-									productPrice: partnerData.productPrice,
-									productPriceTotal:
-										partnerData.productPriceTotal,
-									quantityThisProduct:
-										partnerData.quantityThisProduct,
-								})
-								.catch((error) => {
-									console.warn(
-										`Erro ao simular Melhor Envio para ${partnerID}:`,
-										error
-									);
-									return { data: [] }; // Retorna array vazio para evitar falhas
-								})
-						);
+    // 🔥 Objeto para armazenar as informações dos produtos por parceiro
+    const productInfo = {};
+    let cepDestino = null;
 
-						// Simulação de Modico
-						requests.push(
-							api
-								.post("/shippings/simulate-modico", {
-									productID: partnerData.productID,
-									cepDestino: cepDestino,
-									weight: partnerData.weight,
-									height: partnerData.height,
-									width: partnerData.width,
-									length: partnerData.length,
-									productPrice: partnerData.productPrice,
-									productPriceTotal:
-										partnerData.productPriceTotal,
-									quantityThisProduct:
-										partnerData.quantityThisProduct,
-								})
-								.catch((error) => {
-									console.warn(
-										`Erro ao simular Modico para ${partnerID}:`,
-										error
-									);
-									return { data: [] }; // Retorna array vazio para evitar falhas
-								})
-						);
+    // 🔹 Filtrar produtos elegíveis para cálculo de frete
+    const eligibleProducts = productsInCart.filter(
+      (product) => product.cepDestino && product.cepDestino.trim() !== ""
+    );
 
-						// Aguarda ambas as requisições e coleta os resultados
-						const [responseMelhorEnvio, responseModico] =
-							await Promise.all(requests);
+    eligibleProducts.forEach((product) => {
+      const partnerID = product.partnerID;
 
-						// Verifica se as respostas são válidas e são arrays
-						const fretesMelhorEnvio = Array.isArray(
-							responseMelhorEnvio.data
-						)
-							? responseMelhorEnvio.data
-							: [];
-						const fretesModico = Array.isArray(responseModico.data)
-							? responseModico.data
-							: [];
+      if (!productInfo[partnerID]) {
+        productInfo[partnerID] = {
+          weight: product.weight || 0,
+          length: product.length || 0,
+          width: product.width || 0,
+          height: product.height || 0,
+          productPrice: product.productPrice || 0,
+          productPriceTotal: product.productPriceTotal || 0,
+          quantityThisProduct: product.quantityThisProduct || 0,
+          transportadora: {
+            companyID: product.transportadora?.companyID,
+          },
+          productID: product.productID,
+        };
+      } else {
+        // 🔹 Acumulando valores de produtos do mesmo parceiro
+        productInfo[partnerID].weight += product.weight || 0;
+        productInfo[partnerID].length += product.length || 0;
+        productInfo[partnerID].width += product.width || 0;
+        productInfo[partnerID].height += product.height || 0;
+        productInfo[partnerID].productPrice += product.productPrice || 0;
+        productInfo[partnerID].productPriceTotal +=
+          product.productPriceTotal || 0;
+        productInfo[partnerID].quantityThisProduct +=
+          product.quantityThisProduct || 0;
+      }
 
-						// Junta os fretes das duas fontes
-						fretesRecebidos = [
-							...fretesMelhorEnvio,
-							...fretesModico,
-						];
+      if (product.cepDestino && product.cepDestino.trim() !== "") {
+        cepDestino = product.cepDestino;
+      }
+    });
 
-						// Ordena pelo menor preço
-						const sortedFretes = fretesRecebidos.sort(
-							(a, b) => Number(a.price) - Number(b.price)
-						);
+    if (cepDestino) {
+      handleSimulateShipping(cepDestino, productInfo)
+        .then(() => setIsFreightSimulated(true)) // 🔥 Evita simulações duplicadas
+        .catch((error) => console.error("Erro na simulação:", error));
+    }
 
-						// Filtra a transportadora correta com base no companyID salvo no banco de dados
-						const transportadoraCorreta = sortedFretes.find(
-							(transportadora) =>
-								transportadora.company?.id ===
-								partnerData.transportadora?.companyID
-						);
+    // 🔹 Processa produtos com frete grátis
+    const freeShippingProducts = productsInCart.filter(
+      (product) => !product.cepDestino || product.cepDestino.trim() === ""
+    );
 
-						if (transportadoraCorreta) {
-							console.log(
-								"Transportadora encontrada:",
-								transportadoraCorreta
-							);
-						} else {
-							console.log(
-								"Nenhuma transportadora correspondente encontrada."
-							);
-						}
+    if (freeShippingProducts.length > 0) {
+      const defaultTransportadoraData = {};
 
-						// Atualiza o objeto transportadoraData
-						transportadoraData[partnerID] = {
-							partnerID: partnerID,
-							companyName:
-								transportadoraCorreta?.company?.name ??
-								"Desconhecida",
-							modalidyName: transportadoraCorreta?.name ?? "-",
-							vlrFrete: Number(transportadoraCorreta?.price) || 0,
-							prazo: transportadoraCorreta?.delivery_time || "-",
-						};
-					} catch (error) {
-						console.error(
-							`Erro ao simular frete para o parceiro ${partnerID}:`,
-							error
-						);
-					}
-				}
-			}
+      freeShippingProducts.forEach((product) => {
+        const partnerID = product.partnerID;
+        if (!defaultTransportadoraData[partnerID]) {
+          defaultTransportadoraData[partnerID] = {
+            partnerID: partnerID,
+            companyName: "Frete Grátis",
+            modalidyName: "",
+            vlrFrete: 0.0,
+            prazo: 3,
+          };
+        }
+      });
 
-			// Verifica se transportadoraData não está vazio
-			if (Object.keys(transportadoraData).length === 0) {
-				console.log("Transportadora data está vazio.");
-			} else {
-				console.log("Transportadora data:", transportadoraData);
-			}
+      // Criptografando o transportadoraInfo antes de salvar
+      const encryptedTransportadoraInfo = encryptData(
+        defaultTransportadoraData
+      );
 
-			// 🔥 Atualizando o estado sem acumular valores antigos
-			setTransportadoraInfo(transportadoraData);
+      // Atualiza o estado com as informações criptografadas
+      setTransportadoraInfo((prevInfo) => ({
+        ...prevInfo,
+        ...defaultTransportadoraData,
+      }));
 
-			// 🔥 Criptografando o transportadoraData antes de salvar no localStorage
-			const encryptedTransportadoraData = encryptData(transportadoraData);
+      // Salva no localStorage
+      localStorage.setItem("transportadoraInfo", encryptedTransportadoraInfo);
+    }
+  }, [
+    productsInCart,
+    handleSimulateShipping,
+    isFreightSimulated,
+    setTransportadoraInfo,
+  ]);
 
-			// 🔥 Salvando os dados criptografados no localStorage
-			try {
-				console.log(
-					"Salvando dados no localStorage:",
-					encryptedTransportadoraData
-				);
-				localStorage.setItem(
-					"transportadoraInfo",
-					encryptedTransportadoraData
-				);
-			} catch (error) {
-				console.error("Erro ao salvar no localStorage:", error);
-			}
-		} catch (error) {
-			console.error("Ocorreu um erro:", error);
-		}
-	}
+  return (
+    <section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
+      <div className="col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4 mb-8">
+        <div className="flex flex-col justify-center mb-4">
+          <ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
+            <li className="step step-primary">
+              <span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
+                <ShoppingCartOne size={18} />
+                <p>Carrinho</p>
+              </span>
+            </li>
+            <li className="step step-primary">
+              <span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
+                <LiaShippingFastSolid size={18} />
+                <p>Entrega</p>
+              </span>
+            </li>
+            <li className="step step-primary">
+              <span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
+                <BiIdCard size={20} />
+                <p>Revisão</p>
+              </span>
+            </li>
+            <li className="step">
+              <span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
+                <PiCreditCardBold size={20} />
+                <p>Pagamento</p>
+              </span>
+            </li>
+          </ul>
+        </div>
 
-	return (
-		<section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
-			<div className="col-start-2 col-span-4 md:col-start-2 md:col-span-6 mt-4 mb-8">
-				<div className="flex flex-col justify-center mb-4">
-					<ul className="flex steps steps-vertical lg:steps-horizontal mt-8 mb-8">
-						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
-								<ShoppingCartOne size={18} />
-								<p>Carrinho</p>
-							</span>
-						</li>
-						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
-								<LiaShippingFastSolid size={18} />
-								<p>Entrega</p>
-							</span>
-						</li>
-						<li className="step step-primary">
-							<span className="flex flex-row items-center gap-1 bg-primary py-1 px-2 rounded">
-								<BiIdCard size={20} />
-								<p>Revisão</p>
-							</span>
-						</li>
-						<li className="step">
-							<span className="flex flex-row items-center gap-1 bg-black py-1 px-2 rounded">
-								<PiCreditCardBold size={20} />
-								<p>Pagamento</p>
-							</span>
-						</li>
-					</ul>
-				</div>
+        <div className="flex flex-row justify-between bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8 p-4 gap-4">
+          <div className="flex flex-col gap-4 w-full">
+            <div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
+              <div className="flex flex-row gap-4">
+                <BiIdCard size={25} />
+                <div>
+                  <h1>Reinaldo Guedes do Nascimento</h1>
+                  <h1>CPF: 390.270.358-51</h1>
+                  <h2>Email: rguedes_arq@hotmail.com</h2>
+                  <h1>Tel.: (11) 94928-6647</h1>
+                </div>
+              </div>
+            </div>
 
-				<div className="flex flex-row justify-between bg-white col-start-2 col-span-4 md:col-start-2 md:col-span-6 rounded-md shadow-md mb-8 p-4 gap-4">
-					<div className="flex flex-col gap-4 w-full">
-						<div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
-							<div className="flex flex-row gap-4">
-								<BiIdCard size={25} />
-								<div>
-									<h1>Reinaldo Guedes do Nascimento</h1>
-									<h1>CPF: 390.270.358-51</h1>
-									<h2>Email: rguedes_arq@hotmail.com</h2>
-									<h1>Tel.: (11) 94928-6647</h1>
-								</div>
-							</div>
-						</div>
+            <div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
+              {user.address && user.address.length > 0 ? (
+                user.address.map((end, index) => (
+                  <div
+                    key={end.id || index} // Garantindo que a chave seja única (usando 'index' como fallback)
+                    className="flex flex-row gap-4"
+                  >
+                    <GrLocation size={25} />
+                    <div>
+                      <h1 className="text-base font-semibold mb-2">
+                        Endereço de Entrega:
+                      </h1>
+                      <h1 className="text-base">{end.street}</h1>
+                      <h2>{end.complement}</h2>
+                      <h2>{end.neighborhood}</h2>
+                      <h2>
+                        {end.city}/{end.state}
+                      </h2>
+                      <h2>{end.postalCode}</h2>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div>
+                  <h1 className="text-base font-semibold mb-2">
+                    Nenhum endereço disponível
+                  </h1>
+                </div>
+              )}
+            </div>
 
-						<div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
-							{user.address && user.address.length > 0 ? (
-								user.address.map((end, index) => (
-									<div
-										key={end.id || index} // Garantindo que a chave seja única (usando 'index' como fallback)
-										className="flex flex-row gap-4">
-										<GrLocation size={25} />
-										<div>
-											<h1 className="text-base font-semibold mb-2">
-												Endereço de Entrega:
-											</h1>
-											<h1 className="text-base">
-												{end.street}
-											</h1>
-											<h2>{end.complement}</h2>
-											<h2>{end.neighborhood}</h2>
-											<h2>
-												{end.city}/{end.state}
-											</h2>
-											<h2>{end.postalCode}</h2>
-										</div>
-									</div>
-								))
-							) : (
-								<div>
-									<h1 className="text-base font-semibold mb-2">
-										Nenhum endereço disponível
-									</h1>
-								</div>
-							)}
-						</div>
+            {Object.entries(transportadoraInfo).map(([key, info]) => (
+              <div
+                key={`transport-${key}`}
+                className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md"
+              >
+                <div className="flex flex-row gap-4">
+                  <LiaShippingFastSolid size={25} />
+                  <div>
+                    <h1>Transportadora: {info.companyName}</h1>
+                    <h2>
+                      Custo do Frete:{" "}
+                      {info.vlrFrete.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </h2>
+                    {productsInCart.length > 0 &&
+                      productsInCart.map((product, index) => (
+                        <div key={`product-${product.id || index}`}>
+                          <h2>{`Prazo de Envio: ${product.daysShipping} dias`}</h2>
+                          <h2>{`Previsão de Entrega: ≅ ${
+                            product.daysShipping + info.prazo
+                          } dias`}</h2>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            ))}
 
-						{Object.entries(transportadoraInfo).map(
-							([key, info]) => (
-								<div
-									key={`transport-${key}`}
-									className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
-									<div className="flex flex-row gap-4">
-										<LiaShippingFastSolid size={25} />
-										<div>
-											<h1>
-												Transportadora:{" "}
-												{info.companyName}
-											</h1>
-											<h2>
-												Custo do Frete:{" "}
-												{info.vlrFrete.toLocaleString(
-													"pt-BR",
-													{
-														style: "currency",
-														currency: "BRL",
-													}
-												)}
-											</h2>
-											{productsInCart.length > 0 &&
-												productsInCart.map(
-													(product, index) => (
-														<div
-															key={`product-${
-																product.id ||
-																index
-															}`}>
-															<h2>{`Prazo de Envio: ${product.daysShipping} dias`}</h2>
-															<h2>{`Previsão de Entrega: ≅ ${
-																product.daysShipping +
-																info.prazo
-															} dias`}</h2>
-														</div>
-													)
-												)}
-										</div>
-									</div>
-								</div>
-							)
-						)}
+            <div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
+              <div className="flex flex-col w-[650px] gap-4">
+                <div className="flex flex-row gap-4">
+                  <PiNoteBold size={25} />
+                  <div>
+                    <h1>Comentário adicional</h1>
+                  </div>
+                </div>
+                <div className="flex flex-row gap-4 w-full text-white">
+                  <textarea
+                    className="textarea textarea-bordered textarea-primary bg-slate-200 text-slate-900 w-full"
+                    placeholder="..."
+                  ></textarea>
+                </div>
+                <button className="btn btn-primary w-[150px] shadow-md">
+                  Salvar
+                </button>
+              </div>
+            </div>
+          </div>
 
-						<div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
-							<div className="flex flex-col w-[650px] gap-4">
-								<div className="flex flex-row gap-4">
-									<PiNoteBold size={25} />
-									<div>
-										<h1>Comentário adicional</h1>
-									</div>
-								</div>
-								<div className="flex flex-row gap-4 w-full text-white">
-									<textarea
-										className="textarea textarea-bordered textarea-primary bg-slate-200 text-slate-900 w-full"
-										placeholder="..."></textarea>
-								</div>
-								<button className="btn btn-primary w-[150px] shadow-md">
-									Salvar
-								</button>
-							</div>
-						</div>
-					</div>
+          <div className="flex flex-col">
+            <YourOrderComp
+              productsInfo={productsInCart}
+              shippingInfo={transportadoraInfo}
+            />
+          </div>
+        </div>
+        <div className="flex flex-row justify-center items-center gap-4 mb-12">
+          <button className="btn btn-primary shadow-md">
+            <Link
+              className="flex flex-row justify-center items-center gap-2"
+              href="/checkout/delivery"
+            >
+              <MdArrowBackIos size={20} />
+              Voltar
+            </Link>
+          </button>
 
-					<div className="flex flex-col">
-						<YourOrderComp
-							productsInfo={productsInCart}
-							shippingInfo={transportadoraInfo}
-						/>
-					</div>
-				</div>
-				<div className="flex flex-row justify-center items-center gap-4 mb-12">
-					<button className="btn btn-primary shadow-md">
-						<Link
-							className="flex flex-row justify-center items-center gap-2"
-							href="/checkout/delivery">
-							<MdArrowBackIos size={20} />
-							Voltar
-						</Link>
-					</button>
-
-					<button className="btn btn-primary shadow-md">
-						<Link
-							className="flex flex-row justify-center items-center gap-2"
-							href="/checkout/payment">
-							Continuar
-							<MdArrowForwardIos size={20} />
-						</Link>
-					</button>
-				</div>
-			</div>
-		</section>
-	);
+          <button className="btn btn-primary shadow-md">
+            <Link
+              className="flex flex-row justify-center items-center gap-2"
+              href="/checkout/payment"
+            >
+              Continuar
+              <MdArrowForwardIos size={20} />
+            </Link>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export default ReviewInfoPage;

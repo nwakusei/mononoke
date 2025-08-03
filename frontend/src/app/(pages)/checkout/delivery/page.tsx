@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -71,44 +71,6 @@ function DeliveryPage() {
   console.log("PRODUCTS IN CART:", productsInCart);
 
   const [isFreightSimulated, setIsFreightSimulated] = useState(false);
-
-  // useEffect(() => {
-  // 	const savedProductsInCart = localStorage.getItem("productsInCart");
-
-  // 	if (savedProductsInCart) {
-  // 		try {
-  // 			// Descriptografa a string antes de tentar parsear
-  // 			const decryptedString = decryptData(savedProductsInCart);
-
-  // 			if (decryptedString) {
-  // 				// Teste se a string já é JSON ou precisa ser convertida
-  // 				try {
-  // 					const parsedData = JSON.parse(decryptedString);
-
-  // 					setProductsInCart(parsedData);
-  // 				} catch (parseError) {
-  // 					console.error(
-  // 						"Erro ao tentar fazer JSON.parse:",
-  // 						parseError
-  // 					);
-  // 					console.error(
-  // 						"String que causou erro:",
-  // 						decryptedString
-  // 					);
-  // 				}
-  // 			} else {
-  // 				console.error(
-  // 					"Erro ao descriptografar os produtos. Retorno vazio ou inválido."
-  // 				);
-  // 			}
-  // 		} catch (error) {
-  // 			console.error(
-  // 				"Erro ao processar os produtos do carrinho:",
-  // 				error
-  // 			);
-  // 		}
-  // 	}
-  // }, []);
 
   useEffect(() => {
     const savedProductsInCart = localStorage.getItem("productsInCart");
@@ -213,6 +175,156 @@ function DeliveryPage() {
     }
   }, []);
 
+  const handleSimulateShipping = useCallback(
+    async (cepDestino, productInfo) => {
+      try {
+        let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
+
+        for (const partnerID in productInfo) {
+          if (productInfo.hasOwnProperty(partnerID)) {
+            const partnerData = productInfo[partnerID];
+
+            let fretesRecebidos = []; // 🔥 Resetando para cada parceiro
+
+            try {
+              const requests = [];
+
+              // Simulação de Melhor Envio
+              requests.push(
+                api
+                  .post("/shippings/simulate-melhor-envio", {
+                    productID: partnerData.productID,
+                    cepDestino: cepDestino,
+                    weight: partnerData.weight,
+                    height: partnerData.height,
+                    width: partnerData.width,
+                    length: partnerData.length,
+                    productPrice: partnerData.productPrice,
+                    productPriceTotal: partnerData.productPriceTotal,
+                    quantityThisProduct: partnerData.quantityThisProduct,
+                  })
+                  .catch((error) => {
+                    console.warn(
+                      `Erro ao simular Melhor Envio para ${partnerID}:`,
+                      error
+                    );
+                    return { data: [] }; // Retorna array vazio para evitar falhas
+                  })
+              );
+
+              // Simulação de Modico
+              requests.push(
+                api
+                  .post("/shippings/simulate-modico", {
+                    productID: partnerData.productID,
+                    cepDestino: cepDestino,
+                    weight: partnerData.weight,
+                    height: partnerData.height,
+                    width: partnerData.width,
+                    length: partnerData.length,
+                    productPrice: partnerData.productPrice,
+                    productPriceTotal: partnerData.productPriceTotal,
+                    quantityThisProduct: partnerData.quantityThisProduct,
+                  })
+                  .catch((error) => {
+                    console.warn(
+                      `Erro ao simular Modico para ${partnerID}:`,
+                      error
+                    );
+                    return { data: [] }; // Retorna array vazio para evitar falhas
+                  })
+              );
+
+              // Aguarda ambas as requisições e coleta os resultados
+              const [responseMelhorEnvio, responseModico] = await Promise.all(
+                requests
+              );
+
+              // Verifica se as respostas são válidas e são arrays
+              const fretesMelhorEnvio = Array.isArray(responseMelhorEnvio.data)
+                ? responseMelhorEnvio.data
+                : [];
+              const fretesModico = Array.isArray(responseModico.data)
+                ? responseModico.data
+                : [];
+
+              // Junta os fretes das duas fontes
+              fretesRecebidos = [...fretesMelhorEnvio, ...fretesModico];
+
+              // Ordena pelo menor preço
+              const sortedFretes = fretesRecebidos.sort(
+                (a, b) => Number(a.price) - Number(b.price)
+              );
+
+              // Filtra a transportadora correta com base no companyID salvo no banco de dados
+              const transportadoraCorreta = sortedFretes.find(
+                (transportadora) =>
+                  transportadora.company?.id ===
+                  partnerData.transportadora?.companyID
+              );
+
+              if (transportadoraCorreta) {
+                console.log(
+                  "Transportadora encontrada:",
+                  transportadoraCorreta
+                );
+              } else {
+                console.log(
+                  "Nenhuma transportadora correspondente encontrada."
+                );
+              }
+
+              // Atualiza o objeto transportadoraData
+              transportadoraData[partnerID] = {
+                partnerID: partnerID,
+                companyName:
+                  transportadoraCorreta?.company?.name ?? "Desconhecida",
+                modalidyName: transportadoraCorreta?.name ?? "-",
+                vlrFrete: Number(transportadoraCorreta?.price) || 0,
+                prazo: transportadoraCorreta?.delivery_time || "-",
+              };
+            } catch (error) {
+              console.error(
+                `Erro ao simular frete para o parceiro ${partnerID}:`,
+                error
+              );
+            }
+          }
+        }
+
+        // Verifica se transportadoraData não está vazio
+        if (Object.keys(transportadoraData).length === 0) {
+          console.log("Transportadora data está vazio.");
+        } else {
+          console.log("Transportadora data:", transportadoraData);
+        }
+
+        // 🔥 Atualizando o estado sem acumular valores antigos
+        setTransportadoraInfo(transportadoraData);
+
+        // 🔥 Criptografando o transportadoraData antes de salvar no localStorage
+        const encryptedTransportadoraData = encryptData(transportadoraData);
+
+        // 🔥 Salvando os dados criptografados no localStorage
+        try {
+          console.log(
+            "Salvando dados no localStorage:",
+            encryptedTransportadoraData
+          );
+          localStorage.setItem(
+            "transportadoraInfo",
+            encryptedTransportadoraData
+          );
+        } catch (error) {
+          console.error("Erro ao salvar no localStorage:", error);
+        }
+      } catch (error) {
+        console.error("Ocorreu um erro:", error);
+      }
+    },
+    [setTransportadoraInfo]
+  );
+
   useEffect(() => {
     // 🚨 Se ainda não carregou os produtos ou já simulou o frete, não executa
     if (
@@ -307,146 +419,12 @@ function DeliveryPage() {
       // Salva no localStorage
       localStorage.setItem("transportadoraInfo", encryptedTransportadoraInfo);
     }
-  }, [productsInCart]);
-
-  async function handleSimulateShipping(cepDestino, productInfo) {
-    try {
-      let transportadoraData = {}; // 🔥 Resetando os dados antes de adicionar novos
-
-      for (const partnerID in productInfo) {
-        if (productInfo.hasOwnProperty(partnerID)) {
-          const partnerData = productInfo[partnerID];
-
-          let fretesRecebidos = []; // 🔥 Resetando para cada parceiro
-
-          try {
-            const requests = [];
-
-            // Simulação de Melhor Envio
-            requests.push(
-              api
-                .post("/shippings/simulate-melhor-envio", {
-                  productID: partnerData.productID,
-                  cepDestino: cepDestino,
-                  weight: partnerData.weight,
-                  height: partnerData.height,
-                  width: partnerData.width,
-                  length: partnerData.length,
-                  productPrice: partnerData.productPrice,
-                  productPriceTotal: partnerData.productPriceTotal,
-                  quantityThisProduct: partnerData.quantityThisProduct,
-                })
-                .catch((error) => {
-                  console.warn(
-                    `Erro ao simular Melhor Envio para ${partnerID}:`,
-                    error
-                  );
-                  return { data: [] }; // Retorna array vazio para evitar falhas
-                })
-            );
-
-            // Simulação de Modico
-            requests.push(
-              api
-                .post("/shippings/simulate-modico", {
-                  productID: partnerData.productID,
-                  cepDestino: cepDestino,
-                  weight: partnerData.weight,
-                  height: partnerData.height,
-                  width: partnerData.width,
-                  length: partnerData.length,
-                  productPrice: partnerData.productPrice,
-                  productPriceTotal: partnerData.productPriceTotal,
-                  quantityThisProduct: partnerData.quantityThisProduct,
-                })
-                .catch((error) => {
-                  console.warn(
-                    `Erro ao simular Modico para ${partnerID}:`,
-                    error
-                  );
-                  return { data: [] }; // Retorna array vazio para evitar falhas
-                })
-            );
-
-            // Aguarda ambas as requisições e coleta os resultados
-            const [responseMelhorEnvio, responseModico] = await Promise.all(
-              requests
-            );
-
-            // Verifica se as respostas são válidas e são arrays
-            const fretesMelhorEnvio = Array.isArray(responseMelhorEnvio.data)
-              ? responseMelhorEnvio.data
-              : [];
-            const fretesModico = Array.isArray(responseModico.data)
-              ? responseModico.data
-              : [];
-
-            // Junta os fretes das duas fontes
-            fretesRecebidos = [...fretesMelhorEnvio, ...fretesModico];
-
-            // Ordena pelo menor preço
-            const sortedFretes = fretesRecebidos.sort(
-              (a, b) => Number(a.price) - Number(b.price)
-            );
-
-            // Filtra a transportadora correta com base no companyID salvo no banco de dados
-            const transportadoraCorreta = sortedFretes.find(
-              (transportadora) =>
-                transportadora.company?.id ===
-                partnerData.transportadora?.companyID
-            );
-
-            if (transportadoraCorreta) {
-              console.log("Transportadora encontrada:", transportadoraCorreta);
-            } else {
-              console.log("Nenhuma transportadora correspondente encontrada.");
-            }
-
-            // Atualiza o objeto transportadoraData
-            transportadoraData[partnerID] = {
-              partnerID: partnerID,
-              companyName:
-                transportadoraCorreta?.company?.name ?? "Desconhecida",
-              modalidyName: transportadoraCorreta?.name ?? "-",
-              vlrFrete: Number(transportadoraCorreta?.price) || 0,
-              prazo: transportadoraCorreta?.delivery_time || "-",
-            };
-          } catch (error) {
-            console.error(
-              `Erro ao simular frete para o parceiro ${partnerID}:`,
-              error
-            );
-          }
-        }
-      }
-
-      // Verifica se transportadoraData não está vazio
-      if (Object.keys(transportadoraData).length === 0) {
-        console.log("Transportadora data está vazio.");
-      } else {
-        console.log("Transportadora data:", transportadoraData);
-      }
-
-      // 🔥 Atualizando o estado sem acumular valores antigos
-      setTransportadoraInfo(transportadoraData);
-
-      // 🔥 Criptografando o transportadoraData antes de salvar no localStorage
-      const encryptedTransportadoraData = encryptData(transportadoraData);
-
-      // 🔥 Salvando os dados criptografados no localStorage
-      try {
-        console.log(
-          "Salvando dados no localStorage:",
-          encryptedTransportadoraData
-        );
-        localStorage.setItem("transportadoraInfo", encryptedTransportadoraData);
-      } catch (error) {
-        console.error("Erro ao salvar no localStorage:", error);
-      }
-    } catch (error) {
-      console.error("Ocorreu um erro:", error);
-    }
-  }
+  }, [
+    productsInCart,
+    handleSimulateShipping,
+    isFreightSimulated,
+    setTransportadoraInfo,
+  ]);
 
   return (
     <section className="bg-gray-300 grid grid-cols-6 md:grid-cols-8 grid-rows-1 gap-4 min-h-screen">
