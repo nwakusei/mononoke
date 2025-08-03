@@ -110,6 +110,7 @@ function PaymentPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
     const token = localStorage.getItem("token");
     if (token) setToken(token);
   }, []);
@@ -133,26 +134,28 @@ function PaymentPage() {
     daysShipping: info.prazoEnt,
   }));
 
-  // Recupera e descriptografa os cupons do localStorage
-  const couponsStorageEncrypted = localStorage.getItem("coupons");
+  const [coupons, setCoupons] = useState([]);
 
-  const decryptedCouponsStorage = couponsStorageEncrypted
-    ? decryptData(couponsStorageEncrypted)
-    : "[]"; // Retorna uma string vazia se não houver cupons
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-  // Certifique-se de que decryptedCouponsStorage é uma string JSON válida ou um array
-  let coupons = [];
+    const couponsStorageEncrypted = localStorage.getItem("coupons");
+    const decryptedCouponsStorage = couponsStorageEncrypted
+      ? decryptData(couponsStorageEncrypted)
+      : "[]";
 
-  // Se o valor descriptografado for uma string JSON válida, faz o parsing
-  try {
-    if (typeof decryptedCouponsStorage === "string") {
-      coupons = JSON.parse(decryptedCouponsStorage);
-    } else {
-      coupons = decryptedCouponsStorage; // Caso seja um objeto, já pode ser usado
+    try {
+      const parsed =
+        typeof decryptedCouponsStorage === "string"
+          ? JSON.parse(decryptedCouponsStorage)
+          : decryptedCouponsStorage;
+
+      setCoupons(Array.isArray(parsed) ? parsed : []);
+    } catch (error) {
+      console.error("Erro ao parsear os cupons:", error);
+      setCoupons([]);
     }
-  } catch (error) {
-    console.error("Erro ao parsear os cupons:", error);
-  }
+  }, []);
 
   const [pix, setPix] = useState({});
   const [qrCodeUrl, setQrCodeUrl] = useState(""); // Estado para armazenar a URL do QR Code
