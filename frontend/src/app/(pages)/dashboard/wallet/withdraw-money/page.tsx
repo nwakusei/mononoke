@@ -18,9 +18,16 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 // React Hook Form, Zod e ZodResolver
 
 function WithdrawMoneyPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     api
