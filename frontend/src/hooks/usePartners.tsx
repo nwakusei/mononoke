@@ -1,18 +1,24 @@
 import { useState, useEffect } from "react";
 import api from "@/utils/api";
 
+type Partner = {
+  _id: string;
+  name: string;
+  // outros campos que você precisa
+};
+
 function usePartners() {
-	const [partners, setPartners] = useState([]);
+  const [partners, setPartners] = useState<Partner[]>([]);
 
-	useEffect(() => {
-		api.get("/partners/allpartners").then((response) => {
-			setPartners(response.data.partners);
-		});
-	}, []);
+  useEffect(() => {
+    api.get("/partners/allpartners").then((response) => {
+      setPartners(response.data.partners);
+    });
+  }, []);
 
-	return {
-		partners,
-	};
+  return {
+    partners,
+  };
 }
 
 export { usePartners };
