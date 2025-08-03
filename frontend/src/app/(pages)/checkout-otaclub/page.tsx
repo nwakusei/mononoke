@@ -219,7 +219,7 @@ function CheckoutOtaclubPage() {
                 {user?.address && user?.address.length > 0 ? (
                   user?.address.map((end, index) => (
                     <div
-                      key={end.id || index} // Garantindo que a chave seja única (usando 'index' como fallback)
+                      key={index} // Garantindo que a chave seja única (usando 'index' como fallback)
                       className="flex flex-row gap-4"
                     >
                       <GrLocation size={25} />
