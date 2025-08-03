@@ -4,6 +4,9 @@ import api from "@/utils/api";
 type Partner = {
   _id: string;
   name: string;
+  nickname: string;
+  logoImage: string;
+  cashback: string;
   // outros campos que você precisa
 };
 
