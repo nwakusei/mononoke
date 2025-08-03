@@ -26,11 +26,11 @@ jobs:
       - name: Build backend
         run: npm run build
 
-      - name: Upload backend build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-build
-          path: ./dist
+      - name: Copy backend to shared folder
+        run: |
+          mkdir -p ../output/backend
+          cp -r dist ../output/backend/
+          cp -r Dockerfile ../output/backend/
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -52,11 +52,10 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Upload frontend build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: ./.next
+      - name: Copy frontend to shared folder
+        run: |
+          mkdir -p ../output/frontend
+          cp -r .next public package.json next.config.js Dockerfile ../output/frontend/
 
   build-nginx:
     runs-on: ubuntu-latest
@@ -67,17 +66,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build nginx Docker image
+      - name: Copy nginx to shared folder
         run: |
-          docker build -t mononoke-nginx .
+          mkdir -p ../output/nginx
+          cp -r conf.d certs Dockerfile ../output/nginx/
 
-      - name: Save nginx Docker image as tar
+  package-project:
+    needs: [build-backend, build-frontend, build-nginx]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Package full project
         run: |
-          mkdir -p ../artifacts
-          docker save mononoke-nginx -o ../artifacts/nginx-image.tar
+          mkdir -p output
+          cp docker-compose.yml output/
+          tar -czf mononoke-full-package.tar.gz -C output .
 
-      - name: Upload nginx image artifact
+      - name: Upload final project package
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-image
-          path: ./artifacts/nginx-image.tar
+          name: mononoke-full-package
+          path: mononoke-full-package.tar.gz
