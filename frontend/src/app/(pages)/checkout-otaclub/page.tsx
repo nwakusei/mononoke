@@ -117,7 +117,10 @@ function CheckoutOtaclubPage() {
       });
   }, [token]);
 
-  async function swapOtaclubProcess(product, customerAddress) {
+  async function swapOtaclubProcess(
+    product: Record<string, any>,
+    customerAddress: Record<string, any>
+  ) {
     setLoadingButton(true);
 
     try {
