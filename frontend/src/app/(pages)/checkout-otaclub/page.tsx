@@ -204,9 +204,9 @@ function CheckoutOtaclubPage() {
                   <div className="flex flex-row gap-4">
                     <BiIdCard size={25} />
                     <div>
-                      <div>{user.name}</div>
-                      <div>{`CPF: ${user.cpf}`}</div>
-                      <div>{`Email: ${user.email}`}</div>
+                      <div>{user?.name}</div>
+                      <div>{`CPF: ${user?.cpf}`}</div>
+                      <div>{`Email: ${user?.email}`}</div>
                       <div>{`Tel.: --`}</div>
                     </div>
                   </div>
@@ -216,8 +216,8 @@ function CheckoutOtaclubPage() {
 
             <div className="w-[750px] h-[200px] flex flex-row justify-between bg-white col-start-2 col-span-4 rounded-md shadow-md mb-8 p-4 gap-4">
               <div className="text-black flex flex-row justify-between gap-4 border-[1px] border-black border-opacity-20 bg-white w-full min-h-[100px] p-4 rounded-md shadow-md">
-                {user.address && user.address.length > 0 ? (
-                  user.address.map((end, index) => (
+                {user?.address && user?.address.length > 0 ? (
+                  user?.address.map((end, index) => (
                     <div
                       key={end.id || index} // Garantindo que a chave seja única (usando 'index' como fallback)
                       className="flex flex-row gap-4"
@@ -261,12 +261,12 @@ function CheckoutOtaclubPage() {
                     />
                   </div>
                   <div>
-                    <div>{product.productTitle}</div>
+                    <div>{product?.productTitle}</div>
                     <div>
                       {product?.productPrice !== undefined && (
                         <div>
                           {`Custo da Troca: ${Number(
-                            product.productPrice
+                            product?.productPrice
                           ).toLocaleString("pt-BR", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
