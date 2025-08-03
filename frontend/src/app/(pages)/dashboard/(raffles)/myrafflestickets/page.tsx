@@ -13,8 +13,8 @@ import { Sidebar } from "@/components/Sidebar";
 import api from "@/utils/api";
 
 function MyRafflesTicketsPage() {
-  const [myTickets, setMyTickets] = useState([]);
   const [token, setToken] = useState("");
+  const [myTickets, setMyTickets] = useState([]);
   const [loadingButtonId, setLoadingButtonId] = useState(null);
 
   useEffect(() => {
