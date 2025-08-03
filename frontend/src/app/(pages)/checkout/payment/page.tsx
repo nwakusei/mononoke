@@ -96,7 +96,7 @@ interface ProductInCart {
 }
 
 function PaymentPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const { transportadoraInfo, setTransportadoraInfo } = useCheckout();
   const [productsInCart, setProductsInCart] = useState<ProductInCart[]>([]);
   const router = useRouter();
@@ -108,6 +108,13 @@ function PaymentPage() {
   const [couponApplied, setCouponApplied] = useState(0);
 
   const [isFreightSimulated, setIsFreightSimulated] = useState(false);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   // // constante para teste PIX
   // const totalPedido2 = 0.01;

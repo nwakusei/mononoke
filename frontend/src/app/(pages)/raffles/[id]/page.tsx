@@ -25,7 +25,7 @@ import { Coupon } from "@icon-park/react";
 import Link from "next/link";
 
 function RafflePage() {
-  const [token] = useState(() => localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState(null); // Inicializa como null
   const { id } = useParams();
   const [raffle, setRaffle] = useState({});
@@ -48,6 +48,13 @@ function RafflePage() {
   const handleThumbnailClick = (index) => {
     setSelectedImage({ type: "carousel", index });
   };
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     if (!id) return;

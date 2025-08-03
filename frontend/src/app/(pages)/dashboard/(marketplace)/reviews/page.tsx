@@ -14,12 +14,19 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 // Icons
 
 function ReviewsPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingButtonId, setLoadingButtonId] = useState(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     const fethData = async () => {

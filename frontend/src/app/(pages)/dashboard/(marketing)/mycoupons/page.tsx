@@ -11,10 +11,17 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 // Icons
 
 function MyCouponsPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [coupons, setCoupons] = useState([]);
   const [deleteLoading, setDeletLoading] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     api

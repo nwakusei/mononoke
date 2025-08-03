@@ -19,13 +19,20 @@ import { toast } from "react-toastify";
 function MyRafflesTicketsByID() {
   const [raffle, setRaffle] = useState({});
   const [myTickets, setMyTickets] = useState([]);
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const { id } = useParams();
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [packedLoading, setPackedLoading] = useState(false);
 
   const [user, setUser] = useState(null); // Inicializa como null para identificar se já foi carregado
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     api

@@ -21,6 +21,7 @@ import { FiInfo } from "react-icons/fi";
 // Imagens
 
 function OtamartPage() {
+  const [token, setToken] = useState("");
   const [products, setProducts] = useState<
     { category: string; [key: string]: any }[]
   >([]);
@@ -34,7 +35,6 @@ function OtamartPage() {
   const [noResults, setNoResults] = useState(false); // Nova variável de estado
 
   const [user, setUser] = useState(null); // Inicializa como null
-  const [token] = useState(() => localStorage.getItem("token") || "");
 
   const categories = [...new Set(products.map((product) => product.category))];
 
@@ -50,6 +50,13 @@ function OtamartPage() {
     }
     return count?.toString();
   };
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {

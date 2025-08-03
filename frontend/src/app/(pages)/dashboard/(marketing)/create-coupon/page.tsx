@@ -82,12 +82,17 @@ const createCouponFormSchema = z.object({
 type TCreateCouponFormSchema = z.infer<typeof createCouponFormSchema>;
 
 function CreateCouponPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [partner, setPartner] = useState({});
   const [loadingPage, setLoadingPage] = useState(true);
   const [loadingButton, setLoadingButton] = useState(false);
 
-  const router = useRouter();
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   const {
     register,

@@ -15,11 +15,18 @@ import api from "@/utils/api";
 
 function MyOrdersPage() {
   const [myorders, setMyorders] = useState([]);
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [loadingButtonId, setLoadingButtonId] = useState(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {

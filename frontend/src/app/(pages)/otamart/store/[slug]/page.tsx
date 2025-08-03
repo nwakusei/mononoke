@@ -38,7 +38,7 @@ function StorePage() {
   const [noResults, setNoResults] = useState(false); // Nova variável de estado
 
   const [user, setUser] = useState(null); // Inicializa como null
-  const [token] = useState(() => localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
 
   const [buttonLoading, setbuttonLoading] = useState(false);
   const [sendButtonLoading, setSendButtonLoading] = useState(false);
@@ -54,6 +54,13 @@ function StorePage() {
 
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [buttonPosition, setButtonPosition] = useState(20); // Distância inicial do botão
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   // Detecta se o footer está visível
   useEffect(() => {

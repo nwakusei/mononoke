@@ -82,7 +82,7 @@ function MyProductPage() {
   const [selectedRegion, setSelectedRegion] = useState("");
   const [variations, setVariations] = useState([]);
   const [imagemSelecionada, setImagemSelecionada] = useState(null);
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [output, setOutput] = useState("");
   const [selectedValue, setSelectedValue] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -92,6 +92,13 @@ function MyProductPage() {
   console.log(product);
 
   const { id } = useParams();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {

@@ -60,7 +60,7 @@ type TUpdateTrackingForm = z.infer<typeof updateTrackingForm>;
 
 function MySaleByIDPage() {
   const { id } = useParams();
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [mysale, setMysale] = useState([]);
   const [trackingCode, setTrackingCode] = useState("");
   const [trackingLoading, setTrackingLoading] = useState(false);
@@ -81,6 +81,13 @@ function MySaleByIDPage() {
   } = useForm<TUpdateTrackingForm>({
     resolver: zodResolver(updateTrackingForm),
   });
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchOrder = async () => {

@@ -21,8 +21,6 @@ function OtacryptoIdPage() {
   const { id } = useParams();
   const [cryptocurrency, setCryptocurrency] = useState({});
 
-  console.log("CRYPTO:", cryptocurrency);
-
   useEffect(() => {
     const fetchCryptocurrency = async () => {
       try {

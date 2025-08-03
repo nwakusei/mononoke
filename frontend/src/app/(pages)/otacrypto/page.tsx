@@ -22,16 +22,22 @@ import { IoCloseSharp } from "react-icons/io5";
 import { toast } from "react-toastify";
 
 // Components
-import { LoadingPage } from "@/components/LoadingPageComponent";
 
 function OtacryptoPage() {
-  const [token] = useState(() => localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState(null); // Inicializa como null
   const [isLoading, setIsLoading] = useState(true);
   const [loadingButtonId, setLoadingButtonId] = useState(null);
   const [cryptocurrencies, setCryptocurrencies] = useState([]);
 
   const [showBanner, setShowBanner] = useState(false);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   // exibe o banner apenas na primeira visita
   useEffect(() => {

@@ -35,7 +35,7 @@ function ChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState({});
   const [chats, setChats] = useState([]);
   const [chat, setChat] = useState({});
@@ -47,6 +47,13 @@ function ChatPage() {
   };
 
   const [showBanner, setShowBanner] = useState(false);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     if (localStorage.getItem("chatBannerDismissed") !== "1") {

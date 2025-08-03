@@ -14,12 +14,19 @@ import api from "@/utils/api";
 // Icons
 
 function MyProductsOtaclubPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [myproducts, setMyproducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingButtonId, setLoadingButtonId] = useState(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     api

@@ -665,7 +665,7 @@ function CreateProductPage() {
     []
   );
 
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [loadingPage, setLoadingPage] = useState(true);
   const [loadingButton, setLoadingButton] = useState(false);
 
@@ -674,6 +674,13 @@ function CreateProductPage() {
   const [displayVariations, setDiisplayVariations] = useState(false);
 
   const [focusStates, setFocusStates] = useState({});
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   // Função que altera o foco de cada campo individualmente
   const handleFocus = (fieldName: string) => {

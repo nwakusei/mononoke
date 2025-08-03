@@ -33,7 +33,7 @@ import { PiCreditCardBold } from "react-icons/pi";
 import { BsBagCheck } from "react-icons/bs";
 
 function WalletPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState({});
   const [userOtakupay, setUserOtakupay] = useState({});
   const [cryptocurrencyBalance, setCryptocurrencyBalance] = useState([]);
@@ -43,6 +43,13 @@ function WalletPage() {
   const [transactions, setTransactions] = useState([]);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     if (!token) return;

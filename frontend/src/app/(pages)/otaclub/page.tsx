@@ -19,6 +19,7 @@ import { FiInfo } from "react-icons/fi";
 // // Imagens
 
 function OtaclubPage() {
+  const [token, setToken] = useState("");
   const [products, setProducts] = useState<
     { category: string; [key: string]: any }[]
   >([]);
@@ -32,11 +33,8 @@ function OtaclubPage() {
   const [noResults, setNoResults] = useState(false); // Nova variável de estado
 
   const [user, setUser] = useState(null); // Inicializa como null
-  const [token] = useState(() => localStorage.getItem("token") || "");
 
   const categories = [...new Set(products.map((product) => product.category))];
-
-  console.log(products);
 
   const formatHighValues = (count: number) => {
     if (count >= 1000000) {
@@ -50,6 +48,13 @@ function OtaclubPage() {
     }
     return count?.toString();
   };
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {

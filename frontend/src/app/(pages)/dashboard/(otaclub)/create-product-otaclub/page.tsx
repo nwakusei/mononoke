@@ -247,7 +247,7 @@ const createProductFormSchema = z.object({
 type TCreateProductFormData = z.infer<typeof createProductFormSchema>;
 
 function CreateProductOtaclubPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [loadingPage, setLoadingPage] = useState(true);
   const [loadingButton, setLoadingButton] = useState(false);
 
@@ -258,6 +258,13 @@ function CreateProductOtaclubPage() {
   const [focusStates, setFocusStates] = useState({});
 
   const router = useRouter();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     // Simular um atraso no carregamento

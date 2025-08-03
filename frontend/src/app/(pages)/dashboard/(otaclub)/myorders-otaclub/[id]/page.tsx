@@ -18,7 +18,7 @@ import { LuPackageCheck, LuPackageX } from "react-icons/lu";
 
 function MyOrderOtaclubByIDPage() {
   const { id } = useParams();
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [myorder, setMyorder] = useState([]);
   const [tracking, setTracking] = useState({});
   const [tracking2, setTracking2] = useState({});
@@ -33,6 +33,13 @@ function MyOrderOtaclubByIDPage() {
     const parts = dateString.split("/");
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
   };
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchOrder = async () => {

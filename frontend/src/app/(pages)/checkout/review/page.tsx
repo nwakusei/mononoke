@@ -91,10 +91,17 @@ interface ProductInCart {
 function ReviewInfoPage() {
   const { transportadoraInfo, setTransportadoraInfo } = useCheckout();
   const [productsInCart, setProductsInCart] = useState<ProductInCart[]>([]);
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState({});
 
   const [isFreightSimulated, setIsFreightSimulated] = useState(false);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     api

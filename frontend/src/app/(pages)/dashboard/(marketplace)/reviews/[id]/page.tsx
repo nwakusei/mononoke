@@ -137,7 +137,7 @@ type TCreateReviewFormSchema = z.infer<typeof createReviewFormSchema>;
 
 function ReviewByIdPage() {
   const { id } = useParams();
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [myorder, setMyorder] = useState([]);
   const [inputValue, setInputValue] = useState(0);
   const [description, setDescription] = useState("");
@@ -148,6 +148,13 @@ function ReviewByIdPage() {
     string[] | ArrayBuffer[]
   >([]);
   const MAX_IMAGENS = 5;
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   const {
     register,

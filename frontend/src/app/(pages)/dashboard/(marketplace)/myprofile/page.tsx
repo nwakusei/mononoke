@@ -345,7 +345,7 @@ const updateUserFormSchema = z
 type TUpdateUserFormData = z.infer<typeof updateUserFormSchema>;
 
 function MyProfilePage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState({});
   const [selectedProfileImage, setSelectedProfileImage] = useState<
     string | null
@@ -359,6 +359,13 @@ function MyProfilePage() {
   const router = useRouter();
 
   const [output, setOutput] = useState("");
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   const {
     register,

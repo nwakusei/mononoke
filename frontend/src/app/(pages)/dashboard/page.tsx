@@ -14,11 +14,16 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 // Icons
 
 function DashboardPage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState(null); // Inicializa como null para identificar se já foi carregado
   const [isLoading, setIsLoading] = useState(true); // Estado de loading
 
-  const router = useRouter();
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     api

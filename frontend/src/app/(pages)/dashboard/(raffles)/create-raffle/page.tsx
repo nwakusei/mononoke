@@ -223,7 +223,7 @@ const createCouponFormSchema = z.object({
 type TCreateCouponFormSchema = z.infer<typeof createCouponFormSchema>;
 
 function CreateRafflePage() {
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [partner, setPartner] = useState({});
 
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -232,6 +232,13 @@ function CreateRafflePage() {
   const [loadingButton, setLoadingButton] = useState(false);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   const {
     register,

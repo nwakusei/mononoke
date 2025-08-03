@@ -55,7 +55,7 @@ function ProductPage() {
     }));
   };
 
-  const [token] = useState(() => localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [followedStores, setFollowedStores] = useState([]);
 
   const [loadingButtonId, setLoadingButtonId] = useState(null);
@@ -69,6 +69,13 @@ function ProductPage() {
   });
 
   const [selectedVariation, setSelectedVariation] = useState(0);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   // Função para buscar a lista de lojas seguidas
   const fetchFollowedStores = useCallback(async () => {

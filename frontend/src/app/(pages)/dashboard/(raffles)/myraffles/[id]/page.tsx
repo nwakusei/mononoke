@@ -59,7 +59,7 @@ type TUpdateTrackingForm = z.infer<typeof updateTrackingForm>;
 
 function MyRafflesByID() {
   const [myraffle, setMyraffle] = useState([]);
-  const [token] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const { id } = useParams();
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +68,13 @@ function MyRafflesByID() {
 
   const [counter, setCounter] = useState(5);
   const [raffleStatus, setRaffleStatus] = useState("not_started");
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   const {
     register,
