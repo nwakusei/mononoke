@@ -14,7 +14,6 @@ import { LoadingPage } from "@/components/LoadingPageComponent";
 type Coupon = {
   partnerID: string;
   discountAmount: number;
-  // adicione outros campos se houver
 };
 
 function CashbackPage() {

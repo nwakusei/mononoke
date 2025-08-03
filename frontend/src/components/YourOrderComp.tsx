@@ -332,6 +332,18 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
     setTransportadoraInfo,
   ]);
 
+  const calculateTotalFrete = useCallback(() => {
+    let totalFrete = 0;
+
+    if (shippingInfo) {
+      Object.values(shippingInfo).forEach((info) => {
+        totalFrete += info.vlrFrete || 0;
+      });
+    }
+
+    return totalFrete;
+  }, [shippingInfo]);
+
   useEffect(() => {
     const calcularTotalPedido = () => {
       let subtotal = productsInfo.reduce(
@@ -362,19 +374,7 @@ function YourOrderComp({ productsInfo, shippingInfo }) {
     };
 
     calcularTotalPedido();
-  }, [productsInfo, shippingInfo]);
-
-  const calculateTotalFrete = useCallback(() => {
-    let totalFrete = 0;
-
-    if (shippingInfo) {
-      Object.values(shippingInfo).forEach((info) => {
-        totalFrete += info.vlrFrete || 0;
-      });
-    }
-
-    return totalFrete;
-  }, [shippingInfo]);
+  }, [productsInfo, shippingInfo, calculateTotalFrete]);
 
   useEffect(() => {
     const calcularTotalPedido = () => {
