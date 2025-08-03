@@ -74,10 +74,20 @@ function decryptData(encryptedData: string): string | null {
   }
 }
 
+interface ProductInCart {
+  productID: string;
+  productTitle: string;
+  productPrice: number;
+  productPriceTotal: number;
+  quantityThisProduct: number;
+  imageProduct?: string;
+  productVariations?: any[]; // tipa melhor se souber a estrutura
+}
+
 function CartPage() {
   const { setCart, setSubtotal, transportadoraInfo, setTransportadoraInfo } =
     useCheckout();
-  const [productsInCart, setProductsInCart] = useState([]);
+  const [productsInCart, setProductsInCart] = useState<ProductInCart[]>([]);
   const [isFreightSimulated, setIsFreightSimulated] = useState(false);
 
   useEffect(() => {

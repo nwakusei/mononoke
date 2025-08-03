@@ -85,11 +85,20 @@ function decryptData(encryptedData: string): string | null {
   }
 }
 
+interface ProductInCart {
+  productID: string;
+  productTitle: string;
+  productPrice: number;
+  productPriceTotal: number;
+  quantityThisProduct: number;
+  imageProduct?: string;
+  productVariations?: any[]; // tipa melhor se souber a estrutura
+}
+
 function PaymentPage() {
   const [token] = useState(localStorage.getItem("token") || "");
-  const { transportadoraInfo, setSubtotal, setCart, setTransportadoraInfo } =
-    useCheckout();
-  const [productsInCart, setProductsInCart] = useState([]);
+  const { transportadoraInfo, setTransportadoraInfo } = useCheckout();
+  const [productsInCart, setProductsInCart] = useState<ProductInCart[]>([]);
   const router = useRouter();
   const [visiblePaymentContent, setVisiblePaymentContent] = useState(null);
   // const [stripePromise, setStripePromise] = useState(null);
