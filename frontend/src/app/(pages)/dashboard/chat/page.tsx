@@ -68,7 +68,7 @@ function ChatPage() {
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
       }
     }
-  }, [chat?.messages]);
+  }, [chat]);
 
   const [searchName, setSearchName] = useState("");
   const [returnedChat, setReturnedChat] = useState({});
@@ -521,10 +521,13 @@ function ChatPage() {
                 {imageMessage && (
                   <>
                     <div className="flex mt-[4px] relative gap-1">
-                      <img
+                      <Image
+                        className="w-[40px] object-cover rounded-sm shadow-md"
                         src={URL.createObjectURL(imageMessage)} // Gera um URL temporário para a imagem
                         alt="Imagem Selecionada"
-                        className="w-[40px] object-cover rounded-sm shadow-md"
+                        width={40}
+                        height={40}
+                        unoptimized
                       />
                       {/* Botão de close */}
                       <button

@@ -437,16 +437,8 @@ function ProductPage() {
           <div>
             <h1 className="divider text-xl">Descrição e Detalhes do Produto</h1>
             <p>
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book. It has
-              survived not only five centuries, but also the leap into
-              electronic typesetting, remaining essentially unchanged. It was
-              popularised in the 1960s with the release of Letraset sheets
-              containing Lorem Ipsum passages, and more recently with desktop
-              publishing software like Aldus PageMaker including versions of
-              Lorem Ipsum.
+              Lorem Ipsum has been the industry&apos;s standard dummy text ever
+              since the 1500s...
             </p>
           </div>
         </div>
@@ -460,7 +452,7 @@ function ProductPage() {
             <div className="w-[230px] h-24 bg-pink-900 px-1 rounded-md">
               <Image
                 className="object-contain w-full h-full"
-                src={Amora}
+                src={``}
                 alt="Avatar"
                 unoptimized
               />
@@ -508,7 +500,7 @@ function ProductPage() {
             <div className="flex flex-row gap-2">
               <div className="avatar">
                 <div className="w-16 h-16 rounded-full">
-                  <Image src={imageProfile} alt="imageProfile" />
+                  <Image src={``} alt="imageProfile" />
                 </div>
               </div>
               <div className="flex flex-col">
@@ -538,7 +530,7 @@ function ProductPage() {
                     <div className="h-[74px] flex items-center justify-center">
                       <Image
                         className="object-contain  h-full"
-                        src={Lycoris}
+                        src={``}
                         alt="Shoes"
                       />
                     </div>
@@ -548,7 +540,7 @@ function ProductPage() {
                     <div className="h-[74px] flex items-center justify-center">
                       <Image
                         className="object-contain  h-full"
-                        src={Lycoris}
+                        src={``}
                         alt="Shoes"
                       />
                     </div>
@@ -561,7 +553,7 @@ function ProductPage() {
             <div className="flex flex-row gap-2">
               <div className="avatar">
                 <div className="w-16 h-16 rounded-full">
-                  <Image src={imageProfile} alt="imageProfile" />
+                  <Image src={``} alt="imageProfile" />
                 </div>
               </div>
               <div className="flex flex-col">
@@ -591,7 +583,7 @@ function ProductPage() {
                     <div className="h-[74px] flex items-center justify-center">
                       <Image
                         className="object-contain  h-full"
-                        src={Lycoris}
+                        src={``}
                         alt="Shoes"
                       />
                     </div>
@@ -601,7 +593,7 @@ function ProductPage() {
                     <div className="h-[74px] flex items-center justify-center">
                       <Image
                         className="object-contain  h-full"
-                        src={Lycoris}
+                        src={``}
                         alt="Shoes"
                       />
                     </div>

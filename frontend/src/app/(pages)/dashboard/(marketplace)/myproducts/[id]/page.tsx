@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
+import Image from "next/image";
 
 import api from "@/utils/api";
 
@@ -374,10 +375,13 @@ function MyProductPage() {
                     } text-black hover:text-white flex flex-col justify-center items-center w-24 h-24 border-[1px] border-dashed border-[#3e1d88] hover:bg-[#8357e5] transition-all ease-in duration-150 rounded hover:shadow-md ml-1 cursor-pointer relative`}
                   >
                     {imagemSelecionada ? (
-                      <img
+                      <Image
+                        className="object-contain w-full h-full rounded-sm"
                         src={imagemSelecionada}
                         alt="Imagem selecionada"
-                        className="object-contain w-full h-full rounded-sm"
+                        width={48}
+                        height={48}
+                        unoptimized
                       />
                     ) : (
                       <div

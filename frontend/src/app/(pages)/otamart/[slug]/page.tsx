@@ -1,7 +1,7 @@
 "use client";
 
 // Imports Essenciais
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -69,6 +69,27 @@ function ProductPage() {
   });
 
   const [selectedVariation, setSelectedVariation] = useState(0);
+
+  // Função para buscar a lista de lojas seguidas
+  const fetchFollowedStores = useCallback(async () => {
+    if (!token) return;
+
+    try {
+      const response = await api.get("/mononoke/check-user", {
+        headers: {
+          Authorization: `Bearer ${JSON.parse(token)}`,
+        },
+      });
+      setFollowedStores(response.data.followingStores);
+    } catch (error) {
+      console.error("Erro ao buscar lojas seguidas:", error);
+    }
+  }, [token]);
+
+  // Chama a função para buscar as lojas seguidas quando o componente é montado
+  useEffect(() => {
+    fetchFollowedStores();
+  }, [fetchFollowedStores]);
 
   useEffect(() => {
     if (!slug) return;
@@ -138,11 +159,6 @@ function ProductPage() {
     fetchData();
   }, [slug, token]); // A dependência de `token` garante que a lógica seja reavaliada se o token mudar
 
-  // Chama a função para buscar as lojas seguidas quando o componente é montado
-  useEffect(() => {
-    fetchFollowedStores();
-  }, [token]);
-
   // Função para alterar a imagem ao clicar em uma miniatura
   const handleThumbnailClick = (index) => {
     setSelectedImage({ type: "carousel", index });
@@ -157,22 +173,6 @@ function ProductPage() {
 
     // Atualiza o estado com a variação completa
     setSelectedVariation(selectedVariation); // Agora armazena a variação completa
-  };
-
-  // Função para buscar a lista de lojas seguidas
-  const fetchFollowedStores = async () => {
-    if (!token) return;
-
-    try {
-      const response = await api.get("/mononoke/check-user", {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(token)}`,
-        },
-      });
-      setFollowedStores(response.data.followingStores);
-    } catch (error) {
-      console.error("Erro ao buscar lojas seguidas:", error);
-    }
   };
 
   const { partners } = useContext(Context);
