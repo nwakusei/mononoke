@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-toastify";
 
+import { useCheckout } from "@/hooks/useCheckout";
+
 // Axios
 import api from "@/utils/api";
 
@@ -74,7 +76,7 @@ function decryptData(encryptedData: string): string | null {
 
 function CartPage() {
   const { setCart, setSubtotal, transportadoraInfo, setTransportadoraInfo } =
-    useContext(CheckoutContext);
+    useCheckout();
   const [productsInCart, setProductsInCart] = useState([]);
   const [isFreightSimulated, setIsFreightSimulated] = useState(false);
 

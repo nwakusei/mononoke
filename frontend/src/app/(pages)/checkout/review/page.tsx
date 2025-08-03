@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 import api from "@/utils/api";
+
+import { useCheckout } from "@/hooks/useCheckout";
 
 // imagens estáticas
 import Lycoris from "../../../../../public/lycoris.jpg";
@@ -77,8 +79,7 @@ function decryptData(encryptedData: string): string | null {
 }
 
 function ReviewInfoPage() {
-  const { transportadoraInfo, setTransportadoraInfo } =
-    useContext(CheckoutContext);
+  const { transportadoraInfo, setTransportadoraInfo } = useCheckout();
   const [productsInCart, setProductsInCart] = useState([]);
   const [token] = useState(localStorage.getItem("token") || "");
   const [user, setUser] = useState({});

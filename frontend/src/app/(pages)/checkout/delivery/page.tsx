@@ -6,6 +6,8 @@ import Image from "next/image";
 
 import api from "@/utils/api";
 
+import { useCheckout } from "@/hooks/useCheckout";
+
 // imagens estáticas
 
 // Context
@@ -72,8 +74,7 @@ function decryptData(encryptedData: string): string | null {
 }
 
 function DeliveryPage() {
-  const { transportadoraInfo, setTransportadoraInfo } =
-    useContext(CheckoutContext);
+  const { transportadoraInfo, setTransportadoraInfo } = useCheckout();
   const [productsInCart, setProductsInCart] = useState([]);
   const [token] = useState(localStorage.getItem("token") || "");
   const [user, setUser] = useState({});

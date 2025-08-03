@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 
 import QRCode from "qrcode"; // Importe a biblioteca QRCode
 
+import { useCheckout } from "@/hooks/useCheckout";
+
 // Stripe Features
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
@@ -86,7 +88,7 @@ function decryptData(encryptedData: string): string | null {
 function PaymentPage() {
   const [token] = useState(localStorage.getItem("token") || "");
   const { transportadoraInfo, setSubtotal, setCart, setTransportadoraInfo } =
-    useContext(CheckoutContext);
+    useCheckout();
   const [productsInCart, setProductsInCart] = useState([]);
   const router = useRouter();
   const [visiblePaymentContent, setVisiblePaymentContent] = useState(null);
