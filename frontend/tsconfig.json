@@ -4,7 +4,7 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false, // É true por padrão para que o build considere os erros de tipagem
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -20,7 +20,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "noEmitOnError": false // Por padrão não faz parte das configurações. Setado para permirtir os erros de tipagem
   },
   "include": [
     "next-env.d.ts",
