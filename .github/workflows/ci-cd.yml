@@ -92,9 +92,6 @@ on:
 jobs:
   build-backend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -104,28 +101,22 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         run: npm install
+        working-directory: ./backend
 
       - name: Build backend
         run: npm run build
+        working-directory: ./backend
 
-      - name: Prepare backend artifact
+      - name: Copy backend files to output
         run: |
-          mkdir -p artifact
-          cp -r dist Dockerfile package*.json artifact/
-
-      - name: Upload backend artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-artifact
-          path: backend/artifact
+          mkdir -p output/backend
+          cp -r backend/dist output/backend/
+          cp backend/Dockerfile backend/package*.json output/backend/
 
   build-frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -135,42 +126,29 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         run: npm install
+        working-directory: ./frontend
 
       - name: Build frontend
         run: npm run build
+        working-directory: ./frontend
 
-      - name: Prepare frontend artifact
+      - name: Copy frontend files to output
         run: |
-          mkdir -p artifact
-          cp -r .next public next.config.js package*.json Dockerfile artifact/
-
-      - name: Upload frontend artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-artifact
-          path: frontend/artifact
+          mkdir -p output/frontend
+          cp -r frontend/.next frontend/public frontend/package*.json frontend/next.config.js frontend/Dockerfile output/frontend/
 
   build-nginx:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./nginx
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Prepare nginx artifact
+      - name: Copy nginx files to output
         run: |
-          mkdir -p artifact
-          cp -r conf.d certs Dockerfile artifact/
-
-      - name: Upload nginx artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: nginx-artifact
-          path: nginx/artifact
+          mkdir -p output/nginx
+          cp -r nginx/conf.d nginx/certs nginx/Dockerfile output/nginx/
 
   package-project:
     runs-on: ubuntu-latest
@@ -179,31 +157,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Download backend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-artifact
-          path: output/backend
+      - name: Copy docker-compose.yml to output
+        run: |
+          mkdir -p output
+          cp docker-compose.yml output/
 
-      - name: Download frontend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-artifact
-          path: output/frontend
+      - name: Create final tar.gz package
+        run: |
+          tar -czf mononoke-full-package.tar.gz -C output .
 
-      - name: Download nginx artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nginx-artifact
-          path: output/nginx
-
-      - name: Copy docker-compose.yml
-        run: cp docker-compose.yml output/
-
-      - name: Create final tarball
-        run: tar -czf mononoke-full-package.tar.gz -C output .
-
-      - name: Upload final tarball
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: mononoke-full-package
