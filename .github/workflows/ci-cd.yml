@@ -99,23 +99,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js for backend
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: npm install
 
       - name: Build backend
         run: npm run build
 
-      - name: Copy backend build to shared output folder
+      - name: Prepare backend artifact
         run: |
-          mkdir -p ../output/backend
-          cp -r dist ../output/backend/
-          # Se tiver Dockerfile na raiz do backend
-          cp Dockerfile ../output/backend/ || true
+          mkdir -p ../backend-artifact
+          cp -r dist Dockerfile package*.json ../backend-artifact/
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-artifact
+          path: ../backend-artifact
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -126,21 +130,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js for frontend
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install frontend dependencies
+      - name: Install dependencies
         run: npm install
 
       - name: Build frontend
         run: npm run build
 
-      - name: Copy frontend build to shared output folder
+      - name: Prepare frontend artifact
         run: |
-          mkdir -p ../output/frontend
-          cp -r .next public package.json next.config.js Dockerfile ../output/frontend/ || true
+          mkdir -p ../frontend-artifact
+          cp -r .next public next.config.js package*.json Dockerfile ../frontend-artifact/
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-artifact
+          path: ../frontend-artifact
 
   build-nginx:
     runs-on: ubuntu-latest
@@ -151,35 +161,49 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Copy nginx config to shared output folder
+      - name: Prepare nginx artifact
         run: |
-          mkdir -p ../output/nginx
-          cp -r conf.d certs Dockerfile ../output/nginx/
+          mkdir -p ../nginx-artifact
+          cp -r conf.d certs Dockerfile ../nginx-artifact/
+
+      - name: Upload nginx artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nginx-artifact
+          path: ../nginx-artifact
 
   package-project:
-    needs: [build-backend, build-frontend, build-nginx]
     runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend, build-nginx]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Prepare output folder and copy docker-compose.yml
-        run: |
-          mkdir -p output
-          cp docker-compose.yml output/
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-artifact
+          path: output/backend
 
-      - name: Copy build artifacts from previous jobs
-        run: |
-          # Copy all build outputs into output folder
-          cp -r backend output/backend
-          cp -r frontend output/frontend
-          cp -r nginx output/nginx
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-artifact
+          path: output/frontend
 
-      - name: Create final package archive
-        run: |
-          tar -czf mononoke-full-package.tar.gz -C output .
+      - name: Download nginx artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nginx-artifact
+          path: output/nginx
 
-      - name: Upload final project package
+      - name: Copy docker-compose.yml
+        run: cp docker-compose.yml output/
+
+      - name: Create project tarball
+        run: tar -czf mononoke-full-package.tar.gz -C output .
+
+      - name: Upload final tarball
         uses: actions/upload-artifact@v4
         with:
           name: mononoke-full-package
