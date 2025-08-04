@@ -24,38 +24,56 @@
 
 # # -------------------------------------------------------------
 
-# # Dockerfile para produção de frontend com Next.js
-# Etapa 1: build
-FROM node:22.12.0 AS builder
+# # # Dockerfile para produção de frontend com Next.js
+# # Etapa 1: build
+# FROM node:22.12.0 AS builder
+
+# WORKDIR /app
+
+# # Copia dependências
+# COPY package*.json ./
+# RUN npm install
+
+# # Copia o restante dos arquivos
+# COPY . .
+
+# # Compila para produção
+# RUN npm run build
+
+# # Etapa 2: produção
+# FROM node:22.12.0 AS production
+
+# WORKDIR /app
+
+# # Apenas dependências de produção
+# COPY package*.json ./
+# RUN npm install --omit=dev
+
+# # Copia arquivos da build
+# COPY --from=builder /app/.next .next
+# COPY --from=builder /app/public ./public
+# COPY --from=builder /app/next.config.js ./
+# COPY --from=builder /app/package.json ./
+# COPY --from=builder /app/node_modules ./node_modules
+
+# EXPOSE 3000
+
+# CMD ["npm", "start"]
+
+# # -------------------------------------------------------------
+# # Docker file para a produção sem npm install e build
+FROM node:22.12.0
 
 WORKDIR /app
 
-# Copia dependências
-COPY package*.json ./
-RUN npm install
-
-# Copia o restante dos arquivos
-COPY . .
-
-# Compila para produção
-RUN npm run build
-
-# Etapa 2: produção
-FROM node:22.12.0 AS production
-
-WORKDIR /app
-
-# Apenas dependências de produção
 COPY package*.json ./
 RUN npm install --omit=dev
 
-# Copia arquivos da build
-COPY --from=builder /app/.next .next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
+COPY .next .next
+COPY public public
+COPY next.config.js ./
 
 EXPOSE 3000
-
 CMD ["npm", "start"]
+
+

@@ -199,7 +199,7 @@ function ShippingConfigPage() {
 
   // Função para adicionar ou remover operador
   const handleAddOperator = (operator) => {
-    setSelectedOperators((prev) => {
+    setSelectedOperators((prev = []) => {
       const exists = prev.some((o) => o.shippingOperator === operator);
       if (exists) {
         return prev.filter((o) => o.shippingOperator !== operator);
@@ -211,7 +211,7 @@ function ShippingConfigPage() {
 
   // Função para adicionar ou remover modalidade de um operador
   const handleModalityChange = (operator, modality) => {
-    setSelectedOperators((prev) =>
+    setSelectedOperators((prev = []) =>
       prev.map((o) =>
         o.shippingOperator === operator
           ? {

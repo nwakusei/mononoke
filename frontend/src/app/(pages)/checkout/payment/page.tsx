@@ -431,7 +431,7 @@ function PaymentPage() {
     let cepDestino = null;
 
     // 🔹 Filtrar produtos elegíveis para cálculo de frete
-    const eligibleProducts = productsInCart.filter(
+    const eligibleProducts = (productsInCart ?? []).filter(
       (product) => product.cepDestino && product.cepDestino.trim() !== ""
     );
 

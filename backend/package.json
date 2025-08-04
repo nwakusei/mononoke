@@ -6,7 +6,7 @@
   "engines": {
     "node": ">= 18.20.4"
   },
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "nodemon -e ts -w ./ -x yarn start:server",
     "start:server": "tsx ./server.ts localhost 5000",

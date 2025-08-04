@@ -74,6 +74,8 @@ services:
     container_name: backend_container
     environment:
       - NODE_ENV=production
+    env_file:
+      - ./backend/.env
     ports:
       - "5000:5000"
     networks:
@@ -88,6 +90,9 @@ services:
     container_name: frontend_container
     environment:
       - NODE_ENV=production
+    env_file:
+      - ./frontend/.env
+
     ports:
       - "3000:3000"
     networks:
