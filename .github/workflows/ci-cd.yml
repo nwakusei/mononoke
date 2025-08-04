@@ -112,14 +112,14 @@ jobs:
 
       - name: Prepare backend artifact
         run: |
-          mkdir -p ../backend-artifact
-          cp -r dist Dockerfile package*.json ../backend-artifact/
+          mkdir -p artifact
+          cp -r dist Dockerfile package*.json artifact/
 
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend-artifact
-          path: ../backend-artifact
+          path: backend/artifact
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -143,14 +143,14 @@ jobs:
 
       - name: Prepare frontend artifact
         run: |
-          mkdir -p ../frontend-artifact
-          cp -r .next public next.config.js package*.json Dockerfile ../frontend-artifact/
+          mkdir -p artifact
+          cp -r .next public next.config.js package*.json Dockerfile artifact/
 
       - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
           name: frontend-artifact
-          path: ../frontend-artifact
+          path: frontend/artifact
 
   build-nginx:
     runs-on: ubuntu-latest
@@ -163,14 +163,14 @@ jobs:
 
       - name: Prepare nginx artifact
         run: |
-          mkdir -p ../nginx-artifact
-          cp -r conf.d certs Dockerfile ../nginx-artifact/
+          mkdir -p artifact
+          cp -r conf.d certs Dockerfile artifact/
 
       - name: Upload nginx artifact
         uses: actions/upload-artifact@v4
         with:
           name: nginx-artifact
-          path: ../nginx-artifact
+          path: nginx/artifact
 
   package-project:
     runs-on: ubuntu-latest
@@ -200,7 +200,7 @@ jobs:
       - name: Copy docker-compose.yml
         run: cp docker-compose.yml output/
 
-      - name: Create project tarball
+      - name: Create final tarball
         run: tar -czf mononoke-full-package.tar.gz -C output .
 
       - name: Upload final tarball
