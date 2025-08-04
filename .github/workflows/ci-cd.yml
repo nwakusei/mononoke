@@ -90,8 +90,9 @@ on:
       - main
 
 jobs:
-  build-backend:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -101,72 +102,35 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install backend dependencies
-        run: npm install
-        working-directory: ./backend
-
-      - name: Build backend
-        run: npm run build
-        working-directory: ./backend
-
-      - name: Copy backend files to output
+      - name: Build Backend
         run: |
-          mkdir -p output/backend
-          cp -r backend/dist output/backend/
-          cp backend/Dockerfile backend/package*.json output/backend/
+          cd backend
+          npm install
+          npm run build
+          mkdir -p ../output/backend
+          cp -r dist package.json package-lock.json Dockerfile ../output/backend/
 
-  build-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install frontend dependencies
-        run: npm install
-        working-directory: ./frontend
-
-      - name: Build frontend
-        run: npm run build
-        working-directory: ./frontend
-
-      - name: Copy frontend files to output
+      - name: Build Frontend
         run: |
-          mkdir -p output/frontend
-          cp -r frontend/.next frontend/public frontend/package*.json frontend/next.config.js frontend/Dockerfile output/frontend/
+          cd frontend
+          npm install
+          npm run build
+          mkdir -p ../output/frontend
+          cp -r .next public package.json next.config.js Dockerfile ../output/frontend/
 
-  build-nginx:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Copy nginx files to output
+      - name: Copy NGINX
         run: |
           mkdir -p output/nginx
           cp -r nginx/conf.d nginx/certs nginx/Dockerfile output/nginx/
 
-  package-project:
-    runs-on: ubuntu-latest
-    needs: [build-backend, build-frontend, build-nginx]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Copy docker-compose.yml
+        run: cp docker-compose.yml output/
 
-      - name: Copy docker-compose.yml to output
-        run: |
-          mkdir -p output
-          cp docker-compose.yml output/
-
-      - name: Create final tar.gz package
+      - name: Package everything into .tar.gz
         run: |
           tar -czf mononoke-full-package.tar.gz -C output .
 
-      - name: Upload artifact
+      - name: Upload final artifact
         uses: actions/upload-artifact@v4
         with:
           name: mononoke-full-package
