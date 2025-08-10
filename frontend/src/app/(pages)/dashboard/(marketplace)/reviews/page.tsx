@@ -91,7 +91,7 @@ function ReviewsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders
+                    {(Array.isArray(orders) ? orders : [])
                       .filter((order) => order.statusOrder === "Delivered")
                       .map((order) => (
                         <tr key={order._id}>

@@ -546,8 +546,12 @@ function ProductPage() {
               ) : product?.productVariations?.length > 0 ? (
                 // Renderizar a lógica existente das variações quando nenhuma variação é selecionada
                 <div>
-                  {product.productVariations.map((variation, index) => {
-                    const prices = variation.options.map((option) => ({
+                  {(product.productVariations ?? []).map((variation, index) => {
+                    const options = Array.isArray(variation.options)
+                      ? variation.options
+                      : [];
+
+                    const prices = options.map((option) => ({
                       original: option.originalPrice,
                       promo: option.promotionalPrice,
                     }));
@@ -555,6 +559,7 @@ function ProductPage() {
                     const promotionalPrices = prices
                       .filter((p) => p.promo > 0)
                       .map((p) => p.promo);
+
                     const originalPricesWithPromo = prices
                       .filter((p) => p.promo > 0)
                       .map((p) => p.original);
